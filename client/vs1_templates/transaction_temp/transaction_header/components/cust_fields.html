@@ -1,0 +1,79 @@
+
+<template name="cust_fields">
+  {{#let custid = custid}}
+    {{#each custfields}}
+        {{#let index = @index}}
+        <div class="col-12 col-md-6 col-lg-4 col-xl-2 {{#unless equals this.active true}}d-none{{/unless}}">
+        <div class="form-group">
+            <div class="{{#if equals index 0}}one{{/if}} {{#if equals index 1}}two{{/if}} {{#if equals index 2}}three{{/if}} box checkbox{{getIndex index}}div">
+            {{#if equals this.displayType 'Text'}}
+                {{>default_input classes="form-control form-control" label=this.custfieldlabel labelClass="lblCustomField" name="edtSaleCustField" id="edtSaleCustField" type='text' custid=this.fieldIndex}}
+            {{else if equals this.displayType 'Date'}}
+                {{>single_date_picker classes="form-control form-control custfieldDate hasDatepicker" label=this.custfieldlabel labelClass="lblCustomField" name="edtSaleCustField" id="edtSaleCustField" custid=this.fieldIndex}}
+            {{else}}
+                {{>vs1___dropdown 
+                  labelClass="lblCustomField"
+                  label=this.custfieldlabel 
+                  classes='form-control'  
+                  type='search'
+                  id='edtSaleCustField'
+                  name='sltCustfield'
+                  modalId= 'custfieldListModal'
+                  list_template_name='custfielddroppop'
+                  modal_title='Custom Field Dropdown List'
+                  colNameForValue = 'colFieldName'
+                  is_editable=false
+                  custid= this.fieldIndex
+                  sn=custString
+                  custid2 = this.id
+              }}
+            {{/if}}
+            </div>
+        </div>
+        </div>
+        {{/let}}
+    {{/each}}
+    {{/let}}
+    <!-- {{#each customfields}}
+        {{#let index = @index}}
+        <div class="col-12 col-md-6 col-lg-4 col-xl-2 {{#unless equals this.active true}}d-none{{/unless}}">
+        <div class="form-group">
+            <div class="{{#if equals index 0}}one{{/if}} {{#if equals index 1}}two{{/if}} {{#if equals index 2}}three{{/if}} box checkbox{{getIndex index}}div"
+                style="{{#if salesCloudPreferenceRec}}{{#if equals salesCloudPreferenceRec.customFields.[index].hidden false}}display:block{{else}}display:none{{/if}}{{else}}display:none{{/if}}">
+            <div class="form-group">
+                <label class="lblCustomField1">{{custfields.[index].custfieldlabel}}</label>
+                <input class="form-control form-control" type="text" id="edtSaleCustField{{getIndex index}}"
+                name="edtSaleCustField{{getIndex index}}" value="{{data.["saleCustField"{{getIndex index}}]}}" custfieldid=''>
+            </div>
+            </div>
+        </div>
+        </div>
+        {{/let}}
+    {{/each}} -->
+  
+    <!-- <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+      <div class="form-group">
+        <div class="two box checkbox2div"
+          style="{{#if salesCloudPreferenceRec}}{{#if equals salesCloudPreferenceRec.customFields.[1].hidden false}}display:block{{else}}display:none{{/if}}{{else}}display:none{{/if}}">
+          <div class="form-group">
+            <label class="lblCustomField2">{{custfields.[1].custfieldlabel}}<br></label>
+            <input class="form-control form-control" type="text" id="edtSaleCustField2"
+              name="edtSaleCustField2" value="{{data.saleCustField2}}" custfieldid=''>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+      <div class="form-group">
+        <div class="two box checkbox3div"
+          style="{{#if salesCloudPreferenceRec}}{{#if equals salesCloudPreferenceRec.customFields.[2].hidden false}}display:block{{else}}display:none{{/if}}{{else}}display:none{{/if}}">
+          <div class="form-group">
+            <label class="lblCustomField3">{{custfields.[2].custfieldlabel}}<br></label>
+            <input class="form-control form-control" type="text" id="edtSaleCustField3"
+              name="edtSaleCustField3" value="{{data.saleCustField3}}" custfieldid=''>
+          </div>
+        </div>
+      </div>
+    </div> -->
+  </template>

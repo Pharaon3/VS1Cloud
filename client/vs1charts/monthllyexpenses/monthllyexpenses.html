@@ -1,0 +1,45 @@
+<template name="monthllyexpenses">
+    <style type="text/css">
+        .hideelement {
+            display: none !important;
+        }
+
+        .showelement {
+            display: block;
+        }
+        .sortableMonthlyExpense {
+            width: 75%;
+
+        }
+
+        .sortableMonthlyExpense .monthly-expense-widget {
+            /* max-width: 100% !important;  */
+            /* width: 1145px;  */
+            min-width: 275px !important;
+            max-width: 100% !important;
+        }
+
+
+        @media screen and (max-width: 1306px) {
+            .sortableMonthlyExpense {
+                width: 100%;
+
+            }
+        }
+    </style>
+    {{# draggablePanel
+        xs=xs sm=sm md=md lg=lg xl=xl
+        defaultPosition=defaultPosition
+        key=key
+        hLenght=100
+        id="sortableMonthlyExpense"
+        headerClass=""
+        headerColor="primary"
+        headerTitle="Monthly Expenses"
+        hrefDetails="/agedpayables"
+        editModalID="editDashboardModal"
+    }}
+    <canvas class="chart-canvas d-none" id="myMonthlyExpensesChart" name="myMonthlyExpensesChart"></canvas>
+    <img class="chart-img w-100 h-100" src="img/charts/monthly-expenses-marked.png"/>
+    {{/draggablePanel}}
+</template>

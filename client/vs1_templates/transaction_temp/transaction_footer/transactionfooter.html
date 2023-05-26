@@ -1,0 +1,215 @@
+<template name="transactionfooter">
+    <div class="card-body d-flex align-items-center transactionfooter" style="margin-top: -20px; gap: 15px">
+        <div style="flex: 1; padding-right: 24px;">
+            <div>
+                <div class="row" style="position: relative;">
+                    <style>
+                        .transactionfooter .footer-field {
+                            flex: 1;
+                            padding-left: 0.75rem;
+                            padding-right: 0.75rem
+                        }
+                    </style>
+                    {{#each field in footerFields}}
+                        <div class="footer-field">
+                            {{>vs1_textarea 
+                                label = field.label
+                                id = field.id
+                                name = field.name
+                                row = field.row
+                            }}
+                        </div>
+                    {{/each}}
+                    <div style="position: absolute; right: 15px">
+                        {{>toggle_button className='toggleShowFx' id='toggleShowFx' width="100%" for="toggleShowFx" displayName="Show Fx" labelclass='position-relative' isChecked=showFx}}
+                    </div>
+                    <div style="position: absolute; right: 150px">
+                        {{>toggle_button className='toggleShowDelivery' id='toggleShowDelivery' width="100%" for="toggleShowDelivery" displayName="Show Delivery" labelclass='position-relative'}}
+                    </div>
+
+                </div>
+                <!-- <div class="row align-items-center justify-content-center">
+                    {{#each button in footerbuttons}}
+                        {{>vs1_button
+                            color= button.color
+                            classes= button.classes
+                            type='button'
+                            iconName= button.iconName
+                            title= button.title
+                        }}
+                    {{/each}}
+                </div> -->
+            </div>
+            <div class="custom-control custom-switch" style="left:20%">
+                <input class="custom-control-input toggleManifest" id="toggleManifest" type="checkbox"
+                    style="cursor: pointer;">
+                <label class="custom-control-label position-relative" style="width:100%; cursor: pointer;"
+                    for="toggleManifest">Manifest</label>
+            </div>
+        </div>
+        <style>
+            .fx_detail, .delivery-panel {
+                align-self: stretch;
+                padding: 16px;
+                background-color: lightcyan;
+                border-radius: 10px;
+                min-width: 200px;
+            }
+            .fx_detail>div,  .delivery-panel>div{
+                height: 100%;
+                font-size: 16px;
+                font-weight: 500;
+            }
+
+            .fx_detail span, .fx_detail i, .delivery-panel span, .delivery-panel i {
+                font-size: 16px;
+                font-weight: 800;
+            }
+
+            .fx_detail div {
+                width: 100%;
+            }
+
+            .fx-price-detail, .delivery-detail {
+                padding-top: 16px;
+                padding-bottom: 16px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                border-bottom: 2px solid #696969;
+                border-top: 2px solid #696969
+            }
+
+            .delivery-footer {
+                padding-top: 16px;
+                padding-bottom: 16px;
+                gap: 16px
+            }
+        </style>
+        <div class="d-flex align-items-stretch">
+            
+            
+            
+        {{#each item in recordLineItems}}
+            {{#if equals item.lineID selectedLineId}}
+            
+            {{#if showDelivery}}
+                {{#unless equals item.item ''}}
+                <div class="delivery-panel" style="margin-right: 20px;">
+                    <div class="d-flex flex-column align-items-center justify-content-between">
+                        <p class="shipping-total-title" style="font-size: 20px; font-weight: 800;">{{item.item}}</p>
+                        <div class="w-100 d-flex flex-column align-items-stretch">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span>Edit Delivery</span>
+                                <i class="fas fa-plus-square text-success btnShippingTotals"  style="font-size: 22px; cursor: pointer;"></i>
+                            </div>
+
+                        </div>
+                        <div class="delivery-detail align-self-stretch">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span>Net Weight: </span>
+                                <div>
+                                    <span>{{getValue item.weight item.quantity}}</span>
+                                    <span>{{item.weightUnit}}</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span>Volume: </span>
+                                <div>
+                                    <span>{{getValue item.volume item.quantity}}</span>
+                                    <span>{{item.volumeUnit}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="delivery-footer d-flex flex-column align-self-stretch">
+                            <div class="total-weight d-flex  justify-content-between align-items-center">
+                                <span>Total Weight: </span>
+                                <div>
+                                    <span>{{totalWeight}}</span>
+                                    <span>kg</span></div>
+                                </div>
+                            <div class="total-volume d-flex justify-content-between align-items-center">
+                                <span>Total Volume: </span>
+                                <div>
+                                    <span>{{totalVolume}}</span>
+                                    <span>m3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{/unless}}
+            {{/if}}
+            {{#if fxEnabled}}
+            {{#if showFx}}
+            {{#unless equals item.item ''}}
+            <div class="fx_detail">
+                <div class="d-flex flex-column align-items-center justify-content-between">
+                    <p class="fx_detail_productname" style="font-size: 20px; font-weight: 800;">{{item.item}}</p>
+                    <div>
+                            <div class="d-flex align-items-center justify-content-between" line-id="{{item.lineID}}">
+                            <span>Fixed Asset</span>
+                                <i class="fas fa-plus-square text-success btnFixedAsset"  style="font-size: 22px; cursor: pointer;"></i>
+                        </div>
+                        {{#if equals item.serialnumbers ""}}
+                            <div class="d-flex align-items-center justify-content-between" line-id="{{item.lineID}}">
+                            <span>Serial/Lot Numbers</span>
+                                <i class="fas fa-plus-square text-success btnSnLotmodal" style="font-size: 22px; cursor: pointer;"></i>
+                        </div>
+                        {{else if equals item.lotnumbers ""}}
+                            <div class="d-flex align-items-center justify-content-between" line-id="{{item.lineID}}">
+                            <span>Serial/Lot Numbers</span>
+                                <i class="fas fa-plus-square text-success btnSnLotmodal" style="font-size: 22px; cursor: pointer;"></i>
+                        </div>
+                        {{/if}}
+                    </div>
+                    <div class="fx-price-detail">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span>FX Cost</span>
+                            <span>{{convertToForeignAmount item.lineCost}}</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span>FX Unit Price</span>
+                            <span>{{convertToForeignAmount item.unitPrice}}</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span>FX Amount</span>
+                            <span>{{convertToForeignAmount item.TotalAmt}}</span>
+                        </div>
+                    </div>
+                    <div class="fx-footer d-flex align-items-center justify-content-between">
+                        <span>FX Total</span>
+                        <span>{{convertToForeignAmount item.TotalAmt}}</span>
+                    </div>
+                </div>
+            </div>
+            {{/unless}}
+            {{/if}}
+            {{/if}}
+            
+            {{/if}}
+        {{/each}}
+            
+            
+        </div>
+        {{#if equals calculation false}}
+        {{else}}
+        {{> transaction_calculation
+            isPartialPaid=isPartialPaid
+            SubTotal=SubTotal
+            TotalTax=TotalTax
+            NetTotal=NetTotal
+            TotalDiscount=TotalDiscount
+            Total=Total
+            TotalPaid=TotalPaid
+            BalanceDue=BalanceDue
+        }}
+        {{/if}}
+    </div>
+    <div class="d-flex align-items-center justify-content-center">
+        {{>transaction_footer  AttachmentCount=AttachmentCount TransactionType=TransactionType custid='fromtransactionfooter'}}
+    </div>
+    <div class="modal fade addDeliveryModal"  id="addDeliveryModal">
+        {{>adddeliverypop}}
+    </div>
+</template>

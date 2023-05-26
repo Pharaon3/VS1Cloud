@@ -1,0 +1,84 @@
+<template name="deliveryoverview">
+  <style>
+    .dimmedChart > div {
+      background-color: #dddfeb !important;
+    }
+
+    .hideelement {
+      display: none !important;
+    }
+
+    .showelement {
+      display: block;
+    }
+
+    .card.hovered {
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
+      cursor: move;
+      transition-duration: 300ms;
+    }
+    @media screen and (max-width: 450px) {
+      .btnNav {
+        width: 90% !important;
+        margin: 14px 0px !important;
+      }
+      .btnNavMore {
+        margin: 14px 0px !important;
+      }
+    }
+    .flex {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .childFlexLeft div {
+      display: flex;
+      justify-content: left;
+      align-items: center;
+      margin: 5px;
+    }
+    .childFlexLeft div * {
+      margin: 5px;
+    }
+    .price {
+        color: blue;
+        font-size: 18px;
+    }
+    .priceHeader {
+        font-size: 14px;
+    }
+    .margin20 {
+        margin: 20px;
+    }
+    .padding10 {
+        padding: 10px;
+    }
+    .dividebar{
+        width: 100%;
+        height: 1px;
+        background-color: #ddd;
+        margin: 5px;
+
+    }
+  </style>
+  <div class="container-fluid">
+    <div class="fullScreenSpin" style="display: none">
+      <div class="spinner"></div>
+    </div>
+    <header class="row">
+      <div class="col-12 col-md-4">
+        <header class="pt-2 pb-3 d-flex">
+          <h2 class="mr-1">Operating Cost Report {{> helpbutton}}</h2>
+        </header>
+      </div>
+      <div class="col-12 col-md-4 divLogged">{{> loggedcompanyoverview}}</div>
+      <div class="col-12 col-md-4">{{> datesforcardchart}}</div>
+    </header>
+    {{> editCardChartButtons}}
+    <!-- Fix 2022/12/21 -->
+    {{> dashboardCardCharts tabGroupID="1" chartGroup="Delivery" currentTemplate="Delivery_Overview" isShowCharts=isShowCharts}}
+  </div>
+  <script>
+    modalDraggable();
+  </script>
+</template>

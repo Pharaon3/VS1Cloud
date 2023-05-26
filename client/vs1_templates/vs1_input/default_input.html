@@ -1,0 +1,26 @@
+<!-- Text Input -->
+<!-- Params
+  label
+  classes
+  type
+  id
+  name
+  defaultValue
+-->
+<template name="default_input">
+  <div class="form-group {{#unless isjobelement}} {{#if divClass}} {{divClass}} {{/if}} {{else}} {{#if jobdivClass}} {{jobdivClass}} {{/if}} {{/unless}}">
+  {{#if label}}
+    <label class="{{#if labelClass}}{{labelClass}}{{#if custid}}{{custid}}{{/if}}{{/if}}">{{label}}</label>
+  {{/if}}
+    {{#if placeholder }}
+    <input class="form-control {{classes}}" type="{{type}}" id="{{id}}{{#if custid}}_{{custid}}{{/if}}" name="{{name}}" readonly="{{readonly}}"
+      value="{{defaultValue}}" placeholder="{{placeholder}}" style="cursor: pointer;" size="{{size}}">
+    {{else if equals type "search" }}
+    <input class="form-control {{classes}}" type="{{type}}" id="{{id}}{{#if custid}}_{{custid}}{{/if}}" name="{{name}}" readonly="{{readonly}}"
+      value="{{defaultValue}}" style="cursor: pointer;">
+    {{else}}
+    <input class="form-control {{classes}}" type="{{type}}" id="{{#unless isjobelement}}{{id}}{{else}} job{{id}}{{/unless}}{{#if custid}}_{{custid}}{{/if}}" name="{{#unless isjobelement}} {{name}} {{else}} job{{name}} {{/unless}}" readonly="{{readonly}}"
+      value="{{defaultValue}}" size="{{size}}">
+    {{/if}}
+  </div>
+</template>

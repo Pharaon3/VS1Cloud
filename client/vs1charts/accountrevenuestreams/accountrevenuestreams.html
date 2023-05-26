@@ -1,0 +1,26 @@
+<template name="accountrevenuestreams">
+    <style type="text/css">
+        .hideelement {
+            display: none !important;
+        }
+
+        .showelement {
+            display: block;
+        }
+    </style>
+    {{# draggablePanel
+        xs=xs sm=sm md=md lg=lg xl=xl
+        defaultPosition=defaultPosition
+        key=key
+        hLenght=100
+        id="accountrevenuestreams"
+        headerClass=""
+        headerColor="primary"
+        headerTitle="Revenue Streams"
+        hrefDetails="/newprofitandloss"
+        editModalID="editDashboardModal"
+    }}
+        <canvas class="chart-canvas d-none" id="revenuestreamschart" name="revenuestreamschart"></canvas>
+        <img class="chart-img w-100 h-100" src="img/charts/revenue-streams-marked.png"/>
+    {{/draggablePanel}}
+</template>

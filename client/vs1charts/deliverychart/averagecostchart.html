@@ -1,0 +1,35 @@
+<template name="averagecostchart">
+
+  {{# draggablePanel
+      xs=xs sm=sm md=md lg=lg xl=xl
+      defaultPosition=defaultPosition
+      key=key
+      hLenght=100
+      id="averagecostchart"
+      headerClass=""
+      headerColor="primary"
+      headerTitle="Average Cost Chart"
+      hrefDetails="/deliveryoverview"
+      editModalID="editDashboardModal"
+  }}
+      <canvas class="chart-canvas d-none" id="chart_averagecostchart" name="chart_averagecostchart"></canvas>
+      <img class="chart-img w-100 h-100" src="img/charts/all-leads-by-source-marked.png"/>
+  {{/draggablePanel}}
+
+  {{# draggablePanel
+      xs=xs sm=sm md=md lg=lg xl=xl
+      defaultPosition=defaultPosition
+      key=key
+      hLenght=100
+      id="averagecostchartbar"
+      headerClass=""
+      headerColor="primary"
+      headerTitle="Average Cost Chart"
+      hrefDetails="/deliveryoverview"
+      editModalID="editDashboardModal"
+  }}
+      <canvas class="chart-canvas d-none" id="chart_averagecostchartbar" name="chart_averagecostchartbar"></canvas>
+      <img class="chart-img w-100 h-100" src="img/charts/leads-per-week-marked.png"/>
+  {{/draggablePanel}}
+
+</template>

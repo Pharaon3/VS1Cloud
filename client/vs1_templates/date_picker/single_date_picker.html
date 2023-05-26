@@ -1,0 +1,43 @@
+<!-- Single Date Picker -->
+<!-- Params 
+  label
+  id
+  classes
+  name
+  defaultValue
+  dueDate
+-->
+<template name="single_date_picker">
+  <div class="form-group">
+  <!-- <div class="form-group d-xl-flex flex-column justify-content-xl-start"> -->
+    <label class="{{#if labelClass}}{{labelClass}}{{#if custid}}{{custid}}{{/if}}{{/if}}">{{label}}</label>
+    <div class="input-group date sltDate" style="cursor: pointer;">
+      <input type="text" class="form-control {{classes}}" id="{{id}}{{#if custid}}_{{custid}}{{/if}}" name="{{name}}" value="{{defaultValue}}"
+        style="background-color: #ffffff;height: 38px;">
+      <div class="input-group-addon">
+        <span class="glyphicon glyphicon-th" style="cursor: pointer;"></span>
+      </div>
+    </div>
+    {{# if dueDate}}
+      <div style="display:none!important;">
+        <input type="text" class="form-control" id="dtDueDate" name="dtDueDate"
+          value="{{dueDate}}">
+      </div>
+    {{/if}}
+  </div>
+  <!-- <script>$(document).ready(function(){
+    $('.sltDate').datepicker({
+      showOn: "button",
+      buttonText: "Show Date",
+      buttonImageOnly: true,
+      buttonImage: "/img/imgCal2.png",
+      constrainInput: false,
+      dateFormat: "d/mm/yy",
+      showOtherMonths: true,
+      selectOtherMonths: true,
+      changeMonth: true,
+      changeYear: true,
+      yearRange: "-90:+10",
+    })
+  })</script> -->
+</template>

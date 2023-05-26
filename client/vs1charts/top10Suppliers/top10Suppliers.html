@@ -1,0 +1,17 @@
+<template name="top10Suppliers">
+    {{# draggablePanel
+        xs=xs sm=sm md=md lg=lg xl=xl
+        defaultPosition=defaultPosition
+        key=key
+        hLenght=100
+        id=""
+        headerClass=""
+        headerColor="primary"
+        headerTitle="Top 10 Suppliers"
+        hrefDetails="#"
+        editModalID="editDashboardModal"
+    }}
+        <canvas class="chart-canvas d-none" id="myChart" name="myChart"></canvas>
+        <img class="chart-img w-100 h-100" src="img/charts/top-10-suppliers-marked.png"/>
+    {{/draggablePanel}}
+</template>

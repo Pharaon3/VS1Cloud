@@ -1,0 +1,18 @@
+<template name="deliverychart">
+
+  {{# draggablePanel
+      xs=xs sm=sm md=md lg=lg xl=xl
+      defaultPosition=defaultPosition
+      key=key
+      hLenght=100
+      id="chart_deliverycharts"
+      headerClass=""
+      headerColor="primary"
+      headerTitle="All Costs By Source"
+      hrefDetails="/deliveryoverview"
+      editModalID="editDashboardModal"
+  }}
+      <canvas class="chart-canvas d-none" id="chart_deliverychart" name="chart_deliverychart"></canvas>
+      <img class="chart-img w-100 h-100" src="img/charts/all-leads-by-source-marked.png"/>
+  {{/draggablePanel}}
+</template>

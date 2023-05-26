@@ -1,0 +1,19 @@
+<template name="automatedEmail">    
+    {{>datatablelist
+        tablename = tablename
+        apiName = apiFunction
+        service = service
+        indexeddbname = 'TAutomatedEmail'
+        datahandler = datahandler
+        tableheaderrecords = tableheaderrecords
+        exportfilename = 'Automated Email Settings'
+        istransaction = false
+        apiParams = apiParams
+        lowercaseDataName = 'treportschedules'
+        exIndexDBName = 'treportschedules'
+        exdatahandler = exDataHandler
+        searchAPI = searchAPI
+        orderby = '[[ 1, "asc" ]]'
+        attRowID = 0
+    }}
+</template>

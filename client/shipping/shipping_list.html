@@ -1,0 +1,93 @@
+<template name="shippinglist">
+    <div class="shippinglist invoicelist">
+        <div class="active_page">
+            <div class="active_page_content">
+                <p><a href="/shipping">Shipping</a> &nbsp;›&nbsp;</p><br>
+                <h1>Shipping</h1>
+            </div>
+        </div>
+
+        <div class="bridge-lower new-wrapper">
+          <div class="fullScreenSpin" style="display:none;"><div class="spinner"></div></div>
+
+        <div class=" container">
+        <div class="tab-content">
+            <div id="all-tabs" class="tab-pane fade in active">
+              <div class="row d-xl-flex flex-row justify-content-xl-center" style="padding: 0px 16px; background-color: #ededed;">
+                    {{> refreshbutton}}
+                    <div class="col-5 col-md-7 d-xl-flex justify-content-xl-end align-items-xl-start">
+                        {{> export_import_print_display_button tablename="tblShippingList"}}
+                    </div>
+              </div>
+              
+              <div style="padding: 0px 12px;">
+                <div class="card-body p-3 rounded">
+                    {{>datatablelist
+                        tablename="tblShippingList"
+                        apiName= apiFunction
+                        indexeddbname = 'TShippingAddress'
+                        tableheaderrecords = tableheaderrecords
+                        exportfilename = 'Shipping List'
+                        istransaction = false
+                        apiParams= apiParams
+                        datahandler = datahandler
+                        service=service
+                        lowercaseDataName='tshippingaddress'
+                        exportfilename='Shipping List'
+                        exIndexDBName = 'tshippingaddress'
+                        exdatahandler = exDataHandler
+                        searchAPI = searchAPI
+                    }}  
+                </div>
+            </div>
+                <!-- <div class="list_search_container"><a class="list_search">Search</a>
+                </div> -->
+                <!-- <span class="itemButton">{{allCount}} items</span> -->
+                <!-- Take out class nowrap -->
+                <!-- <table id="shipping_list" style="width: 100%" class="dataTable table table-hover table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th></th> -->
+                        <!-- <th>Invoice No</th>
+                        <th>Sale #</th>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Print Name</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead> -->
+                    <!-- <tbody>
+
+                      {{#each records}}
+                          <tr id="product-list-row-" class="">
+
+                              {{#each value in dataArr}}
+                                  <td><span class="table-cells">{{value}}</span></td>
+                              {{/each}}
+                          </tr>
+                      {{/each}}
+
+                    </tbody> -->
+                <!-- </table> -->
+            </div>
+        </div>
+            <script>
+                $('.Show').click(function () {
+                    $('#search_box').show(500);
+                    $('.Show').hide(0);
+                    $('.Hide').show(0);
+                });
+                $('.Hide').click(function () {
+                    $('#search_box').hide(500);
+                    $('.Show').show(0);
+                    $('.Hide').hide(0);
+                });
+                $('.list_search').click(function () {
+                    $('#search_box').toggle('slow');
+                });
+            </script>
+        </div>
+        </div>
+
+    </div>
+</template>

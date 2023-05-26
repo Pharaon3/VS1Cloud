@@ -1,0 +1,131 @@
+<template name="deliveryoverviewcards">
+  <div
+    class="col-md-4 mb-4 openaccountreceivable hideelement card-visibility menu_total_cost"
+    card-id="0"
+    chartgroup="DeliveryOverview"
+    data-default-position="0"
+    position="0"
+    card-active="true"
+    card-key="total-cost"
+    id="totalCost"
+  >
+    <div class="card shadow customCardMainDiv border-left-success py-2">
+      <div class="hideShowDiv">
+        {{> editCardChartOptions}}
+        <a href="javascript:void(0);" class="cardSettingBtn editCardBtn"
+          ><i class="fas fa-cog"></i
+        ></a>
+      </div>
+      <div class="card-body" style="cursor: pointer">
+        <div class="row align-items-center no-gutters">
+          <a class="col mr-2">
+            <div
+              class="text-uppercase text-success font-weight-bold text-xs mb-1"
+            >
+              <span style="font-size: 14px">Total Cost</span>
+            </div>
+            <div class="text-dark font-weight-bold h5 mb-0 mr-3">
+              <span
+                class="total_cost"
+                id="total_cost"
+                name=""
+                style="font-size: 28px; color: rgb(221, 223, 235)"
+                >310</span
+              >
+            </div>
+            <!-- <div class="text-dark font-weight-bold h5 mb-0"><span style="font-size: 16px;color: rgb(221,223,235);">Bank Balance</span></div> -->
+          </a>
+          <div class="col-auto">
+            <i class="fas fa-usd fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="col-md-4 mb-4 openaccountreceivable hideelement card-visibility menu_fuel_cost"
+    card-id="0"
+    chartgroup="DeliveryOverview"
+    data-default-position="1"
+    position="1"
+    card-active="true"
+    card-key="fuel-cost"
+    id="FuelCost"
+  >
+    <div class="card shadow customCardMainDiv border-left-danger py-2">
+      <div class="hideShowDiv">
+        {{> editCardChartOptions}}
+        <a href="javascript:void(0);" class="cardSettingBtn editCardBtn"
+          ><i class="fas fa-cog"></i
+        ></a>
+      </div>
+      <div class="card-body" style="cursor: pointer">
+        <div class="row align-items-center no-gutters">
+          <a class="col mr-2">
+            <div
+              class="text-uppercase text-danger font-weight-bold text-xs mb-1"
+            >
+              <span style="font-size: 14px">Fuel Cost</span>
+            </div>
+            <div class="text-dark font-weight-bold h5 mb-0 mr-3">
+              <span
+                class="fuel_cost"
+                id="fuel_cost"
+                name=""
+                style="font-size: 28px; color: rgb(221, 223, 235)"
+                >0</span
+              >
+            </div>
+            <!-- <div class="text-dark font-weight-bold h5 mb-0"><span style="font-size: 16px;color: rgb(221,223,235);">Bank Balance</span></div> -->
+          </a>
+          <div class="col-auto">
+            <i class="fas fa-truck fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="col-md-4 mb-4 openaccountreceivable hideelement card-visibility menu_service_cost"
+    card-id="0"
+    chartgroup="DeliveryOverview"
+    data-default-position="2"
+    position="2"
+    card-active="true"
+    card-key="service-cost"
+    id="ServiceCost"
+  >
+    <div class="card shadow customCardMainDiv border-left-warning py-2">
+      <div class="hideShowDiv">
+        {{> editCardChartOptions}}
+        <a href="javascript:void(0);" class="cardSettingBtn editCardBtn"
+          ><i class="fas fa-cog"></i
+        ></a>
+      </div>
+      <div class="card-body" style="cursor: pointer">
+        <div class="row align-items-center no-gutters">
+          <a class="col mr-2">
+            <div
+              class="text-uppercase text-warning font-weight-bold text-xs mb-1"
+            >
+              <span style="font-size: 14px">Service Cost</span>
+            </div>
+            <div class="text-dark font-weight-bold h5 mb-0 mr-3">
+              <span
+                class="service_cost"
+                id="service_cost"
+                name=""
+                style="font-size: 28px; color: rgb(221, 223, 235)"
+                >0</span
+              >
+            </div>
+            <!-- <div class="text-dark font-weight-bold h5 mb-0"><span style="font-size: 16px;color: rgb(221,223,235);">Bank Balance</span></div> -->
+          </a>
+          <div class="col-auto">
+            <i class="fas fa-money fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

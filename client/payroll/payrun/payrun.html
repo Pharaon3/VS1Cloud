@@ -1,0 +1,388 @@
+<template name="payrun">
+    <div class="container-fluid" style="padding-left: 0px; padding-right: 0px; margin-top: -24px;">
+        <div class="fullScreenSpin" style="display:none;">
+            <div class="spinner"></div>
+        </div>
+        <header style="padding: 16px; background-color: #ededed;">
+            <div class="row">
+                <div class="col-12 col-md-4">
+                    <h1 style="margin: 16px; margin-bottom: 8px;" class="timesheetHeader">Pay Runs
+                        <!-- <a role="button" data-toggle="modal" href="#helpModal" class="helpModal"><label class="lblplay">PLAY</label><i class="far fa-play-circle"  style="font-size: 20px;"></i></a> -->
+                        {{> helpbutton}}
+
+                        <!-- Start Help View Modal -->
+                        <div class="modal fade" role="dialog" tabindex="-1" id="helpViewModal">
+                            <div class="modal-dialog modal-sm" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header" style="padding-bottom: 8px;">
+                                        <h4>Help</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="text-center text-muted"><a role="button" data-toggle="modal" href="#helpModal" class="btn btn-primary helpModal">View Help Video</a></p>
+                                        <p class="text-center text-muted"><a href="https://vs1forum.com/viewforum.php?f=6" target="_blank" class="btn btn-primary">Download Help File</a></p>
+                                        {{> helpadvisor}}
+                                        {{> helpgotoforum}}
+                                    </div>
+                                    <div class="modal-footer" style="padding: 6px;"><button class="btn btn-light" data-dismiss="modal" type="button">Close</button></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Help View Modal -->
+
+                    </h1>
+                </div>
+                <div class="col-12 col-md-4">{{> loggedcompanyoverview}}</div>
+            </div>
+        </header>
+
+        <style>
+            @media screen and (max-width: 450px) {
+                .btnNav {
+                    width: 90% !important;
+                }
+
+                .btnOpenSettingsMobile {
+                    display: block !important;
+                }
+
+                .btnOpenSettings {
+                    display: none;
+                }
+            }
+        </style>
+
+        <div class="row" style="padding-top: 0px; padding: 0px 24px;">
+            <div class="col-6">
+                <button class="btn btn-primary btnRefreshOne btnNav" type="button" style="margin: 12px;"><i class="la la-lightbulb-o" style="padding-right: 5px;"></i>Refresh </button>
+                <button id="" name="" class="btn btnNav btn-primary" type="button" role="button" style="margin: 12px;" data-toggle="modal" data-target="#newPayRunModal"><i class="fas fa-check" style="margin-right: 5px;"></i>Add Pay Run</button>
+                <!-- <button id="" name="" class="btn btnNav btn-primary btnSingleTouchPayroll" type="button" role="button" style="margin: 12px;"><i class="fas fa-hand-holding-usd" style="margin-right: 5px;"></i>Single Touch Payroll</button> -->
+            </div>
+            <div class="col-6">
+                <div class="col d-xl-flex justify-content-xl-end align-items-xl-start">
+                    {{> export_import_print_display_button hideImport=true tablename="tblDraftPayRun"}}
+                </div>
+            </div>
+        </div>
+        {{> AddPayRunModal }} 
+
+        <div class="row">
+            <div class="col-12" style="margin-bottom: 16px;">
+                <div class="card-body p-5 rounded" style="padding: 0rem 2rem !important;">
+                    <style>
+                        th {
+                            background-color: #ededed;
+                        }
+
+                        .table-striped tbody tr:nth-of-type(odd) {
+                            background-color: white !important;
+                        }
+
+                        .table-striped tbody tr:nth-of-type(even) {
+                            background-color: #0000000d !important;
+                        }
+
+                        .JColResizer>tbody>tr>td,
+                        .JColResizer>tbody>tr>th {
+                            padding: .75rem !important;
+                        }
+
+                        .hiddenColumn {
+                            display: none;
+                        }
+
+                        .showColumn {
+                            display: table-cell;
+                            padding: .75rem;
+                            vertical-align: top;
+                        }
+
+                        input[type=number]::-webkit-inner-spin-button,
+                        input[type=number]::-webkit-outer-spin-button {
+                            opacity: 1;
+                        }
+
+                        .highlightInput {
+                            border: 0px solid transparent !important;
+                            background-color: rgba(0, 0, 0, 0) !important;
+                            padding: 0px !important;
+                            width: 100% !important;
+                            text-align: right !important;
+                            color: #858796 !important;
+                        }
+
+                        .highlightInput::-webkit-outer-spin-button,
+                        .highlightInput::-webkit-inner-spin-button {
+                            -webkit-appearance: none !important;
+                            margin: 0 !important;
+                        }
+
+                        /* Firefox */
+                        .highlightInput[type=number] {
+                            -moz-appearance: textfield !important;
+                        }
+
+                        .colFlag {
+                            width: 1% !important;
+                        }
+
+                        .tdEmpty {
+                            width: 3% !important;
+                        }
+
+                        @media screen and (max-width: 450px) {
+
+                            #tblTimeSheet_filter {
+                                width: 70%;
+                            }
+
+                            .form-control-sm {
+                                width: 70% !important;
+                            }
+
+                            .input-group.date {
+                                width: 130px !important;
+                            }
+
+                            .dateFromGroup {
+                                float: right !important;
+                                width: 183px !important;
+                            }
+
+                            .dateToGroup {
+                                float: right !important;
+                                width: 172px !important;
+                            }
+
+                            .myvarFilterForm {
+                                /* display: inline-flex !important; */
+                                padding: 0px !important;
+                            }
+
+                            .colDateFilter {
+                                padding-left: 0px !important;
+                            }
+
+                            .dropdownDateRange {
+                                float: right !important;
+                                width: 100% !important;
+                            }
+
+                            .btn-daterange {
+                                float: right !important;
+                            }
+
+                            .btnSetupSingleTouch {
+                                margin-bottom: 16px;
+                                padding: 0px;
+                            }
+                        }
+                    </style>
+                    <div class="row no-gutters d-xl-flex align-items-xl-end">
+                        <div class="col d-sm-flex justify-content-sm-start align-items-sm-center">
+                            <h4 style="font-weight: 600;">Draft Pay Run</h4>
+                        </div>
+                    </div>
+                    {{> datatablelist
+                        tablename="tblDraftPayRun"
+                        tableclass="tblDraftPayRun"
+                        apiName=apiFunction
+                        indexeddbname='TPayRunHistory'
+                        tableheaderrecords=tableheaderrecords
+                        exportfilename='Pay Calendars'
+                        apiParams=apiParams
+                        istransaction = true
+                        datahandler=datahandler
+                        service=service
+                        lowercaseDataName='tpayrunhistory'
+                        exIndexDBName='tpayrunhistory'
+                        exdatahandler=exDataHandler
+                        searchAPI=searchAPI
+                        showPlusButton = true
+                        showModalID="#newPayRunModal"
+                        showPlusButtonClass = "btnAddPayrun"
+                    }}
+                    <hr class="mt-2" />
+                </div>
+            </div>
+        </div>
+        <div class="row"  style="padding-top: 0px; padding: 0px 24px;">
+            <div class="col-6">
+                <button class="btn btn-primary btnRefreshOne btnNav" type="button" style="margin: 12px;"><i class="la la-lightbulb-o" style="padding-right: 5px;"></i>Refresh </button>
+            </div>
+            <div class="col-6">
+                <div class="col d-xl-flex justify-content-xl-end align-items-xl-start">
+                    {{> export_import_print_display_button hideImport=true tablename="tblPayRunHistory"}}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12" style="margin-bottom: 16px;">
+                <div class="card-body p-5 rounded" style="padding: 0rem 2rem !important;">
+                    <style>
+                        th {
+                            background-color: #ededed;
+                        }
+
+                        .table-striped tbody tr:nth-of-type(odd) {
+                            background-color: white !important;
+                        }
+
+                        .table-striped tbody tr:nth-of-type(even) {
+                            background-color: #0000000d !important;
+                        }
+
+                        .JColResizer>tbody>tr>td,
+                        .JColResizer>tbody>tr>th {
+                            padding: .75rem !important;
+                        }
+
+                        .hiddenColumn {
+                            display: none;
+                        }
+
+                        .showColumn {
+                            display: table-cell;
+                            padding: .75rem;
+                            vertical-align: top;
+                        }
+
+                        input[type=number]::-webkit-inner-spin-button,
+                        input[type=number]::-webkit-outer-spin-button {
+                            opacity: 1;
+                        }
+
+                        .highlightInput {
+                            border: 0px solid transparent !important;
+                            background-color: rgba(0, 0, 0, 0) !important;
+                            padding: 0px !important;
+                            width: 100% !important;
+                            text-align: right !important;
+                            color: #858796 !important;
+                        }
+
+                        .highlightInput::-webkit-outer-spin-button,
+                        .highlightInput::-webkit-inner-spin-button {
+                            -webkit-appearance: none !important;
+                            margin: 0 !important;
+                        }
+
+                        /* Firefox */
+                        .highlightInput[type=number] {
+                            -moz-appearance: textfield !important;
+                        }
+
+                        .colFlag {
+                            width: 1% !important;
+                        }
+
+                        .tdEmpty {
+                            width: 3% !important;
+                        }
+
+                        @media screen and (max-width: 450px) {
+
+                            #tblPayRunList_filter {
+                                width: 70%;
+                            }
+
+                            .form-control-sm {
+                                width: 70% !important;
+                            }
+
+                            .input-group.date {
+                                width: 130px !important;
+                            }
+
+                            .dateFromGroup {
+                                float: right !important;
+                                width: 183px !important;
+                            }
+
+                            .dateToGroup {
+                                float: right !important;
+                                width: 172px !important;
+                            }
+
+                            .myvarFilterForm {
+                                /* display: inline-flex !important; */
+                                padding: 0px !important;
+                            }
+
+                            .colDateFilter {
+                                padding-left: 0px !important;
+                            }
+
+                            .dropdownDateRange {
+                                float: right !important;
+                                width: 100% !important;
+                            }
+
+                            .btn-daterange {
+                                float: right !important;
+                            }
+                        }
+                    </style>
+                    <div class="row no-gutters d-xl-flex align-items-xl-end">
+                        <div class="col d-sm-flex justify-content-sm-start align-items-sm-center">
+                            <h4 style="font-weight: 600;">Pay Run History</h4>
+                        </div>
+                        <div class="row no-gutters d-xl-flex align-items-xl-end">
+                            <div class="col d-sm-flex justify-content-sm-start align-items-sm-center">
+    
+                            </div>
+                            <div class="col float-right d-sm-flex d-xl-flex justify-content-sm-end align-items-sm-center justify-content-xl-end align-items-xl-end myvarFilterForm">
+                                <div class="dropdown" style="margin: 8px; margin-top: 0px;">
+                                    <style>
+                                        .dropdown-toggle::after {
+                                            display: none;
+                                        }
+                                    </style>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{> datatablelist
+                        tablename=tablename
+                        tableclass="tblPayRunHistory"
+                        apiName=apiFunction1
+                        indexeddbname='TPayHistory'
+                        tableheaderrecords=tableheaderrecords1
+                        exportfilename='Pay History Calendars'
+                        apiParams=apiParams1
+                        istransaction = true
+                        datahandler=datahandler1
+                        service=service1
+                        lowercaseDataName='tpayhistory'
+                        exIndexDBName='tpayhistory'
+                        exdatahandler=exDataHandler1
+                        searchAPI=searchAPI1
+                    }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Start Help Video Modal -->
+    <div class="modal fade" role="dialog" tabindex="-1" id="helpModal">
+        <div class="modal-dialog" role="document" style="max-width: 670px!important;">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <h4 class="title-header">Pay Run</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <!-- <iframe width="640" height="360" src="https://player.vimeo.com/video/99892791" frameborder="0" allowfullscreen=""></iframe> -->
+                    <!-- <iframe width="640" height="360" src="https://erphelpes.com/vs1videos/invoicelist.mp4" frameborder="0" allowfullscreen=""></iframe> -->
+                    <video preload="none" id="myVideo" width="640" height="360" controls="" name="media" style="border: solid 5px #999999f0; height: auto; outline: none;">
+                        <source src="https://erphelpes.com/vs1videos/comingsoon.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Help Video Modal -->
+    <script>
+        modalDraggable();
+    </script>
+</template>

@@ -1,0 +1,32 @@
+<template name="upcomingorderstock">
+    <style type="text/css">
+        .hidechat {
+            display: none;
+        }
+
+        .showchat {
+            display: block;
+        }
+
+        .hideelement {
+            display: none !important;
+        }
+
+        .showelement {
+            display: block;
+        }
+    </style>
+    {{# draggablePanel
+        xs=xs sm=sm md=md lg=lg xl=xl
+        defaultPosition=defaultPosition
+        key=key
+        id="minHeight100"
+        headerClass="monthlycardheader"
+        headerColor="primary"
+        headerTitle="Upcoming Orders and Stock"
+        hrefDetails="/upcomingorderstock"
+        editModalID="editDashboardModal"
+    }}
+    <canvas id="upcomingorderstockchart" name="upcomingorderstockchart"></canvas>
+    {{/draggablePanel}}
+</template>

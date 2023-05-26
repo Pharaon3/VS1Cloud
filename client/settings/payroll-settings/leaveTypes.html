@@ -1,0 +1,157 @@
+<template name="leaveTypeSettings">
+    <div class="modal fade" role="dialog" tabindex="-1" id="leaveTypeSettingsModal" style="z-index:99999;">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document" style="max-width: 90vw;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Leaves</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" style="width: 100%; display:none;" id="dropdownleaveID" name="dropdownleaveID" />
+                    <div class="card-body p-1 rounded">
+                        <div class="row">
+                            <div class="col-12">
+                                <style>
+                                    #tblLeaves{
+                                        width: 100% !important;
+                                    }
+                                </style>
+                                {{> datatablelist
+                                    tablename="tblLeaves"
+                                    apiName=apiFunction7
+                                    indexeddbname='TPaidLeave'
+                                    tableheaderrecords=tableheaderrecords7
+                                    exportfilename='Leaves'
+                                    apiParams=apiParams7
+                                    datahandler=datahandler7
+                                    service=service7
+                                    lowercaseDataName='tpaidleave'
+                                    exIndexDBName='tpaidleave'
+                                    exdatahandler=exDataHandler7
+                                    searchAPI=searchAPI7
+                                    showPlusButton=true
+                                    showPlusButtonClass='btnAddordinaryTimeLeave'
+                                    showModalID='#leaveModal'
+                                }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" data-dismiss="modal" type="button">Close</button>
+                </div>
+            </div>
+        </div> 
+    </div>
+    <div class="modal fade" id="leaveModal" tabindex="-1" role="dialog" style="z-index:999999;" aria-labelledby="leaveLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="leaveLabel">Leave</h5>
+                    <button type="button" class="close" id="closeleave" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="row" id="leaveRateForm">
+                        <div class="col-12">
+                            <div class="form-group">
+                                {{> default_input 
+                                    label="Leave Name" 
+                                    classes="edtLeaveName" 
+                                    id="edtLeaveName" 
+                                    name="edtLeaveName" 
+                                    defaultValue="" 
+                                    type="text"
+                                }}
+                                <input type="hidden" id="leaveID" value="0"/>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-1">
+                            <div class="form-group mb-0">
+                                <label for="edtLeaveType"></label>
+                                {{> vs1_dropdown id='edtLeaveType' name='edtLeaveType' value='' type='search' classes=''}}
+                            </div>
+                        </div>
+                        <div class="col-12 mb-1">
+                            <div class="form-group mb-0">
+                                <label for="Types of Units"></label>
+                                {{> vs1_dropdown id='edtTypeOfUnits' name='edtTypeOfUnits' value='' type='search' classes=''}}
+                            </div>
+                            <span style="font-size: 12px;white-space: normal;line-height: 12px !important;display: inline-block;margin-top: 9px; ">The type of units by which leave entitlements are normally tracked. These are typically the same as the type of units used for the employee's ordinary earnings rate.</span>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                {{> vs1___dropdown
+                                    data=item.item
+                                    type='search'
+                                    id='edtLeaveLoadingRate'
+                                    name='edtLeaveLoadingRate'
+                                    modalId='select-rate-type-modal'
+                                    list_template_name='ratetypelistpop'
+                                    modal_title=''
+                                    label='Leave Loading Rate (optional)'
+                                    innerModal=true
+                                    colNameForValue='thDescription'
+                                    target_modal_id='edtRateType'
+                                    target_template_id='ratetypelistpop'
+                                    custid='dropdownleavloadingrate'
+                                    is_editable=false
+                                    noBorder=false
+                                }}
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                {{> vs1___dropdown
+                                    data=item.item
+                                    type='search'
+                                    id='edtNormalEntitlement'
+                                    name='edtNormalEntitlement'
+                                    modalId='select-rate-type-modal'
+                                    list_template_name='ratetypelistpop'
+                                    modal_title=''
+                                    label='Normal Entitlement (optional)'
+                                    innerModal=true
+                                    colNameForValue='thDescription'
+                                    target_modal_id='edtRateType'
+                                    target_template_id='ratetypelistpop'
+                                    custid='dropdownentitlement'
+                                    is_editable=false
+                                    noBorder=false
+                                }}
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="custom-control custom-switch pointer">
+                                <input class="custom-control-input chkBox pointer" type="checkbox" id="formCheck-ShowBalance" value="showbalance">
+                                <label class="custom-control-label chkBox pointer" for="formCheck-ShowBalance">Show Balance on Payslip</label>
+                            </div>
+                            <span style="font-size: 12px;">Check this box if you want a balance for this leave type to be shown on your employee's payslips.</span>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    {{> vs1_button
+                        color='success'
+                        classes='saveLeave'
+                        type='button'
+                        id="saveLeave"
+                        iconName='save'
+                        title='Save'
+                    }}
+                    <a data-dismiss="modal">
+                        {{> vs1_button
+                            color='secondary'
+                            classes=''
+                            type='button'
+                            id="btnCancel"
+                            iconName='close'
+                            title='Close'
+                        }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

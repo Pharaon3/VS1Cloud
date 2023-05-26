@@ -1,0 +1,232 @@
+<template name="accountslistchart">
+  <style type="text/css">
+    .hideaccountslistchart {
+      display: none;
+    }
+    .showaccountslistchart {
+      display: block;
+    }
+   .hideelement {
+      display: none !important;
+    }
+    .showelement {
+      display: block;
+    }
+    @media screen and (max-width: 450px) {
+        .btnNav {
+            width: 90%;
+            margin: 12px 0px !important;
+        }
+        .btnOpenSettingsDesktop {
+            display: none !important;
+        }
+        .btnOpenSettingsMobile {
+            display: block !important;
+            margin: 12px 0px !important;
+        }
+    }
+  </style>
+{{# draggablePanel
+    xs=xs sm=sm md=md lg=lg xl=xl
+    defaultPosition=defaultPosition
+    key=key
+    id="accountslistchart"
+    headerClass="accountslistheader"
+    headerColor="primary"
+    headerTitle="Account List"
+    hrefDetails="/accountsoverview"
+    editModalID="editDashboardModal"
+}}
+<div>
+    <div class="row">
+        <div class="col-6 col-md-7">
+            <button class="btn btnNav btn-primary btnRefresh float-left" type="button" style="margin: 14px; margin-left:0px;"><i class="la la-lightbulb-o" style="padding-right: 5px;"></i>Refresh</button>
+            <a class="btn btnNav btn-primary float-left btnAddNewAccounts" role="button" data-toggle="modal" href="#addNewAccountModal" style="margin: 14px; color: #ffffff;"><i class="fa fa-plus" style="margin-right: 8px;"></i>New Account</a>
+            <div class="modal fade" role="dialog" tabindex="-1" id="newTaxRateModal">
+                {{> newtaxratepop}}
+            </div>
+            <div class="modal fade" role="dialog" tabindex="-1" id="addNewAccountModal">
+                {{> addAccountModal}}
+            </div>
+            <div class="btn-group btnNav" style="margin: 14px;">
+                <button type="button" class="btn btn-primary btnJournalEntries" id="btnJournalEntries"><i class="fas fa-user" style="margin-right: 5px;"></i>Journal Entries</button>
+                <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-expanded="false" type="button"></button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item btnJournalEntries pointer" id="btnJournalEntries">Journal Entries List</a>
+                    <a class="dropdown-item btnNewJournalEntry pointer" id="btnNewJournalEntry">+ New Journal Entry</a>
+                </div>
+            </div>
+            <div class="btn-group btnNav vs1ButtonMargin btnBasReturnGroup" style="display:none">
+                <button type="button" class="btn btn-primary btnBasReturn" id="btnBasReturn"><i class="fas fa-user" style="margin-right: 5px;"></i>BAS Return</button>
+                <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-expanded="false" type="button"></button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item btnBasReturn pointer" id="btnBasReturn">BAS Return List</a>
+                    <a class="dropdown-item btnNewBasReturn pointer" id="btnNewBasReturn">+ New BAS Return</a>
+                </div>
+            </div>
+            <div class="btn-group btnNav vs1ButtonMargin btnVatReturnGroup"  style="display:none">
+                <button type="button" class="btn btn-primary btnVatReturn" id="btnVatReturn"><i class="fas fa-user" style="margin-right: 5px;"></i>VAT Return</button>
+                <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-expanded="false" type="button"></button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item btnVatReturn pointer" id="btnVatReturn">VAT Return List</a>
+                    <a class="dropdown-item btnNewVatReturn pointer" id="btnNewVatReturn">+ New VAT Return</a>
+                </div>
+            </div>
+        </div>
+        <div class="class=col-6 col-md-5 d-xl-flex justify-content-xl-end align-items-xl-start" style="padding: 0px !important; ">
+            {{> export_import_print_display_button tablename="tblDashboardAccountChartList"}}
+        </div>
+    </div>
+    <div class="card-body p-0 rounded">
+        {{>datatablelist
+                tablename="tblDashboardAccountChartList"
+                tableclass="tblDashboardAccountChartList"
+                apiName= apiFunction
+                indexeddbname = 'TAccountVS1List'
+                tableheaderrecords = tableheaderrecords
+                exportfilename = 'Account VS1 List'
+                istransaction = false
+                apiParams= apiParams
+                datahandler = datahandler
+                service=service
+                lowercaseDataName='taccountvs1list'
+                exIndexDBName = 'taccountvs1list'
+                exdatahandler = exDataHandler
+                searchAPI = searchAPI
+        }}
+    </div>
+</div>
+{{/draggablePanel}}
+<div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="helpModal">
+        <div class="modal-dialog" role="document" style="max-width: 670px!important;">
+            <div class="modal-content">
+                <div class="modal-header">
+    
+                    <h4 class="title-header">Accounts Overview</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <video preload="none" id="myVideo" width="640" height="360" controls="" name="media" style="border: solid 5px #999999f0; height: auto; outline: none;">
+                        <source src="https://erphelpes.com/vs1videos/accountsoverview.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- End Help Video Modal -->
+    <!-- Start Help Video Modal -->
+    <div class="modal fade" role="dialog" tabindex="-1" id="helpModalAdd">
+        <div class="modal-dialog" role="document" style="max-width: 670px!important;">
+            <div class="modal-content">
+                <div class="modal-header">
+    
+                    <h4 class="title-header">Accounts</h4>
+                    <button type="button" class="close closeAdd" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <video preload="none" id="myVideoAdd" width="640" height="360" controls="" name="media" style="border: solid 5px #999999f0; height: auto; outline: none;">
+                        <source src="https://erphelpes.com/vs1videos/newaccount.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- End Help Video Modal -->
+    <div class="modal fade categoryListModal" role="dialog" tabindex="-1" id="categoryListModal">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document" style="max-width: 90vw;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Category List</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" style="width: 100%; display:none;" id="selectLineID" name="selectLineID"  readonly>
+                    <div class="card-body p-1 rounded" >
+                        <div class="table-responsive">
+                            <style>
+                                .thCategory {
+                                    width: 20% !important;
+                                }
+                                .thAccountName {
+                                    width: 20% !important;
+                                }
+                                .thDescription {
+                                    width: 40% !important;
+                                }
+                                .thAccountNo {
+                                    width: 10% !important;
+                                }
+                                .thTaxRate {
+                                    width: 10% !important;
+                                }
+                            </style>
+                            <table id="tblDashboardCategory" style="width:100%" class="table table-striped table-bordered tblDashboardCategory">
+                                <thead>
+                                <tr class="dnd-moved">
+                                    <th class="thCategory">Category</th>
+                                    <th class="thAccountName">Account Name</th>
+                                    <th class="thDescription">Description</th>
+                                    <th class="thAccountNo">Account No</th>
+                                    <th class="thTaxRate" style="text-align: left!important;">Tax Rate</th>
+                                    <th class="thAccountID hiddenColumn">Account ID</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-light" data-dismiss="modal" type="button">Close</button></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" role="dialog" tabindex="-1" id="addReceiptCategoryModal">
+        <div class="modal-dialog  modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 style="" >
+                        <div id="add-receiptcategory-title" name="add-receiptcategory-title" style="float: left;">Add New Receipt Category</div>
+                    </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body" style="background-color: #ededed;">
+                    <input type="hidden" class="form-control" id="edtReceiptCategoryID" name="edtReceiptCategoryID" style="display:none;">
+                    <div class="row no-gutters">
+                        <div class="col d-xl-flex align-items-xl-end">
+                            <div class="form-group flex-grow-1" style="margin: 8px;">
+                                <label data-toggle="tooltip" data-bs-tooltip="" data-placement="bottom">Category Name</label>
+                                <input type="text" class="form-control" id="edtReceiptCategoryName" name="edtReceiptCategoryName">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row no-gutters">
+                        <div class="col d-xl-flex align-items-xl-end">
+                            <div class="form-group flex-grow-1" style="margin: 8px;">
+                                <label>Description</label>
+                                <input type="text" class="form-control" id="edtReceiptCategoryDesc" name="edtReceiptCategoryDesc">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="background-color: #ededed;">
+                    <button class="btn btn-success btnSave" type="button"><i class="fa fa-save" style="padding-right: 8px;"></i>Save</button>
+                    <button class="btn btn-secondary" data-dismiss="modal" type="button"><i class="fa fa-close" style="margin-right: 8px;"></i>Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <!-- Import Modal -->
+    {{> import_template}}
+    <script>
+        modalDraggable();
+    </script>
+</div>
+
+</template>

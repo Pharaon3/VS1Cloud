@@ -1,0 +1,42 @@
+<template name="supplierlistpop">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable supplierListModalInner" role="document" style="max-width: 90vw;">
+        <div class="modal-content supplierListContent">
+            <div class="modal-header">
+                <h4>Supplier List</h4><button type="button" class="close checkclose" data-dismiss="modal"
+                                              aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body mainSupplierModalBody">
+                <input type="hidden" style="width: 100%; display:none;" id="supplierSelectLineID"
+                       name="supplierSelectLineID" readonly>
+
+                {{>datatablelist
+                        tableclass="tblSupplierlist"
+                        tablename=tablename
+                        apiName= apiFunction
+                        indexeddbname = 'TSupplierVS1List'
+                        tableheaderrecords = tableheaderrecords
+                        exportfilename = 'Supplier VS1 List'
+                        istransaction = false
+                        apiParams= apiParams
+                        datahandler = datahandler
+                        service=service
+                        lowercaseDataName='tsuppliervs1list'
+                        exIndexDBName = 'tsuppliervs1list'
+                        exdatahandler = exDataHandler
+                        searchAPI = searchAPI
+                        orderby = '[[ 0, "asc" ]]'
+                        showPlusButton = true
+                        showPlusButtonDataTarget = "addSupplierModal"
+                        showPlusButtonClass = "btnAddNewSupplier"
+                        showModalID = "#addSupplierModal"
+                }}
+            </div>
+
+            <div class="modal-footer"><button class="btn btn-light checkclose" data-dismiss="modal" type="button">Close</button></div>
+        </div>
+    </div>
+                <!-- End Help Video Modal -->
+    <script>
+        modalDraggable();
+    </script>
+</template>

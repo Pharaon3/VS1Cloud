@@ -1,0 +1,361 @@
+<template name="allChartLists">
+    <style>
+        .portlet-placeholder {
+            border: 1px dotted black;
+            margin: 0 1em 1em 0;
+            /* height: 100px;
+            width: 100px; */
+        } 
+
+        .ui-sortable .card.hovered {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.50) !important;
+            cursor: move;
+            transition-duration: 300ms;
+
+        }
+
+        .ui-widget.ui-widget-content {
+            border: 1px solid #e3e6f0;
+        }
+
+        .responsive-chart {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+
+        .canvasHeight100 {
+            height: 100% !important;
+        }
+
+        .canvasParentDiv {
+            display: inline-block;
+            width: 100%;
+            height: calc(100% - 44px);
+            position: relative;
+            overflow-x: scroll;
+        }
+
+        .canvasParentDiv canvas {
+            height: 100% !important;
+            object-fit: contain;
+        }
+
+        .minHeight100 {
+            height: 100% !important;
+            position: relative;
+        }
+
+        .minHeight100 .canvasHeight100 {
+            position: relative;
+            min-height: 110px;
+            max-height: 100%;
+        }
+
+        .col-md-3 .minHeight100 .canvasParentDiv.canvasHeight100,
+        .col-md-4 .minHeight100 .canvasParentDiv.canvasHeight100,
+        .col-md-5 .minHeight100 .canvasParentDiv.canvasHeight100,
+        .col-md-6 .minHeight100 .canvasParentDiv.canvasHeight100,
+        .col-md-8 .minHeight100 .canvasParentDiv.canvasHeight100,
+        .col-md-12 .minHeight100 .canvasParentDiv.canvasHeight100 {
+            height: 45vh !important;
+            float: left;
+            width: 100%;
+        }
+
+        /* .col-md-3 .minHeight100 .portlet.card,
+        .col-md-4 .minHeight100 .portlet.card,
+        .col-md-5 .minHeight100 .portlet.card,
+        .col-md-6 .minHeight100 .portlet.card,
+        .col-md-8 .minHeight100 .portlet.card,
+        .col-md-12 .minHeight100 .portlet.card {
+            height: 100% !important;
+        } */
+
+        .col-md-3 .minHeight100 .canvasParentDiv,
+        .col-md-4 .minHeight100 .canvasParentDiv,
+        .col-md-5 .minHeight100 .canvasParentDiv,
+        .col-md-6 .minHeight100 .canvasParentDiv,
+        .col-md-8 .minHeight100 .canvasParentDiv,
+        .col-md-12 .minHeight100 .canvasParentDiv {
+            height: calc(45vh - 52.8px) !important;
+            position: relative;
+            max-height: 100%;
+        }
+
+        .ui-resizable-handle {
+            opacity: 0;
+        }
+
+        /* .resizeAfterChart {
+            margin: .75rem !important;
+            padding: 0px !important;
+        }
+        .resizeAfterChart .card {
+            margin: 0px !important;
+        } */
+        .minHeight100 {
+            display: inline-block;
+            width: 100%;
+        }
+
+        .sortable-chart-widget-js {
+            margin-bottom: 30px !important;
+        }
+
+        .minHeight100 .card.mb-4 {
+            margin: 0 !important;
+        }
+
+        .resizeAfterChart .card {
+            max-width: 100%;
+        }
+
+        .sortable-chart-widget-js .minHeight100 .card canvas,
+        .sortable-chart-widget-js .minHeight100 .card .chartjs-size-monitor,
+        .sortable-chart-widget-js .minHeight100 .card .canvasParentDiv,
+        .sortable-chart-widget-js .minHeight100 .card .card-body,
+        .sortable-chart-widget-js .minHeight100 .card .card-header,
+        .sortable-chart-widget-js .minHeight100 .card,
+        .sortable-chart-widget-js .minHeight100 {
+            float: left;
+            width: 100%;
+        }
+
+        /* .col-md-6 .minHeight100 .canvasHeight100 canvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        } */
+        .on-editor-change-mode i {
+            pointer-events: none;
+        }
+
+        .btn-sm.dropdown-toggle.hideelement,
+        .btn-sm.dropdown-toggle.showelement {
+            background-color: #00a3d3 !important;
+        }
+
+        .dimmedChart .fa-eye {
+            color: #1cc88a;
+        }
+
+        .dimmedChart .fa-eye-slash {
+            color: #e74a3b;
+        }
+
+        .draggable-panel {
+            /* padding-right: 0.75rem;
+            padding-left: 0.75rem; */
+            height: 100% !important;
+        }    
+    </style>
+
+    <div class="charts row connectedChartSortable connectedSortable" id="connectedSortable" data-key="chart"
+        data-chartgroup="{{ chartGroup }}" data-tabgroup="{{ tabGroupID }}" style="min-width: 100%;">
+        <!-- New Charts -->
+
+        {{#if is_available_chart currentTemplate "bankaccountschart"}}
+        {{> bankaccountschart
+        md=6 defaultPosition=0 key="Bank Accountschart" updateChart=updateChart}}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "monthlyprofitandloss"}}
+        {{> monthlyprofitandloss
+        md=8 defaultPosition=2 key="Monthly Profit and Loss" updateChart=updateChart}}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "mytaskswidgetchart"}}
+        {{#if is_dashboard_check "dashboardsalesmanager"}}
+        {{> mytaskswidgetchart
+        md=2 defaultPosition=2 key="My Tasks" }}
+
+        {{else if is_dashboard_check "dashboardsales"}}
+        {{> mytaskswidgetchart
+        md=2 defaultPosition=2 key="My Tasks" }}
+
+        {{else}}
+        {{> mytaskswidgetchart
+        md=6 defaultPosition=1 key="My Tasks" }}
+        {{/if}}
+
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "dsmAppointmentsWidget"}}
+        {{> dsmAppointmentsWidget
+        md=10 defaultPosition=3 key="Sales Manager Appointment Chart" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "quotedsalesorderinvoicedamounts"}}
+        {{> quotedsalesorderinvoicedamounts
+        md=4 defaultPosition=1 key="Sales Overview" updateChart=updateChart}}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "accountrevenuestreams"}}
+        {{> accountrevenuestreams
+        md=8 defaultPosition=2 key="Revenue Streams" updateChart=updateChart}}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "profitandlosschart"}}
+        {{> profitandlosschart
+        md=4 defaultPosition=3 key="Profit and Loss" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "invstockonhandanddemand"}}
+        {{> invstockonhandanddemand
+        md=8 defaultPosition=4 key="Stock on Hand and Demand" }}
+        {{/if}}
+
+        <!-- {{#if is_available_chart currentTemplate "top10Customers"}}
+        {{> top10Customers
+        md=4 defaultPosition=11 key="Top 10 Customers" }}
+        {{/if}} -->
+
+        {{#if is_available_chart currentTemplate "top10Suppliers"}}
+        {{> top10Suppliers
+        md=4 defaultPosition=12 key="Top 10 Supplies" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "resalescomparision"}}
+        <!-- {{#if is_dashboard_check "dashboardsales"}}
+        {{else}} -->
+        {{> resalescomparision
+        md=4 defaultPosition=13 key="Employee Sales Comparison" canvasID="employeeSalesComparisonChart"}}
+        <!-- {{/if}} -->
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "expenseschart"}}
+        {{> expenseschart
+        md=8 defaultPosition=14 key="Expenses" updateChart=updateChart}}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "monthlyearnings"}}
+        {{> monthlyearnings
+        md=6 defaultPosition=15 key="Monthly Earnings" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "quotedinvoicedamounts"}}
+        {{> quotedinvoicedamounts
+        md=6 defaultPosition=16 key="Quoted Amounts / Invoiced Amounts" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "activeEmployees"}}
+        {{> activeEmployees
+        md=4 defaultPosition=17 key="Active Employees" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "employeecompletedjobs"}}
+        {{> employeecompletedjobs
+        md=8 defaultPosition=18 key="Employee Jobs Completed" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "clockedOnEmployees"}}
+        {{> clockedOnEmployees
+        md=4 defaultPosition=20 key="Clocked On Employees" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "monthllyexpenses"}}
+        {{> monthllyexpenses
+        md=8 defaultPosition=21 key="Monthly Expenses" updateChart=updateChart}}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "expensebreakdown"}}
+        {{> expensebreakdown
+        md=4 defaultPosition=22 key="Expenses Breakdown" updateChart=updateChart}}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "absenteeRate"}}
+        {{> absenteeRate
+        md=8 defaultPosition=23 key="Absentee Rate Over Last 12 Months" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "dashboardManagerCharts"}}
+        <!-- position 17 to 18, 24 -->
+        {{> dashboardManagerCharts}}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "dsmTop10Customers"}}
+        {{> dsmTop10Customers
+        md=4 defaultPosition=24 key="Top 10 Customers" }}
+        {{/if}}
+
+        <!-- {{#if is_available_chart currentTemplate "resalescomparision"}}
+        {{#if is_dashboard_check "dashboardsalesmanager"}}
+        {{> resalescomparision md=4 defaultPosition=25 key="Employee Sales Comparison"
+        canvasID="dsm_employeeSalesComparisonChart"}}
+        {{/if}}
+        {{/if}} -->
+
+        {{#if equals isaccountoverview true}}
+        {{> accountslistchart
+        md=12 defaultPosition=29 key="Account List" }}
+        {{else}}
+
+        {{/if}}
+
+        <!-- {{#if is_available_chart currentTemplate "dsAppointmentsWidget"}}
+        <div class="col-auto col-md-8 sortable-chart-widget-js hideelement" data-default-position="27"
+            data-default-class="col-md-8" key="Sales Appointment Chart">
+            {{> dsAppointmentsWidget}}
+        </div>
+        {{/if}} -->
+
+        {{#if is_available_chart currentTemplate "opportunitiesStatus"}}
+        {{> opportunitiesStatus md=4 defaultPosition=30 key="Opportunities Status" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "dsmleadlistchart"}}
+        {{> dsmleadlistchart md=12 defaultPosition=31 key="Lead List" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "dashboardSalesCharts"}}
+        {{> dashboardSalesCharts}}
+        {{/if}}
+
+        <!-- {{#if is_available_chart currentTemplate "dsleadlistchart"}}
+        {{> dsleadlistchart md=12 defaultPosition=33 key="Sales Lead List" }}
+        {{/if}} -->
+
+        {{#if is_available_chart currentTemplate "employeeDaysAbsent"}}
+        {{> employeeAbsentDays
+        md=4 defaultPosition=20 key="Employee Absent Days" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "employeesOnLeave"}}
+        {{> employeeLeave
+        md=4 defaultPosition=20 key="Employee Leave" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "crmleadchart"}}
+        {{> crmleadchart md=6 defaultPosition=0 key="Crm Overview" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "averagecostchart"}}
+        {{> averagecostchart md=3 defaultPosition=0 key="Delivery Overview" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "deliverychart"}}
+        {{> deliverychart md=3 defaultPosition=0 key="Delivery Overview" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "productionplannerChart"}}
+        {{> mfgPlannerChart md=12 defaultPosition=34 key="Manufacturing Planner Chart" }}
+        {{/if}}
+                
+        {{#if is_available_chart currentTemplate "productionProductStatusChart"}}
+        {{> productionProductStatus md=4 defaultPosition=34 key="Production Product Status" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "upcomingOrderStackChart"}}
+        {{> upcomingorderstock md=4 defaultPosition=34 key="Upcoming Order Stock" }}
+        {{/if}}
+
+        {{#if is_available_chart currentTemplate "top10BOMChart"}}
+        {{> top10BOM md=4 defaultPosition=34 key="Top 10 BOM" }}
+        {{/if}}
+
+
+    </div>
+</template>

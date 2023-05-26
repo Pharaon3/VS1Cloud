@@ -1,0 +1,176 @@
+<template name="earningRateSettings">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document" style="max-width: 90vw;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4>Earning Rate List</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" style="width: 100%; display:none;" id="earningRateID" name="earningRateID"/>
+          <div class="card-body p-1 rounded">
+            {{> datatablelist
+              tableclass="tblEarningsList"
+              tablename=tablename
+              apiName=apiFunction4
+              indexeddbname='TEarnings'
+              tableheaderrecords=tableheaderrecords4
+              exportfilename='Earnings'
+              apiParams=apiParams4
+              datahandler=datahandler4
+              service=service4
+              lowercaseDataName='tearnings'
+              exIndexDBName='tearnings'
+              exdatahandler=exDataHandler4
+              searchAPI=searchAPI4
+              showPlusButton=true
+              showPlusButtonClass='btnAddordinaryTimeEarnings'
+              showModalID='#addEarningsRateModal'
+            }}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-light" data-dismiss="modal" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  <div class="modal fade" id="addEarningsRateModal" tabindex="-1" role="dialog" aria-labelledby="addEarningsRateModal" aria-hidden="true" style="z-index: 999999;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="heaederEarningLabel">Add Earnings</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form class="row" id="earningRateForm">
+            <div class="col-12">
+              <div class="form-group">
+                {{> default_input
+                  label="Earnings Name"
+                  classes="edtEarningsName"
+                  id="edtEarningsName"
+                  name="edtEarningsName"
+                  defaultValue=""
+                  type="text"
+                }}
+                <input type="hidden" name="earningID" id="earningID"/>
+                <input type="hidden" name="edtEarningDropDownID" id="edtEarningDropDownID"/>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-group">
+                <label for="edtEarningType">Earnings Type</label>
+                {{> vs1_dropdown id='edtEarningType' name='edtEarningType' value='' type='search' classes=''}}
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-group">
+                {{> default_input
+                  label="Display Name (optional)"
+                  classes="edtDisplayName"
+                  id="edtDisplayName"
+                  name="edtDisplayName"
+                  defaultValue=""
+                  type="text"
+                }}
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-group">    
+                {{> vs1___dropdown
+                  data=item.item
+                  type='search'
+                  id='edtRateType'
+                  name='edtRateType'
+                  modalId='select-rate-type-modal'
+                  list_template_name=''
+                  modal_title=''
+                  label='Rate Type'
+                  innerModal=true
+                  colNameForValue='thgroupDescription'
+                  target_modal_id='edtRateType'
+                  target_template_id=''
+                  custid=item.lineID
+                  is_editable=false
+                  noBorder=false
+                }}
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-group">
+                {{> vs1___dropdown
+                  data=item.item
+                  type='search'
+                  id='edtExpenseAccount'
+                  name='edtExpenseAccount'
+                  modalId='accountListModal'
+                  list_template_name='accountlistpop'
+                  modal_title='Account List'
+                  label='Expense Account'
+                  innerModal=true
+                  colNameForValue='colAccountName'
+                  target_modal_id='edtAccountModal'
+                  target_template_id='addaccountpop'
+                  custid='dropdownexpense'
+                  is_editable=true
+                  noBorder=false
+              }}
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="custom-control custom-switch pointer">
+                <input class="custom-control-input chkBox pointer" type="checkbox" id="formCheck-ExemptPAYG" value="ordinaryTimeEarnings1">
+                <label class="custom-control-label chkBox pointer" for="formCheck-ExemptPAYG">Exempt from PAYG withholding</label>
+              </div>
+              <div class="custom-control custom-switch pointer">
+                <input class="custom-control-input chkBox pointer" type="checkbox" id="formCheck-ExemptSuperannuation" value="ordinaryTimeEarnings2">
+                <label class="custom-control-label chkBox pointer" for="formCheck-ExemptSuperannuation">Exempt from Superannuation Guarantee Contribution</label>
+              </div>
+              <div class="custom-control custom-switch pointer">
+                <input class="custom-control-input chkBox pointer" type="checkbox" id="formCheck-ExemptReportable" value="ordinaryTimeEarnings3">
+                <label class="custom-control-label chkBox pointer" for="formCheck-ExemptReportable">Reportable as W1 on Activity Statement</label>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          {{> vs1_button
+            color='success'
+            classes='saveEarningRates'
+            type='button'
+            id="saveEarningRates"
+            iconName='save'
+            title='Save'
+          }}
+          <a data-dismiss="modal">
+              {{> vs1_button
+                  color='secondary'
+                  classes=''
+                  type='button'
+                  id="btnCancel"
+                  iconName='close'
+                  title='Close'
+              }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" role="dialog" tabindex="-1" id="rateTypeListModel" style="z-index: 999999;">
+    {{> ratetypelistpop}}
+  </div>
+
+  <div class="modal fade" role="dialog" tabindex="-1" id="addRateModel" style="z-index: 9999999;">
+    {{> addratetypepop}}
+  </div>
+
+  <div class="modal fade" role="dialog" tabindex="-1" id="taxRateListModal" style="z-index: 999999999 !important;">
+    {{> taxratelistpop}}
+  </div>
+  <div class="modal fade" role="dialog" tabindex="-1" id="newTaxRateModal" style="z-index: 9999999999 !important;">
+    {{> newtaxratepop}}
+  </div>
+</template>

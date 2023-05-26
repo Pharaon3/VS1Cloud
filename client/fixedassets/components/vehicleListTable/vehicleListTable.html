@@ -1,0 +1,94 @@
+<template name="vehicleListTable">
+
+  <style>
+    #row1 {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+    }
+
+    #column1 {
+      display: flex;
+    }
+
+    #column2 {
+      display: flex;
+      flex-direction: column;
+      margin: 16px;
+      padding: .375rem .75rem;
+    }
+
+    .groove {
+      border-style: solid;
+      border-width: 1px;
+      width: 200px;
+      padding: 2px;
+      border-radius: .35rem;
+    }
+
+    .custom-control-label {
+      position: absolute;
+    }
+
+    @media only screen and (max-width: 480px) {
+      .modal.show .modal-dialog {
+        float: inherit !important;
+        left: inherit !important;
+        top: auto !important;
+
+      }
+    }
+  </style>
+  <div class="row no-gutters" style="padding: 0px 32px;">
+    <div class="col-12">
+      <div class="card mb-3">
+        <div class="row d-xl-flex flex-row justify-content-between" style="padding: 0px 20px; align-items: center;">
+
+            <!-- {{#if equals isHideButton false}} -->
+              <div class="flex-grow-1 mb-1">
+                {{> vs1_button
+                  color='primary'
+                  classes='btnRefresh'
+                  type='button'
+                  id="btnRefresh"
+                  iconName=' la la-lightbulb-o'
+                  title='Refresh'
+                }}
+              </div>
+
+              <div class="d-xl-flex justify-content-xl-end align-items-xl-start">
+                {{> export_import_print_display_button tablename="tblVehicleList"}}
+                {{> import_template importformName="Vehicle List"}}
+              </div>
+        </div>
+
+        <div class="card-body">
+            <style>
+                td.colReplacementCost, td.colPurchCost, td.colQty, td.colEstimatedValue, td.colBusinessUse{
+                    text-align: right !important;
+                }
+            </style>
+            {{>datatablelist
+                    tableclass="tblFixedAssetList"
+                    tablename="tblVehicleList"
+                    apiName= apiFunction
+                    indexeddbname = 'TFixedAssetsList'
+                    tableheaderrecords = tableheaderrecords
+                    exportfilename = 'Vehicle List'
+                    istransaction = false
+                    apiParams= apiParams
+                    datahandler = datahandler
+                    service=service
+                    lowercaseDataName='tfixedassetslist'
+                    exIndexDBName = 'tfixedassetslist'
+                    exdatahandler = exDataHandler
+                    searchAPI = searchAPI
+            }}
+<!--          {{> non_transactional_list tablename = "tblFixedAssetList"}}-->
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</template>

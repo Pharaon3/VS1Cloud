@@ -1,0 +1,17 @@
+<template name="dsmTop10Customers">
+    {{# draggablePanel
+        xs=xs sm=sm md=md lg=lg xl=xl
+        defaultPosition=defaultPosition
+        key=key
+        hLenght=100
+        id=""
+        headerClass=""
+        headerColor="primary"
+        headerTitle="Top 10 Customers"
+        hrefDetails=""
+        editModalID="editDashboardModal"
+    }}
+        <canvas class="chart-canvas d-none" id="dsmTop10Customers" name="dsmTop10Customers"></canvas>
+        <img class="chart-img w-100 h-100" src="img/charts/top-10-customers-marked.png"/>
+    {{/draggablePanel}}
+</template>

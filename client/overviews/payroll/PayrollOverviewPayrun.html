@@ -1,0 +1,244 @@
+<template name="PayrollOverviewPayrun">
+    <div class="row">
+        <div class="col-6 col-md-7 col-lg-8">
+            {{> vs1_button
+                color='primary'
+                classes='btnNav btnRefresh mr-2'
+                type='button'
+                id="btnRefresh"
+                iconName='lightbulb-o'
+                title='Refresh'
+            }}
+
+            {{#if equals showTimesheet true}}
+            {{> vs1_button
+                color='primary'
+                classes='btnNav ml-2 mr-2'
+                type='button'
+                id="btnTimesheet"
+                iconName='clock'
+                title='Timesheet List'
+            }}
+
+            {{/if}}
+
+
+            {{> vs1_button
+                color='primary'
+                classes='btnNav btnClockOnOff ml-2 mr-2'
+                type='button'
+                id="btnClockOnOff"
+                iconName='dollar-sign'
+                title='Clock On/Off'
+            }}
+
+            {{> vs1_button
+                color='primary'
+                classes='btnNav ml-2 mr-2'
+                type='button'
+                id="btnSingleTouchPayroll"
+                iconName='dollar-sign'
+                title='ST Payroll'
+            }}
+
+            {{> vs1_button
+                color='primary'
+                classes='btnNav ml-2 mr-2'
+                type='button'
+                id="btnpayrollleave"
+                iconName=''
+                title='Payroll Leave'
+            }}
+
+            {{> vs1_button
+                color='primary'
+                classes='btnNav ml-2 mr-2'
+                type='button'
+                id="btnProcessClock"
+                iconName='hourglass-half'
+                title='Process Clock On/Off List'
+            }}
+
+        </div>
+        <div class="col d-xl-flex justify-content-xl-end align-items-xl-start">
+            {{> export_import_print_display_button hideImport=true tablename="tblDraftPayRun"}}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12" style="margin-bottom: 16px;">
+            <div class="row no-gutters d-xl-flex align-items-xl-end">
+                <div class="col d-sm-flex justify-content-sm-start align-items-sm-center">
+                    <h4 style="font-weight: 600;">Pay Run</h4>
+                </div>
+                <div class="col d-sm-flex justify-content-sm-start align-items-sm-center">
+
+                </div>
+            </div>
+            {{> datatablelist
+                tablename="tblDraftPayRun"
+                tableclass="tblDraftPayRun"
+                apiName=apiFunction
+                indexeddbname='TPayRunHistory'
+                tableheaderrecords=tableheaderrecords
+                exportfilename='Pay Calendars'
+                apiParams=apiParams
+                istransaction = false
+                datahandler=datahandler
+                service=service
+                lowercaseDataName='tpayrunhistory'
+                exIndexDBName='tpayrunhistory'
+                exdatahandler=exDataHandler
+                searchAPI=searchAPI
+                showPlusButton = true
+                showModalID="#newPayRunModal"
+                showPlusButtonClass = "btnAddPayrun"
+            }}
+            <hr class="mt-2" />
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-12" style="margin-bottom: 16px;">
+            <div class="card-body p-5 rounded" style="padding: 0rem 0rem !important;">
+                <style>
+                    th {
+                        background-color: #ededed;
+                    }
+
+                    .table-striped tbody tr:nth-of-type(odd) {
+                        background-color: white !important;
+                    }
+
+                    .table-striped tbody tr:nth-of-type(even) {
+                        background-color: #0000000d !important;
+                    }
+
+                    .JColResizer>tbody>tr>td,
+                    .JColResizer>tbody>tr>th {
+                        padding: .75rem !important;
+                    }
+
+                    .hiddenColumn {
+                        display: none;
+                    }
+
+                    .showColumn {
+                        display: table-cell;
+                        padding: .75rem;
+                        vertical-align: top;
+                    }
+
+                    input[type=number]::-webkit-inner-spin-button,
+                    input[type=number]::-webkit-outer-spin-button {
+                        opacity: 1;
+                    }
+
+                    .highlightInput {
+                        border: 0px solid transparent !important;
+                        background-color: rgba(0, 0, 0, 0) !important;
+                        padding: 0px !important;
+                        width: 100% !important;
+                        text-align: right !important;
+                        color: #858796 !important;
+                    }
+
+                    .highlightInput::-webkit-outer-spin-button,
+                    .highlightInput::-webkit-inner-spin-button {
+                        -webkit-appearance: none !important;
+                        margin: 0 !important;
+                    }
+
+                    /* Firefox */
+                    .highlightInput[type=number] {
+                        -moz-appearance: textfield !important;
+                    }
+
+                    .colFlag {
+                        width: 1% !important;
+                    }
+
+                    .tdEmpty {
+                        width: 3% !important;
+                    }
+
+                    @media screen and (max-width: 450px) {
+
+                        #tblPayRunList_filter {
+                            width: 70%;
+                        }
+
+                        .form-control-sm {
+                            width: 70% !important;
+                        }
+
+                        .input-group.date {
+                            width: 130px !important;
+                        }
+
+                        .dateFromGroup {
+                            float: right !important;
+                            width: 183px !important;
+                        }
+
+                        .dateToGroup {
+                            float: right !important;
+                            width: 172px !important;
+                        }
+
+                        .myvarFilterForm {
+                            /* display: inline-flex !important; */
+                            padding: 0px !important;
+                        }
+
+                        .colDateFilter {
+                            padding-left: 0px !important;
+                        }
+
+                        .dropdownDateRange {
+                            float: right !important;
+                            width: 100% !important;
+                        }
+
+                        .btn-daterange {
+                            float: right !important;
+                        }
+                    }
+                </style>
+                    <div class="row">
+                        <div class="col-6">
+                           <button class="btn btn-primary btnRefreshOne btnNav" type="button" style="margin: 12px; margin-left:0px;"><i class="la la-lightbulb-o" style="padding-right: 5px;"></i>Refresh </button>
+                        </div>
+                       <div class="col-6">
+                            <div class="col d-xl-flex justify-content-xl-end align-items-xl-start">
+                                {{> export_import_print_display_button hideImport=true tablename="tblPayRunHistory"}}
+                            </div>
+                       </div>
+                        
+                    </div>
+                    <div class="row no-gutters d-xl-flex align-items-xl-end">
+                        <div class="col d-sm-flex justify-content-sm-start align-items-sm-center">
+                            <h4 style="font-weight: 600;">Pay Run History</h4>
+                        </div>
+                    </div>
+                    {{> datatablelist
+                        tablename="tblPayRunHistory"
+                        tableclass="tblPayRunHistory"
+                        apiName=apiFunction1
+                        indexeddbname='TPayHistory'
+                        tableheaderrecords=tableheaderrecords1
+                        exportfilename='Pay History Calendars'
+                        apiParams=apiParams1
+                        istransaction = true
+                        datahandler=datahandler1
+                        service=service1
+                        lowercaseDataName='tpayhistory'
+                        exIndexDBName='tpayhistory'
+                        exdatahandler=exDataHandler1
+                        searchAPI=searchAPI1
+                    }}
+            </div>
+        </div>
+    </div>
+</template>

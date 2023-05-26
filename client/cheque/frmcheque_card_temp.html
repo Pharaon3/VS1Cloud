@@ -1,0 +1,446 @@
+<template name="chequecard_temp">
+  <style>
+    .templateItem {
+      display: inline-flex !important;
+    }
+
+    .btnPreviewTemplate {
+      padding: 6px;
+      cursor: pointer;
+    }
+
+    .btnPreviewTemplate:hover {
+      background-color: #f8f9fc;
+    }
+  </style>
+  <style>
+    .lead {
+      font-size: 24px;
+      font-weight: 500;
+      margin: 0px;
+      color: #696969;
+      float: right;
+    }
+
+    .leadTotal {
+      font-weight: 800 !important;
+    }
+
+    .leadHidden {
+      visibility: hidden;
+      height: 0px !important;
+    }
+
+    @media screen and (min-width: 1366px) {
+      .colComments {
+        padding-right: 2.5rem;
+      }
+    }
+
+    @media screen and (max-width: 450px) {
+      .desktopButtons {
+        display: none;
+      }
+
+      .mobileButtons {
+        display: flex !important;
+      }
+    }
+  </style>
+  {{> transaction_card
+  exIndexDBName='TChequeEx'
+  exLowercaseName='tchequeex'
+  listLowercasename='tchequelist'
+  oneExAPIName=oneExAPIName
+  service=service
+  listapiservice=listapiservice
+  listapifunction=listapifunction
+  listroute='chequelist'
+  setTransData=setTransData
+  initialRecords=initialRecords
+  includeClient=true
+  includeAddress=true
+  Category='cheque'
+  TranascationType='quotes'
+  clientType='Supplier'
+  payment=true
+  headerfields=headerfields
+  headerbuttons=headerbuttons
+  currency=true
+  balanceDue=chequerecord.balanceDue
+  isPaid=chequerecord.ispaid
+  data=chequerecord
+  gridTableId='tblChequeLine'
+  printTableId='cheque_print'
+  printTemplateId = 'print_cheque'
+
+
+  transCategory = 'Accounting'
+  tablename="tblChequeLine"
+  isForeignEnabled=false
+  canShowBackOrder=true
+  canShowUOM=true
+  includeBOnShippedQty=false
+  isBatchSerialNoTracking=false
+  getDefaultCurrency=''
+  mainselector='lineProductName'
+  selectorfield='colProductName'
+  gridfields=gridfields
+
+  footerFields = footerFields
+  AttachmentCount=attachmentCount
+  printName = 'Cheques'
+  TransactionType='cheques'
+  printOptions=printOptions
+  saveTransaction=saveTransaction
+  }}
+
+  <!-- Start PDF -->
+  <!-- New A4 -->
+  <div
+    style="width: 210mm; background-color: #ffffff; padding: 8px; height: 297mm; font-size: 13.33px; display: none; color: #000000; overflow-x: visible;"
+    id="html-2-pdfwrapper_cheque" name="html-2-pdfwrapper_cheque">
+    <div style="display: flex; height: 70mm;">
+      <div style="margin: 0px; padding: 16px; width: 130mm; max-width: 130mm;">
+        <div style="display: flex;">
+          <div style="max-width: 60mm; max-height: 30mm;">
+            <img src="assets/img/VS1.png" class="uploadedImage"
+              style="max-height: 30mm; max-width: 200px;margin-bottom: 8px;">
+          </div>
+          <div style="width: 70mm;">
+            <div style="padding-left: 16px;font-weight: bold;">
+              <a href="{{organizationurl}}">{{organizationurl}}</a>
+              <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{organizationname}}</p>
+              <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{companyaddress1}}</p>
+              <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{companyaddress2}}</p>
+              <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{city}}</p>
+              <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{state}} {{poBox}} </p>
+              {{#if equals companyReg ''}}
+
+              {{else}}
+              <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{companyReg}}</p>
+              {{/if}}
+              <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{companyabn}}</p>
+              <p style="margin-bottom: 0px; color: rgb(0 0 0);">Phone: {{companyphone}}</p>
+            </div>
+          </div>
+        </div>
+        <div style="font-size: 14px;">
+          <p style="margin-bottom: 0px; color: rgb(0 0 0);font-weight: 600;">Customer</p>
+          <p style="margin-bottom: 0px; color: rgb(0 0 0); display:none;" class="pdfCustomerName"></p>
+          <div style="min-height:50px; width:30%; margin-bottom: 0px; color: rgb(0 0 0);" class="pdfCustomerAddress">
+          </div>
+        </div>
+      </div>
+      <div style="margin: 0px; padding: 16px; border: none !important; width: 60mm; max-width: 60mm;">
+        <h4 style="font-weight: bold; font-size: 26.667px; color: rgb(0 0 0);">Cheque&nbsp;&nbsp;&nbsp;
+          {{chequerecord.id}}</h4>
+        <div style="display: flex; width: 100%;">
+          <div style="width: 50%; padding-right: 16px;font-weight: bold;">
+            <label style="margin-bottom: 0px; color: rgb(0 0 0);">Date:</label>
+            <label class="pdfPONumber" style="margin-bottom: 0px; color: rgb(0 0 0);">P.O Number:</label>
+          </div>
+          <div style="width: 50%; padding-left: 16px;">
+            <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{chequerecord.saledate}}</p>
+            <p style="margin-bottom: 0px; color: rgb(0 0 0); white-space: nowrap;">{{chequerecord.custPONumber}}.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div style="height: 160mm;">
+      <div style="margin: 8px; border: none !important; background-color: rgba(0,0,0,0);">
+        <table class="cheque_print" style="width: 200mm; max-width: 200mm; margin: auto;">
+          <thead style="color: rgb(251,251,251);">
+            <tr style="border-bottom: 1px solid rgba(0, 0, 0, 1);">
+              <th style="width: 200px; background-color: white; color: rgb(0 0 0);">Account Name</th>
+              <th style="width: 250px; background-color: white; color: rgb(0 0 0);">Description</th>
+              <th style="text-align: right; width: 77px; background-color: white; color: rgb(0 0 0);">Tax</th>
+              <th style="text-align: right; width: 77px; background-color: white; color: rgb(0 0 0);"
+                class="hiddenColumn">Tax</th>
+              <th style="text-align: right; width: 100px; background-color: white; color: rgb(0 0 0);">Amount</th>
+            </tr>
+          </thead>
+          <tbody style="color: rgb(0 0 0);">
+            {{#each item in chequerecord.LineItems}}
+            <tr id={{item.lineID}} style="border-bottom: 1px solid rgba(0, 0, 0, .1);">
+              <td id="lineAccountName">{{item.accountname}}</td>
+              <td id="lineMemo">{{item.description}}</td>
+              <td id="lineTaxAmount" style="text-align: right;">{{item.TaxTotal}}</td>
+              <td id="lineTaxCode" class="hiddenColumn" style="text-align: right;">{{item.taxCode}}</td>
+              <td id="lineAmount" style="text-align: right;">{{item.TotalAmt}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <hr>
+    <div style="display: flex;">
+      <div style="margin: 8px;min-width: 100mm;max-width: 100mm;width: 100mm;">
+        <p style="font-weight: 600; color: rgb(0 0 0);">Comments</p>
+        <div id="printcomment" style="color: rgb(0 0 0);">{{chequerecord.comments}}</div>
+      </div>
+      <div style="margin: 8px; border: none !important; min-width: 90mm;max-width: 90mm;width: 90mm;">
+        <div style="width: 100%; display: flex;">
+          <div style="padding-right: 16px; width: 50%;">
+            <p style="font-weight: 600; margin-bottom: 8px; color: rgb(0 0 0);">Sub Total</p>
+            <p style="font-weight: 600; margin-bottom: 8px; color: rgb(0 0 0);">Total GST</p>
+          </div>
+          <div style="padding-left: 16px; width: 50%;">
+            <p id="subtotal_totalPrint"
+              style="text-align: right; margin-bottom: 8px; font-weight: 600; color: rgb(0 0 0);">
+              {{chequerecord.SubTotal}}</p>
+            <p id="totalTax" style="text-align: right; margin-bottom: 8px; font-weight: 600; color: rgb(0 0 0);">
+              {{chequerecord.TotalTax}}</p>
+          </div>
+        </div>
+        <hr>
+        <div style="width: 100%; display: flex;">
+          <div style="padding-right: 16px; width: 50%;">
+            <p style="font-weight: 800; margin-bottom: 8px; color: rgb(0 0 0);">TOTAL</p>
+          </div>
+          <div style="padding-left: 16px; width: 50%;">
+            <p id="grandTotalPrint" style="text-align: right; margin-bottom: 8px; font-weight: 800;">
+              {{chequerecord.Total}}<br></p>
+          </div>
+        </div>
+        <hr>
+        <div style="width: 100%; display: flex;">
+          <div style="padding-right: 16px; width: 50%;">
+            <p style="font-weight: 600; margin-bottom: 8px; color: rgb(0 0 0);">Paid Amount</p>
+            <p style="font-weight: 600; margin-bottom: 8px; color: rgb(0 0 0); display:none;">Balance Due</p>
+          </div>
+          <div style="padding-left: 16px; width: 50%;">
+            <p style="text-align: right; margin-bottom: 8px; font-weight: 600; color: rgb(0 0 0);">
+              {{chequerecord.totalPaid}}</p>
+            <p id="totalBalanceDuePrint"
+              style="text-align: right; margin-bottom: 8px; font-weight: 600; color: rgb(0 0 0); display:none;">
+              {{chequerecord.balanceDue}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span style="font-size: 10px;margin-right: 8px; float: right;">Page 1 of 1</span>
+  </div>
+
+  <!--Letter -->
+  <div
+    style="width: 216mm;background-color: #ffffff;padding: 8px;height: 279mm; font-size: 13.33px; display:none; color: #000000;"
+    id="html-2-pdfwrapperLetter" name="html-2-pdfwrapperLetter">
+    <div class="d-xl-flex align-items-xl-start" style="height: 100%;">
+      <div class="d-flex d-xl-flex flex-column flex-nowrap align-items-xl-center"
+        style="min-height: 100%;height: 100%;max-height: 100%;">
+        <div class="d-lg-flex d-xl-flex align-items-lg-start align-items-xl-start">
+          <div class="card flex-grow-1"
+            style="margin: 8px; border: none !important; width: 140mm; max-width: 140mm; background-color: rgba(0,0,0,0);">
+            <div class="card-body">
+              <div class="d-lg-flex justify-content-lg-start" style="margin-bottom: 16px;">
+                <div class="d-lg-flex flex-column justify-content-lg-start"><img src="assets/img/VS1.png"
+                    class="uploadedImage" style="width: 200px;margin-bottom: 8px;"><a
+                    href="{{organizationurl}}">{{organizationurl}}</a>
+                </div>
+                <div class="d-lg-flex d-xl-flex justify-content-lg-center align-items-xl-start card-text">
+                  <div style="padding-left: 16px;font-weight: bold;">
+                    <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{organizationname}}</p>
+                    <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{companyaddress1}}</p>
+                    <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{companyaddress2}}</p>
+                    <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{city}}</p>
+                    <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{state}} {{poBox}} </p>
+                    {{#if equals companyReg ''}}
+
+                    {{else}}
+                    <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{companyReg}}</p>
+                    {{/if}}
+                    <p style="margin-bottom: 0px; color: rgb(0 0 0);">{{companyabn}}</p>
+                    <p style="margin-bottom: 0px; color: rgb(0 0 0);">Phone: {{companyphone}}</p>
+                  </div>
+                </div>
+              </div>
+              <div style="font-size: 14px;">
+                <h5 style="margin-bottom: 0px;font-weight: bold; color: rgb(0 0 0);">Customer</h5>
+                <p style="margin-bottom: 0px; display:none;" class="pdfCustomerName">Big Burtha</p>
+                <div style="min-height:50px; width:30%; margin-bottom: 0px; color: rgb(0 0 0);"
+                  class="pdfCustomerAddress">12 Golf Drive</div>
+                <!-- <p style="margin-bottom: 0px;">Caulifield South Vic 9820</p>
+<p style="margin-bottom: 0px;">Australia</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="card"
+            style="margin: 8px; border: none !important; width: 65mm; max-width: 65mm; background-color: rgba(0,0,0,0);">
+            <div class="card-body">
+              <h4 class="card-title" style="font-weight: bold; color: rgb(0 0 0);">Cheque &nbsp;&nbsp;&nbsp;
+                {{chequerecord.id}}</h4>
+              <div class="d-lg-flex d-xl-flex align-items-xl-start card-text">
+                <div class="d-lg-flex d-xl-flex flex-column align-items-lg-start align-items-xl-start"
+                  style="padding-right: 16px;font-weight: bold; color: rgb(0 0 0);"><label class="text-nowrap"
+                    style="color: rgb(0 0 0);">No:</label><label class="text-nowrap"
+                    style="color: rgb(0 0 0);">Date:</label><label class="text-nowrap" style="color: rgb(0 0 0);">PO
+                    Number:</label></div>
+                <div style="padding-left: 16px;">
+                  <p style="margin-bottom: 8px; color: rgb(0 0 0);">{{chequerecord.saledate}}</p>
+                  <p style="margin-bottom: 8px; color: rgb(0 0 0);">{{chequerecord.custPONumber}}.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex-grow-1">
+          <div class="card" style="margin: 8px; border: none !important; background-color: rgba(0,0,0,0);">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table" style="width: 200mm; max-width: 200mm;">
+                  <!-- table-sm -->
+                  <thead class="text-secondary" style="color: rgb(251,251,251);">
+                    <tr>
+                      <th class="text-nowrap" style="width: 200px; background-color: white; color: rgb(0 0 0);">
+                        Account Name</th>
+                      <th class="text-nowrap" style="width: 250px; background-color: white; color: rgb(0 0 0);">
+                        Description</th>
+                      <th class="text-nowrap text-right"
+                        style="width: 50px; background-color: white; color: rgb(0 0 0);">Qty</th>
+                      <th class="text-nowrap text-right"
+                        style="width: 90px; background-color: white; color: rgb(0 0 0);">Unit Price</th>
+                      <th class="text-nowrap text-right"
+                        style="width: 77px; background-color: white; color: rgb(0 0 0);">Tax</th>
+                      <th class="text-nowrap text-right"
+                        style="width: 100px; background-color: white; color: rgb(0 0 0);">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody style="color: rgb(0 0 0);">
+                    {{#each item in chequerecord.LineItems}}
+                    <tr>
+                      <td>{{item.accountname}}</td>
+                      <td>{{item.description}}</td>
+                      <td class="text-right">{{item.quantity}}</td>
+                      <td class="text-nowrap text-right">{{item.unitPrice}}</td>
+                      <td class="text-nowrap text-right">{{item.taxRate}}</td>
+                      <td class="text-nowrap text-right">{{item.TotalAmt}}</td>
+                    </tr>
+
+                    {{/each}}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex-grow-0">
+          <hr style="margin: 0px;">
+          <div class="d-lg-flex d-xl-flex align-items-lg-start align-items-xl-start">
+            <div class="card flex-grow-1"
+              style="margin: 8px; min-width: 90mm;max-width: 90mm;width: 90mm; background-color: rgba(0,0,0,0);">
+              <div class="card-body" style="">
+                <h4 class="card-title" style="font-size: 20px;font-weight: bold; color: rgb(0 0 0);">Comments</h4>
+                <p style="color: rgb(0 0 0);">{{chequerecord.comments}}</p>
+              </div>
+            </div>
+            <div class="card flex-grow-1"
+              style="margin: 8px; border: none !important; min-width: 110mm;max-width: 110mm;width: 110mm; background-color: rgba(0,0,0,0);">
+              <div class="card-body">
+                <div class="d-lg-flex d-xl-flex flex-row justify-content-lg-center align-items-xl-start card-text">
+                  <div class="d-lg-flex d-xl-flex flex-column align-items-lg-start align-items-xl-start"
+                    style="padding-right: 16px;"><label class="text-nowrap"
+                      style="font-weight: 600; color: rgb(0 0 0);">Sub
+                      Total</label><label class="text-nowrap" style="font-weight: 600; color: rgb(0 0 0);">Total
+                      GST</label></div>
+                  <div class="d-lg-flex flex-column flex-grow-1 justify-content-lg-end" style="padding-left: 16px;">
+                    <p class="text-right" style="margin-bottom: 8px;font-weight: 600; color: rgb(0 0 0);">
+                      {{chequerecord.SubTotal}}</p>
+                    <p class="text-right" style="margin-bottom: 8px;font-weight: 600; color: rgb(0 0 0);">
+                      {{chequerecord.TotalTax}}</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="d-lg-flex d-xl-flex align-items-lg-start align-items-xl-start card-text">
+                  <div class="d-xl-flex flex-column flex-grow-1 align-items-xl-start" style="padding-right: 16px;">
+                    <label class="text-nowrap" style="font-weight: 800; color: rgb(0 0 0);">TOTAL&nbsp; (inc
+                      GST)</label>
+                  </div>
+                  <div class="flex-grow-1" style="padding-left: 16px;">
+                    <p class="text-right flex-grow-1" style="margin-bottom: 8px;font-weight: 800; color: rgb(0 0 0);">
+                      {{chequerecord.Total}}<br></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card"
+            style="margin: 8px; border: none !important; min-width: 200mm;max-width: 200mm;width: 200mm; background-color: rgba(0,0,0,0);">
+            <div class="card-body">
+              <h6 class="text-muted card-subtitle mb-2">Supplier Notice</h6>
+              <p class="card-text" style="font-size: 10px;">When paying on delivery or pick up, only cash and bank
+                cheques will be accepeted as final payment. Personal and Business cheques require 7 days clearance
+                before goods
+                leave store. Thank you.</p>
+            </div>
+          </div><span class="d-lg-flex d-xl-flex justify-content-lg-end justify-content-xl-end"
+            style="font-size: 10px;margin-right: 8px;">Page 1 of 1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- END PDF -->
+  <!-- {{> all_transaction_modals supplierRecord=supplierRecord}} -->
+  <!-- <div class="modal fade" role="dialog" tabindex="-1" id="statusModal">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document" style="max-width: 400px;">
+      <div class="modal-content">
+        <form id="newstatus" name="newstatus">
+          <div class="modal-header">
+            <h4>Add New Lead Status</h4><button type="button" class="close" data-dismiss="modal"
+              aria-label="Close"><span aria-hidden="true">×</span></button>
+          </div>
+          <div class="modal-body" style="padding: 24px;">
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group flex-grow-1" style="margin: 8px 0px;">
+                  <label>Status</label>
+                  <input type="text" id="status" name="status" class="form-control">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-success btnSaveStatus" type="button"><i class="fa fa-save"
+                style="margin-right: 5px;"></i>Save</button>
+            <button class="btn btn-warning btnResetSettings closeModal" data-dismiss="modal" type="reset"><i
+                class="fa fa-repeat" style="margin-right: 5px;"></i>Reset</button>
+            <button class="btn btn-secondary closeModal" data-dismiss="modal" type="button"><i class="fa fa-remove"
+                style="margin-right: 5px;"></i>Close</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div> -->
+  <!-- Modal print-button -modal -->
+
+  <!-- Start Help Video Modal -->
+  <div class="modal fade" role="dialog" tabindex="-1" id="helpModal">
+    <div class="modal-dialog" role="document" style="max-width: 670px!important;">
+      <div class="modal-content">
+        <div class="modal-header">
+
+          <h4 class="title-header">{{formname}}</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">×</span></button>
+        </div>
+        <div class="modal-body">
+          <!-- <iframe width="640" height="360" src="https://player.vimeo.com/video/99892791" frameborder="0" allowfullscreen=""></iframe> -->
+          <!-- <iframe width="640" height="360" src="https://erphelpes.com/vs1videos/cheque.mp4" frameborder="0" allowfullscreen=""></iframe> -->
+          <video preload="none" id="myVideo" width="640" height="360" controls="" name="media"
+            style="border: solid 5px #999999f0; height: auto; outline: none;">
+            <source src="https://erphelpes.com/vs1videos/cheque.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Help Video Modal -->
+  <script>
+    modalDraggable();
+  </script>
+  {{> init_form_page_script}}
+</template>

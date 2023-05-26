@@ -1,0 +1,116 @@
+<template name="customfiltersmodal">
+  <div class="modal fade customFilterModal" role="dialog" tabindex="-1" id="customFilterModal_{{tablename}}" displaytablename="{{tablename}}">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+          <div class="modal-header customFilterHelpModal">
+              <h4>Custom Filter</h4>
+          </div>
+          <div class="modal-body customFilterHelpModal" style="background-color: #EDEDED;">
+            <div class="row">
+              <!-- First Filter Here -->
+              <div style="padding: 8px 16px; width: 100%;">
+                <!-- {{#if earningLines}}
+                {{#each item in earningLines}}
+                {{#if item.Active }} -->
+                <div class="earningLinesContainer earningRateNewDiv" data-id="">
+                  <div class="row align-items-end ">
+                    <div class="col-5 col-md-4">
+                      <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" class="form-control edtPriceFormatting"
+                          id="ptEarningAmount" value="">
+                      </div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                      <div class="form-group">
+                          {{> default_select
+                              label="Select"
+                              type="search"
+                              id="edtSelectOption"
+                              name="edtSelectOption"
+                              options=switchRuleOptions
+                          }}
+                      </div>
+                    </div>
+                    <div class="col-5 col-md-4">
+                      <div class="form-group">
+                        <label>Value</label>
+                        <input type="text" class="form-control edtPriceFormatting"
+                          id="ptEarningAmount" value="">
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+                <!-- {{/if}}
+                {{/each}}
+                {{/if}} -->
+
+              </div>
+
+              <!-- Ends HERE -->
+            </div>
+          </div>
+            <div class="modal-header" style="border-top:1px solid #e3e6f0;">
+                <h4>Outstanding Invoices</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" style="width: 100%; display:none;" id="selectTableID" name="selectTableID" readonly>
+                <ul class="list-group list-group-flush">
+
+                  <li class="list-group-item templateItem justify-content-between">
+                    <div class="custom-control custom-switch">
+                      <input class="custom-control-input rdoColor" type="radio" name="rdoGreen" id="rdoGreen" value="Green" style="cursor: pointer;" />
+                      <label class="custom-control-label" for="rdoGreen" style="cursor: pointer; color: #1cc88a;">Within Terms</label>
+                      <!-- <input class="" type="text" name="txtGreen" style="border: none; width: 90%;" value="Within Terms" /> -->
+                    </div>
+
+                    <div class="custom-control custom-switch">
+                      <input class="custom-control-input rdoColor" type="radio" name="rdoYellow" id="rdoYellow" value="Yellow" style="cursor: pointer;" />
+                      <label class="custom-control-label" for="rdoYellow" style="cursor: pointer; color: #d7d715;">1 to 30 Days Overdue</label>
+                      <!-- <input class="" type="text" name="txtYellow" style="border: none; width: 90%;" value="1 to 30 Days Overdue" /> -->
+                    </div>
+
+
+                    <div class="custom-control custom-switch">
+                      <input class="custom-control-input rdoColor" type="radio" name="rdoOrange" id="rdoOrange" value="Orange" style="cursor: pointer;" />
+                      <label class="custom-control-label" for="rdoOrange" style="cursor: pointer; color: #f6c23e;">31 to 60 Days Overdue</label>
+                      <!-- <input class="" type="text" name="txtOrange" style="border: none; width: 90%;" value="31 to 60 Days Overdue" /> -->
+                    </div>
+
+                    <div class="custom-control custom-switch">
+                      <input class="custom-control-input rdoColor" type="radio" name="rdoRed" id="rdoRed" value="Red" style="cursor: pointer;" />
+                      <label class="custom-control-label" for="rdoRed" style="cursor: pointer; color: #e74a3b;">More than 61 Days Overdue</label>
+                      <!-- <input class="" type="text" name="txtRed" style="border: none; width: 90%;" value="More than 61 Days Overdue" /> -->
+                    </div>
+                  </li>
+
+                  <li class="list-group-item templateItem justify-content-between">
+                    <div class="custom-control custom-switch">
+                      <input class="custom-control-input rdoDueThisMonth" type="radio" name="rdoDaysOverDue" id="rdoDueThisMonth" value="Due This Calendar Month" style="cursor: pointer;" />
+                      <label class="custom-control-label" for="rdoDueThisMonth" style="cursor: pointer; color: transparent;"></label>
+                      <input class="" type="text" name="txtDueThisMonth" style="border: none; width: 90%;" value="Due This Calendar Month" />
+                    </div>
+
+                    <div class="custom-control custom-switch">
+                      <input class="custom-control-input rdoDueLastMonth" type="radio" name="rdoDaysOverDue" id="rdoDueLastMonth" value="Due Last Calendar Month" style="cursor: pointer;" />
+                      <label class="custom-control-label" for="rdoDueLastMonth" style="cursor: pointer; color: transparent;"></label>
+                      <input class="" type="text" name="txtDueLastMonth" style="border: none; width: 90%;" value="Due Last Calendar Month" />
+                    </div>
+
+                  </li>
+
+                  <li class="list-group-item templateItem justify-content-between">
+                    <P>Due    <input class="" type="number" name="txtDaysDue" style="width: 15%; margin-left: 15px; margin-right: 15px;" value="" /> Days ago</P>
+                  </li>
+                </ul>
+            </div>
+            <div class="modal-footer" style="background-color: #EDEDED;">
+                <button class="btn btn-success btnSaveApply" type="button"><i class="fa fa-save" style="margin-right: 5px;"></i>Apply</button>
+                <button class="btn btn-primary btnSaveFilter" type="button"><i class="fa fa-save" style="margin-right: 5px;"></i>Save Filter</button>
+                <button class="btn btn-secondary" data-dismiss="modal" type="button" autocomplete="off"><i class="fa fa-close" style="margin-right: 5px;"></i>Cancel</button>
+            </div>
+        </div>
+    </div>
+  </div>
+</template>

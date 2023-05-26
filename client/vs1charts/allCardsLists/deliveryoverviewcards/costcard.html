@@ -1,0 +1,97 @@
+<template name="costcard">
+    <!-- Total Cost -->
+    {{# kpiCard md=6 xl=3
+        cardID=0
+        id="costCard1"
+        chartGroup="deliveryOverview"
+        defaultPosition=0
+        position=0
+        cardActive=true
+        cardKey="deliveryOverview-total-cost"
+        highlightColor="info"
+    }}
+        {{> kpiCardTitle
+            title="Total Cost"
+            size="small"
+            color="info"
+            textTransform="uppercase"
+            align=""
+        }}
+        {{# kpiCardBody}}
+            {{> kpiCardSingleValue
+                href="/"
+                id="totalCost"
+                name="totalCost"
+                subValueId="totalCostQTY"
+                subValueName="totalCostQTY"
+                subText=""
+                iconName="fa-usd"
+                color="secondary"
+            }}
+        {{/kpiCardBody}}
+    {{/kpiCard}}
+
+    <!-- Overdue Invoices -->
+    {{# kpiCard md=6 xl=3
+        cardID=0
+        id="costCard2"
+        chartGroup="deliveryOverview"
+        defaultPosition=1
+        position=1
+        cardActive=true
+        cardKey="deliveryOverview-fuel-cost"
+        highlightColor="warning"
+    }}
+        {{> kpiCardTitle
+            title="Fuel Cost"
+            size="small"
+            color="warning"
+            textTransform="uppercase"
+            align=""
+        }}
+        {{# kpiCardBody}}
+            {{> kpiCardSingleValue
+                href="/"
+                id="fuelCost"
+                name="fuelCost"
+                subValueId="fuelCostQTY"
+                subValueName="fuelCostQTY"
+                subText=""
+                iconName="fa-truck"
+                color="secondary"
+            }}
+        {{/kpiCardBody}}
+    {{/kpiCard}}
+
+    <!-- All Outstanding Payments -->
+    {{# kpiCard md=6 xl=3
+        cardID=0
+        id="costCard3"
+        chartGroup="deliveryOverview"
+        defaultPosition=2
+        position=2
+        cardActive=true
+        cardKey="deliveryOverview-service-cost"
+        highlightColor="info"
+    }}
+        {{> kpiCardTitle
+            title="Service Cost"
+            size="small"
+            color="info"
+            textTransform="uppercase"
+            align=""
+        }}
+        {{# kpiCardBody}}
+            {{> kpiCardSingleValue
+                href="/"
+                id="serviceCost"
+                name="serviceCost"
+                subValueId="serviceCostQTY"
+                subValueName="serviceCostQTY"
+                subText=""
+                iconName="fa-money"
+                color="secondary"
+            }}
+        {{/kpiCardBody}}
+    {{/kpiCard}}
+</template>

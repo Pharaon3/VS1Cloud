@@ -1,0 +1,106 @@
+<template name="reimbursementSettings">
+    <div class="modal fade" role="dialog" tabindex="1" id="reimbursementSettingsModal" style="z-index:99999;">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document" style="max-width: 90vw;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Reimbursement List</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body p-1 rounded">
+                        {{> datatablelist
+                            tablename="tblReimbursements"
+                            apiName=apiFunction6
+                            indexeddbname='TReimbursement'
+                            tableheaderrecords=tableheaderrecords6
+                            exportfilename='Reimbursements'
+                            apiParams=apiParams6
+                            datahandler=datahandler6
+                            service=service6
+                            lowercaseDataName='treimbursement'
+                            exIndexDBName='treimbursement'
+                            exdatahandler=exDataHandler6
+                            searchAPI=searchAPI6
+                            showPlusButton = true
+                            showModalID="#newReimbursementModal"
+                            showPlusButtonClass = "btnAddNewReimbursement"
+                        }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" data-dismiss="modal" type="button">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="newReimbursementModal" tabindex="-1" role="dialog" aria-labelledby="newReimbursementLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newReimbursementLabel">Add New Reiumbursement</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="row" id="reimbursementRateForm">
+                        <div class="col-12">
+                            <div class="form-group">
+                                {{> default_input 
+                                    label="Reimbursement Name" 
+                                    classes="edtReimbursementName" 
+                                    id="edtReimbursementName" 
+                                    name="edtReimbursementName" 
+                                    defaultValue="" 
+                                    type="text"
+                                }}
+                                <input type="hidden" id="res_id">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                {{> vs1___dropdown
+                                    data=item.item
+                                    type='search'
+                                    id='edtReimbursementAccount'
+                                    name='edtReimbursementAccount'
+                                    modalId='accountListModal'
+                                    list_template_name='accountlistpop'
+                                    modal_title='Account List'
+                                    label='Account'
+                                    innerModal=true
+                                    colNameForValue='colAccountName'
+                                    target_modal_id='edtAccountModal'
+                                    target_template_id='addaccountpop'
+                                    custid='dropdownreimbursement'
+                                    is_editable=true
+                                    noBorder=false
+                                }}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    {{> vs1_button
+                        color='success'
+                        classes='btnSaveReimbursement'
+                        type='button'
+                        id="btnSaveReimbursement"
+                        iconName='save'
+                        title='Save'
+                    }}
+                    <a data-dismiss="modal">
+                        {{> vs1_button
+                            color='secondary'
+                            classes=''
+                            type='button'
+                            id="btnCancel"
+                            iconName='close'
+                            title='Close'
+                        }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</template> 

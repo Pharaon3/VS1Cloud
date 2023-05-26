@@ -1,0 +1,44 @@
+<template name="payrollcalendarpop">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="payrollCalendar-title">Payroll Calendars</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            {{> datatablelist
+                tablename="tblPayCalendars"
+                apiName=apiFunction
+                indexeddbname='TPayrollCalendars'
+                tableheaderrecords=tableheaderrecords
+                exportfilename='Pay Calendars'
+                apiParams=apiParams
+                istransaction = false
+                datahandler=datahandler
+                service=service
+                lowercaseDataName='tpayrollcalendars'
+                exIndexDBName='tpayrollcalendars'
+                exdatahandler=exDataHandler
+                searchAPI=searchAPI
+                showPlusButton=true
+                showPlusButtonClass='btnAddNewPayCalender'
+                showModalID='#newPayCalendarModal'
+            }}
+        </div>
+        <div class="modal-footer">
+            <a data-dismiss="modal">
+                {{> vs1_button
+                    color='secondary'
+                    classes=''
+                    type='button'
+                    id="btnCancel"
+                    iconName='close'
+                    title='Close'
+                }}
+            </a>
+        </div>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,250 @@
+<template name="vatreturntransactionlist">
+    <div style="margin-top: -24px;">
+        <div class="fullScreenSpin" style="display:none;">
+            <div class="spinner"></div>
+        </div>
+        <header style="padding: 16px;background-color: #ededed;padding-bottom: 0px;">
+            <h1 style="margin: 16px;margin-bottom: 0px;" id="pageTitle">VAT Return Details {{> helpbutton}}
+<!--                <a role="button" data-toggle="modal" href="#helpModal" class="helpModal">-->
+<!--                    <label class="lblplay">PLAY</label><i class="far fa-play-circle" style="font-size: 20px;"></i>-->
+<!--                </a>-->
+            </h1>
+        </header>
+        <div class="d-flex flex-row align-items-xl-center" style="background-color: #ededed;padding: 16px;padding-bottom: 0px;">
+            <div class="d-xl-flex flex-grow-1 align-items-xl-center">
+                <div>
+                    <button class="btn btn-primary btnRefresh" type="button" style="margin: 16px;margin-top: 0px; background-color: #00A3D3; border-color: #00A3D3;"><i class="la la-lightbulb-o" style="padding-right: 5px;"></i>Refresh</button>
+                </div>
+            </div>
+<!--            <div>-->
+<!--                <button class="btn btn-primary" type="button" style="margin: 16px;margin-top: 0px; background-color: #00A3D3; border-color: #00A3D3;" id="exportbtn" name="exportbtn"><i class="fas fa-file-export"-->
+<!--                        style="margin-right: 8px; background-color: #00A3D3; border-color: #00A3D3; "></i>Export</button>-->
+<!--                <button class="btn btn-primary printConfirm" type="button" style="margin: 16px;margin-top: 0px; background-color: #00A3D3; border-color: #00A3D3; "><i class="fa fa-print" style="margin-right: 8px;"></i>Print</button>-->
+<!--            </div>-->
+            <div class="col d-xl-flex justify-content-xl-end align-items-xl-start">
+                {{> export_import_print_display_button Import="hiddenButton" tablename="tblVatReturnTransactionList"}}
+            </div>
+        </div>
+<!--        <div style="padding: 0px 16px;">-->
+<!--            <div class="card-body p-3 rounded">-->
+<!--                &lt;!&ndash; Start {{> optionNavSalesOverview}} &ndash;&gt;-->
+<!--                <div class="d-xl-flex justify-content-xl-end">-->
+<!--                    <div>-->
+<!--                        &lt;!&ndash; <a class="btn btnOpenSettings" role="button" data-toggle="modal" href="#myModal2"><i class="icon ion-android-more-horizontal"></i></a> &ndash;&gt;-->
+<!--                        <div class="modal fade" role="dialog" tabindex="-1" id="myModal2">-->
+<!--                            <div class="modal-dialog modal-dialog-centered" role="document" style="float: right;">-->
+<!--                                <div class="modal-content">-->
+<!--                                    <div class="modal-header">-->
+<!--                                        <h4>Display Settings</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>-->
+<!--                                    </div>-->
+<!--                                    <div class="modal-body">-->
+<!--                                        <div>-->
+<!--                                            {{#if tableheaderrecords}}-->
+<!--                                                <form class="d-xl-flex align-items-xl-center">-->
+<!--                                                    <div class="flex-grow-1">-->
+<!--                                                        <style>-->
+<!--                                                            .groove {-->
+<!--                                                                border-style: solid;-->
+<!--                                                                border-width: 1px;-->
+<!--                                                                width: 200px;-->
+<!--                                                                padding: 2px;-->
+<!--                                                                border-radius: .35rem;-->
+<!--                                                            }-->
+
+<!--                                                            .custom-control-label {-->
+<!--                                                                position: absolute;-->
+<!--                                                            }-->
+
+<!--                                                            .rngRange {-->
+<!--                                                                position: relative;-->
+<!--                                                                display: flex;-->
+<!--                                                                flex-direction: column;-->
+<!--                                                                width: 100%;-->
+<!--                                                                pointer-events: auto;-->
+<!--                                                                background-color: rgb(255, 255, 255);-->
+<!--                                                                background-clip: padding-box;-->
+<!--                                                                border: 1px solid rgb(133, 135, 150);-->
+<!--                                                                border-radius: .3rem;-->
+<!--                                                                border-style: solid;-->
+<!--                                                                border-width: 1px;-->
+<!--                                                                padding: 2px;-->
+<!--                                                                border-radius: .35rem;-->
+<!--                                                                color: rgb(128, 128, 128);-->
+<!--                                                                height: inherit !important;-->
+<!--                                                            }-->
+
+<!--                                                            @media only screen and (max-width: 480px) {-->
+<!--                                                                .modal.show .modal-dialog {-->
+<!--                                                                    float: inherit !important;-->
+<!--                                                                    left: inherit !important;-->
+<!--                                                                    top: auto !important;-->
+
+<!--                                                                }-->
+<!--                                                            }-->
+<!--                                                        </style>-->
+<!--                                                        {{#each item in tableheaderrecords}}-->
+<!--                                                            {{#if equals item.sTitle "id"}}-->
+<!--                                                            {{else}}-->
+
+<!--                                                                <div id="{{item.sIndex}}" class="columnSettings">-->
+<!--                                                                    <div class="custom-control custom-switch" style="margin: 8px; float:left;">-->
+<!--                                                                        <input class="custom-control-input chkDatatable" type="checkbox" id="chkSalesNo-{{item.sIndex}}" name="chkSalesNo-{{item.sIndex}}"-->
+<!--                                                                            checked="{{#if item.sVisible}}checked{{else}}{{/if}}" value="{{item.sTitle}}">-->
+<!--                                                                        <label class="custom-control-label" for="chkSalesNo-{{item.sIndex}}"></label>-->
+<!--                                                                        <div contenteditable="true" class="groove divcolumn" type="text" value="{{item.sTitle}}" valueupdate="{{item.sClass}}">{{item.sTitle}}</div>-->
+<!--                                                                    </div>-->
+<!--                                                                    <div class="d-xl-flex align-items-xl-center divColWidth" style="margin: 8px;">-->
+<!--                                                                        <label class="text-nowrap" style="padding-left: 0px;margin-top: 8px;">Width:-->
+<!--                                                                            &lt;!&ndash;<span class="spWidth" value="{{item.sTitle}}">{{item.sWidth}}px</span>&ndash;&gt;-->
+<!--                                                                        </label>-->
+<!--                                                                        <input class="custom-range rngRange" type="number" style="margin: 8px;" value="{{item.sWidth}}" min="0" max="1000">-->
+<!--                                                                        &lt;!&ndash; <input class="custom-range rngRange" type="range" style="margin: 8px;" value="{{item.sWidth}}" min="0" max="1000"> &ndash;&gt;-->
+<!--                                                                    </div>-->
+<!--                                                                </div>-->
+
+<!--                                                                {{#if equals item.sVisible true}}-->
+<!--                                                                    <script>-->
+<!--                                                                        $("#" + {{ item.sIndex }} + ".chkDatatable").attr("checked", "checked");-->
+<!--                                                                    </script>-->
+<!--                                                                {{else}}-->
+<!--                                                                    <script>-->
+<!--                                                                        $("#" + {{ item.sIndex }} + ".chkDatatable").removeAttr("checked");-->
+<!--                                                                    </script>-->
+<!--                                                                {{/if}}-->
+
+<!--                                                            {{/if}}-->
+<!--                                                        {{/each}}-->
+<!--                                                    </div>-->
+<!--                                                </form>-->
+<!--                                            {{/if}}-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                    <div class="modal-footer">-->
+<!--                                        <button class="btn btn-primary saveTable" type="button"><i class="fa fa-save" style="margin-right: 5px;"></i>Save</button>-->
+<!--                                        <button class="btn btn-warning resetTable" data-dismiss="modal" type="reset"><i class="fa fa-repeat" style="margin-right: 5px;"></i>Reset</button>-->
+<!--                                        <button class="btn btn-secondary" data-dismiss="modal" type="button"><i class="fa fa-remove" style="margin-right: 5px;"></i>Close</button>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                &lt;!&ndash; End &ndash;&gt;-->
+<!--&lt;!&ndash;                <div class="table-responsive">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <style>&ndash;&gt;-->
+<!--&lt;!&ndash;                        th {&ndash;&gt;-->
+<!--&lt;!&ndash;                            background-color: #ededed;&ndash;&gt;-->
+<!--&lt;!&ndash;                        }&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        .table-striped tbody tr:nth-of-type(odd) {&ndash;&gt;-->
+<!--&lt;!&ndash;                            background-color: white !important;&ndash;&gt;-->
+<!--&lt;!&ndash;                        }&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        .table-striped tbody tr:nth-of-type(even) {&ndash;&gt;-->
+<!--&lt;!&ndash;                            background-color: #0000000d !important;&ndash;&gt;-->
+<!--&lt;!&ndash;                        }&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        .JColResizer>tbody>tr>td,&ndash;&gt;-->
+<!--&lt;!&ndash;                        .JColResizer>tbody>tr>th {&ndash;&gt;-->
+<!--&lt;!&ndash;                            padding: .75rem !important;&ndash;&gt;-->
+<!--&lt;!&ndash;                        }&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        .hiddenColumn {&ndash;&gt;-->
+<!--&lt;!&ndash;                            display: none;&ndash;&gt;-->
+<!--&lt;!&ndash;                        }&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        .showColumn {&ndash;&gt;-->
+<!--&lt;!&ndash;                            display: table-cell;&ndash;&gt;-->
+<!--&lt;!&ndash;                            padding: .75rem;&ndash;&gt;-->
+<!--&lt;!&ndash;                            vertical-align: top;&ndash;&gt;-->
+<!--&lt;!&ndash;                        }&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        input[type=number]::-webkit-inner-spin-button,&ndash;&gt;-->
+<!--&lt;!&ndash;                        input[type=number]::-webkit-outer-spin-button {&ndash;&gt;-->
+<!--&lt;!&ndash;                            opacity: 1;&ndash;&gt;-->
+<!--&lt;!&ndash;                        }&ndash;&gt;-->
+<!--&lt;!&ndash;                    </style>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <table id="tblVatReturnTransactionList" style="width:100%" class="dataTable table table-striped table-bordered tblBalanceTransactionList">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <thead>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <tr class="dnd-moved">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <th class="th colAccountingMethod" style="width:100px; text-align:center" rowspan="2" id="header-1">Accounting Method</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <th class="th colTransaction" colspan="4" style="text-align:center" id="header-2">Transaction</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <th class="th colDescription" style="width:250px; text-align:center" rowspan="2" id="header-3">Description</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <th class="th colReturn" colspan="3" style="text-align:center" id="header-4">Return</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <th class="th colRef" style="text-align:center; width:100px;" id="header-5">Ref</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <th class="th colType" style="text-align:center; width:100px;" id="header-6">Type</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <th class="th colDate" style="text-align:center; width:100px;" id="header-7">Date</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <th class="th colAmount" style="width: 100px; text-align:center;" id="header-8">Amount</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <th class="th colPeriod" style="width: 100px; text-align:center;" id="header-9">Period</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <th class="th colFrom" style="width: 100px; text-align:center;" id="header-10">From</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <th class="th colTo" style="width:100px; text-align:center;" id="header-11">To</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </thead>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <tbody>&ndash;&gt;-->
+<!--&lt;!&ndash;                            {{#if datatablerecords}}&ndash;&gt;-->
+<!--&lt;!&ndash;                                {{#each item in datatablerecords}}&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <tr class="dnd-moved" id="{{item.accountname}}">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <td contenteditable="false" class="colAccountingMethod">{{item.accountingMethod}}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <td contenteditable="false" class="colRef">{{item.accountname}}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <td contenteditable="false" class="colType">{{item.type}}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <td contenteditable="false" class="colDate">{{item.date}}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <td contenteditable="false" class="colAmount">{{item.balance}}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <td contenteditable="false" class="colDescription">{{item.description}}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <td contenteditable="false" class="colPeriod">{{item.datemethod}}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <td contenteditable="false" class="colFrom">{{item.dateFrom}}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <td contenteditable="false" class="colTo">{{item.dateTo}}</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                                {{/each}}&ndash;&gt;-->
+<!--&lt;!&ndash;                            {{/if}}&ndash;&gt;-->
+<!--&lt;!&ndash;                        </tbody>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                    </table>&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+
+<!--            </div>-->
+<!--        </div>-->
+            {{>datatablelist
+                tablename="tblVatReturnTransactionList"
+                tableclass="tblVatReturnTransactionList"
+                apiName= apiFunction
+                indexeddbname = 'TVATReturn'
+                tableheaderrecords = tableheaderrecords
+                exportfilename = 'Vat Veturn Transaction List'
+                istransaction = true
+                apiParams= apiParams
+                datahandler = datahandler
+                service=service
+                lowercaseDataName='tvatreturns'
+                exIndexDBName = 'tvatreturns'
+                exdatahandler = exDataHandler
+                searchAPI = searchAPI
+            }}
+    </div>
+
+    <!-- Start Help Video Modal -->
+    <div class="modal fade" role="dialog" tabindex="-1" id="helpModal">
+        <div class="modal-dialog" role="document" style="max-width: 670px!important;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title-header">VAT Return Details</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <!-- <iframe width="640" height="360" src="https://player.vimeo.com/video/99892791" frameborder="0" allowfullscreen=""></iframe> -->
+                    <!-- <iframe width="640" height="360" src="https://www.youtube.com/embed/BzxoYOp42fg" frameborder="0" allowfullscreen=""></iframe> -->
+                    <video preload="none" id="myVideo" width="640" height="360" controls="" name="media" style="border: solid 5px #999999f0; height: auto; outline: none;">
+                        <source src="https://erphelpes.com/vs1videos/comingsoon.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- End Help Video Modal -->
+
+    <script>
+        modalDraggable();
+    </script>
+</template>

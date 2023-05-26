@@ -1,0 +1,104 @@
+<template name="squareapi">
+    <div class="container-fluid" style="padding-left: 0px; padding-right: 0px; margin-top: -24px;">
+        <div class="fullScreenSpin" style="display:none;">
+            <div class="spinner"></div>
+        </div>
+        <header style="padding: 16px; background-color: #ededed;">
+            <h1 style="margin: 16px;">Square  <a role="button" data-toggle="modal" href="#helpModal" class="helpModal"><label class="lblplay">PLAY</label><i class="far fa-play-circle"  style="font-size: 20px;"></i></a>  <a href="https://www.youtube.com/watch?v=27OBSNW5LbM" class="helpModal" target="_blank"><label class="lblplay">Square Set Up </label><i class="far fa-play-circle"  style="font-size: 20px;"></i></a></h1>
+            <!-- <h1 style="margin: 16px;margin-bottom: 0px;margin-top: 0px;"><a href="https://www.youtube.com/watch?v=27OBSNW5LbM" class="helpModal" target="_blank"><label class="lblplay">Square Set Up </label><i class="far fa-play-circle"  style="font-size: 20px;"></i></a></h1> -->
+        </header>
+        <div class="row d-xl-flex flex-row justify-content-xl-center">
+            <div class="col float-left flex-grow-1 mb-4" style="margin-bottom: 0 !important;">
+              <button class="btn btn-primary btnRefresh" type="button" style="margin: 14px;"><i
+                  class="la la-lightbulb-o" style="padding-right: 5px;"></i>Refresh</button>
+            </div>
+            <div class="col d-xl-flex justify-content-xl-end align-items-xl-start">
+                {{> export_import_print_display_button hideImport=true tablename="tblTimeSheet"}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col" style="margin-bottom: 16px;">
+                <div class="card-body p-5 rounded" style="padding: 0rem 2rem !important;">
+                    <style>
+                        .cashamount {
+                            text-align: right;
+                        }
+                        th {
+                            background-color: #ededed;
+                        }
+                        .table-striped tbody tr:nth-of-type(odd) {
+                            background-color: white !important;
+                        }
+                        .table-striped tbody tr:nth-of-type(even) {
+                            background-color: #0000000d !important;
+                        }
+                        .JColResizer > tbody > tr > td, .JColResizer > tbody > tr > th {
+                            padding: .75rem!important;
+                        }
+                        .hiddenColumn{
+                            display:none;
+                        }
+                        .showColumn {
+                            display:table-cell;
+                            padding:.75rem;
+                            vertical-align:top;
+                        }
+                        input[type=number]::-webkit-inner-spin-button,
+                        input[type=number]::-webkit-outer-spin-button {
+                            opacity: 1;
+                        }
+                    </style>
+                    {{>datatablelist
+                        tableclass="tblTimeSheet"
+                        tablename="tblTimeSheet"
+                        apiName= apiFunction
+                        indexeddbname = 'TTimeSheet'
+                        tableheaderrecords = tableheaderrecords
+                        exportfilename = 'Time Sheet List'
+                        istransaction = false
+                        datahandler = datahandler
+                        service=service
+                        lowercaseDataName='ttimesheet'
+                        exIndexDBName = 'ttimesheet'
+                        exdatahandler = exDataHandler
+                        searchAPI = searchAPI
+                    }}
+                </div>
+            </div>
+        </div>
+        <div class="d-xl-flex justify-content-xl-center" style="padding-top: 2rem;">
+            <button class="btn btn-primary btnSave" type="button" style="margin: 12px;margin-top: 0px;width: 95px;">
+                <i class="fa fa-save" style="padding-right: 8px;"></i>Save
+            </button>
+            <button class="btn btn-primary printConfirm" type="button" style="margin: 12px;margin-top: 0px;width: 95px;">
+                <i class="fa fa-print" style="padding-right: 8px;"></i>Print
+            </button>
+            <button class="btn btn-secondary btnBack" type="button" style="margin: 12px;margin-top: 0px;width: 95px;">
+                <i class="fa fa-remove" style="padding-right: 8px;"></i>Cancel
+            </button>
+        </div>
+    </div>
+    <!-- Start Help Video Modal -->
+    <div class="modal fade" role="dialog" tabindex="-1" id="helpModal">
+        <div class="modal-dialog" role="document" style="max-width: 670px!important;">
+            <div class="modal-content" >
+                <div class="modal-header" >
+
+                    <h4 class="title-header" >Square</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <!-- <iframe width="640" height="360" src="https://player.vimeo.com/video/99892791" frameborder="0" allowfullscreen=""></iframe> -->
+                    <!-- <iframe width="640" height="360" src="https://erphelpes.com/vs1videos/invoicelist.mp4" frameborder="0" allowfullscreen=""></iframe> -->
+                    <video preload="none" id="myVideo" width="640" height="360" controls="" name="media" style="border: solid 5px #999999f0; height: auto; outline: none;">
+                        <source src="https://erphelpes.com/vs1videos/comingsoon.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Help Video Modal -->
+    <script>
+        modalDraggable();
+    </script>
+</template>

@@ -1,0 +1,74 @@
+<template name="adddeliverypop">
+    <div class="modal-dialog modal-md modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <!-- DON'T REMOVE closeTermsPop property and DON'T ADD  data-dismiss="modal" -->
+                <h4>Add Delivery</h4><button type="button" class="close closeDeliveryPop" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" style="width: 100%; display:none;" id="selectLineID" name="selectLineID" readonly>
+                <div class="card-body p-1 rounded">
+                    <div class="row w-100 mr-0 ml-0">
+                        <div class="col-6 col-md-3 coldelivery" id="coldelivery">
+                            <div class="form-group">
+                                <label>Weight</label>
+                                <input type="text" class="form-control" id="delivery_weight"
+                                    name="delivery_weight" value="" />
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 coldelivery" id="coldelivery">
+                            <div class="form-group">
+                                {{>vs1___dropdown
+                                    data=record.loginDefault
+                                    type='search'
+                                    id='delivery_weightunit'
+                                    name='delivery_weightunit'
+                                    modalId= 'weightunitModal'
+                                    list_template_name='weightunitpopup'
+                                    modal_title='Weight Unit'
+                                    innerModal=true
+                                    label = 'Weight Unit'
+                                    colNameForValue = 'colOptionsName'
+                                    is_editable=true
+                                    noBorder=false
+                                    custid='fromtransaction'
+                                }}
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 coldelivery" id="coldelivery">
+                            <div class="form-group">
+                                <label>Volume</label>
+                                <input type="text" class="form-control" id="delivery_volume"
+                                    name="delivery_volume" value="" />
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 coldelivery" id="coldelivery">
+                            <div class="form-group">
+                                {{>vs1___dropdown
+                                    data=record.loginDefault
+                                    type='search'
+                                    id='delivery_volumeunit'
+                                    name='delivery_volumeunit'
+                                    modalId= 'volumeunitModal'
+                                    list_template_name='volumeunitpopup'
+                                    modal_title='Volume Unit'
+                                    innerModal=true
+                                    label = 'Volume Unit'
+                                    colNameForValue = 'colOptionsName'
+                                    is_editable=true
+                                    noBorder=false
+                                    custid='fromtransaction'
+                                }}
+                            </div>
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- DON'T REMOVE closeTermsPop property and DON'T ADD  data-dismiss="modal" -->
+                <button class="btn btn-light closeTermsPop" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+</template>

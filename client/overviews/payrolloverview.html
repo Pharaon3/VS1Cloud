@@ -1,0 +1,622 @@
+<template name="payrolloverview">
+    <style>
+        .dimmedChart>div {
+            background-color: #dddfeb !important;
+        }
+
+        .card.hovered {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.50) !important;
+            cursor: move;
+            transition-duration: 300ms;
+
+        }
+
+        .hideelement {
+            display: none !important;
+        }
+
+        .showelement {
+            display: block;
+        }
+        .now-success {
+            background-color: #1cc88a;
+        }
+
+        @media screen and (max-width: 376px) {
+            .btnOpenSettings {
+                margin-right: 0px;
+            }
+        }
+
+        .colPayDate {
+            width: 80px !important;
+        }
+
+        .colPayInBatch {
+            width: 70px !important;
+        }
+
+        .colEarning {
+            width: 80px !important;
+        }
+
+        .colTax {
+            width: 80px !important;
+        }
+
+        .colSuper {
+            width: 80px !important;
+        }
+
+        .colGross {
+            width: 80px !important;
+        }
+
+        .colPaid {
+            width: 10px !important;
+        }
+
+        .colNetPay {
+            width: 80px !important;
+        }
+        @media screen and (max-width: 450px) {
+            .btnNav {
+                width: 90% !important;
+                margin: 12px 0px !important;
+            }
+
+            .btnNewOptions {
+                display: none !important;
+            }
+
+            .QuoteList {
+                width: 120px;
+            }
+
+            .salesOrderList {
+                width: 120px;
+            }
+
+            .invoiceList {
+                width: 120px;
+            }
+
+            .btnOpenSettingsMobile {
+                display: block !important;
+                margin: 12px 0px !important;
+            }
+
+            .btnOpenSettingsDesktop {
+                display: none;
+            }
+
+            .dateSelectMobile {
+                float: right !important;
+                margin-right: 0px !important;
+            }
+
+            .dropdownMobile {
+                margin: 0px !important;
+            }
+        }
+        .highlightInput {
+            border: 0px solid transparent !important;
+            background-color: rgba(0, 0, 0, 0) !important;
+            padding: 0px !important;
+            width: 100% !important;
+            text-align: right !important;
+            color: #858796 !important;
+        }
+
+        .highlightInput::-webkit-outer-spin-button,
+        .highlightInput::-webkit-inner-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+        }
+
+        /* Firefox */
+        .highlightInput[type=number] {
+            -moz-appearance: textfield !important;
+        }
+
+        .colFlag {
+            width: 1% !important;
+        }
+
+        .tdEmpty {
+            width: 3% !important;
+        }
+
+        @media screen and (max-width: 450px) {
+
+            #tblTimeSheet_filter {
+                width: 70%;
+            }
+
+            .form-control-sm {
+                width: 70% !important;
+            }
+
+            .input-group.date {
+                width: 130px !important;
+            }
+
+            .dateFromGroup {
+                float: right !important;
+                width: 183px !important;
+            }
+
+            .dateToGroup {
+                float: right !important;
+                width: 172px !important;
+            }
+
+            .myvarFilterForm {
+                /* display: inline-flex !important; */
+                padding: 0px !important;
+            }
+
+            .colDateFilter {
+                padding-left: 0px !important;
+            }
+
+            .dropdownDateRange {
+                float: right !important;
+                width: 100% !important;
+            }
+
+            .btn-daterange {
+                float: right !important;
+            }
+
+            .btnSetupSingleTouch {
+                margin-bottom: 16px;
+                padding: 0px;
+            }
+        }
+        input.timeSheetCheckBox {
+            display: inline-block;
+            width: 17px;
+            height: 17px;
+            position: relative;
+            top: 3px;
+        }
+
+            th {
+                background-color: #ededed;
+            }
+
+            .table-striped tbody tr:nth-of-type(odd) {
+                background-color: white !important;
+            }
+
+            .table-striped tbody tr:nth-of-type(even) {
+                background-color: #0000000d !important;
+            }
+
+            .JColResizer>tbody>tr>td,
+            .JColResizer>tbody>tr>th {
+                padding: .75rem !important;
+            }
+
+            .hiddenColumn {
+                display: none;
+            }
+
+            .showColumn {
+                display: table-cell;
+                padding: .75rem;
+                vertical-align: top;
+            }
+
+            input[type=number]::-webkit-inner-spin-button,
+            input[type=number]::-webkit-outer-spin-button {
+                opacity: 1;
+            }
+            .btnDesktopSearch {
+                color: #fff;
+            }
+            
+        #newPayRunModal .modal-dialog {
+            width: 350px;
+        }
+    </style>
+
+    <div class="container-fluid">
+        <div class="fullScreenSpin" style="display:none;">
+            <div class="spinner"></div>
+        </div>
+        <div>
+            <header class="row">
+                <div class="col-12 col-md-4">
+                    <h2 class="mr-1">Payroll Overview{{> helpbutton}}</h2>
+                </div>
+                <div class="col-12 col-md-4">
+                    {{> loggedcompanyoverview}}
+                </div>
+                <div class="col-12 col-md-4">
+                    {{> datesforcardchart}}
+                </div>
+            </header>
+            {{> editCardChartButtons}}
+            {{> allChartLists  tabGroupID="6" chartGroup="Payroll" currentTemplate="Payroll_Overview"}}
+
+            {{> PayrollOverviewPayrun}}
+
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="clockOnOffModal">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 style="margin-bottom: 0px;">Clock On/Off <span id="timesheetID"></span></h4>
+                    <a role="button" data-toggle="modal" href="#helpViewModal2"
+                        style="font-size: 20px; margin-left: 6px;">Help <i class="fa fa-question-circle-o"
+                            style="font-size: 20px;"></i></a>
+                    <div class="input-group" style="width:30%; margin-left: 25px;">
+                        <input class="form-control" id="barcodeScanInput" name="barcodeScanInput" type="text"
+                            placeholder="Enter the barcode" autocomplete="off">
+                        <div class="input-group-append">
+                            <a class="btn btn-success btnDesktopSearch" href="" id="btnDesktopSearch" role="button"
+                                style="border-top-right-radius: 0.35rem; border-bottom-right-radius: 0.35rem;"><i
+                                    class="fas fa-search"></i></a>
+                        </div>
+                        <a class="btn btn-success scanBarcode" href="" id="scanBarcode" role="button"
+                            style="margin-left: 8px;"><i class="fas fa-camera"></i></a>
+                        <button type="button" class="btn btn-success" id="mobileBarcodeScanClockOff" data-toggle="modal"
+                            data-target="#scanBarcodeModalClockOff" style="margin-left: 8px; display: none;"><i
+                                class="fas fa-camera"></i></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <style>
+                        @media screen and (max-width: 450px) {
+                            .btnLogMobile {
+                                display: block !important;
+                            }
+
+                            .btnLogDesktop {
+                                display: none;
+                            }
+                        }
+
+                        @media screen and (max-width: 1024px) {
+                            .btnClockOn {
+                                font-size: 14px;
+                            }
+
+                            .btnOnHold {
+                                font-size: 14px;
+                            }
+
+                            .btnClockOff {
+                                font-size: 14px;
+                            }
+
+                            .btnTimesheetList {
+                                font-size: 14px;
+                                padding: 6px;
+                            }
+                        }
+                    </style>
+
+                    <div class="row">
+                        <div class="col-12 col-lg-4 col-xl-5">
+                            <div class="form-group" style="margin: 8px 0px;"><label>Employee Name</label><input
+                                    id="clock_employee_name" name="clock_employee_name" type="text" required
+                                    class="form-control employee_name" readonly></div>
+                        </div>
+                        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group" style="margin: 8px 0px;">
+                                        <label>Customer / Job</label>
+                                        <select type="search" class="form-control sltJob" id="sltJob" name="sltJob"
+                                            style="background-color:rgb(255, 255, 255); cursor: pointer;">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group flex-grow-1" style="margin: 8px 0px;">
+                                        <label>Product /
+                                            Service</label>
+                                        <select type="search" id="product-list" name="product-list" class="form-control"
+                                            style="background-color:rgb(255, 255, 255); cursor: pointer;">
+                                        </select>
+                                        <input id="edtProductCost" name="edtProductCost" type="hidden">
+                                        <input id="updateID" name="updateID" type="hidden">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4 col-lg-2">
+                            <div class="form-group" style="margin: 8px 0px;">
+                                <label>Date</label>
+                                <div class="input-group date" style="cursor: pointer;">
+                                    <input type="text" class="form-control formClassDate statementDate" id="dtSODate"
+                                        name="dtSODate" value="{{invoicerecord.saledate}}">
+                                    <div class="input-group-addon" >
+                                        <span class="glyphicon glyphicon-th" style="cursor: pointer;"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <style>
+                        .mt-32 {
+                            margin-top: -32px !important;
+                        }
+
+                        input[type=time]::-webkit-datetime-edit-ampm-field {
+                            display: none;
+                        }
+
+                        input[type="time"]::-webkit-calendar-picker-indicator {
+                            background: none;
+                        }
+                    </style>
+                    <div class="row">
+                        <div class="col-12 col-lg-4 col-xl-5">
+                            <div class="form-group" style="margin: 8px 0px;">
+                                <label>Notes</label>
+                                <textarea class="border rounded form-control" rows="3" id="txtNotes" name="txtNotes"
+                                    style="width: 100%; border: 1px solid #d1d3e2 !important;"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 col-xl-5">
+                            <div class="row">
+                                <div class="col-6 col-md-4 col-lg-4">
+                                    <div class="form-group flex-grow-1" style="margin: 8px 0px;">
+                                        <label>Start Time</label><input class="form-control" id="startTime" required
+                                            name="startTime" type="time">
+                                    </div>
+                                    <button class="btn btn-success btnClockOn" type="submit" style="width: 100%;"
+                                        id="btnClockOn" name="btnClockOn"><i class="far fa-clock"
+                                            style="margin-right: 5px;"></i><span class="clockOn">Clock
+                                            On</span></button>
+                                </div>
+                                <div class="col-6 col-md-4 col-lg-4">
+                                    <div class="form-group flex-grow-1" style="margin: 8px 0px;"><label>End
+                                            Time</label><input required class="form-control" id="endTime" name="endTime"
+                                            type="time"></div>
+                                    <span class="btn btn-warning paused"
+                                        style="margin: 8px 0px; width: 100%; margin-top: -72px; background-color: rgba(246, 194, 62, 0.4); cursor: default;">Paused</span>
+                                    <button class="btn btn-warning btnOnHold" type="button" style="width: 100%;"
+                                        id="btnHold"><span class="isPaused"
+                                            style="width: 100% !important; padding:9px;">On Hold</span></button>
+                                </div>
+                                <div class="col-6 col-md-4 col-lg-4">
+                                    {{#if equals edithours true}}
+                                    <div class="form-group flex-grow-1" style="margin: 8px 0px;">
+                                        <label>Hours</label>
+                                        <input type="text" id="txtBookedHoursSpent" name="txtBookedHoursSpent" required
+                                            class="form-control" value="00:00">
+                                    </div>
+                                    {{else}}
+                                    <div class="form-group flex-grow-1" style="margin: 8px 0px;">
+                                        <label>Hours</label><input type="text" id="txtBookedHoursSpent"
+                                            name="txtBookedHoursSpent" required class="form-control" value="00:00"
+                                            readonly>
+                                        <input type="hidden" id="txtBookedHoursSpent1" name="txtBookedHoursSpent1">
+                                    </div>
+                                    {{/if}}
+                                    <button class="btn btn-danger btnClockOff" type="submit" style="width: 100%;"
+                                        id="btnClockOff" name="btnClockOff"><i class="fas fa-clock"
+                                            style="margin-right: 5px;"></i>Clock Off</button>
+                                </div>
+                                <div class="col-6 btnLogMobile" style="display: none;">
+                                    <button class="btn btn-success btnTimesheetList" type="button"
+                                        style="margin-top: 85px; width: 45px;" id="btnTimesheetList"><i
+                                            class="far fa-clock"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 btnLogDesktop">
+                            <button class="btn btn-success btnTimesheetList" type="button"
+                                style="margin: 39px 0px; width: 45px;" id="btnTimesheetList"><i
+                                    class="far fa-clock"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success btnSaveTimeSheet" type="submit" style="margin: 8px;"
+                        id="btnSaveTimeSheet" name="btnSaveTimeSheet"><i class="fa fa-save"
+                            style="margin-right: 5px;"></i>Save</button>
+                    <button class="btn btn-success processTimesheet" type="submit" style="margin: 8px;" id="btnSaveTime"
+                        name="btnSaveTimeSheet"><i class="fa fa-check" style="margin-right: 5px;"></i>Process</button>
+                    <button class="btn btn-danger btnDeleteTimeSheet" type="button" style="margin: 8px;"
+                        autocomplete="off"><i class="fa fa-trash" style="margin-right: 5px;"></i>Delete</button>
+                    <button class="btn btn-secondary" id="btnDeleteAppointment" name="btnDeleteAppointment"
+                        data-dismiss="modal" type="button" style="margin: 8px;"><i class="fa fa-close"
+                            style="margin-right: 5px;"></i>Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" id="frmOnHoldModal">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document" style="max-width: 400px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Reason For Pausing Job</h4><button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="custom-control custom-switch"><input type="checkbox"
+                                    class="custom-control-input" id="break" value="Break" /><label
+                                    class="custom-control-label" for="break">Break</label></div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 1em;">
+                        <div class="col-12">
+                            <div class="custom-control custom-switch"><input type="checkbox"
+                                    class="custom-control-input" id="lunch" value="Lunch" /><label
+                                    class="custom-control-label" for="lunch">Lunch</label></div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 1em;">
+                        <div class="col-12">
+                            <div class="custom-control custom-switch"><input type="checkbox"
+                                    class="custom-control-input" id="purchase" value="Purchase" /><label
+                                    class="custom-control-label" for="purchase">Purchase</label></div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 1em;">
+                        <div class="col-12">
+                            <div class="form-group flex-grow-1" style="margin: 8px 0px 0px 0px;">
+                                <label>Notes</label><textarea class="form-control" id="txtpause-notes">
+                                </textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success btnPauseJob"><i class="fa fa-save"
+                            style="margin-right: 5px;"></i>Save</button>
+                    <button class="btn btn-secondary" data-dismiss="modal" type="button"><i class="fa fa-remove"
+                            style="margin-right: 5px;"></i>Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Start Modal Product -->
+    <div class="modal fade" role="dialog" tabindex="-1" id="employeeListModal">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Employee List</h4><button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    {{> popemployeelist}}
+                </div>
+                <div class="modal-footer"><button class="btn btn-light" data-dismiss="modal"
+                        type="button">Close</button>
+                    <button class="btn btn-primary btnProdSelect" type="button"
+                        style="background-color: #00A3D3; border-color: #00A3D3;">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade customerListModal" role="dialog" tabindex="-1" id="customerListModal">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable customerListModalInner" role="document"
+            style="max-width: 90vw;">
+            <div class="modal-content customerListContent">
+                <div class="modal-header">
+                    <h4>Customer List</h4><button type="button" class="close checkclose" data-dismiss="modal"
+                        aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body mainCustomerModalBody" style="padding: 0px; overflow-x: hidden;">
+                    <input type="hidden" style="width: 100%; display:none;" id="customerSelectLineID"
+                        name="customerSelectLineID" readonly>
+                    {{> customerlistpop}}
+                </div>
+                <div class="modal-footer"><button class="btn btn-light checkclose" data-dismiss="modal"
+                        type="button">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="addCustomerModal">
+        {{> addcustomerpop}}
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="payrollProductlistModal">
+        {{> payrollproductlistpop}}
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="newProductModal">
+        {{> newproductpop}}
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="scanBarcodeModalClockOff">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Barcode Scanner</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <style>
+                        #qr-reader-ClockOff>div:first-of-type {
+                            display: none !important;
+                        }
+
+                        #qr-reader-ClockOff__dashboard_section_swaplink {
+                            display: none !important;
+                        }
+
+                        #qr-reader-ClockOff__dashboard_section_csr>div>button:first-of-type {
+                            color: #fff !important;
+                            background-color: #00a3d3 !important;
+                            border-color: #00a3d3 !important;
+                            border: 1px solid transparent;
+                            display: inline-block !important;
+                            font-weight: 400 !important;
+                            text-align: center !important;
+                            vertical-align: middle !important;
+                            padding: .375rem .75rem !important;
+                            font-size: 1rem !important;
+                            line-height: 1.5 !important;
+                            border-radius: .35rem !important;
+                            transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+                        }
+                    </style>
+                    <div id="qr-reader-ClockOff" style="width:100%"></div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-secondary" type="button"
+                        data-dismiss="modal">Close</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="addTimeSheetModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable ui-draggable" role="document" style="left: -6px; top: -49px;">
+            <div class="modal-content">
+              <div class="modal-header supportHelpModal ui-draggable-handle">
+                  <h4>Add Timesheet</h4>
+              </div>
+              <div class="modal-body supportHelpModal">
+                <form class="addTimeSheetForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Employee</label>
+                            <input class="form-control es-input select-employee-js employee-select" type="search" autocomplete="off" value="Select an employee">
+                        </div>
+                        <style>
+                            .hidden {
+                                /* display: none; */
+                            }
+                        </style>
+                        <div class="col-md-6 payperiod-field hidden">
+                            <label>Period</label>
+                            <input class="form-control es-input select-period-js payperiod-select" type="search" autocomplete="off" value="Select a pay period">
+                        </div>
+                    </div>
+                </form>
+              </div>
+                <div class="modal-footer ui-draggable-handle">
+                    <button class="btn btn-primary add-new-timesheet" disabled type="button"><i class="fas fa-save" style="margin-right: 5px;"></i>Save</button>
+                    <button class="btn btn-secondary" data-dismiss="modal" type="button" autocomplete="off"><i class="fa fa-close" style="margin-right: 5px;"></i>Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+     {{> AddPayRunModal }} 
+
+     {{> PayrollCustomerListModal}}
+     
+    <script>
+        modalDraggable();
+    </script>
+</template>

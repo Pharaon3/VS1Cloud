@@ -1,0 +1,68 @@
+<template name="allCardsLists">
+    <style>
+        .dimmedChart>div {
+            background-color: #dddfeb !important;
+        }
+
+        .hideelement {
+            display: none !important;
+        }
+
+        .showelement {
+            display: block;
+        }
+
+        .hideShowDiv {
+            display: inline-block;
+            width: 100%;
+            text-align: right;
+            padding: 0 8px;
+            margin: 0;
+            position: relative;
+            top: 5px;
+            left: 0;
+            z-index: 2;
+        }
+
+        a {
+            text-decoration: none !important;
+        }
+
+        .dimmedChart .text-dark *,
+        .dimmedChart .text-dark,
+        .dimmedChart .text-gray-300 {
+            color: #666666 !important;
+        }
+
+        .dimmedChart .fa-eye {
+            color: #1cc88a;
+        }
+
+        .dimmedChart .fa-eye-slash {
+            color: #e74a3b;
+        }
+    </style>
+    <div class="container-New" style="width: 100%;">        
+        <div class="row connectedCardSortable" data-chartgroup="{{ chartGroup }}" data-tabgroup="{{ tabGroupID }}" style="width: 100%;">
+            {{#if equals type "dashboardSales"}}
+            {{> dashboardSalesCards }}
+            {{else}}
+            {{#if equals type "dashboardSalesManager"}}
+            {{> dashboardManagerCards }}
+            {{else}}
+            {{> deliveryoverviewcards }}
+            {{> purchasesaleschart}}
+            {{> bankingoverviewcards}}
+            {{> paymentoverviewcards}}
+            {{> costcard}}
+            {{> crmoverviewcards }}
+            {{> purchasesoverviewcards }}
+            {{> seedtosalecards }}
+            {{> shippingcards}}
+            {{> paymentoverviewcardssupplier}}
+            {{> paymentoverviewcardscustomer}}
+            {{/if}}
+            {{/if}}
+        </div>
+    </div>
+</template>
