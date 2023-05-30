@@ -4660,6 +4660,15 @@ Template.addDriverVehicle.onRendered(function () {
 
 
 Template.addDriverVehicle.events({
+    
+    'click .btnEmployee': function (event) {
+        event.preventDefault();
+        FlowRouter.go("/employeescard");
+    },
+    'click .btnSupplier': function (event) {
+        event.preventDefault();
+        FlowRouter.go("/supplierscard");
+    },
     'keydown #edtTaxFileNumber': (e, ui) => {
         $('#edtTfnExemption').removeAttr('data-value');
         $('#edtTfnExemption').val('');

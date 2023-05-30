@@ -416,6 +416,16 @@ Template.employeescard.onRendered(function () {
         yearRange: "-90:+10",
     });
 
+    $('#payperiod').editableSelect('add', 'How often will you pay your employees?');
+    $('#payperiod').editableSelect('add', 'Weekly');
+    $('#payperiod').editableSelect('add', 'Fortnightly');
+    $('#payperiod').editableSelect('add', 'Twice Monthly');
+    $('#payperiod').editableSelect('add', 'Four Weekly');
+    $('#payperiod').editableSelect('add', 'Monthly');
+    $('#payperiod').editableSelect('add', 'Quarterly');
+
+    $('#obReimbursementType').editableSelect();
+
     templateObject.getAllTask = function (customerName) {
         getVS1Data("TCRMTaskList").then(async function (dataObject) {
             if (dataObject.length == 0) {
@@ -2363,7 +2373,7 @@ Template.employeescard.onRendered(function () {
             $('#edtEarningRate').editableSelect('add', 'Australian Resident');
             $('#edtEarningRate').editableSelect('add', 'Foreign Resident');
             $('#edtEarningRate').editableSelect('add', 'Working Holiday Maker');
-
+            $('#edtEmploymentBasis').editableSelect();
             $('#edtEmploymentBasis').editableSelect('add', 'Full-time employment');
             $('#edtEmploymentBasis').editableSelect('add', 'Part-time employment');
             $('#edtEmploymentBasis').editableSelect('add', 'Casual employment');
@@ -2381,9 +2391,55 @@ Template.employeescard.onRendered(function () {
             $('#edtPayPeriod').editableSelect('add', 'Monthly');
             $('#edtPayPeriod').editableSelect('add', 'Quarterly');
 
+            $('#obContributionType').editableSelect('add', 'Superannuation Guarantee Contribution (SGC)');
+            $('#obContributionType').editableSelect('add', 'Additional Employer Contribution (RESC)');
+            $('#obContributionType').editableSelect('add', 'Pre-Tax Voluntary Contribution (RESC)');
+            $('#obContributionType').editableSelect('add', 'Post-Tax Voluntary Contribution (Employee)');
+
             $('#edtPayrollCalendar').editableSelect();
             $('#edtHolidayGroup').editableSelect();
-            $('#obEarningsRate').editableSelect();
+
+            $('#obReimbursementType').editableSelect().on('click.editable-select', async function (e, li) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#reimbursementSettingsModal').modal('toggle');
+            });
+
+            $('#obSuperannuationFund').editableSelect().on('click.editable-select', async function (e, li) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#superannuationSettingsModal').modal('toggle');
+            });
+
+            $('#obDeductionType1').editableSelect().on('click.editable-select', async function (e, li) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#deductionSettingsModal').modal('toggle');
+            });
+
+            $('#obEarningsRate').editableSelect().on('click.editable-select', async function (e, li) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#earningRateSettingsModal').modal('toggle');
+            });
+
+            $('#earningRateSelect1').editableSelect().on('click.editable-select', async function (e, li) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#earningRateSettingsModal').modal('toggle');
+            });
+
+            $('#deductionTypeSelect').editableSelect().on('click.editable-select', async function (e, li) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#deductionSettingsModal').modal('toggle');
+            });
+
+            $('#superannuationFund').editableSelect().on('click.editable-select', async function (e, li) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#superannuationSettingsModal').modal('toggle');
+            });
 
             $('#edtPayrollCalendar').editableSelect().on('click.editable-select', async function (e, li) {
                 // let $search = $(this);
@@ -2426,6 +2482,12 @@ Template.employeescard.onRendered(function () {
                 $('#product-listID').val(productID);
                 $('#productListModal').modal('toggle');
             }
+        });
+
+        $(document).on('click', "#tblDeductions tbody tr", function (event) {
+            $('#obDeductionType1').val($(this).closest("tr").find('colDeductionsNames').text());
+            $('#obDeductionTypeID').val($(this).closest("tr").find('colDeductionsID').text());
+            $('#deductionSettingsModal').modal('toggle');
         });
 
         $(document).on("click", "#tblDashboardOptions tbody tr td.colOptionsName ", function (e) {
@@ -4662,6 +4724,27 @@ Template.employeescard.onRendered(function () {
 
 
 Template.employeescard.events({
+    'change #payperiod': function () {
+        if($(this).val() != '' && $(this).val() != 'How often will you pay your employees?') {
+            $('.calender_name').val($(this).val());
+            $('.body-panel').removeClass('d-none');
+        }
+    },
+    'change #edtFirstPaymentDate': function () {
+        var startDate = $('#edtStartDate').val();
+        if(startDate > $(this).val()) {
+            $(this).val(startDate);
+        }
+        if(startDate != "" && $('#payperiod').val() != "") {
+            $('.footer-label').html("<p>Your pay calendar will run <strong>" + $('#payperiod').val() + "</strong>. It will start on <strong>" + startDate + "</strong> and employees will be paid on <strong>" + $(this).val() + "</strong></p>");
+        }
+    },
+    'change #edtStartDate': function () {
+        var firstPayDate = $('#edtFirstPaymentDate').val();
+        if(firstPayDate != "" && $('#payperiod').val() != "") {
+            $('.footer-label').html("<p>Your pay calendar will run <strong>" + $('#payperiod').val() + "</strong>. It will start on <strong>" + $(this).val() + "</strong> and employees will be paid on <strong>" + firstPayDate + "</strong></p>");
+        }
+    },
     'keydown #edtTaxFileNumber': (e, ui) => {
         $('#edtTfnExemption').removeAttr('data-value');
         $('#edtTfnExemption').val('');
@@ -5172,11 +5255,9 @@ Template.employeescard.events({
                         license_type: ltype,
                         license_number: lnumber,
                         license_expDate: lExpDate,
-                        license_attachment: license_attachment,
                         permit_type: ptype,
                         permit_number: pnumber,
                         permit_expDate: pExpDate,
-                        permit_attachment: permit_attachment,
                         isDriver: isDriver
                     }
                 };
@@ -5224,11 +5305,9 @@ Template.employeescard.events({
                         license_type: ltype,
                         license_number: lnumber,
                         license_expDate: lExpDate,
-                        license_attachment: license_attachment,
                         permit_type: ptype,
                         permit_number: pnumber,
                         permit_expDate: pExpDate,
-                        permit_attachment: permit_attachment,
                         isDriver: isDriver
                     }
                 };
@@ -9622,7 +9701,7 @@ Template.employeescard.events({
     'click #exportbtn': function () {
         LoadingOverlay.show();
         jQuery('#tblTransactionlist_wrapper .dt-buttons .btntabletocsv').click();
-        $('.fullScreenSpin').css('display', 'none');
+        LoadingOverlay.hide();
     },
     'click .printConfirm': function (event) {
         playPrintAudio();
@@ -9817,6 +9896,28 @@ Template.employeescard.events({
         let uploadedFilesArray = templateObj.uploadedFiles.get();
 
         let myFiles = $('#attachment-upload')[0].files;
+        let uploadData = utilityService.attachmentUploadTabs(uploadedFilesArray, myFiles, saveToTAttachment, lineIDForAttachment);
+        templateObj.uploadedFiles.set(uploadData.uploadedFilesArray);
+        templateObj.attachmentCount.set(uploadData.totalAttachments);
+    },
+    'change #permit-attachment': function (e) {
+        let templateObj = Template.instance();
+        let saveToTAttachment = false;
+        let lineIDForAttachment = false;
+        let uploadedFilesArray = templateObj.uploadedFiles.get();
+
+        let myFiles = $('#permit-attachment')[0].files;
+        let uploadData = utilityService.attachmentUploadTabs(uploadedFilesArray, myFiles, saveToTAttachment, lineIDForAttachment);
+        templateObj.uploadedFiles.set(uploadData.uploadedFilesArray);
+        templateObj.attachmentCount.set(uploadData.totalAttachments);
+    },
+    'change #license-attachment': function (e) {
+        let templateObj = Template.instance();
+        let saveToTAttachment = false;
+        let lineIDForAttachment = false;
+        let uploadedFilesArray = templateObj.uploadedFiles.get();
+
+        let myFiles = $('#license-attachment')[0].files;
         let uploadData = utilityService.attachmentUploadTabs(uploadedFilesArray, myFiles, saveToTAttachment, lineIDForAttachment);
         templateObj.uploadedFiles.set(uploadData.uploadedFilesArray);
         templateObj.attachmentCount.set(uploadData.totalAttachments);

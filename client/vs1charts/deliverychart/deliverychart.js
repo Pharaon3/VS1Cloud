@@ -177,7 +177,7 @@ Template.deliverychart.onRendered(() => {
           responsive: true,
           legend: {
             display: true,
-            position: "bottom",
+            position: "right",
             reverse: false,
           },
           title: {
@@ -264,7 +264,7 @@ Template.deliverychart.onRendered(() => {
       "Registration": 1124.34,
       "Tolls": 1246.34,
     }
-     drawBarChart(bar_records);
+    //  drawBarChart(bar_records);
      drawPieChart(pie_records);
   };
 

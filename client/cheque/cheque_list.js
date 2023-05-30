@@ -101,7 +101,7 @@ Template.chequelist.onCreated(function() {
 
 Template.chequelist.onRendered(function() {
     $('#tblchequelist tbody').on('click', 'tr', function() {
-        var listData = $(this).closest('tr').find('.colChequeID').text() || '';
+        var listData = $(this).closest('tr').attr('id') || '';
         var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
         if (listData) {
             if(checkDeleted == "Deleted"){

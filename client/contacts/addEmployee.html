@@ -45,10 +45,6 @@
             border-color: #00a3d3 !important;
         }
 
-        .form-control {
-            background-color: #fff !important;
-        }
-
         @media only screen and (max-width: 600px) {
             .sideSearch {
                 width: auto;
@@ -503,6 +499,18 @@
                             defaultValue=record.dob
                             label='Date of Birth'
                     }}
+                </div>
+            </div>
+            <div class="col-6 col-md-2" style="padding: 0px;">
+                <div class="form-group flex-grow-1" style="margin: 4px;padding-left:4px;">
+                    <label>Starting Date</label>
+                    <div class="input-group date">
+                        <input type="text" class="form-control" id="dtStartingDate" name="dtStartingDate"
+                               value="{{record.startdate}}">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-12 col-md-3" style="padding: 0px;">
@@ -1678,6 +1686,9 @@
             </div>
             <!-- Set Payroll Templates -->
             {{> reimbursementSettings}}
+            {{> superannuationSettings}}
+            {{> deductionSettings}}
+            {{> earningRateSettings}}
             <!-- END Payroll Templates -->
             <div class="col-12 col-md-3" style="padding: 8px; margin: 0px;">
                 <div class="card shadow">
@@ -2396,13 +2407,13 @@
                                                                 id='leaveCalcMethodSelect'
                                                                 name='leaveCalcMethodSelect'
                                                                 modalId='deductionSettingsModal'
-                                                                list_template_name=''
+                                                                list_template_name='deductionSettings'
                                                                 modal_title='Earning Rate List'
                                                                 label='Leave Calculation Method'
                                                                 innerModal=true
                                                                 colNameForValue='colDeductionsNames'
-                                                                target_modal_id=''
-                                                                target_template_id=''
+                                                                target_modal_id='AddNewDeduction'
+                                                                target_template_id='deductionSettings'
                                                                 custid=item.lineID
                                                                 is_editable=true
                                                                 noBorder=false
@@ -2691,13 +2702,13 @@
                                                                 id='period'
                                                                 name='period'
                                                                 modalId='deductionSettingsModal'
-                                                                list_template_name=''
+                                                                list_template_name='deductionSettings'
                                                                 modal_title='Earning Rate List'
                                                                 label='Period'
                                                                 innerModal=true
                                                                 colNameForValue='colDeductionsNames'
-                                                                target_modal_id=''
-                                                                target_template_id=''
+                                                                target_modal_id='AddNewDeduction'
+                                                                target_template_id='deductionSettings'
                                                                 custid=item.lineID
                                                                 is_editable=true
                                                                 noBorder=false
@@ -2909,19 +2920,21 @@
                                                                     <div class="col-12">
                                                                         <div class="form-group">
                                                                             {{> vs1___dropdown
-                                                                                    data=''
-                                                                                    type='search'
-                                                                                    id='earningRateSelect1'
-                                                                                    name='earningRateSelect1'
-                                                                                    modalId= 'earningRateSelectListPopModal'
-                                                                                    list_template_name='earningRateSettings'
-                                                                                    modal_title='Earning Rate'
-                                                                                    innerModal=true
-                                                                                    label = 'Earnings Rate'
-                                                                                    colNameForValue = 'colEarningsNames'
-                                                                                    is_editable=true
-                                                                                    noBorder=false
-                                                                                    custid='emp1'
+                                                                                data=item.item
+                                                                                type='search'
+                                                                                id='earningRateSelect1'
+                                                                                name='earningRateSelect1'
+                                                                                modalId='earningRateSettingsModal'
+                                                                                list_template_name='earningRateSettings'
+                                                                                modal_title='Earnings Name'
+                                                                                label='Earnings Name'
+                                                                                innerModal=true
+                                                                                colNameForValue='colEarningsNames'
+                                                                                target_modal_id='addEarningsRateModal'
+                                                                                target_template_id='earningRateSettings'
+                                                                                custid=item.lineID
+                                                                                is_editable=false
+                                                                                noBorder=false
                                                                             }}
                                                                             <input type="hidden" id="earningRateSelectID" value="0">
                                                                         </div>
@@ -3069,12 +3082,14 @@
                                                                                     type='search'
                                                                                     id='deductionTypeSelect'
                                                                                     name='deductionTypeSelect'
-                                                                                    modalId= 'deductionTypeSelectListPopModal'
+                                                                                    modalId= 'deductionSettingsModal'
                                                                                     list_template_name='deductionSettings'
                                                                                     modal_title='Deduction Type'
                                                                                     innerModal=true
                                                                                     label = 'Deduction Type'
                                                                                     colNameForValue = 'colDeductionsNames'
+                                                                                    target_modal_id='AddNewDeduction'
+                                                                                    target_template_id='deductionSettings'
                                                                                     is_editable=true
                                                                                     noBorder=false
                                                                                     custid='_addem'
@@ -3216,18 +3231,21 @@
                                                                             <input type="hidden" id="superannuationFundID" value="0">
 
                                                                             {{> vs1___dropdown
-                                                                                    data=''
+                                                                                    data=itemitem
                                                                                     type='search'
                                                                                     id='superannuationFund'
                                                                                     name='superannuationFund'
-                                                                                    modalId= 'superannuationFundPopModal'
+                                                                                    modalId= 'superannuationSettingsModal'
                                                                                     list_template_name='superannuationSettings'
                                                                                     modal_title='Superannuation Fund'
                                                                                     innerModal=true
                                                                                     label = 'Superannuation Fund'
                                                                                     colNameForValue = 'colSuperannuationName'
+                                                                                    target_modal_id='fundTypeListModel'
+                                                                                    target_template_id='fundtypelistpop'
                                                                                     is_editable=true
                                                                                     noBorder=false
+                                                                                    custid=item.lineID
                                                                             }}
                                                                         </div>
                                                                     </div>
@@ -3318,7 +3336,7 @@
                                                                     <div class="col-12">
                                                                         <div class="form-group">
                                                                             {{> vs1___dropdown
-                                                                                    type='search'
+                                                                                    type='search' 
                                                                                     id='liabilityAccount'
                                                                                     name='liabilityAccount'
                                                                                     modalId= 'liabilityAccountListModal'
@@ -3414,81 +3432,80 @@
                                         {{/if}}
                                         <div class="row">
                                             <div class="col-12">
-                                                <button type="button" class="btn btn-primary" data-toggle="modal"
-                                                        data-target="#addReimbursementLineModal"><i class="fas fa-plus"
-                                                                                                    style="margin-right: 5px;"></i> Add Reiumbursement Line</button>
-                                                <div class="modal fade" id="addReimbursementLineModal" tabindex="-1"
-                                                     role="dialog" aria-labelledby="" aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="">Add a Reiumbursement Line</h5>
-                                                                <button type="button" class="close" data-dismiss="modal"
-                                                                        aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="row">
-                                                                    <div class="col-12">
-                                                                        <div class="form-group">
-                                                                            {{> vs1___dropdown
-                                                                                    data=item.item
-                                                                                    type='search'
-                                                                                    id='reimbursementTypeSelect'
-                                                                                    name='reimbursementTypeSelect'
-                                                                                    modalId='reimbursementSettingsModal'
-                                                                                    list_template_name=''
-                                                                                    modal_title='Earning Rate List'
-                                                                                    label='Reiumbursement Type'
-                                                                                    innerModal=true
-                                                                                    colNameForValue='colReimbursementName'
-                                                                                    target_modal_id=''
-                                                                                    target_template_id=''
-                                                                                    custid=item.lineID
-                                                                                    is_editable=true
-                                                                                    noBorder=false
-                                                                            }}
-                                                                            <input type="hidden" id="reimbursementTypeSelectID" value="0">
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-12">
-                                                                        <div class="form-group">
-                                                                            <label>Description</label>
-                                                                            <input type="text" class="form-control"
-                                                                                   id="reiumbursementDescription">
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-12">
-                                                                        <div class="form-group">
-                                                                            {{> vs1___dropdown
-                                                                                    type='search'
-                                                                                    id='controlExpenseAccount'
-                                                                                    name='controlExpenseAccount'
-                                                                                    modalId= 'controlExpenseAccountModal'
-                                                                                    list_template_name='accountlistpop'
-                                                                                    innerModal=true
-                                                                                    modal_title='Account List'
-                                                                                    label = 'Control of Expense Account'
-                                                                                    colNameForValue = 'colAccountName'
-                                                                                    is_editable=true
-                                                                                    custid='emp_control1'
-                                                                            }}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" id="addReiumbursementLine"
-                                                                        class="btn btn-success"><i class="fa fa-save"
-                                                                                                   style="margin-right: 5px;"></i>Save</button>
-                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal"><i
-                                                                        class="fa fa-close" style="margin-right: 5px;"></i>Close</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addReimbursementLineModal">
+                                                    <i class="fas fa-plus" style="margin-right: 5px;"></i> Add Reiumbursement Line</button>
+                                                    <div class="modal fade" id="addReimbursementLineModal" tabindex="-1"
+                                                    role="dialog" aria-labelledby="" aria-hidden="true">
+                                                   <div class="modal-dialog modal-dialog-centered" role="document">
+                                                       <div class="modal-content">
+                                                           <div class="modal-header">
+                                                               <h5 class="modal-title" id="">Add a Reiumbursement Line</h5>
+                                                               <button type="button" class="close" data-dismiss="modal"
+                                                                       aria-label="Close">
+                                                                   <span aria-hidden="true">&times;</span>
+                                                               </button>
+                                                           </div>
+                                                           <div class="modal-body">
+                                                               <div class="row">
+                                                                   <div class="col-12">
+                                                                       <div class="form-group">
+                                                                           {{> vs1___dropdown
+                                                                                   data=item.item
+                                                                                   type='search'
+                                                                                   id='reimbursementTypeSelect'
+                                                                                   name='reimbursementTypeSelect'
+                                                                                   modalId='reimbursementSettingsModal'
+                                                                                   list_template_name=''
+                                                                                   modal_title='Earning Rate List'
+                                                                                   label='Reiumbursement Type'
+                                                                                   innerModal=true
+                                                                                   colNameForValue='colReimbursementName'
+                                                                                   target_modal_id=''
+                                                                                   target_template_id=''
+                                                                                   custid=item.lineID
+                                                                                   is_editable=true
+                                                                                   noBorder=false
+                                                                           }}
+                                                                           <input type="hidden" id="reimbursementTypeSelectID" value="0">
+                                                                       </div>
+                                                                   </div>
+                                                                   <div class="col-12">
+                                                                       <div class="form-group">
+                                                                           <label>Description</label>
+                                                                           <input type="text" class="form-control"
+                                                                                  id="reiumbursementDescription">
+                                                                       </div>
+                                                                   </div>
+                                                                   <div class="col-12">
+                                                                       <div class="form-group">
+                                                                           {{> vs1___dropdown
+                                                                                   type='search'
+                                                                                   id='controlExpenseAccount'
+                                                                                   name='controlExpenseAccount'
+                                                                                   modalId= 'controlExpenseAccountModal'
+                                                                                   list_template_name='accountlistpop'
+                                                                                   innerModal=true
+                                                                                   modal_title='Account List'
+                                                                                   label = 'Control of Expense Account'
+                                                                                   colNameForValue = 'colAccountName'
+                                                                                   is_editable=true
+                                                                                   custid='emp_control1'
+                                                                           }}
+                                                                       </div>
+                                                                   </div>
+                                                               </div>
+                                                           </div>
+                                                           <div class="modal-footer">
+                                                               <button type="button" id="addReiumbursementLine"
+                                                                       class="btn btn-success"><i class="fa fa-save"
+                                                                                                  style="margin-right: 5px;"></i>Save</button>
+                                                               <button type="button" class="btn btn-secondary" data-dismiss="modal"><i
+                                                                       class="fa fa-close" style="margin-right: 5px;"></i>Close</button>
+                                                           </div>
+                                                       </div>
+                                                   </div>
+                                               </div>
                                                 </div>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -3558,19 +3575,21 @@
                                                                     <div class="col-12">
                                                                         <div class="form-group">
                                                                             {{> vs1___dropdown
-                                                                                    data=''
-                                                                                    type='search'
-                                                                                    id='obEarningsRate'
-                                                                                    name='obEarningsRate'
-                                                                                    modalId= 'obEarningsRateListPopModal'
-                                                                                    list_template_name='earningRateSettings'
-                                                                                    modal_title='Earnings Name'
-                                                                                    innerModal=true
-                                                                                    label = 'Earnings Name'
-                                                                                    colNameForValue = 'colEarningsNames'
-                                                                                    is_editable=true
-                                                                                    noBorder=false
-                                                                                    custid='ob'
+                                                                                data=item.item
+                                                                                type='search'
+                                                                                id='obEarningsRate'
+                                                                                name='obEarningsRate'
+                                                                                modalId='earningRateSettingsModal'
+                                                                                list_template_name='earningRateSettings'
+                                                                                modal_title='Earnings Name'
+                                                                                label='Earnings Name'
+                                                                                innerModal=true
+                                                                                colNameForValue='colEarningsNames'
+                                                                                target_modal_id='addEarningsRateModal'
+                                                                                target_template_id='earningRateSettings'
+                                                                                custid=item.lineID
+                                                                                is_editable=false
+                                                                                noBorder=false
                                                                             }}
                                                                             <input type="hidden" id="obEarningsRateID" value="0">
                                                                         </div>
@@ -3655,19 +3674,21 @@
                                                                     <div class="col-12">
                                                                         <div class="form-group">
                                                                             {{> vs1___dropdown
-                                                                                    data=''
-                                                                                    type='search'
-                                                                                    id='obDeductionType1'
-                                                                                    name='obDeductionType'
-                                                                                    modalId= 'obDeductionTypeListPopModal'
-                                                                                    list_template_name='deductionSettings'
-                                                                                    modal_title='Deduction Type'
-                                                                                    innerModal=true
-                                                                                    label = 'Deduction Type'
-                                                                                    colNameForValue = 'colDeductionsNames'
-                                                                                    is_editable=true
-                                                                                    noBorder=false
-                                                                                    custid='emp_ob'
+                                                                                data=item.item
+                                                                                type='search'
+                                                                                id='obDeductionType1'
+                                                                                name='obDeductionType1'
+                                                                                modalId='deductionSettingsModal'
+                                                                                list_template_name='deductionSettings'
+                                                                                modal_title='Deduction Type'
+                                                                                label='Deduction Type'
+                                                                                innerModal=true
+                                                                                colNameForValue='colDeductionsNames'
+                                                                                target_modal_id='AddNewDeduction'
+                                                                                target_template_id='deductionSettings'
+                                                                                custid=item.lineID
+                                                                                is_editable=true
+                                                                                noBorder=false
                                                                             }}
                                                                             <input type="hidden" id="obDeductionTypeID" value="0">
                                                                         </div>
@@ -3755,19 +3776,21 @@
                                                                     <div class="col-12">
                                                                         <div class="form-group">
                                                                             {{> vs1___dropdown
-                                                                                    data=''
-                                                                                    type='search'
-                                                                                    id='obSuperannuationFund'
-                                                                                    name='obSuperannuationFund'
-                                                                                    modalId= 'obSuperannuationFundListPopModal'
-                                                                                    list_template_name='superannuationSettings'
-                                                                                    modal_title='Superannuation Fund'
-                                                                                    innerModal=true
-                                                                                    label = 'Superannuation Fund'
-                                                                                    colNameForValue = 'colSuperannuationName'
-                                                                                    is_editable=true
-                                                                                    noBorder=false
-                                                                                    custid='_emp_add1'
+                                                                                data=item.item
+                                                                                type='search'
+                                                                                id='obSuperannuationFund'
+                                                                                name='obSuperannuationFund'
+                                                                                modalId='superannuationSettingsModal'
+                                                                                list_template_name='superannuationSettings'
+                                                                                modal_title='Superannuation Fund'
+                                                                                label='Superannuation Fund'
+                                                                                innerModal=true
+                                                                                colNameForValue='colSuperannuationName'
+                                                                                target_modal_id='fundTypeListModel'
+                                                                                target_template_id='fundtypelistpop'
+                                                                                custid=item.lineID
+                                                                                is_editable=true
+                                                                                noBorder=false
                                                                             }}
                                                                             <input type="hidden" id="obSuperannuationFundID" value="0">
                                                                         </div>
@@ -3775,7 +3798,7 @@
                                                                     <div class="col-12">
                                                                         <div class="form-group">
                                                                             <label>Contribution Type</label>
-                                                                            <input type="text" class="form-control" id="obContributionType">
+                                                                            {{> vs1_dropdown id='obContributionType' name='obContributionType' value=bindept type='search' classes='es-input'}}
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -3865,13 +3888,13 @@
                                                                                     id='obReimbursementType'
                                                                                     name='obReimbursementType'
                                                                                     modalId='reimbursementSettingsModal'
-                                                                                    list_template_name=''
+                                                                                    list_template_name='reimbursementSettings'
                                                                                     modal_title='Earning Rate List'
                                                                                     label='Reimbursement Type'
                                                                                     innerModal=true
                                                                                     colNameForValue='colReimbursementName'
                                                                                     target_modal_id=''
-                                                                                    target_template_id=''
+                                                                                    target_template_id='reimbursementSettings'
                                                                                     custid=item.lineID
                                                                                     is_editable=true
                                                                                     noBorder=false
@@ -4087,9 +4110,9 @@
     {{> accountlistpop}}
   </div> -->
 
-    <!-- <div class="modal fade" role="dialog" tabindex="-1" id="addAccountModal" style="z-index: 99999999 !important;">
-    {{> addaccountpop}}
-  </div> -->
+    <div class="modal fade" role="dialog" tabindex="-1" id="addAccountModal" style="z-index: 99999999 !important;">
+        {{> addaccountpop}}
+    </div>
 
     <div class="modal fade" role="dialog" tabindex="-1" id="AppTableModal" style="z-index: 99999999 !important;">
         {{> AppTableModal AppTableModalData=AppTableModalData}}
@@ -4266,7 +4289,7 @@
                                 <input type="hidden" id="paycalendarId" name="paycalendarId" value="0" />
                             </div>
                         </div>
-                        <div class="body-panel d-none">
+                        <div class="body-panel">
                             <div class="col-12">
                                 <div class="form-group">
                                     {{> default_input

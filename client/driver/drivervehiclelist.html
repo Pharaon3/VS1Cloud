@@ -12,7 +12,7 @@
             <header style="padding: 16px; padding-bottom: 0px; background-color: #ededed;">
                 <div class="row">
                     <div class="col-12 col-md-4">
-                        <h1 style="margin: 16px; margin-bottom: 0px;">Driver Vehicle List
+                        <h1 style="margin: 16px; margin-bottom: 0px;">Driver List
                             <!-- <a role="button" data-toggle="modal" href="#helpModal" class="helpModal"><label class="lblplay">PLAY</label><i class="far fa-play-circle"  style="font-size: 20px;"></i></a> -->
                             {{> helpbutton}}
 
@@ -60,6 +60,8 @@
                       iconName='plus'
                       title='New Driver Vehicle'
                     }}
+                    <button style="margin-right: 0px;" class="btn btn-primary btnSelectAll vs1ButtonMargin" type="button">Select All</button>
+                    <button class="btn btn-primary btnLoadMap vs1ButtonMargin" type="button"><i class="la la-map-o" style="padding-right: 5px;"></i>Load To Map</button>
                 </div>
                 <!-- {{#if equals isSetupFinished false}} -->
                     <div class="col-2 setupIncompleatedMsg text-danger">
@@ -77,13 +79,14 @@
                 <div class="card-body p-3 rounded" style="margin: 0px 16px;">
 <!--                  {{> non_transactional_list tablename="tblEmployeelist"}}-->
                     {{>datatablelist
-                            tableclass="tblEmployeelist"
-                            tablename="tblEmployeelist"
+                            tableclass="tblDriverlist"
+                            tablename="tblDriverlist"
                             apiName= apiFunction
                             indexeddbname = 'TEmployeeList'
                             tableheaderrecords = tableheaderrecords
                             exportfilename = 'Employee List'
                             istransaction = false
+                            isselection = true
                             apiParams= apiParams
                             datahandler = datahandler
                             service=service

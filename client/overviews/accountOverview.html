@@ -73,7 +73,7 @@
         <div class="row justify-content-between">
             <div class="col-5 col-md-5">
                 <button class="btn btnNav btn-primary btnRefresh float-left vs1FirstButtonMargin" type="button" ><i class="la la-lightbulb-o" style="padding-right: 5px;"></i>Refresh</button>
-                <a class="btn btnNav btn-primary float-left btnAddNewAccounts vs1ButtonMargin" role="button" data-toggle="modal" href="#addNewAccountModal" ><i class="fa fa-plus" style="margin-right: 8px;"></i>New Account</a>
+                <a class="btn btnNav btn-primary float-left btnAddNewAccounts vs1ButtonMargin" role="button" data-toggle="modal" href="javascript:;" ><i class="fa fa-plus" style="margin-right: 8px;"></i>New Account</a>
                 <div>
                     <div class="modal fade" role="dialog" tabindex="-1" id="addNewAccountModal">
                         {{> addAccountModal}}
@@ -127,8 +127,8 @@
             </div>
         </div>
         <div class="card-body p-0 rounded">
-            
-            {{>datatablelist 
+
+            {{>datatablelist
                 tableclass="tblAccountOverview"
                 tablename="tblAccountOverview"
                 apiName= apiFunction
@@ -145,7 +145,7 @@
                 searchAPI = searchAPI
                 order = '[[ 1, "asc" ]]'
             }}
-    
+
             <div class="table-responsive d-none">
                 <table id="tblAccountTreeOverview" class="dataTable table table-bordered tblAccountTreeOverview">
                     <thead>
@@ -221,7 +221,7 @@
         </div>
     </div>
     <div class="modal fade" role="dialog" tabindex="-1" id="ModalClosingDate">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width: 768px;">
           <div class="modal-content">
               <div class="modal-header">
                   <h4>

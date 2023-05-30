@@ -18,14 +18,11 @@ import {ContactService} from "../contacts/contact-service";
 import { TaxRateService } from "../settings/settings-service";
 import {ManufacturingService} from "../manufacture/manufacturing-service";
 import erpObject from "../lib/global/erp-objects";
-
-
-
 import { FlowRouter } from 'meteor/ostrio:flow-router-extra';
+
 let sideBarService = new SideBarService();
 let utilityService = new UtilityService();
 let manufacturingService = new ManufacturingService()
-
 
 Template.new_process.onCreated(() => {
     const templateObject = Template.instance();

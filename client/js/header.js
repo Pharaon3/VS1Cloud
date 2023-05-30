@@ -110,15 +110,22 @@ Template.header.onRendered(function () {
     /**
      * For Volume Slider
      */
+    let volume = localStorage.getItem('background-sound-volume');
+
+    if(volume == null || volume == undefined) {
+        volume = 0.3;
+    }
+
     $("#volume").slider({
         min: 0,
         max: 100,
-        value: 50,
+        value: volume * 100,
         range: "min",
         slide: function(event, ui) {
             setBackgroundSoundVolume(ui.value / 100);
         }
     });
+    //
 
     checkSetupFinished2();
 

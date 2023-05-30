@@ -15,7 +15,7 @@ import '../resalescomparision/resalescomparision.html';
 import '../expenses/expenseschart.html';
 import '../accountslist/accountslistchart.html';
 import '../mytaskswdiget/mytaskswidgetchart.html';
-import '../deliverychart/deliverychart.html'
+// import '../deliverychart/deliverychart.html'
 
 import '../top10Customers/dsm_top10Customers.html';
 import '../../Dashboard/appointments-widget/dsm-appointments-widget.html';
@@ -75,7 +75,6 @@ let chartsPlaceList = {
         "productionProductStatusChart",
         "upcomingOrderStackChart",
         "top10BOMChart",
-
     ],
 
     "Payroll_Overview": [
@@ -198,7 +197,7 @@ Template.allChartLists.helpers({
     },
 
     is_available_chart: (current, chart) => {
-        return 1
+        return 1;
         if(current == 'All_Charts') return 1;
         return chartsPlaceList[current].includes(chart);
     },

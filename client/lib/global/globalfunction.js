@@ -1678,6 +1678,17 @@ validateEmail = (email) => {
  */
 checkBackgroundSound = () => {
     let flag = localStorage.getItem('background-sound');
+    let volume = localStorage.getItem('background-sound-volume');
+
+    $("li.li-background-sound-on").removeClass("d-none");
+    $("li.li-background-sound-off").addClass("d-none");
+
+    if(volume != null && volume != undefined) {
+        let audio = document.getElementById('audio-background');
+        audio.volume = volume;
+    }
+
+    if(flag == null || flag == undefined) return;
 
     if (flag == 'true') {
         startBackgroundAudio();
@@ -1687,6 +1698,8 @@ checkBackgroundSound = () => {
 };
 
 startBackgroundAudio = () => {
+    localStorage.setItem('background-sound', true);
+
     let audio = document.getElementById("audio-background");
 
     $("li.li-background-sound-on").removeClass("d-none");
@@ -1697,22 +1710,15 @@ startBackgroundAudio = () => {
     }
 };
 
-startedBackgroundAudio = () => {
-    $("li.li-background-sound-on").removeClass("d-none");
-    $("li.li-background-sound-off").addClass("d-none");
-};
-
 stopBackgroundAudio = () => {
+    localStorage.setItem('background-sound', false);
+
     $("li.li-background-sound-on").addClass("d-none");
     $("li.li-background-sound-off").removeClass("d-none");
 
     let audio = document.getElementById("audio-background");
 
     audio.pause();
-};
-
-loadedAudio = () => {
-    // startBackgroundAudio();
 };
 
 let setTimeoutVolumeFade = setTimeout(function() {
@@ -1726,6 +1732,8 @@ fadeOutVolumeSlider = () => {
 setBackgroundSoundVolume = (volume) => {
     let audio = document.getElementById('audio-background');
     audio.volume = volume;
+
+    localStorage.setItem('background-sound-volume', volume);
 
     if(volume == 0) {
         stopBackgroundAudio();
@@ -1750,6 +1758,8 @@ resetTimeoutVolumeFade = () => {
 const messages = ["Awesome", "Good Job", "Well Done", "Great Work"];
 
 showSimpleMessageTransaction = () => {
+    $(".fullScreenSpin").css("display", "none");
+
     const messageIndex = Math.floor(Math.random() * messages.length);
     const messageText = messages[messageIndex];
 

@@ -466,9 +466,8 @@ Template.employeelist.events({
         let utilityService = new UtilityService();
         let rows = [];
         const filename = 'SampleEmployee' + '.csv';
-        rows[0] = ['First Name', 'Last Name', 'Phone', 'Mobile', 'Email', 'Skype', 'Street', 'City/Suburb', 'State', 'Post Code', 'Country', 'Gender'];
-        rows[1] = ['John', 'Smith', '9995551213', '9995551213', 'johnsmith@email.com', 'johnsmith', '123 Main Street', 'Brooklyn', 'New York', '1234', 'United States', 'M'];
-        rows[1] = ['Jane', 'Smith', '9995551213', '9995551213', 'janesmith@email.com', 'janesmith', '123 Main Street', 'Brooklyn', 'New York', '1234', 'United States', 'F'];
+        rows[0] = ['Emplyoee Name','First Name', 'Last Name', 'Phone', 'Email', 'Department', 'Addresss'];
+        rows[1] = ['John Smith','John', 'Smith', '9995551213', 'johnsmith@email.com','Default','12 Somewhere Place'];
         utilityService.exportToCsv(rows, filename, 'csv');
     },
     'click .templateDownloadXLSX': function (e) {
@@ -551,23 +550,36 @@ Template.employeelist.events({
         var saledateTime = new Date();
         //let empStartDate = new Date().format("YYYY-MM-DD");
         var empStartDate = moment(saledateTime).format("YYYY-MM-DD");
+        var filename = $("#attachment-upload")[0].files[0]["name"];
+        var fileType = filename.split(".").pop().toLowerCase();
+        if (fileType == "csv" || fileType == "txt" || fileType == "xlsx") {
         Papa.parse(templateObject.selectedFile.get(), {
             complete: function (results) {
 
                 if (results.data.length > 0) {
-                    if ((results.data[0][0] == "First Name")
-                        && (results.data[0][1] == "Last Name") && (results.data[0][2] == "Phone")
-                        && (results.data[0][3] == "Mobile") && (results.data[0][4] == "Email")
-                        && (results.data[0][5] == "Skype") && (results.data[0][6] == "Street")
-                        && ((results.data[0][7] == "Street2") || (results.data[0][7] == "City/Suburb")) && (results.data[0][8] == "State")
-                        && (results.data[0][9] == "Post Code") && (results.data[0][10] == "Country")
-                        && (results.data[0][11] == "Gender")) {
+                    if ((results.data[0][0] == "Employee Name")
+                        && (results.data[0][1] == "First Name") && (results.data[0][2] == "Last Name")
+                        && (results.data[0][3] == "Phone") && (results.data[0][4] == "Email")
+                        && (results.data[0][5] == "Department") && (results.data[0][6] == "Address")) {
 
                         let dataLength = results.data.length * 500;
                         setTimeout(function () {
                             // $('#importModal').modal('toggle');
                             //Meteor._reload.reload();
-                            window.open('/employeelist?success=true', '_self');
+                            sideBarService
+                            .getAllEmployees()
+                            .then(function(dataReload) {
+                                addVS1Data("TEmployee", JSON.stringify(dataReload))
+                                    .then(function(datareturn) {
+                                        window.open("/employeelist", "_self");
+                                    })
+                                    .catch(function(err) {
+                                        window.open("/employeelist", "_self");
+                                    });
+                            })
+                            .catch(function(err) {
+                                window.open("/employeelist", "_self");
+                            });
                         }, parseInt(dataLength));
 
                         for (let i = 0; i < results.data.length - 1; i++) {
@@ -575,21 +587,14 @@ Template.employeelist.events({
                                 type: "TEmployee",
                                 fields:
                                     {
-                                        FirstName: results.data[i + 1][0].trim(),
-                                        LastName: results.data[i + 1][1].trim(),
-                                        Phone: results.data[i + 1][2],
-                                        Mobile: results.data[i + 1][3],
-                                        DateStarted: empStartDate,
-                                        DOB: empStartDate,
-                                        Sex: results.data[i + 1][11] || "F",
+                                        EmployeeName:results.data[i + 1][0],
+                                        FirstName: results.data[i + 1][1],
+                                        LastName: results.data[i + 1][2],
+                                        Phone: results.data[i + 1][3],
                                         Email: results.data[i + 1][4],
-                                        SkypeName: results.data[i + 1][5],
+                                        DefaultClassName: results.data[i + 1][5],
                                         Street: results.data[i + 1][6],
-                                        Street2: results.data[i + 1][7],
-                                        Suburb: results.data[i + 1][7],
-                                        State: results.data[i + 1][8],
-                                        PostCode: results.data[i + 1][9],
-                                        Country: results.data[i + 1][10]
+                                        Active: true,
 
                                         // BillStreet: results.data[i+1][6],
                                         // BillStreet2: results.data[i+1][7],
@@ -632,6 +637,7 @@ Template.employeelist.events({
 
             }
         });
+    }
     },
     'click #setUpEmployeeList':function(){
         localStorage.setItem('VS1Cloud_SETUP_STEP',5)

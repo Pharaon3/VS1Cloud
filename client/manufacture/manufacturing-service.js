@@ -51,7 +51,7 @@ export class ManufacturingService extends BaseService {
     }
 
     saveWorkOrder(data){
-      return this.POST(this.ERPObjects.TVS1Workorder, data)
+      return this.POST(this.ERPObjects.TVS1WorkOrder, data)
     }
 
     saveBuildCostReport(data){
@@ -128,7 +128,7 @@ export class ManufacturingService extends BaseService {
       options = {
           ListType: 'Detail',
       }
-      return this.getList(this.ERPObjects.TVS1Workorder, options)
+      return this.getList(this.ERPObjects.TVS1WorkOrder, options)
     }  
   
 }

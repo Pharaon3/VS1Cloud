@@ -18,6 +18,7 @@ const contactService = new ContactService();
 const countryService = new CountryService();
 const organisationService = new OrganisationService();
 const crmService = new CRMService();
+var deliveryCustomCount = 0;
 
 function MakeNegative() {
   $('td').each(function () {
@@ -877,6 +878,7 @@ Template.supplierscard.onCreated(function () {
 });
 
 Template.supplierscard.onRendered(function () {
+  deliveryCustomCount = 0;
 
   $('.fullScreenSpin').css('display', 'inline-block');
 
@@ -885,18 +887,20 @@ Template.supplierscard.onRendered(function () {
   templateObject.fillBankInfoFromUrl();
   templateObject.getCountryData();
 
-  $("#dtStartingDate,#dtDOB,#dtTermninationDate,#dtAsOf").datepicker({
-    showOn: 'button',
-    buttonText: 'Show Date',
-    buttonImageOnly: true,
-    buttonImage: '/img/imgCal2.png',
-    dateFormat: 'dd/mm/yy',
-    showOtherMonths: true,
-    selectOtherMonths: true,
-    changeMonth: true,
-    changeYear: true,
-    yearRange: "-90:+10",
-  });
+  setTimeout(function () {
+    $("#dtStartingDate,#dtDOB,#dtTermninationDate,#dtAsOf,#lExpDate,#pExpDate").datepicker({
+      showOn: 'button',
+      buttonText: 'Show Date',
+      buttonImageOnly: true,
+      buttonImage: '/img/imgCal2.png',
+      dateFormat: 'dd/mm/yy',
+      showOtherMonths: true,
+      selectOtherMonths: true,
+      changeMonth: true,
+      changeYear: true,
+      yearRange: "-90:+10",
+    });
+  }, 500);
   $("#dtAsOf").datepicker({
     showOn: 'button',
     buttonText: 'Show Date',
@@ -1395,6 +1399,21 @@ Template.supplierscard.events({
       let isContractor = false;
       let isCustomer = false;
       let isDriver = false;
+      // Delivery tab Begin
+      let delivery_vehicles = $("#vehicles").val();
+      let ltype = $("#ltype").val();
+      let lnumber = $("#lnumber").val();
+      let lExpDate = $("#lExpDate").val();
+      let license_attachment = $("#license-attachment").val();
+      let ptype = $("#ptype").val();
+      let pnumber = $("#pnumber").val();
+      let pExpDate = $("#pExpDate").val();
+      let permit_attachment = $("#permit-attachment").val();
+      let deliveryCustom1Val = $("#deliveryCustom1Val").val();
+      let deliveryCustom2Val = $("#deliveryCustom2Val").val();
+      let deliveryCustom3Val = $("#deliveryCustom3Val").val();
+      let deliveryCustom4Val = $("#deliveryCustom4Val").val();
+      // Delivery tab End
       isCustomer = !!$('#chkSameAsCustomer').is(':checked');
       isDriver = !!$('#isDriver').is(':checked');
       if ($('#isformcontractor').is(':checked')) {
@@ -1548,9 +1567,20 @@ Template.supplierscard.events({
             SwiftCode: SwiftCode,
             RoutingNumber: RoutingNumber,
             ForeignExchangeCode: $("#sltCurrency").val(),
-
+            vehicles: delivery_vehicles,
+            license_type: ltype,
+            license_number: lnumber,
+            license_expDate: lExpDate,
+            permit_type: ptype,
+            permit_number: pnumber,
+            permit_expDate: pExpDate,
+            isDriver: isDriver,
           }
         };
+        if(deliveryCustom1Val) objDetails.fields.deliveryCustom1Val = deliveryCustom1Val;
+        if(deliveryCustom2Val) objDetails.fields.deliveryCustom2Val = deliveryCustom2Val;
+        if(deliveryCustom3Val) objDetails.fields.deliveryCustom3Val = deliveryCustom3Val;
+        if(deliveryCustom4Val) objDetails.fields.deliveryCustom4Val = deliveryCustom4Val;            
       } else {
         let suppdupID = 0;
         let checkSuppData = await contactService.getCheckSuppliersData(company);
@@ -1601,8 +1631,20 @@ Template.supplierscard.events({
               SwiftCode: SwiftCode,
               RoutingNumber: RoutingNumber,
               ForeignExchangeCode: $("#sltCurrency").val(),
+              vehicles: delivery_vehicles,
+              license_type: ltype,
+              license_number: lnumber,
+              license_expDate: lExpDate,
+              permit_type: ptype,
+              permit_number: pnumber,
+              permit_expDate: pExpDate,
+              isDriver: isDriver
             }
           };
+          if(deliveryCustom1Val) objDetails.fields.deliveryCustom1Val = deliveryCustom1Val;
+          if(deliveryCustom2Val) objDetails.fields.deliveryCustom2Val = deliveryCustom2Val;
+          if(deliveryCustom3Val) objDetails.fields.deliveryCustom3Val = deliveryCustom3Val;
+          if(deliveryCustom4Val) objDetails.fields.deliveryCustom4Val = deliveryCustom4Val;
         } else {
           objDetails = {
             type: "TSupplierEx",
@@ -1648,8 +1690,20 @@ Template.supplierscard.events({
               SwiftCode: SwiftCode,
               RoutingNumber: RoutingNumber,
               ForeignExchangeCode: $("#sltCurrency").val(),
+              vehicles: delivery_vehicles,
+              license_type: ltype,
+              license_number: lnumber,
+              license_expDate: lExpDate,
+              permit_type: ptype,
+              permit_number: pnumber,
+              permit_expDate: pExpDate,
+              isDriver: isDriver
             }
           };
+          if(deliveryCustom1Val) objDetails.fields.deliveryCustom1Val = deliveryCustom1Val;
+          if(deliveryCustom2Val) objDetails.fields.deliveryCustom2Val = deliveryCustom2Val;
+          if(deliveryCustom3Val) objDetails.fields.deliveryCustom3Val = deliveryCustom3Val;
+          if(deliveryCustom4Val) objDetails.fields.deliveryCustom4Val = deliveryCustom4Val;
         }
       }
       $('.fullScreenSpin').css('display', 'inline-block');
@@ -1771,6 +1825,34 @@ Template.supplierscard.events({
         $("#event-modal").modal("toggle");
       }
     }
+  },
+  'change #permit-attachment': function (e) {
+      let templateObj = Template.instance();
+      let saveToTAttachment = false;
+      let lineIDForAttachment = false;
+      let uploadedFilesArray = templateObj.uploadedFiles.get();
+
+      let myFiles = $('#permit-attachment')[0].files;
+      let uploadData = utilityService.attachmentUploadTabs(uploadedFilesArray, myFiles, saveToTAttachment, lineIDForAttachment);
+      templateObj.uploadedFiles.set(uploadData.uploadedFilesArray);
+      templateObj.attachmentCount.set(uploadData.totalAttachments);
+  },
+  'change #license-attachment': function (e) {
+      let templateObj = Template.instance();
+      let saveToTAttachment = false;
+      let lineIDForAttachment = false;
+      let uploadedFilesArray = templateObj.uploadedFiles.get();
+
+      let myFiles = $('#license-attachment')[0].files;
+      let uploadData = utilityService.attachmentUploadTabs(uploadedFilesArray, myFiles, saveToTAttachment, lineIDForAttachment);
+      templateObj.uploadedFiles.set(uploadData.uploadedFilesArray);
+      templateObj.attachmentCount.set(uploadData.totalAttachments);
+  },
+  "click .addNewDeliveryCustomField": function (event) {
+    $("#deliveryCustom").css("display", 'block');
+    deliveryCustomCount ++;
+    if(deliveryCustomCount > 4) deliveryCustomCount = 4;
+    $("#deliveryCustom" + deliveryCustomCount).css("display", "block");
   },
   // 'click .chkDatatable': function (event) {
   //   const columns = $('#tblTransactionlist th');

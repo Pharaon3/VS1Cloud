@@ -320,7 +320,7 @@ const erpObject = {
     TABADetailRecord: "TABADetailRecord",
     TABADescriptiveRecord: "TABADescriptiveRecord",
     TProjectTasksList: "TProjectTasksList",
-    TVS1Workorder: "TVS1Workorder",
+    TVS1WorkOrder: "TVS1WorkOrder",
 
     TVS1ProcessClockList: "TVS1ProcessClockList", // Danila add
     TVS1ClockOnReport: "TVS1ClockOnReport",

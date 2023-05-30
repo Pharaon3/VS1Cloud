@@ -199,7 +199,7 @@ Template.newsidenav.onCreated(function () {
   templateObject.isSNTrackChecked.set(false);
   templateObject.isBankingReport = new ReactiveVar();
   templateObject.isBankingReport.set(false);
-  
+
   templateObject.isCRM = new ReactiveVar();
   templateObject.isCRM.set(false);
   templateObject.isProductList = new ReactiveVar();
@@ -1532,7 +1532,7 @@ Template.newsidenav.onRendered(function () {
         isStockValue = false;
       } else {
         isStockValue = dataObject[0].data === 'true';
-        
+
         templateObject.isStockValue.set(isStockValue);
       }
     });
@@ -1542,7 +1542,7 @@ Template.newsidenav.onRendered(function () {
         isStockQuantity = false;
       } else {
         isStockQuantity = dataObject[0].data === 'true';
-        
+
         templateObject.isStockQuantity.set(isStockQuantity);
       }
     });
@@ -1552,7 +1552,7 @@ Template.newsidenav.onRendered(function () {
         isStockMovementReport = false;
       } else {
         isStockMovementReport = dataObject[0].data === 'true';
-        
+
         templateObject.isStockMovementReport.set(isStockMovementReport);
       }
     });
@@ -1562,7 +1562,7 @@ Template.newsidenav.onRendered(function () {
         isClockedHourReport = false;
       } else {
         isClockedHourReport = dataObject[0].data === 'true';
-        
+
         templateObject.isClockedHourReport.set(isClockedHourReport);
       }
     });
@@ -1572,7 +1572,7 @@ Template.newsidenav.onRendered(function () {
         isPayrollHistoryReport = false;
       } else {
         isPayrollHistoryReport = dataObject[0].data === 'true';
-        
+
         templateObject.isPayrollHistoryReport.set(isPayrollHistoryReport);
       }
     });
@@ -1582,7 +1582,7 @@ Template.newsidenav.onRendered(function () {
         isForeignExchangeHistoryList = false;
       } else {
         isForeignExchangeHistoryList = dataObject[0].data === 'true';
-        
+
         templateObject.isForeignExchangeHistoryList.set(isForeignExchangeHistoryList);
       }
     });
@@ -1592,7 +1592,7 @@ Template.newsidenav.onRendered(function () {
         isForeignExchangeList = false;
       } else {
         isForeignExchangeList = dataObject[0].data === 'true';
-        
+
         templateObject.isForeignExchangeList.set(isForeignExchangeList);
       }
     });
@@ -1602,7 +1602,7 @@ Template.newsidenav.onRendered(function () {
         isSalesSummaryReport = false;
       } else {
         isSalesSummaryReport = dataObject[0].data === 'true';
-        
+
         templateObject.isSalesSummaryReport.set(isSalesSummaryReport);
       }
     });
@@ -1612,7 +1612,7 @@ Template.newsidenav.onRendered(function () {
         isGeneralLedger = false;
       } else {
         isGeneralLedger = dataObject[0].data === 'true';
-        
+
         templateObject.isGeneralLedger.set(isGeneralLedger);
       }
     });
@@ -1622,7 +1622,7 @@ Template.newsidenav.onRendered(function () {
         isTaxSummaryReport = false;
       } else {
         isTaxSummaryReport = dataObject[0].data === 'true';
-        
+
         templateObject.isTaxSummaryReport.set(isTaxSummaryReport);
       }
     });
@@ -1632,7 +1632,7 @@ Template.newsidenav.onRendered(function () {
         isTrialBalance = false;
       } else {
         isTrialBalance = dataObject[0].data === 'true';
-        
+
         templateObject.isTrialBalance.set(isTrialBalance);
       }
     });
@@ -1651,7 +1651,7 @@ Template.newsidenav.onRendered(function () {
         isPayrollLeaveAccrued = false;
       } else {
         isPayrollLeaveAccrued = dataObject[0].data === 'true';
-        
+
         templateObject.isPayrollLeaveAccrued.set(isPayrollLeaveAccrued);
       }
     });
@@ -1661,7 +1661,7 @@ Template.newsidenav.onRendered(function () {
         isPayrollLeaveTaken = false;
       } else {
         isPayrollLeaveTaken = dataObject[0].data === 'true';
-        
+
         templateObject.isPayrollLeaveTaken.set(isPayrollLeaveTaken);
       }
     });
@@ -1680,7 +1680,7 @@ Template.newsidenav.onRendered(function () {
         is1099Transaction = false;
       } else {
         is1099Transaction = dataObject[0].data === 'true';
-        
+
         templateObject.is1099Transaction.set(is1099Transaction);
       }
     });
@@ -1690,7 +1690,7 @@ Template.newsidenav.onRendered(function () {
         isAccountsLists = false;
       } else {
         isAccountsLists = dataObject[0].data === 'true';
-        
+
         templateObject.isAccountsLists.set(isAccountsLists);
       }
     });
@@ -1700,7 +1700,7 @@ Template.newsidenav.onRendered(function () {
         isBinLocations = false;
       } else {
         isBinLocations = dataObject[0].data === 'true';
-        
+
         templateObject.isBinLocations.set(isBinLocations);
       }
     });
@@ -1710,7 +1710,7 @@ Template.newsidenav.onRendered(function () {
         isTransactionJournal = false;
       } else {
         isTransactionJournal = dataObject[0].data === 'true';
-        
+
         templateObject.isTransactionJournal.set(isTransactionJournal);
       }
     });
@@ -1720,7 +1720,7 @@ Template.newsidenav.onRendered(function () {
         isUnpaidBills = false;
       } else {
         isUnpaidBills = dataObject[0].data === 'true';
-        
+
         templateObject.isUnpaidBills.set(isUnpaidBills);
       }
     });
@@ -1730,7 +1730,7 @@ Template.newsidenav.onRendered(function () {
         isUnpaidPO = false;
       } else {
         isUnpaidPO = dataObject[0].data === 'true';
-        
+
         templateObject.isUnpaidPO.set(isUnpaidPO);
       }
     });
@@ -1740,7 +1740,7 @@ Template.newsidenav.onRendered(function () {
         isBackOrderedPO = false;
       } else {
         isBackOrderedPO = dataObject[0].data === 'true';
-        
+
         templateObject.isBackOrderedPO.set(isBackOrderedPO);
       }
     });
@@ -1750,7 +1750,7 @@ Template.newsidenav.onRendered(function () {
         isSalesOrderConverted = false;
       } else {
         isSalesOrderConverted = dataObject[0].data === 'true';
-        
+
         templateObject.isSalesOrderConverted.set(isSalesOrderConverted);
       }
     });
@@ -1760,7 +1760,7 @@ Template.newsidenav.onRendered(function () {
         isSalesOrderUnconverted = false;
       } else {
         isSalesOrderUnconverted = dataObject[0].data === 'true';
-        
+
         templateObject.isSalesOrderUnconverted.set(isSalesOrderUnconverted);
       }
     });
@@ -1770,7 +1770,7 @@ Template.newsidenav.onRendered(function () {
         isPaymentMethodsList = false;
       } else {
         isPaymentMethodsList = dataObject[0].data === 'true';
-        
+
         templateObject.isPaymentMethodsList.set(isPaymentMethodsList);
       }
     });
@@ -1780,7 +1780,7 @@ Template.newsidenav.onRendered(function () {
         isBackOrderedInvoices = false;
       } else {
         isBackOrderedInvoices = dataObject[0].data === 'true';
-        
+
         templateObject.isBackOrderedInvoices.set(isBackOrderedInvoices);
       }
     });
@@ -1790,7 +1790,7 @@ Template.newsidenav.onRendered(function () {
         isQuotesConverted = false;
       } else {
         isQuotesConverted = dataObject[0].data === 'true';
-        
+
         templateObject.isQuotesConverted.set(isQuotesConverted);
       }
     });
@@ -1800,7 +1800,7 @@ Template.newsidenav.onRendered(function () {
         isQuotesUnconverted = false;
       } else {
         isQuotesUnconverted = dataObject[0].data === 'true';
-        
+
         templateObject.isQuotesUnconverted.set(isQuotesUnconverted);
       }
     });
@@ -1810,7 +1810,7 @@ Template.newsidenav.onRendered(function () {
         isInvoicesPaid = false;
       } else {
         isInvoicesPaid = dataObject[0].data === 'true';
-        
+
         templateObject.isInvoicesPaid.set(isInvoicesPaid);
       }
     });
@@ -1820,7 +1820,7 @@ Template.newsidenav.onRendered(function () {
         isInvoicesUnpaid = false;
       } else {
         isInvoicesUnpaid = dataObject[0].data === 'true';
-        
+
         templateObject.isInvoicesUnpaid.set(isInvoicesUnpaid);
       }
     });
@@ -1830,7 +1830,7 @@ Template.newsidenav.onRendered(function () {
         isTimeSheetDetails = false;
       } else {
         isTimeSheetDetails = dataObject[0].data === 'true';
-        
+
         templateObject.isTimeSheetDetails.set(isTimeSheetDetails);
       }
     });
@@ -1840,7 +1840,7 @@ Template.newsidenav.onRendered(function () {
         isChequeList = false;
       } else {
         isChequeList = dataObject[0].data === 'true';
-        
+
         templateObject.isChequeList.set(isChequeList);
       }
     });
@@ -1850,7 +1850,7 @@ Template.newsidenav.onRendered(function () {
         isStockAdjustmentList = false;
       } else {
         isStockAdjustmentList = dataObject[0].data === 'true';
-        
+
         templateObject.isStockAdjustmentList.set(isStockAdjustmentList);
       }
     });
@@ -1860,7 +1860,7 @@ Template.newsidenav.onRendered(function () {
         isJournalEntryList = false;
       } else {
         isJournalEntryList = dataObject[0].data === 'true';
-        
+
         templateObject.isJournalEntryList.set(isJournalEntryList);
       }
     });
@@ -1870,7 +1870,7 @@ Template.newsidenav.onRendered(function () {
         isAgedPayables = false;
       } else {
         isAgedPayables = dataObject[0].data === 'true';
-        
+
         templateObject.isAgedPayables.set(isAgedPayables);
       }
     });
@@ -1880,7 +1880,7 @@ Template.newsidenav.onRendered(function () {
         isAgedPayablesSummary = false;
       } else {
         isAgedPayablesSummary = dataObject[0].data === 'true';
-        
+
         templateObject.isAgedPayablesSummary.set(isAgedPayablesSummary);
       }
     });
@@ -1890,7 +1890,7 @@ Template.newsidenav.onRendered(function () {
         isPurchaseReport = false;
       } else {
         isPurchaseReport = dataObject[0].data === 'true';
-        
+
         templateObject.isPurchaseReport.set(isPurchaseReport);
       }
     });
@@ -1900,7 +1900,7 @@ Template.newsidenav.onRendered(function () {
         isPurchaseSummaryReport = false;
       } else {
         isPurchaseSummaryReport = dataObject[0].data === 'true';
-        
+
         templateObject.isPurchaseSummaryReport.set(isPurchaseSummaryReport);
       }
     });
@@ -1910,7 +1910,7 @@ Template.newsidenav.onRendered(function () {
         isPrintStatement = false;
       } else {
         isPrintStatement = dataObject[0].data === 'true';
-        
+
         templateObject.isPrintStatement.set(isPrintStatement);
       }
     });
@@ -1920,7 +1920,7 @@ Template.newsidenav.onRendered(function () {
         isExecutiveSummary = false;
       } else {
         isExecutiveSummary = dataObject[0].data === 'true';
-        
+
         templateObject.isExecutiveSummary.set(isExecutiveSummary);
       }
     });
@@ -1930,7 +1930,7 @@ Template.newsidenav.onRendered(function () {
         isCashReport = false;
       } else {
         isCashReport = dataObject[0].data === 'true';
-        
+
         templateObject.isCashReport.set(isCashReport);
       }
     });
@@ -1949,7 +1949,7 @@ Template.newsidenav.onRendered(function () {
         isPerformanceReport = false;
       } else {
         isPerformanceReport = dataObject[0].data === 'true';
-        
+
         templateObject.isPerformanceReport.set(isPerformanceReport);
       }
     });
@@ -1959,7 +1959,7 @@ Template.newsidenav.onRendered(function () {
         isBalanceSheetReport = false;
       } else {
         isBalanceSheetReport = dataObject[0].data === 'true';
-        
+
         templateObject.isBalanceSheetReport.set(isBalanceSheetReport);
       }
     });
@@ -1969,7 +1969,7 @@ Template.newsidenav.onRendered(function () {
         isIncomeReport = false;
       } else {
         isIncomeReport = dataObject[0].data === 'true';
-        
+
         templateObject.isIncomeReport.set(isIncomeReport);
       }
     });
@@ -1979,7 +1979,7 @@ Template.newsidenav.onRendered(function () {
         isPositionReport = false;
       } else {
         isPositionReport = dataObject[0].data === 'true';
-        
+
         templateObject.isPositionReport.set(isPositionReport);
       }
     });
@@ -1990,7 +1990,7 @@ Template.newsidenav.onRendered(function () {
         isBuildProfitability = false;
       } else {
         isBuildProfitability = dataObject[0].data === 'true';
-        
+
         templateObject.isBuildProfitability.set(isBuildProfitability);
       }
     });
@@ -2001,7 +2001,7 @@ Template.newsidenav.onRendered(function () {
         isProductionWorkSheet = false;
       } else {
         isProductionWorkSheet = dataObject[0].data === 'true';
-        
+
         templateObject.isProductionWorkSheet.set(isProductionWorkSheet);
       }
     });
@@ -2012,7 +2012,7 @@ Template.newsidenav.onRendered(function () {
         isWorkOrder = false;
       } else {
         isWorkOrder = dataObject[0].data === 'true';
-        
+
         templateObject.isWorkOrder.set(isWorkOrder);
       }
     });
@@ -2020,84 +2020,84 @@ Template.newsidenav.onRendered(function () {
     await getVS1Data("TFavReportCompany").then(function (dataObject) {
       if (dataObject.length > 0) {
         templateObject.isCompanyAccountant.set(dataObject[0].data === 'true')
-        
+
       }
     })
 
     await getVS1Data("TFavReportTrustee").then(function (dataObject) {
       if (dataObject.length > 0) {
         templateObject.isTrustee.set(dataObject[0].data === 'true')
-        
+
       }
     })
 
     await getVS1Data("TFavReportFinancialStatement").then(function (dataObject) {
       if (dataObject.length > 0) {
         templateObject.isFinancialStatement.set(dataObject[0].data === 'true')
-        
+
       }
     })
 
     await getVS1Data("TFavReportIndividual").then(function (dataObject) {
       if (dataObject.length > 0) {
         templateObject.isIndividual.set(dataObject[0].data === 'true')
-        
+
       }
     })
 
     await getVS1Data("TFavReportPartnershipNonTrading").then(function (dataObject) {
       if (dataObject.length > 0) {
         templateObject.isPartnershipNonTrading.set(dataObject[0].data === 'true')
-        
+
       }
     })
 
     await getVS1Data("TFavReportTrustNonTrading").then(function (dataObject) {
       if (dataObject.length > 0) {
         templateObject.isTrustNonTrading.set(dataObject[0].data === 'true')
-        
+
       }
     })
 
     await getVS1Data("TFavReportSelfManagedSuperfund").then(function (dataObject) {
       if (dataObject.length > 0) {
         templateObject.isSelfManagedSuperfund.set(dataObject[0].data === 'true')
-        
+
       }
     })
 
     await getVS1Data("TFavReportSingleDirector").then(function (dataObject) {
       if (dataObject.length > 0) {
         templateObject.isSingleDirector.set(dataObject[0].data === 'true')
-        
+
       }
     })
 
     await getVS1Data("TFavReportSoleTraderNonTrading").then(function (dataObject) {
       if (dataObject.length > 0) {
         templateObject.isSoleTraderNonTrading.set(dataObject[0].data === 'true')
-        
+
       }
     })
 
     await getVS1Data("TFavReportTrust").then(function (dataObject) {
       if (dataObject.length > 0) {
         templateObject.isTrust.set(dataObject[0].data === 'true')
-        
+
       }
     })
 
     await getVS1Data("TFavSupplierList").then(function (dataObject) {
       if (dataObject.length > 0) {
         templateObject.isSupplierList.set(dataObject[0].data === 'true')
-        
+
       }
     })
 
     await getVS1Data("TFavSupplierSummaryReport").then(function (dataObject) {
       if (dataObject.length > 0) {
         templateObject.isSupplierSummaryReport.set(dataObject[0].data === 'true')
-        
+
       }
     })
   }
@@ -2113,7 +2113,6 @@ Template.newsidenav.onRendered(function () {
     }, 1000)
   });
 
-  const taxRateService = new TaxRateService();
   const accountantList = [];
 
   templateObject.getAccountantList = function () {
@@ -2145,10 +2144,8 @@ Template.newsidenav.onRendered(function () {
       $(this).removeClass('marked-star');
     }
   });
-
-  templateObject.makeBuildCostReportData();
   // setReportBar();
-  
+
 });
 Template.newsidenav.events({
   'click #sidebarToggleBtn': function (event) {
@@ -2413,6 +2410,13 @@ Template.newsidenav.events({
   //     $('.collapse').collapse('hide');
   // },
   'click .sidenavaccounts': function (event) {
+    event.preventDefault();
+    FlowRouter.go('/accountsoverview');
+    let templateObject = Template.instance();
+    templateObject.getSetSideNavFocus();
+
+  },
+  'click #sidenavaccountsoverview': function (event) {
     event.preventDefault();
     FlowRouter.go('/accountsoverview');
     let templateObject = Template.instance();
@@ -3741,8 +3745,7 @@ Template.newsidenav.events({
   },
   'click #sidenavnewcustomerjob': function (event) {
     event.preventDefault();
-    FlowRouter.go("/customerscard#tab-3");
-    $('#addNewJobModal').modal('show');
+    FlowRouter.go('/customerlist');
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },
@@ -4858,14 +4861,14 @@ Template.newsidenav.events({
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },
-  'click #sidenavnewdrivervehicle': function (event) {
+  'click #sidenavnewdriver': function (event) {
     event.preventDefault();
     FlowRouter.go('/drivervehiclelistcard');
     $('#sidenavdelivery').addClass('active');
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },
-  'click .sidenavdrivervehicle': function (event) {
+  'click .sidenavdriverlist': function (event) {
     event.preventDefault();
     FlowRouter.go('/drivervehiclelist');
     $('#sidenavdelivery').addClass('active');

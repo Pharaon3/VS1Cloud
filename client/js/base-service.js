@@ -82,8 +82,12 @@ export class BaseService {
       return that.GET(url);
   }
   getOneById(objName, id) {
+    if(isNaN(id)) {
+
+    }else{
     let url = objName + "/" + id;
     return this.GET(url);
+  };
   }
 
   POST(url, data) {

@@ -26,6 +26,20 @@ Template.closingdates.onCreated(() => {
 Template.closingdates.onRendered(() => {
   const templateObject = Template.instance();
 
+  $("#edtExpiryDate, #edtSummarisedDate, #edtGlobal, #edtReceivable, #edtPayable").datepicker({
+    showOn: "button",
+    buttonText: "Show Date",
+    buttonImageOnly: true,
+    buttonImage: "/img/imgCal2.png",
+    constrainInput: false,
+    dateFormat: "d/mm/yy",
+    showOtherMonths: true,
+    selectOtherMonths: true,
+    changeMonth: true,
+    changeYear: true,
+    yearRange: "-90:+10",
+  });
+
   // const custField = [];
   // let count = 1;
 
@@ -66,20 +80,22 @@ Template.closingdates.onRendered(() => {
       }
 
       if(data.SummarisedTransDate) {
-        $("#edtSummarisedDate").val(data.SummarisedTransDate);
+        $("#edtSummarisedDate").val(moment(data.SummarisedTransDate).format("DD/MM/YYYY"));
       }
 
       if(data.ClosingDate) {
-        $("#edtGlobal").val(data.ClosingDate);
+        $("#edtGlobal").val(moment(data.ClosingDate).format("DD/MM/YYYY"));
       }
 
       if(data.ClosingDateAR) {
-        $("#edtReceivable").val(data.ClosingDateAR);
+        $("#edtReceivable").val(moment(data.ClosingDateAR).format("DD/MM/YYYY"));
       }
 
       if(data.ClosingDateAP) {
-        $("#edtPayable").val(data.ClosingDateAP);
+        $("#edtPayable").val(moment(data.ClosingDateAP).format("DD/MM/YYYY"));
       }
+
+      $("#edtMonthsAfter").val(6);
     }
   }
 

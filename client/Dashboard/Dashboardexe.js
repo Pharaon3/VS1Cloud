@@ -303,7 +303,13 @@ Template.dashboardexe.onRendered(function() {
     templateObject.getDashboardExecutiveData = async(dateAsOf, dateChanged) => {
         //LoadingOverlay.show();
         try {
-            let data = await reportService.getCardDataReport(dateAsOf);
+            let data = await getVS1Data('TDashboardExecData1');
+            if (data.length == 0) {
+              data = await reportService.getCardDataReport(dateAsOf);
+              addVS1Data('TDashboardExecData1', JSON.stringify(data));
+            }else{
+               data = JSON.parse(data[0].data);
+            };
             if (data.tdashboardexecdata1) {
                 let resData = data.tdashboardexecdata1[0];
 
@@ -582,7 +588,9 @@ Template.dashboardexe.onRendered(function() {
             templateObject.setFieldVariance(shortTermCash[0], shortTermCash[1], "spnShortTermCashVariance", "divShortTermCashVariance");
             templateObject.setFieldVariance(currentAsset[0], currentAsset[1], "spnCurrentAssetVariance", "divCurrentAssetVariance");
             templateObject.setFieldVariance(termAsset[0], termAsset[1], "spnTermAssetVariance", "divTermAssetVariance");
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
         LoadingOverlay.hide();
     }
     const currentDate = new Date()
@@ -774,15 +782,15 @@ Template.dashboardexe.events({
         let arrDate = balanceDate.split("/");
         let formatBalDate = arrDate[2] + "-" + arrDate[1] + "-" + arrDate[0];
         location.href = '/' + reportURL + '?viewDate="' + formatBalDate + '"';
-    },    
+    },
     "click .editchartsbtn": () => {
         chartService.onEdit()
         cardService.onEdit()
     },
-    "click .resetchartbtn": () => {        
+    "click .resetchartbtn": () => {
         chartService.resetCharts()
         cardService.resetCards()
-    }, 
+    },
 });
 
 Template.registerHelper('equals', function(a, b) {

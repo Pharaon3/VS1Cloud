@@ -48,14 +48,16 @@
             <button class="btn btn-primary btnRefresh" type="button" style="margin: 12px"><i class="la la-lightbulb-o"
                 style="padding-right: 5px;"></i>Refresh</button>
             <button id="btnNewInvoice" name="btnNewInvoice" class="btn btn-primary" type="button"
-              style="margin: 12px 0 12px;"><i class="icon ion-plus" style="padding-right: 5px;"></i>New Invoice</button>
+              style="margin: 12px 0 12px;"><i class="icon ion-plus" style="padding-right: 5px;"></i>New Manifest</button>
             <button id="btnInvoiceBOList" name="btnInvoiceBOList" class="btn btn-primary" type="button"
-              style="margin: 12px;">BO List</button>
+              style="margin-left: 12px;">BO List</button>
+              <button style="margin-right: 0px;" class="btn btn-primary btnSelectAll vs1ButtonMargin" type="button">Select All</button>
+              <button class="btn btn-primary btnLoadMap vs1ButtonMargin" type="button"><i class="la la-map-o" style="padding-right: 5px;"></i>Load To Map</button>
           </div>
   
           <div class="col-5 col-md-7 d-xl-flex justify-content-xl-end align-items-xl-start">
-              {{> spreadsheet_link templateName="Invoice Report Result"}}
-              {{> export_import_print_display_button Import="hiddenButton" tablename="tblInvoicelist"}}
+              {{> spreadsheet_link templateName="Manifest Report Result"}}
+              {{> export_import_print_display_button Import="hiddenButton" tablename="tblManifestlist"}}
           </div>
   
         </div>
@@ -70,12 +72,12 @@
             </style>
   
             {{>datatablelist
-                tableclass="tblInvoicelist"
-                tablename="tblInvoicelist"
+                tableclass="tblManifestlist"
+                tablename="tblManifestlist"
                 apiName= apiFunction
                 indexeddbname = 'TInvoiceList'
                 tableheaderrecords = tableheaderrecords
-                exportfilename = 'Invoice List'
+                exportfilename = 'Manifest List'
                 istransaction = true
                 isselection = true
                 apiParams= apiParams

@@ -53,7 +53,7 @@ Template.manifestlist.onCreated(function () {
 
     let dataList = [
       chkBox,
-      // data.SaleDate !=''? moment(data.SaleDate).format("YYYY/MM/DD"): data.SaleDate,
+      data.SaleDate !=''? moment(data.SaleDate).format("YYYY/MM/DD"): data.SaleDate,
       '<span style="display:none;">'+(data.SaleDate !=''? moment(data.SaleDate).format("YYYY/MM/DD"): data.SaleDate)+'</span>'+(data.SaleDate !=''? moment(data.SaleDate).format("DD/MM/YYYY"): data.SaleDate),
       data.SaleID || '',
       data.DueDate !=''? moment(data.DueDate).format("DD/MM/YYYY"): data.DueDate,
@@ -73,29 +73,29 @@ Template.manifestlist.onCreated(function () {
     return dataList;
   }
 
-  let checkBoxHeader = `<div class="custom-control custom-switch colChkBoxAll chkBoxAll text-center pointer">
-        <input name="pointer" class="custom-control-input colChkBoxAll pointer" type="checkbox" id="colChkBoxAll" value="0">
-        <label class="custom-control-label colChkBoxAll" for="colChkBoxAll"></label>
-        </div>`;
+  // let checkBoxHeader = `<div class="custom-control custom-switch colChkBoxAll chkBoxAll text-center pointer">
+  //       <input name="pointer" class="custom-control-input colChkBoxAll pointer" type="checkbox" id="colChkBoxAll" value="0">
+  //       <label class="custom-control-label colChkBoxAll" for="colChkBoxAll"></label>
+  //       </div>`;
 
   let headerStructure = [
-    { index: 0, label: checkBoxHeader, class: "colCheckBox", active: true, display: false, width: "40" },
+    { index: 0, label: "CheckBox", class: "colCheckBox", active: true, display: true, width: "40" },
   // { index: 0, label: 'Sort Date', class:'colSortDate', active: false, display: true, width: "20" },
-    { index: 1, label: "Sale Date", class:"colSaleDate", active: true, display: true, width: "100" },
-    { index: 2, label: "Sales No.", class:"colSalesNo", active: true, display: true, width: "74" },
-    { index: 3, label: "Due Date", class:"colDueDate", active: true, display: true, width: "100" },
-    { index: 4, label: "Customer", class:"colCustomer", active: true, display: true, width: "150" },
-    { index: 5, label: "Amount (Ex)", class:"colAmountEx", active: true, display: true, width: "100" },
-    { index: 6, label: "Tax", class:"colTax", active: true, display: true, width: "100" },
-    { index: 7, label: "Amount (Inc)", class:"colAmount", active: true, display: true, width: "100" },
-    { index: 8, label: "Paid", class:"colPaid", active: true, display: true, width: "100" },
-    { index: 9, label: "Employee", class:"colEmployee", active: true, display: true, width: "100" },
-    { index: 10, label:"Converted", class:"colConverted", active: true, display: true, width: "100" },
-    { index: 11, label:"Comments", class:"colComments", active: true, display: true, width: "355" },
+    { index: 1, label: "Sale Date", class:"colSaleDate colManifestList", active: true, display: true, width: "100" },
+    { index: 2, label: "Sales No.", class:"colSalesNo colManifestList", active: true, display: true, width: "74" },
+    { index: 3, label: "Due Date", class:"colDueDate colManifestList", active: true, display: true, width: "100" },
+    { index: 4, label: "Customer", class:"colCustomer colManifestList", active: true, display: true, width: "150" },
+    { index: 5, label: "Amount (Ex)", class:"colAmountEx colManifestList", active: true, display: true, width: "100" },
+    { index: 6, label: "Tax", class:"colTax colManifestList", active: true, display: true, width: "100" },
+    { index: 7, label: "Amount (Inc)", class:"colAmount colManifestList", active: true, display: true, width: "100" },
+    { index: 8, label: "Paid", class:"colPaid colManifestList", active: true, display: true, width: "100" },
+    { index: 9, label: "Employee", class:"colEmployee colManifestList", active: true, display: true, width: "100" },
+    { index: 10, label:"Converted", class:"colConverted colManifestList", active: true, display: true, width: "100" },
+    { index: 11, label:"Comments", class:"colComments colManifestList", active: true, display: true, width: "355" },
     // { index: 11, label: "Custom Field 1", class: "colCustomField1", active: false, display: true, width: "280" },
     // { index: 12, label: "Custom Field 2", class: "colCustomField2", active: false, display: true, width: "280" },
     // { index: 13, label: "Custom Field 3", class: "colCustomField3", active: false, display: true, width: "280" },
-    { index: 12, label: "Status", class:"colStatus", active: true, display: true, width: "100" }
+    { index: 12, label: "Status", class:"colStatus", active: true, display: true, width: "120" }
   ];
   templateObject.tableheaderrecords.set(headerStructure);
 
@@ -200,7 +200,7 @@ Template.manifestlist.onRendered(function () {
     }
   }
 
-  $('#tblInvoicelist tbody').on( 'click', '.colSaleDate', function () {
+  $('#tblManifestlist tbody').on( 'click', '.colManifestList', function () {
       var listData = $(this).closest('tr').find('.colSalesNo').text()
       var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
       if(listData){
@@ -212,137 +212,137 @@ Template.manifestlist.onRendered(function () {
       }
   });
   
-  $('#tblInvoicelist tbody').on( 'click', '.colSalesNo', function () {
-    var listData = $(this).closest('tr').find('.colSalesNo').text()
-    var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-    if(listData){
-      if(checkDeleted == "Deleted"){
-        swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-      }else{
-        FlowRouter.go('/invoicetemp?id=' + listData);
-      }
-    }
-});
+//   $('#tblManifestlist tbody').on( 'click', '.colSalesNo', function () {
+//     var listData = $(this).closest('tr').find('.colSalesNo').text()
+//     var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+//     if(listData){
+//       if(checkDeleted == "Deleted"){
+//         swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+//       }else{
+//         FlowRouter.go('/invoicetemp?id=' + listData);
+//       }
+//     }
+// });
 
-$('#tblInvoicelist tbody').on( 'click', '.colDueDate', function () {
-  var listData = $(this).closest('tr').find('.colSalesNo').text()
-  var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-  if(listData){
-    if(checkDeleted == "Deleted"){
-      swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-    }else{
-      FlowRouter.go('/invoicetemp?id=' + listData);
-    }
-  }
-});
+// $('#tblManifestlist tbody').on( 'click', '.colDueDate', function () {
+//   var listData = $(this).closest('tr').find('.colSalesNo').text()
+//   var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+//   if(listData){
+//     if(checkDeleted == "Deleted"){
+//       swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+//     }else{
+//       FlowRouter.go('/invoicetemp?id=' + listData);
+//     }
+//   }
+// });
 
-$('#tblInvoicelist tbody').on( 'click', '.colCustomer', function () {
-  var listData = $(this).closest('tr').find('.colSalesNo').text()
-  var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-  if(listData){
-    if(checkDeleted == "Deleted"){
-      swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-    }else{
-      FlowRouter.go('/invoicetemp?id=' + listData);
-    }
-  }
-});
+// $('#tblManifestlist tbody').on( 'click', '.colCustomer', function () {
+//   var listData = $(this).closest('tr').find('.colSalesNo').text()
+//   var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+//   if(listData){
+//     if(checkDeleted == "Deleted"){
+//       swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+//     }else{
+//       FlowRouter.go('/invoicetemp?id=' + listData);
+//     }
+//   }
+// });
 
-$('#tblInvoicelist tbody').on( 'click', '.colAmountEx', function () {
-  var listData = $(this).closest('tr').find('.colSalesNo').text()
-  var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-  if(listData){
-    if(checkDeleted == "Deleted"){
-      swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-    }else{
-      FlowRouter.go('/invoicetemp?id=' + listData);
-    }
-  }
-});
+// $('#tblManifestlist tbody').on( 'click', '.colAmountEx', function () {
+//   var listData = $(this).closest('tr').find('.colSalesNo').text()
+//   var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+//   if(listData){
+//     if(checkDeleted == "Deleted"){
+//       swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+//     }else{
+//       FlowRouter.go('/invoicetemp?id=' + listData);
+//     }
+//   }
+// });
 
-$('#tblInvoicelist tbody').on( 'click', '.colTax', function () {
-  var listData = $(this).closest('tr').find('.colSalesNo').text()
-  var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-  if(listData){
-    if(checkDeleted == "Deleted"){
-      swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-    }else{
-      FlowRouter.go('/invoicetemp?id=' + listData);
-    }
-  }
-});
+// $('#tblManifestlist tbody').on( 'click', '.colTax', function () {
+//   var listData = $(this).closest('tr').find('.colSalesNo').text()
+//   var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+//   if(listData){
+//     if(checkDeleted == "Deleted"){
+//       swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+//     }else{
+//       FlowRouter.go('/invoicetemp?id=' + listData);
+//     }
+//   }
+// });
 
-$('#tblInvoicelist tbody').on( 'click', '.colAmount', function () {
-  var listData = $(this).closest('tr').find('.colSalesNo').text()
-  var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-  if(listData){
-    if(checkDeleted == "Deleted"){
-      swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-    }else{
-      FlowRouter.go('/invoicetemp?id=' + listData);
-    }
-  }
-});
+// $('#tblManifestlist tbody').on( 'click', '.colAmount', function () {
+//   var listData = $(this).closest('tr').find('.colSalesNo').text()
+//   var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+//   if(listData){
+//     if(checkDeleted == "Deleted"){
+//       swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+//     }else{
+//       FlowRouter.go('/invoicetemp?id=' + listData);
+//     }
+//   }
+// });
 
-$('#tblInvoicelist tbody').on( 'click', '.colPaid', function () {
-  var listData = $(this).closest('tr').find('.colSalesNo').text()
-  var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-  if(listData){
-    if(checkDeleted == "Deleted"){
-      swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-    }else{
-      FlowRouter.go('/invoicetemp?id=' + listData);
-    }
-  }
-});
+// $('#tblManifestlist tbody').on( 'click', '.colPaid', function () {
+//   var listData = $(this).closest('tr').find('.colSalesNo').text()
+//   var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+//   if(listData){
+//     if(checkDeleted == "Deleted"){
+//       swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+//     }else{
+//       FlowRouter.go('/invoicetemp?id=' + listData);
+//     }
+//   }
+// });
 
-$('#tblInvoicelist tbody').on( 'click', '.colEmployee', function () {
-  var listData = $(this).closest('tr').find('.colSalesNo').text()
-  var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-  if(listData){
-    if(checkDeleted == "Deleted"){
-      swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-    }else{
-      FlowRouter.go('/invoicetemp?id=' + listData);
-    }
-  }
-});
+// $('#tblManifestlist tbody').on( 'click', '.colEmployee', function () {
+//   var listData = $(this).closest('tr').find('.colSalesNo').text()
+//   var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+//   if(listData){
+//     if(checkDeleted == "Deleted"){
+//       swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+//     }else{
+//       FlowRouter.go('/invoicetemp?id=' + listData);
+//     }
+//   }
+// });
  
-$('#tblInvoicelist tbody').on( 'click', '.colConverted', function () {
-  var listData = $(this).closest('tr').find('.colSalesNo').text()
-  var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-  if(listData){
-    if(checkDeleted == "Deleted"){
-      swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-    }else{
-      FlowRouter.go('/invoicetemp?id=' + listData);
-    }
-  }
-});
+// $('#tblManifestlist tbody').on( 'click', '.colConverted', function () {
+//   var listData = $(this).closest('tr').find('.colSalesNo').text()
+//   var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+//   if(listData){
+//     if(checkDeleted == "Deleted"){
+//       swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+//     }else{
+//       FlowRouter.go('/invoicetemp?id=' + listData);
+//     }
+//   }
+// });
  
-$('#tblInvoicelist tbody').on( 'click', '.colComments', function () {
-  var listData = $(this).closest('tr').find('.colSalesNo').text()
-  var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-  if(listData){
-    if(checkDeleted == "Deleted"){
-      swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-    }else{
-      FlowRouter.go('/invoicetemp?id=' + listData);
-    }
-  }
-});
+// $('#tblManifestlist tbody').on( 'click', '.colComments', function () {
+//   var listData = $(this).closest('tr').find('.colSalesNo').text()
+//   var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+//   if(listData){
+//     if(checkDeleted == "Deleted"){
+//       swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+//     }else{
+//       FlowRouter.go('/invoicetemp?id=' + listData);
+//     }
+//   }
+// });
 
-$('#tblInvoicelist tbody').on( 'click', '.colStatus', function () {
-  var listData = $(this).closest('tr').find('.colSalesNo').text()
-  var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-  if(listData){
-    if(checkDeleted == "Deleted"){
-      swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-    }else{
-      FlowRouter.go('/invoicetemp?id=' + listData);
-    }
-  }
-});
+// $('#tblManifestlist tbody').on( 'click', '.colStatus', function () {
+//   var listData = $(this).closest('tr').find('.colSalesNo').text()
+//   var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+//   if(listData){
+//     if(checkDeleted == "Deleted"){
+//       swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+//     }else{
+//       FlowRouter.go('/invoicetemp?id=' + listData);
+//     }
+//   }
+// });
 
 
   templateObject.initPage = async (refresh = false) => {
@@ -369,6 +369,25 @@ Template.manifestlist.events({
       $(".btnRefreshInvoiceList").trigger("click");
     }
   },
+  'click .btnSelectAll': function () {
+    if ($('input[type="checkbox"]').hasClass('allChecked')) {
+        $('input[type="checkbox"]').prop('checked', false);
+        $('table').css('background', '#fff');
+    } else {
+        $('input[type="checkbox"]').prop('checked', true);
+        $('table').css('background', '#e5f2d9');
+    }
+    $('input[type="checkbox"]').toggleClass('allChecked');
+  },
+  'click .btnLoadMap': function (e) {
+    e.preventDefault();
+    var selectedOptions = [];
+    $('input[type=checkbox]:checked').each(function() {
+      selectedOptions.push($(this));
+    });
+    console.log("selectData", selectedOptions);
+    // Meteor.call('submitData', selectedOptions);
+  },
   "click .btnRefreshInvoiceList": function (event, ui) {
     ui.initPage(true);
 
@@ -382,7 +401,7 @@ Template.manifestlist.events({
     let dataSearchName = $("#tblInvoicelist_filter input").val();
     if (dataSearchName.replace(/\s/g, "") != "") {
       sideBarService
-        .getNewInvoiceByNameOrID(dataSearchName)
+        .getNewManifestByNameOrID(dataSearchName)
         .then(function (data) {
           $(".btnRefreshInvoiceList").removeClass("btnSearchAlert");
           let lineItems = [];
@@ -467,10 +486,10 @@ Template.manifestlist.events({
             let item = templateObject.datatablerecords.get();
             $(".fullScreenSpin").css("display", "none");
             if (dataTableList) {
-              var datatable = $("#tblInvoicelist").DataTable();
-              $("#tblInvoicelist > tbody").empty();
+              var datatable = $("#tblManifestlist").DataTable();
+              $("#tblManifestlist > tbody").empty();
               for (let x = 0; x < item.length; x++) {
-                $("#tblInvoicelist > tbody").append(
+                $("#tblManifestlist > tbody").append(
                   ' <tr class="dnd-moved" id="' +
                     item[x].id +
                     '" style="cursor: pointer;">' +
@@ -809,7 +828,7 @@ Template.manifestlist.events({
       .prev()
       .find(".divcolumn")
       .text();
-    var datable = $("#tblInvoicelist th");
+    var datable = $("#tblManifestlist th");
     $.each(datable, function (i, v) {
       if (v.innerText == columnDataValue) {
         let className = v.className;
@@ -820,7 +839,7 @@ Template.manifestlist.events({
   },
   // "click .btnOpenSettings": function (event) {
   //   let templateObject = Template.instance();
-  //   var columns = $("#tblInvoicelist th");
+  //   var columns = $("#tblManifestlist th");
 
   //   const tableHeaderList = [];
   //   let sTible = "";
@@ -904,9 +923,9 @@ Template.manifestlist.events({
 
         });
 
-    sideBarService.getAllTInvoiceListData(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (dataInvoice) {
+    sideBarService.getAllTManifestListData(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (dataInvoice) {
         addVS1Data("TInvoiceList", JSON.stringify(dataInvoice)).then(function (datareturn) {
-              sideBarService.getAllInvoiceList(initialDataLoad, 0).then(function (dataInvoice) {
+              sideBarService.getAllManifestList(initialDataLoad, 0).then(function (dataInvoice) {
                    addVS1Data("TInvoiceEx", JSON.stringify(dataInvoice)).then(function (datareturn) {
                      window.open("/manifestlist", "_self");
                    }).catch(function (err) {
@@ -1245,7 +1264,7 @@ Template.manifestlist.helpers({
       return Template.instance().tableheaderrecords.get();
   },
   salesCloudPreferenceRec: () => {
-      return CloudPreference.findOne({userid:localStorage.getItem('mycloudLogonID'),PrefName:'tblInvoicelist'});
+      return CloudPreference.findOne({userid:localStorage.getItem('mycloudLogonID'),PrefName:'tblManifestlist'});
   },
   // custom fields displaysettings
   custfields: () => {
@@ -1262,11 +1281,11 @@ Template.manifestlist.helpers({
   },
 
   apiFunction:function() { // do not use arrow function
-    return sideBarService.getAllTInvoiceListData //This is to pass API data to template
+    return sideBarService.getAllTManifestListData //This is to pass API data to template
   },
 
   searchAPI: function() {
-    return sideBarService.getNewInvoiceByNameOrID //This is to Pass search data
+    return sideBarService.getAllManifestList //This is to Pass search data
   },
 
   apiParams: function() {

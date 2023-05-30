@@ -125,15 +125,20 @@ Template.top10BOM.onRendered(function () {
           productService.getAllBOMProducts(initialBaseDataLoad, 0).then(function(data){
             let data_proc = data.tproctree;
             let bom_data ;
-            for(let i = 0; i < data_proc.length; i++) {
-              bom_data = { bomName : data_proc[i].Caption, bomQuantity: data_proc[i].QtyVariation };
-              bom_data_list.push(bom_data);
-            }
+            // for(let i = 0; i < data_proc.length; i++) {
+            //   bom_data = { bomName : data_proc[i].Caption, bomQuantity: data_proc[i].QtyVariation };
+            //   bom_data_list.push(bom_data);
+            // }
             bom_data_list.push({bomName: "Wagon" , bomQuantity: 10});
             bom_data_list.push({bomName: "Shoes" , bomQuantity: 9});
             bom_data_list.push({bomName: "Finished Product" , bomQuantity: 8});
             bom_data_list.push({bomName: "TSL-Block" , bomQuantity: 7});
             bom_data_list.push({bomName: "Wagon" , bomQuantity: 6});
+            bom_data_list.push({bomName: "New BOM product" , bomQuantity: 5});
+            bom_data_list.push({bomName: "Shoes BOM " , bomQuantity: 4});
+            bom_data_list.push({bomName: "ASUS Screen " , bomQuantity: 3});
+            bom_data_list.push({bomName: "Time Cost Exp" , bomQuantity: 2});
+            bom_data_list.push({bomName: "Wheel" , bomQuantity: 1});
       
             let sorted_bom_data_list;
             sorted_bom_data_list = bom_data_list.sort(function (a, b) {
@@ -150,15 +155,20 @@ Template.top10BOM.onRendered(function () {
           let data = JSON.parse(dataObject[0].data);
           let data_proc = data.tproctree;
           let bom_data ;
-          for(let i = 0; i < data_proc.length; i++) {
-            bom_data = { bomName : data_proc[i].Caption, bomQuantity: data_proc[i].QtyVariation };
-            bom_data_list.push(bom_data);
-          }
+          // for(let i = 0; i < data_proc.length; i++) {
+          //   bom_data = { bomName : data_proc[i].Caption, bomQuantity: data_proc[i].QtyVariation };
+          //   bom_data_list.push(bom_data);
+          // }
           bom_data_list.push({bomName: "Wagon" , bomQuantity: 10});
           bom_data_list.push({bomName: "Shoes" , bomQuantity: 9});
           bom_data_list.push({bomName: "Finished Product" , bomQuantity: 8});
           bom_data_list.push({bomName: "TSL-Block" , bomQuantity: 7});
           bom_data_list.push({bomName: "Wagon" , bomQuantity: 6});
+          bom_data_list.push({bomName: "New BOM product" , bomQuantity: 5});
+          bom_data_list.push({bomName: "Shoes BOM " , bomQuantity: 4});
+          bom_data_list.push({bomName: "ASUS Screen " , bomQuantity: 3});
+          bom_data_list.push({bomName: "Time Cost Exp" , bomQuantity: 2});
+          bom_data_list.push({bomName: "Wheel" , bomQuantity: 1});
     
           let sorted_bom_data_list;
           sorted_bom_data_list = bom_data_list.sort(function (a, b) {

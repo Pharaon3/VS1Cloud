@@ -218,6 +218,9 @@ Template.onsuccesswaterfall.onRendered(function () {
   var erpGet = erpDb();
   var LoggedDB = erpGet.ERPDatabase;
   var LoggedUser = localStorage.getItem('mySession');
+  const currentDateReport = new Date()
+  var dateAsOfReport = currentDateReport.getFullYear() + '-' + ("0" + (currentDateReport.getMonth() + 1)).slice(-2) + '-' + ("0" + (currentDateReport.getDate())).slice(-2);
+
   // here get menu bar preference from local storage and set menubarPositionClass
 
   let loggedUserEventFired = (localStorage.getItem('LoggedUserEventFired') == "true");
@@ -241,6 +244,16 @@ Template.onsuccesswaterfall.onRendered(function () {
       if (dataObject.length == 0) {
         sideBarService.getTvs1dashboardpreferences().then(function (data) {
           addVS1Data('Tvs1dashboardpreferences', JSON.stringify(data));
+        }).catch(function (err) {
+
+        });
+      }
+    });
+
+    getVS1Data('TDashboardExecData1').then(function (dataObject) {
+      if (dataObject.length == 0) {
+        reportService.getCardDataReport(dateAsOfReport).then(function (data) {
+          addVS1Data('TDashboardExecData1', JSON.stringify(data));
         }).catch(function (err) {
 
         });

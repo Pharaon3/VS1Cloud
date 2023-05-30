@@ -1980,6 +1980,13 @@ Template.vs1login.onRendered(function () {
 
     $("#erplogin-button").click(async function (e) {
         e.preventDefault();
+
+        /**
+         * For Initialize Background Sound / Damien
+         */
+        localStorage.removeItem('background-sound-volume');
+        localStorage.removeItem('background-sound');
+
         /* VS1 Licence Info */
         var myVS1Video = document.getElementById("myVS1Video");
         // var myVS1VideoLogin = document.getElementById("myVS1VideoLogin");

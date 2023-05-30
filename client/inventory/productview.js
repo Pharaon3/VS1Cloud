@@ -490,8 +490,8 @@ Template.productview.onRendered(function () {
           productService.getTaxCodesVS1().then(function (data) {
             for (let i = 0; i < data.ttaxcodevs1.length; i++) {
               let taxcoderecordObj = {
-                codename: data.ttaxcodevs1[i].CodeName || " ",
-                coderate: data.ttaxcodevs1[i].Rate || 0,
+                codename: data.ttaxcodevs1[i].fields.CodeName || " ",
+                coderate: data.ttaxcodevs1[i].fields.Rate || 0,
               };
 
               taxCodesList.push(taxcoderecordObj);
@@ -1219,7 +1219,7 @@ Template.productview.onRendered(function () {
             var added = false;
 
             for (let i = 0; i < useData.length; i++) {
-              if (parseInt(useData[i].fields.ID) === currentProductID) {
+              if (parseInt(useData[i].ID) === currentProductID) {
                 // add to custom field
                 // tempcode
                 // setTimeout(function () {
@@ -1238,14 +1238,14 @@ Template.productview.onRendered(function () {
                 let isBOMProduct = false;
                 let bomProducts = templateObject.bomProducts.get();
                 let bomIndex = bomProducts.findIndex((product) => {
-                  return useData[i].fields.ProductName == product.Caption;
+                  return useData[i].ProductName == product.Caption;
                 });
 
                 if (bomIndex > -1) {
                   isBOMProduct = true;
                   templateObject.bomStructure.set(bomProducts[bomIndex])
                 } else {
-                  productService.getOneBOMProductByName(useData[i].fields.ProductName).then(function (data) {
+                  productService.getOneBOMProductByName(useData[i].ProductName).then(function (data) {
                     if (data.tproctree.length > -1) {
                       isBOMProduct = true;
                       templateObject.bomStructure.set(data.tproctree[0])
@@ -1254,34 +1254,34 @@ Template.productview.onRendered(function () {
                 }
 
                 let productrecord = {
-                  id: useData[i].fields.ID,
-                  productname: useData[i].fields.ProductName,
-                  lib: useData[i].fields.ProductName,
+                  id: useData[i].ID,
+                  productname: useData[i].ProductName,
+                  lib: useData[i].ProductName,
                 //  productcode: useData[i].PRODUCTCODE,
-                  productcode: useData[i].fields.ProductName,
-                  productprintName: useData[i].fields.ProductPrintName,
-                  assetaccount:  useData[i].fields.AssetAccount,
-                  buyqty1cost: utilityService.modifynegativeCurrencyFormat(useData[i].fields.BuyQty1Cost),
-                  buyqty1costinc: utilityService.modifynegativeCurrencyFormat(useData[i].fields.BuyQty1CostInc),
-                  cogsaccount: useData[i].fields.CogsAccount,
-                  taxcodepurchase: useData[i].fields.TaxCodePurchase || "",
-                  purchasedescription: useData[i].fields.PurchaseDescription || "",
-                  sellqty1price: utilityService.modifynegativeCurrencyFormat(useData[i].fields.SellQty1Price),
-                  sellqty1priceinc: utilityService.modifynegativeCurrencyFormat(useData[i].fields.SellQty1PriceInc),
-                  incomeaccount: useData[i].fields.IncomeAccount,
-                  taxcodesales: useData[i].fields.TaxCodeSales || "",
-                  salesdescription: useData[i].fields.SalesDescription || "",
-                  active: useData[i].fields.Active || false,
-                  lockextrasell: useData[i].fields.LockExtraSell,
-                  customfield1: useData[i].fields.CUSTFLD1 || "",
-                  customfield2: useData[i].fields.CUSTFLD2 || "",
-                  totalqtyinstock: useData[i].fields.TotalQtyInStock || "",
-                  barcode: useData[i].fields.BARCODE || "",
-                  // useData[i].fields.TotalQtyInStock,
-                  totalqtyonorder: useData[i].fields.TotalStockQty || "",
+                  productcode: useData[i].ProductName,
+                  productprintName: useData[i].ProductPrintName,
+                  assetaccount:  useData[i].AssetAccount,
+                  buyqty1cost: utilityService.modifynegativeCurrencyFormat(useData[i].BuyQty1Cost),
+                  buyqty1costinc: utilityService.modifynegativeCurrencyFormat(useData[i].BuyQty1CostInc),
+                  cogsaccount: useData[i].CogsAccount,
+                  taxcodepurchase: useData[i].TaxCodePurchase || "",
+                  purchasedescription: useData[i].PurchaseDescription || "",
+                  sellqty1price: utilityService.modifynegativeCurrencyFormat(useData[i].SellQty1Price),
+                  sellqty1priceinc: utilityService.modifynegativeCurrencyFormat(useData[i].SellQty1PriceInc),
+                  incomeaccount: useData[i].IncomeAccount,
+                  taxcodesales: useData[i].TaxCodeSales || "",
+                  salesdescription: useData[i].SalesDescription || "",
+                  active: useData[i].Active || false,
+                  lockextrasell: useData[i].LockExtraSell,
+                  customfield1: useData[i].CUSTFLD1 || "",
+                  customfield2: useData[i].CUSTFLD2 || "",
+                  totalqtyinstock: useData[i].TotalQtyInStock || "",
+                  barcode: useData[i].BARCODE || "",
+                  // useData[i].TotalQtyInStock,
+                  totalqtyonorder: useData[i].TotalStockQty || "",
                   //productclass :lineItems,
                   productclass : "",
-                 // isManufactured: useData[i].fields.IsManufactured,
+                 // isManufactured: useData[i].IsManufactured,
                   isManufactured: isBOMProduct,
 
                 };
@@ -1306,14 +1306,14 @@ Template.productview.onRendered(function () {
 
                   DefaultBinNumber = useData[i].ProductClass[0].fields.DefaultbinNumber;
 
-                  // $(#sltbinnumber).val(useData[i].fields.ProductClass[0].fields.DefaultBinNumber);
+                  // $(#sltbinnumber).val(useData[i].ProductClass[0].fields.DefaultBinNumber);
                   // // Feature/ser-lot-tracking: Initializing serial/lot number settings
 
-                  if (useData[i].fields.SNTracking) $("#chkSNTrack").prop("checked", true);
-                  if (useData[i].fields.Batch) $("#chkLotTrack").prop("checked", true);
-                  if (useData[i].fields.CUSTFLD13 === "true") $("#chkAddSN").prop("checked", true);
+                  if (useData[i].SNTracking) $("#chkSNTrack").prop("checked", true);
+                  if (useData[i].Batch) $("#chkLotTrack").prop("checked", true);
+                  if (useData[i].CUSTFLD13 === "true") $("#chkAddSN").prop("checked", true);
 
-                  if (useData[i].fields.CUSTFLD14 == "true") {
+                  if (useData[i].CUSTFLD14 == "true") {
                     $(".lblPriceEx").addClass("hiddenColumn");
                     $(".lblPriceEx").removeClass("showColumn");
 
@@ -1326,7 +1326,7 @@ Template.productview.onRendered(function () {
                     $("#edtsellqty1price").addClass("hiddenColumn");
                     $("#edtsellqty1price").removeClass("showColumn");
                     $(".lblPriceCheckStatus").val("true");
-                  } else if (useData[i].fields.CUSTFLD14 == "false") {
+                  } else if (useData[i].CUSTFLD14 == "false") {
                     $(".lblPriceInc").addClass("hiddenColumn");
                     $(".lblPriceInc").removeClass("showColumn");
 
@@ -1340,7 +1340,7 @@ Template.productview.onRendered(function () {
                     $("#edtsellqty1price").addClass("showColumn");
                     $(".lblPriceCheckStatus").val("false");
                   }
-                  if (useData[i].fields.CUSTFLD15 == "true") {
+                  if (useData[i].CUSTFLD15 == "true") {
                     $(".lblCostEx").addClass("hiddenColumn");
                     $(".lblCostEx").removeClass("showColumn");
 
@@ -1354,7 +1354,7 @@ Template.productview.onRendered(function () {
                     $("#edtbuyqty1cost").removeClass("showColumn");
 
                     $(".lblCostCheckStatus").val("true");
-                  } else if (useData[i].fields.CUSTFLD15 == "false") {
+                  } else if (useData[i].CUSTFLD15 == "false") {
                     $(".lblCostInc").addClass("hiddenColumn");
                     $(".lblCostInc").removeClass("showColumn");
 
@@ -1398,14 +1398,14 @@ Template.productview.onRendered(function () {
                 //   }
                 //   templateObject.productExtraSell.set(lineExtaSellItems);
                 // }
-                // let itrackItem = useData[i].fields.LockExtraSell;
+                // let itrackItem = useData[i].LockExtraSell;
                 // if (itrackItem == true) {
                 //   templateObject.isTrackChecked.set(true);
                 // } else {
                 //   templateObject.isTrackChecked.set(false);
                 // }
 
-                if (useData[i].fields.ProductType == "INV") {
+                if (useData[i].ProductType == "INV") {
                   templateObject.isTrackChecked.set(true);
                 } else {
                   templateObject.isTrackChecked.set(false);
@@ -1628,34 +1628,34 @@ Template.productview.onRendered(function () {
               }
 
               let productrecord = {
-                id: useData[i].fields.ID,
-                productname: useData[i].fields.ProductName,
-                lib: useData[i].fields.ProductName,
+                id: useData[i].ID,
+                productname: useData[i].ProductName,
+                lib: useData[i].ProductName,
               //  productcode: useData[i].PRODUCTCODE,
-                productcode: useData[i].fields.ProductName,
-                productprintName: useData[i].fields.ProductPrintName,
-                assetaccount:  useData[i].fields.AssetAccount,
-                buyqty1cost: utilityService.modifynegativeCurrencyFormat(useData[i].fields.BuyQty1Cost),
-                buyqty1costinc: utilityService.modifynegativeCurrencyFormat(useData[i].fields.BuyQty1CostInc),
-                cogsaccount: useData[i].fields.CogsAccount,
-                taxcodepurchase: useData[i].fields.TaxCodePurchase || "",
-                purchasedescription: useData[i].fields.PurchaseDescription || "",
-                sellqty1price: utilityService.modifynegativeCurrencyFormat(useData[i].fields.SellQty1Price),
-                sellqty1priceinc: utilityService.modifynegativeCurrencyFormat(useData[i].fields.SellQty1PriceInc),
-                incomeaccount: useData[i].fields.IncomeAccount,
-                taxcodesales: useData[i].fields.TaxCodeSales || "",
-                salesdescription: useData[i].fields.SalesDescription || "",
-                active: useData[i].fields.Active || false,
-                lockextrasell: useData[i].fields.LockExtraSell,
-                customfield1: useData[i].fields.CUSTFLD1 || "",
-                customfield2: useData[i].fields.CUSTFLD2 || "",
-                totalqtyinstock: useData[i].fields.TotalQtyInStock || "",
-                barcode: useData[i].fields.BARCODE || "",
-                // useData[i].fields.TotalQtyInStock,
-                totalqtyonorder: useData[i].fields.TotalStockQty || "",
+                productcode: useData[i].ProductName,
+                productprintName: useData[i].ProductPrintName,
+                assetaccount:  useData[i].AssetAccount,
+                buyqty1cost: utilityService.modifynegativeCurrencyFormat(useData[i].BuyQty1Cost),
+                buyqty1costinc: utilityService.modifynegativeCurrencyFormat(useData[i].BuyQty1CostInc),
+                cogsaccount: useData[i].CogsAccount,
+                taxcodepurchase: useData[i].TaxCodePurchase || "",
+                purchasedescription: useData[i].PurchaseDescription || "",
+                sellqty1price: utilityService.modifynegativeCurrencyFormat(useData[i].SellQty1Price),
+                sellqty1priceinc: utilityService.modifynegativeCurrencyFormat(useData[i].SellQty1PriceInc),
+                incomeaccount: useData[i].IncomeAccount,
+                taxcodesales: useData[i].TaxCodeSales || "",
+                salesdescription: useData[i].SalesDescription || "",
+                active: useData[i].Active || false,
+                lockextrasell: useData[i].LockExtraSell,
+                customfield1: useData[i].CUSTFLD1 || "",
+                customfield2: useData[i].CUSTFLD2 || "",
+                totalqtyinstock: useData[i].TotalQtyInStock || "",
+                barcode: useData[i].BARCODE || "",
+                // useData[i].TotalQtyInStock,
+                totalqtyonorder: useData[i].TotalStockQty || "",
                 //productclass :lineItems,
                 productclass : "",
-               // isManufactured: useData[i].fields.IsManufactured,
+               // isManufactured: useData[i].IsManufactured,
                 isManufactured: isBOMProduct,
 
               };
@@ -2586,54 +2586,54 @@ Template.productview.onRendered(function () {
             var added = false;
 
             for (let i = 0; i < useData.length; i++) {
-              if (useData[i].fields.ProductName === currentProductName) {
+              if (useData[i].ProductName === currentProductName) {
                 added = true;
                 $(".fullScreenSpin").css("display", "none");
                 let lineItems = [];
                 let lineItemObj = {};
                 let currencySymbol = Currency;
                 let totalquantity = 0;
-                currentProductID = useData[i].fields.ID;
+                currentProductID = useData[i].ID;
                 templateObject.productID.set(currentProductID);
                 templateObject.getProductClassQtyData();
                 let productrecord = {
-                  id: useData[i].fields.ID,
-                  productname: useData[i].fields.ProductName,
-                  lib: useData[i].fields.ProductName,
-                  productcode: useData[i].fields.PRODUCTCODE,
-                  productprintName: useData[i].fields.ProductPrintName,
-                  assetaccount: useData[i].fields.AssetAccount,
-                  buyqty1cost: utilityService.modifynegativeCurrencyFormat(useData[i].fields.BuyQty1Cost),
+                  id: useData[i].ID,
+                  productname: useData[i].ProductName,
+                  lib: useData[i].ProductName,
+                  productcode: useData[i].PRODUCTCODE,
+                  productprintName: useData[i].ProductPrintName,
+                  assetaccount: useData[i].AssetAccount,
+                  buyqty1cost: utilityService.modifynegativeCurrencyFormat(useData[i].BuyQty1Cost),
                   buyqty1costinc: utilityService.modifynegativeCurrencyFormat(data.BuyQty1CostInc),
-                  cogsaccount: useData[i].fields.CogsAccount,
-                  taxcodepurchase: useData[i].fields.TaxCodePurchase,
-                  purchasedescription: useData[i].fields.PurchaseDescription,
-                  sellqty1price: utilityService.modifynegativeCurrencyFormat(useData[i].fields.SellQty1Price),
+                  cogsaccount: useData[i].CogsAccount,
+                  taxcodepurchase: useData[i].TaxCodePurchase,
+                  purchasedescription: useData[i].PurchaseDescription,
+                  sellqty1price: utilityService.modifynegativeCurrencyFormat(useData[i].SellQty1Price),
                   sellqty1priceinc: utilityService.modifynegativeCurrencyFormat(data.SellQty1PriceInc),
-                  incomeaccount: useData[i].fields.IncomeAccount,
-                  taxcodesales: useData[i].fields.TaxCodeSales,
-                  salesdescription: useData[i].fields.SalesDescription,
-                  active: useData[i].fields.Active,
-                  lockextrasell: useData[i].fields.LockExtraSell,
-                  customfield1: useData[i].fields.CUSTFLD1,
-                  customfield2: useData[i].fields.CUSTFLD2,
+                  incomeaccount: useData[i].IncomeAccount,
+                  taxcodesales: useData[i].TaxCodeSales,
+                  salesdescription: useData[i].SalesDescription,
+                  active: useData[i].Active,
+                  lockextrasell: useData[i].LockExtraSell,
+                  customfield1: useData[i].CUSTFLD1,
+                  customfield2: useData[i].CUSTFLD2,
                   //totalqtyinstock : totalquantity,
-                  barcode: useData[i].fields.BARCODE,
-                  // useData[i].fields.TotalQtyInStock,
-                  totalqtyinstock: useData[i].fields.TotalQtyInStock,
-                  totalqtyonorder: useData[i].fields.TotalQtyOnOrder,
+                  barcode: useData[i].BARCODE,
+                  // useData[i].TotalQtyInStock,
+                  totalqtyinstock: useData[i].TotalQtyInStock,
+                  totalqtyonorder: useData[i].TotalQtyOnOrder,
                   //productclass :lineItems
                 };
 
                 setTimeout(async function () {
                   await templateObject.setEditableSelect();
-                  $("#sltsalesacount").val(useData[i].fields.IncomeAccount);
-                  $("#sltcogsaccount").val(useData[i].fields.CogsAccount);
-                  $("#sltinventoryacount").val(useData[i].fields.AssetAccount);
+                  $("#sltsalesacount").val(useData[i].IncomeAccount);
+                  $("#sltcogsaccount").val(useData[i].CogsAccount);
+                  $("#sltinventoryacount").val(useData[i].AssetAccount);
                   $("#sltUomSales").val(defaultUOM);
-                  $("#slttaxcodesales").val(useData[i].fields.TaxCodeSales);
-                  $("#slttaxcodepurchase").val(useData[i].fields.TaxCodePurchase);
-                  if (useData[i].fields.CUSTFLD14 == "true") {
+                  $("#slttaxcodesales").val(useData[i].TaxCodeSales);
+                  $("#slttaxcodepurchase").val(useData[i].TaxCodePurchase);
+                  if (useData[i].CUSTFLD14 == "true") {
                     $(".lblPriceEx").addClass("hiddenColumn");
                     $(".lblPriceEx").removeClass("showColumn");
 
@@ -2646,7 +2646,7 @@ Template.productview.onRendered(function () {
                     $("#edtsellqty1price").addClass("hiddenColumn");
                     $("#edtsellqty1price").removeClass("showColumn");
                     $(".lblPriceCheckStatus").val("true");
-                  } else if (useData[i].fields.CUSTFLD14 == "false") {
+                  } else if (useData[i].CUSTFLD14 == "false") {
                     $(".lblPriceInc").addClass("hiddenColumn");
                     $(".lblPriceInc").removeClass("showColumn");
 
@@ -2660,7 +2660,7 @@ Template.productview.onRendered(function () {
                     $("#edtsellqty1price").addClass("showColumn");
                     $(".lblPriceCheckStatus").val("false");
                   }
-                  if (useData[i].fields.CUSTFLD15 == "true") {
+                  if (useData[i].CUSTFLD15 == "true") {
                     $(".lblCostEx").addClass("hiddenColumn");
                     $(".lblCostEx").removeClass("showColumn");
 
@@ -2674,7 +2674,7 @@ Template.productview.onRendered(function () {
                     $("#edtbuyqty1cost").removeClass("showColumn");
 
                     $(".lblCostCheckStatus").val("true");
-                  } else if (useData[i].fields.CUSTFLD15 == "false") {
+                  } else if (useData[i].CUSTFLD15 == "false") {
                     $(".lblCostInc").addClass("hiddenColumn");
                     $(".lblCostInc").removeClass("showColumn");
 
@@ -2690,7 +2690,7 @@ Template.productview.onRendered(function () {
                   }
                 }, 1000);
 
-                if (useData[i].fields.ExtraSellPrice == null) {
+                if (useData[i].ExtraSellPrice == null) {
                   lineExtaSellObj = {
                     lineID: Random.id(),
                     clienttype: "",
@@ -2703,36 +2703,36 @@ Template.productview.onRendered(function () {
                   templateObject.productExtraSell.set(lineExtaSellItems);
                 } else {
                   templateObject.isExtraSellChecked.set(true);
-                  for (let e = 0; e < useData[i].fields.ExtraSellPrice.length; e++) {
+                  for (let e = 0; e < useData[i].ExtraSellPrice.length; e++) {
                     lineExtaSellObj = {
                       lineID: Random.id(),
-                      clienttype: useData[i].fields.ExtraSellPrice[e].fields.ClientTypeName || "",
-                      discount: useData[i].fields.ExtraSellPrice[e].fields.QtyPercent1 || 0,
-                      datefrom: useData[i].fields.ExtraSellPrice[e].fields.DateFrom || "",
-                      dateto: useData[i].fields.ExtraSellPrice[e].fields.DateTo || "",
+                      clienttype: useData[i].ExtraSellPrice[e].fields.ClientTypeName || "",
+                      discount: useData[i].ExtraSellPrice[e].fields.QtyPercent1 || 0,
+                      datefrom: useData[i].ExtraSellPrice[e].fields.DateFrom || "",
+                      dateto: useData[i].ExtraSellPrice[e].fields.DateTo || "",
                       price:
                         utilityService.modifynegativeCurrencyFormat(
-                          useData[i].fields.ExtraSellPrice[e].fields.Price1
+                          useData[i].ExtraSellPrice[e].fields.Price1
                         ) || 0,
                     };
                     lineExtaSellItems.push(lineExtaSellObj);
                   }
                   templateObject.productExtraSell.set(lineExtaSellItems);
                 }
-                let itrackItem = useData[i].fields.LockExtraSell;
+                let itrackItem = useData[i].LockExtraSell;
                 if (itrackItem == true) {
                   templateObject.isTrackChecked.set(true);
                 } else {
                   templateObject.isTrackChecked.set(false);
                 }
 
-                if (useData[i].fields.ProductType == "INV") {
+                if (useData[i].ProductType == "INV") {
                   templateObject.isTrackChecked.set(true);
                 } else {
                   templateObject.isTrackChecked.set(false);
                 }
-                $("#sltsalesacount").val(useData[i].fields.IncomeAccount);
-                $("#sltcogsaccount").val(useData[i].fields.CogsAccount);
+                $("#sltsalesacount").val(useData[i].IncomeAccount);
+                $("#sltcogsaccount").val(useData[i].CogsAccount);
 
                 templateObject.records.set(productrecord);
               }
@@ -4044,8 +4044,8 @@ Template.productview.events({
                 let data = JSON.parse(dataObject[0].data);
                 let useData = data.tproductvs1;
                 for (let i = 0; i < useData.length; i++) {
-                  if (parseInt(useData[i].fields.ID) == currentProductID) {
-                    useData[i].fields.ProductClass[0] = productClassObj;
+                  if (parseInt(useData[i].ID) == currentProductID) {
+                    useData[i].ProductClass[0] = productClassObj;
                     break;
                   }
                 }
@@ -5345,8 +5345,8 @@ Template.productview.events({
     //                     //         let data = JSON.parse(dataObject[0].data);
     //                     //         let useData = data.tproductvs1;
     //                     //         for(let i = 0; i< useData.length ; i++) {
-    //                     //             if(useData[i].fields.ProductName == subs[i].product) {
-    //                     //                 if(useData[i].fields.IsManufactured == true) {
+    //                     //             if(useData[i].ProductName == subs[i].product) {
+    //                     //                 if(useData[i].IsManufactured == true) {
     //                     //                     html +="<button type='button' class='btnShowSub btn btn-primary'>Show Sub</button>";
     //                     //                 }
     //                     //             }

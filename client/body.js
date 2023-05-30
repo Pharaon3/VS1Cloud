@@ -516,6 +516,8 @@ import './vs1charts/employeeAbsentDays/employeeAbsentDays.js';
 import './vs1charts/employeeLeave/employeeLeave.js';
 import './overviews/payroll/modal/SelectPayPeriod.js';
 import './settings/accountant-setting/accountant_settings.js';
+import './accounts/chartsofaccounts/chartofaccounts.js';
+import './eft/bankCodeModal/bankCodeModal.js';
 /*Vladyslav*/
 
 /* Roverto */
@@ -739,6 +741,10 @@ import './delivery/manifest_list.js';
 /* Nowak */
 import './packages/currency/modals/NewCountryModal.js';
 /* Nowak */
+
+/* Denys */
+// import './delivery/optimize_map';
+/* Denys */
 
 //import { FlowRouter } from 'meteor/kadira:flow-router';
 import { BlazeLayout } from 'meteor/kadira:blaze-layout';

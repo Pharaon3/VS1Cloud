@@ -1443,6 +1443,7 @@ Template.calender.onRendered(function() {
                     text: "New Appointment",
                     click: function() {
                         $("#employeeListModal_appointments").modal("show");
+                        
                         $("#btnCopyOptions").attr("disabled", true);
                     },
                 },
@@ -2529,7 +2530,7 @@ Template.calender.onRendered(function() {
                     hideDays = [0, 6];
                 }
                 templateObject.renderNormalCalendar(slotMin,slotMax,hideDays);
-            }, 1000);
+            }, 500);
         }
 
         const currentDate = moment();
@@ -3952,6 +3953,9 @@ Template.calender.onRendered(function() {
         $('#employeeListModal_appointments').modal('toggle');
         $("#btnCopyOptions").attr("disabled", true);
         $("#event-modal").modal();
+        let currentDate = new Date();
+        document.getElementById("dtSODate").value = moment(currentDate).format("DD/MM/YYYY");
+        document.getElementById("dtSODate2").value = moment(currentDate).format("DD/MM/YYYY");
         setTimeout(() => {
             if (localStorage.getItem("smsCustomerAppt") == "false") {
                 $("#chkSMSCustomer").prop("checked", false);
@@ -4921,7 +4925,7 @@ Template.calender.events({
                 } else {
                     $("#smsConfirmedFlag i.fa-minus-circle").removeClass("d-none");
                 }
-                $('#allocationModal').modal('hide')
+                // $('#allocationModal').modal('hide')
                 $("#event-modal").modal();
             }else{
                 let splitId = id.split(":");
@@ -6979,76 +6983,43 @@ Template.calender.events({
             });
 
             if (!leaveFlag) {
-                templateObject.checkSMSSettings();
-                const smsCustomer = $("#chkSMSCustomer").is(":checked");
-                const smsUser = $("#chkSMSUser").is(":checked");
-                const emailCustomer = $("#customerEmail").is(":checked");
-                const emailUser = $("#userEmail").is(":checked");
-                localStorage.setItem("smsCustomerAppt", smsCustomer);
-                localStorage.setItem("smsUserAppt", smsUser);
-                localStorage.setItem("emailCustomerAppt", emailCustomer);
-                localStorage.setItem("emailUserAppt", emailUser);
-                const customerPhone = $("#mobile").val();
-                if (customerPhone === "" || customerPhone === "0") {
-                    if (smsCustomer || smsUser) {
-                        swal({
-                            title: "Invalid Phone Number",
-                            text: "SMS messages won't be sent.",
-                            type: "warning",
-                            showCancelButton: true,
-                            confirmButtonText: "Continue",
-                            cancelButtonText: "Cancel",
-                        }).then((result) => {
-                            if (result.value) {
-                                $("#chkSMSCustomer").prop("checked", false);
-                                $("#chkSMSUser").prop("checked", false);
-                                $("#btnSaveAppointmentSubmit").click();
-                            }
-                        });
-                    } else if ($("#tActualEndTime").val() == "" && (emailCustomer || emailUser)) {
-                        $("#saveAppointmentModal").modal("show");
-                        const accountName = $("#customer_appointment_calendar").val();
-                        const employeeName = $("#employee_name").val();
-                        const companyName = localStorage.getItem("vs1companyName");
-                        const fullAddress = $("#address").val() + ", " + $("#suburb").val() + ", " + $("#state").val() + ", " + $("#country").val();
-                        const bookedTime = $("#startTime").val() ? $("#startTime").val() : "";
-                        const productService = $("#product-list").val();
-                        const saveAppointmentSMS = templateObject.defaultSMSSettings.get().saveAppointmentSMSMessage.replace("[Customer Name]", accountName)
-                            .replace("[Employee Name]", employeeName)
-                            .replace("[Company Name]", companyName)
-                            .replace("[Product/Service]", productService)
-                            .replace("[Full Address]", fullAddress)
-                            .replace("[Booked Time]", bookedTime);
-                        $("#saveAppointmentSMSMessage").val(saveAppointmentSMS);
-                    } else {
-                        $("#btnSaveAppointmentSubmit").click();
-                    }
-                } else {
-                    // const templateObject = Template.instance();
-                    const smsSettings = templateObject.defaultSMSSettings.get();
-                    if ($("#tActualEndTime").val() == "" && (smsCustomer || smsUser)) {
-                        if (!smsSettings || !smsSettings.twilioAccountId) {
+                if($("#startTime").val() == '' || $("#endTime").val() == ''){
+                    $('.fullScreenSpin').css('display', 'none');
+                    swal({
+                        title: 'Oops...',
+                        text: 'Please Enter a Booked Start and End Time for This Appointment',
+                        type: 'error',
+                        showCancelButton: false,
+                        confirmButtonText: 'Try again'
+                    }).then((result) => {});
+                }else{
+                    templateObject.checkSMSSettings();
+                    const smsCustomer = $("#chkSMSCustomer").is(":checked");
+                    const smsUser = $("#chkSMSUser").is(":checked");
+                    const emailCustomer = $("#customerEmail").is(":checked");
+                    const emailUser = $("#userEmail").is(":checked");
+                    localStorage.setItem("smsCustomerAppt", smsCustomer);
+                    localStorage.setItem("smsUserAppt", smsUser);
+                    localStorage.setItem("emailCustomerAppt", emailCustomer);
+                    localStorage.setItem("emailUserAppt", emailUser);
+                    const customerPhone = $("#mobile").val();
+                    if (customerPhone === "" || customerPhone === "0") {
+                        if (smsCustomer || smsUser) {
                             swal({
-                                title: "No SMS Settings",
-                                // text: "SMS messages won't be sent to Customer or User.",
-                                text: "Do you wish to setup SMS Confirmation?",
-                                type: "question",
-                                // type: 'warning',
+                                title: "Invalid Phone Number",
+                                text: "SMS messages won't be sent.",
+                                type: "warning",
                                 showCancelButton: true,
                                 confirmButtonText: "Continue",
-                                cancelButtonText: "Go to SMS Settings",
+                                cancelButtonText: "Cancel",
                             }).then((result) => {
                                 if (result.value) {
                                     $("#chkSMSCustomer").prop("checked", false);
                                     $("#chkSMSUser").prop("checked", false);
-                                    $("#btnStartAppointmentConfirm").click();
-                                } else if (result.dismiss === "cancel") {
-                                    window.open("/smssettings", "_self");
-                                } else {
-                                    window.open("/smssettings", "_self");
+                                    $("#btnSaveAppointmentSubmit").click();
                                 }
                             });
-                        } else {
+                        } else if ($("#tActualEndTime").val() == "" && (emailCustomer || emailUser)) {
                             $("#saveAppointmentModal").modal("show");
                             const accountName = $("#customer_appointment_calendar").val();
                             const employeeName = $("#employee_name").val();
@@ -7063,24 +7034,68 @@ Template.calender.events({
                                 .replace("[Full Address]", fullAddress)
                                 .replace("[Booked Time]", bookedTime);
                             $("#saveAppointmentSMSMessage").val(saveAppointmentSMS);
+                        } else {
+                            $("#btnSaveAppointmentSubmit").click();
                         }
-                    } else if ($("#tActualEndTime").val() == "" && (emailCustomer || emailUser)) {
-                        $("#saveAppointmentModal").modal("show");
-                        const accountName = $("#customer_appointment_calendar").val();
-                        const employeeName = $("#employee_name").val();
-                        const companyName = localStorage.getItem("vs1companyName");
-                        const fullAddress = $("#address").val() + ", " + $("#suburb").val() + ", " + $("#state").val() + ", " + $("#country").val();
-                        const bookedTime = $("#startTime").val() ? $("#startTime").val() : "";
-                        const productService = $("#product-list").val();
-                        const saveAppointmentSMS = templateObject.defaultSMSSettings.get().saveAppointmentSMSMessage.replace("[Customer Name]", accountName)
-                            .replace("[Employee Name]", employeeName)
-                            .replace("[Company Name]", companyName)
-                            .replace("[Product/Service]", productService)
-                            .replace("[Full Address]", fullAddress)
-                            .replace("[Booked Time]", bookedTime);
-                        $("#saveAppointmentSMSMessage").val(saveAppointmentSMS);
                     } else {
-                        $("#btnSaveAppointmentSubmit").click();
+                        // const templateObject = Template.instance();
+                        const smsSettings = templateObject.defaultSMSSettings.get();
+                        if ($("#tActualEndTime").val() == "" && (smsCustomer || smsUser)) {
+                            if (!smsSettings || !smsSettings.twilioAccountId) {
+                                swal({
+                                    title: "No SMS Settings",
+                                    // text: "SMS messages won't be sent to Customer or User.",
+                                    text: "Do you wish to setup SMS Confirmation?",
+                                    type: "question",
+                                    // type: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonText: "Continue",
+                                    cancelButtonText: "Go to SMS Settings",
+                                }).then((result) => {
+                                    if (result.value) {
+                                        $("#chkSMSCustomer").prop("checked", false);
+                                        $("#chkSMSUser").prop("checked", false);
+                                        $("#btnStartAppointmentConfirm").click();
+                                    } else if (result.dismiss === "cancel") {
+                                        window.open("/smssettings", "_self");
+                                    } else {
+                                        window.open("/smssettings", "_self");
+                                    }
+                                });
+                            } else {
+                                $("#saveAppointmentModal").modal("show");
+                                const accountName = $("#customer_appointment_calendar").val();
+                                const employeeName = $("#employee_name").val();
+                                const companyName = localStorage.getItem("vs1companyName");
+                                const fullAddress = $("#address").val() + ", " + $("#suburb").val() + ", " + $("#state").val() + ", " + $("#country").val();
+                                const bookedTime = $("#startTime").val() ? $("#startTime").val() : "";
+                                const productService = $("#product-list").val();
+                                const saveAppointmentSMS = templateObject.defaultSMSSettings.get().saveAppointmentSMSMessage.replace("[Customer Name]", accountName)
+                                    .replace("[Employee Name]", employeeName)
+                                    .replace("[Company Name]", companyName)
+                                    .replace("[Product/Service]", productService)
+                                    .replace("[Full Address]", fullAddress)
+                                    .replace("[Booked Time]", bookedTime);
+                                $("#saveAppointmentSMSMessage").val(saveAppointmentSMS);
+                            }
+                        } else if ($("#tActualEndTime").val() == "" && (emailCustomer || emailUser)) {
+                            $("#saveAppointmentModal").modal("show");
+                            const accountName = $("#customer_appointment_calendar").val();
+                            const employeeName = $("#employee_name").val();
+                            const companyName = localStorage.getItem("vs1companyName");
+                            const fullAddress = $("#address").val() + ", " + $("#suburb").val() + ", " + $("#state").val() + ", " + $("#country").val();
+                            const bookedTime = $("#startTime").val() ? $("#startTime").val() : "";
+                            const productService = $("#product-list").val();
+                            const saveAppointmentSMS = templateObject.defaultSMSSettings.get().saveAppointmentSMSMessage.replace("[Customer Name]", accountName)
+                                .replace("[Employee Name]", employeeName)
+                                .replace("[Company Name]", companyName)
+                                .replace("[Product/Service]", productService)
+                                .replace("[Full Address]", fullAddress)
+                                .replace("[Booked Time]", bookedTime);
+                            $("#saveAppointmentSMSMessage").val(saveAppointmentSMS);
+                        } else {
+                            $("#btnSaveAppointmentSubmit").click();
+                        }
                     }
                 }
             }
@@ -8305,7 +8320,6 @@ Template.calender.events({
         // } else {
         //   selectedProduct.push($("#product-list").val());
         // }
-        
         let selectedProduct = $("#product-list").val() || "";
         let selectedExtraProduct = templateObject.productFees.get() || "";
         let hourlyRate = "";
@@ -8698,7 +8712,7 @@ Template.calender.events({
                         window.open("/appointments", "_self");
                     }
                 });
-           
+            
             } else {
                 $(".fullScreenSpin").css("display", "none");
                 appointmentService.saveAppointment(objectData).then(function(data) {

@@ -1257,21 +1257,6 @@ Template.accountsoverview.onRendered(function() {
         $(".btnRefresh").addClass("btnRefreshAlertOverview");
     }
 
-    $("#edtExpiryDate, #edtSummarisedDate, #edtGlobal, #edtReceivable, #edtPayable").datepicker({
-        showOn: "button",
-        buttonText: "Show Date",
-        buttonImageOnly: true,
-        buttonImage: "/img/imgCal2.png",
-        constrainInput: false,
-        dateFormat: "d/mm/yy",
-        showOtherMonths: true,
-        selectOtherMonths: true,
-        changeMonth: true,
-        changeYear: true,
-        yearRange: "-90:+10",
-    });
-
-
     templateObject.getAllTaxCodes = function() {
         getVS1Data("TTaxcodeVS1").then(function(dataObject) {
             if (dataObject.length === 0) {
@@ -2000,9 +1985,9 @@ Template.accountsoverview.onRendered(function() {
                     $("#edtBankAccountNo").val(bankacountno);
                     $("#swiftCode").val(swiftCode);
                     $("#routingNo").val(routingNo);
-                    $("#edtBankName").val(bankname);                    
-                    $('#eftBankName').val(bankname);                                        
-                    $('#eftDescription').val($("#tblBankName").find(`td:contains(${bankname})`).next().text());                    
+                    $("#edtBankName").val(bankname);
+                    $('#eftBankName').val(bankname);
+                    $('#eftDescription').val($("#tblBankName").find(`td:contains(${bankname})`).next().text());
                     $("#edtSubAccount1").val(level1);
                     $("#edtSubAccount2").val(level2);
                     $("#edtSubAccount3").val(level3);
@@ -2234,7 +2219,7 @@ Template.accountsoverview.onRendered(function() {
               width: "120",
             },
       ];
-    
+
       templateObject.tableheaderrecords.set(headerStructure);
 });
 
@@ -2346,6 +2331,7 @@ Template.accountsoverview.events({
         $("#sltTaxCode").val("");
         $(".isBankAccount").addClass("isNotBankAccount");
         $(".isCreditAccount").addClass("isNotCreditAccount");
+        $('#addNewAccountModal').modal('show')
     },
     "click .printConfirm": function(event) {
         $(".fullScreenSpin").css("display", "inline-block");
@@ -3018,7 +3004,7 @@ Template.accountsoverview.events({
         });
     }
     },
-    
+
     "change #showAsTree": function(e) {
         if ($('#showAsTree').prop('checked')) {
             $('#tblAccountTreeOverview').closest('.table-responsive').removeClass('d-none')
@@ -3032,9 +3018,9 @@ Template.accountsoverview.events({
         let columData = $(event.target).html();
         let columHeaderUpdate = $(event.target).attr("valueupdate");
         $("th." + columHeaderUpdate + "").html(columData);
-    
+
     },
-    
+
       'change .rngRange': function(event) {
             let range = $(event.target).val();
             let columnDataValue = $(event.target).closest("div").prev().find(".divcolumn").text();
@@ -3044,10 +3030,10 @@ Template.accountsoverview.events({
                     let className = v.className;
                     let replaceClass = className.replace(/ /g, ".");
                     $("." + replaceClass + "").css('width', range + 'px');
-    
+
                 }
             });
-    
+
         },
         'click .btnOpenSettings': function(event) {
             let templateObject = Template.instance();
@@ -3067,7 +3053,7 @@ Template.accountsoverview.events({
                     columVisible = false;
                 }
                 sWidth = v.style.width.replace('px', "");
-    
+
                 let datatablerecordObj = {
                     sTitle: v.innerText || '',
                     sWidth: sWidth || '',
@@ -3077,7 +3063,7 @@ Template.accountsoverview.events({
                 };
                 tableHeaderList.push(datatablerecordObj);
             });
-    
+
             templateObject.tableheaderrecords.set(tableHeaderList);
         },
         'click #setUpAccountList':function(){
@@ -3108,7 +3094,7 @@ Template.accountsoverview.helpers({
         }
         return bsbname;
     },
-    
+
     salesCloudPreferenceRec: () => {
         return CloudPreference.findOne({
             userid: localStorage.getItem("mycloudLogonID"),

@@ -1345,16 +1345,16 @@ Template.customerscard.onRendered(function () {
     templateObject.getCustomfields = function () {
         let custFields = [];
         let listType = 'ltCustomer';
-    
+
         let customFieldCount = 3; // customfield tempcode
         let customData = {};
-    
+
         getVS1Data("TCustomFieldList").then(function (dataObject) {
           if (dataObject.length == 0) {
             sideBarService.getAllCustomFields().then(function (data) {
               for (let x = 0; x < data.tcustomfieldlist.length; x++) {
                 if (data.tcustomfieldlist[x].fields.ListType == listType) {
-                   
+
                     let customData = setCustomfields(data.tcustomerfieldlist[x].fields)
                     custFields.push(customData);
                 }
@@ -1370,14 +1370,14 @@ Template.customerscard.onRendered(function () {
                 item.fieldIndex = index+1
               })
               templateObject.custfields.set(custFields);
-            
+
             });
           }else{
             let data = JSON.parse(dataObject[0].data);
               for (let x = 0; x < data.tcustomfieldlist.length; x++) {
                 if (data.tcustomfieldlist[x].fields.ListType == listType) {
 
-                  customData = setCustomfields(data.tcustomfieldlist[x].fields) 
+                  customData = setCustomfields(data.tcustomfieldlist[x].fields)
                   custFields.push(customData);
                 }
               }
@@ -1396,7 +1396,7 @@ Template.customerscard.onRendered(function () {
             sideBarService.getAllCustomFields().then(function (data) {
                 for (let x = 0; x < data.tcustomfieldlist.length; x++) {
                   if (data.tcustomfieldlist[x].fields.ListType == listType) {
-                     
+
                       let customData = setCustomfields(data.tcustomerfieldlist[x].fields)
                       custFields.push(customData);
                   }
@@ -1407,15 +1407,15 @@ Template.customerscard.onRendered(function () {
                 if (custFields.length < customFieldCount) {
                   custFields = setCustFieldsForReminder(custFields, customFieldCount)
                 }
-  
+
                 custFields.map((item, index)=> {
                   item.fieldIndex = index+1
                 })
                 templateObject.custfields.set(custFields);
-              
+
               });
         })
-    
+
         function setCustomfields(data) {
             let customData = {
                 active: data.Active || false,
@@ -1427,10 +1427,10 @@ Template.customerscard.onRendered(function () {
                 dropdown: data.Dropdown || null,
                 displayType: data.DataType=='ftDateTime'?'Date': data.IsCombo? 'Dropdown': 'Text'
             }
-    
+
             return customData
         }
-    
+
         function setCustFieldsForReminder  (custFields, customFieldCount) {
             let remainder = customFieldCount - custFields.length;
             let getRemCustomFields = parseInt(custFields.length);
@@ -1451,8 +1451,8 @@ Template.customerscard.onRendered(function () {
             }
             return cloneCustFields
         }
-    
-    } 
+
+    }
 
     templateObject.getCustomfields();
 
@@ -2145,6 +2145,22 @@ Template.customerscard.onRendered(function () {
 });
 
 Template.customerscard.events({
+    'blur #edtCustomerCardCreditLimit': function(e) {
+        let value = $("#edtCustomerCardCreditLimit").val();
+        value = utilityService.modifynegativeCurrencyFormat(value);
+
+        if(value != '$NaN') {
+            $("#edtCustomerCardCreditLimit").val(value);
+        }
+    },
+    'change #edtCustomerCardCreditLimit': function(e) {
+        let value = $("#edtCustomerCardCreditLimit").val();
+        value = utilityService.modifynegativeCurrencyFormat(value);
+
+        if(value != '$NaN') {
+            $("#edtCustomerCardCreditLimit").val(value);
+        }
+    },
     'keyup .txtSearchCustomers': function (event) {
         if ($(event.target).val() != '') {
             $(".btnRefreshCustomers").addClass('btnSearchAlert');

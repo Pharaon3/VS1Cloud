@@ -40,7 +40,6 @@ Template.workorderlist.onCreated(function() {
 
 
     templateObject.getDataTableList = function(data){
-
         let cur_date = new Date();
         let show_bom_temp = `<button class="btn btn-primary btnShowBOM" id="btnShowBOM"><i class="fa fa-eye" style="padding-right: 8px;"></i>Show BOM </button>`;
         let linestatus;     
@@ -49,19 +48,22 @@ Template.workorderlist.onCreated(function() {
         } else if (data.Active  == true) {
             linestatus = "In-Active";
         }
-       
+        
+        let productname =  data.fields.ProductName || '';
+        let qty = data.fields.Quantity || '';
+   
         let dataList = [
             data.fields.ID ,
-            data.fields.SaleID || '',
+            data.fields.SaleID ,
             data.fields.Customer || '',
             data.fields.PONumber || '',
             // moment(data.fields.SaleDate).format("DD/MM/YYYY") || '',
             // moment(data.fields.DueDate).format("DD/MM/YYYY") || '',
             moment(cur_date).format("DD/MM/YYYY") || '',
             moment(cur_date).format("DD/MM/YYYY") || '',
-            data.fields.ProductName || '',
+            productname,
             show_bom_temp,
-            data.fields.Quantity || '',
+            qty,
             data.fields.Comment || '',
             linestatus
            
@@ -90,7 +92,7 @@ Template.workorderlist.onRendered (function() {
     const templateObject = Template.instance();
     templateObject.getAllWorkorders = function() {
         
-        getVS1Data('TVS1Workorder').then(function(dataObject){
+        getVS1Data('TVS1WorkOrder').then(function(dataObject){
             if(dataObject.length == 0 || dataObject[0].data.length == 0 ) {
                 let workOrderList = manufacturingService.getWorkOrderList();
                 templateObject.workOrderRecords.set(workOrderList);
@@ -111,10 +113,41 @@ Template.workorderlist.onRendered (function() {
                     
                 }).catch(function(err){
                 });
-        })
-    
+        })    
     }
     templateObject.getAllWorkorders();
+
+    // templateObject.getAllWorkorders = async() => {
+    //     return new Promise(async(resolve, reject)=> {
+    //         getVS1Data('TVS1Workorder').then(function(dataObject) {
+
+    //             if(dataObject.length == 0) {
+    //                 manufacturingService.getWorkOrder(initialBaseDataLoad, 0).then(function(data) {
+    //                     templateObject.workOrderRecords.set(data.tvs1workorder);
+    //                     addVS1Data('TVS1Workorder', JSON.stringify(data))
+    //                                 .then(function(datareturn){ })
+    //                                 .catch(function(err){ })
+    //                               ;
+    //                     resolve(); 
+    //                 })
+    //             }else {
+    //                     templateObject.workOrderRecords.set(dataObject[0].data.tvs1workorder);
+    //                     resolve();
+    //             }
+    //         }).catch(function(e){
+    //             productService.getAllBOMProducts(initialBaseDataLoad, 0).then(function(data) {
+    //                 templateObject.workOrderRecords.set(data.tvs1workorder);
+    //                 addVS1Data('TVS1Workorder', JSON.stringify(data))
+    //                                 .then(function(datareturn){ })
+    //                                 .catch(function(err){ })
+    //                               ;
+    //                 resolve()
+    //             })
+    //         })
+    //     })
+    // }
+    // templateObject.getAllWorkorders();
+
 
     templateObject.getAllBOMProducts = async() => {
         return new Promise(async(resolve, reject)=> {
@@ -204,7 +237,7 @@ Template.workorderlist.onRendered (function() {
 
 Template.workorderlist.helpers ({
     datatablerecords : () => {
-        return Template.instance().datatablerecords.get();
+        return Template.instance().workOrderRecords.get();
     },
     selectedInventoryAssetAccount: () => {
         return Template.instance().selectedInventoryAssetAccount.get();

@@ -3,7 +3,7 @@
         <div class="col-6 col-md-7 col-lg-8">
             {{> vs1_button
                 color='primary'
-                classes='btnNav btnRefresh mr-2'
+                classes='float-left btnRefresh vs1FirstButtonMargin'
                 type='button'
                 id="btnRefresh"
                 iconName='lightbulb-o'
@@ -13,19 +13,17 @@
             {{#if equals showTimesheet true}}
             {{> vs1_button
                 color='primary'
-                classes='btnNav ml-2 mr-2'
+                classes='float-left vs1ButtonMargin'
                 type='button'
                 id="btnTimesheet"
                 iconName='clock'
                 title='Timesheet List'
             }}
-
             {{/if}}
-
 
             {{> vs1_button
                 color='primary'
-                classes='btnNav btnClockOnOff ml-2 mr-2'
+                classes='float-left btnClockOnOff vs1ButtonMargin'
                 type='button'
                 id="btnClockOnOff"
                 iconName='dollar-sign'
@@ -34,7 +32,7 @@
 
             {{> vs1_button
                 color='primary'
-                classes='btnNav ml-2 mr-2'
+                classes='float-left vs1ButtonMargin'
                 type='button'
                 id="btnSingleTouchPayroll"
                 iconName='dollar-sign'
@@ -43,7 +41,7 @@
 
             {{> vs1_button
                 color='primary'
-                classes='btnNav ml-2 mr-2'
+                classes='float-left vs1ButtonMargin'
                 type='button'
                 id="btnpayrollleave"
                 iconName=''
@@ -52,7 +50,7 @@
 
             {{> vs1_button
                 color='primary'
-                classes='btnNav ml-2 mr-2'
+                classes='float-left vs1ButtonMargin'
                 type='button'
                 id="btnProcessClock"
                 iconName='hourglass-half'

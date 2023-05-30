@@ -86,26 +86,26 @@ Template.addAccountModal.onRendered(function () {
   };
   templateObject.loadAccountTypes();  
 
-  $("#sltBankCodes").editableSelect();
-  $("#sltBankCodes")
-    .editableSelect()
-    .on("click.editable-select", function (e, li) {
-      var $earch = $(this);
-      var offset = $earch.offset();
-      var bankName = e.target.value || "";
+  // $("#sltBankCodes").editableSelect();
+  // $("#sltBankCodes")
+  //   .editableSelect()
+  //   .on("click.editable-select", function (e, li) {
+  //     var $earch = $(this);
+  //     var offset = $earch.offset();
+  //     var bankName = e.target.value || "";
 
-      if (e.pageX > offset.left + $earch.width() - 8) {
-        $("#eftBankCodesModal").modal('toggle');
-        $(".fullScreenSpin").css("display", "none");
+  //     if (e.pageX > offset.left + $earch.width() - 8) {
+  //       $("#eftBankCodesModal").modal('toggle');
+  //       $(".fullScreenSpin").css("display", "none");
 
-      } else {
-        if (bankName.replace(/\s/g, "") != "") {
-          $("#eftBankCodesModal").modal("toggle");
-        } else {
-          $("#eftBankCodesModal").modal('toggle');
-        }
-      }
-    });
+  //     } else {
+  //       if (bankName.replace(/\s/g, "") != "") {
+  //         $("#eftBankCodesModal").modal("toggle");
+  //       } else {
+  //         $("#eftBankCodesModal").modal('toggle');
+  //       }
+  //     }
+  //   });
 
     $(document).on("click", "#tblBankCode tbody tr", function (e) {
       var table = $(this);

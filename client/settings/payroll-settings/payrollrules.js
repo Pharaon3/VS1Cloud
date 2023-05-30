@@ -348,26 +348,21 @@ Template.payrollrules.onCreated(function() {
 Template.payrollrules.onRendered(function() {
     let templateObject = Template.instance();
     let taxRateService = new TaxRateService();
-    let accountService = new AccountService();
-    let organisationService = new OrganisationService();
     const dataTableList = [];
     const tableHeaderList = [];
     var splashArrayAllowanceList = new Array();
     var splashArrayDeductionList = new Array();
     var splashArrayLeaveList = new Array();
-    var splashArrayUnLeaveList = new Array();
-    var splashArrayCalenderList = new Array();
     var splashArrayReisument = new Array();
     var splashArraySuperannuationList = new Array();
     var splashArrayHolidayList = new Array();
     var splashArrayEarningList = new Array();
     var leavetypearraylist = [];
-    var uleavetypearraylist = [];
-    var countryService = new CountryService();
-    let countries = [];
-    let loggedEmpID = localStorage.getItem('mySessionEmployeeLoggedID');
-
     let tabid = FlowRouter.current().queryParams.active_key;
+
+    $('#tblPayCalendars_filter .form-control-sm').focus();
+    $('#tblPayCalendars_filter .form-control-sm').val('');
+    $('#tblPayCalendars_filter .form-control-sm').trigger("input");
 
     setTimeout(() => {
 
@@ -8569,6 +8564,9 @@ Template.payrollrules.onRendered(function() {
 });
 
 Template.payrollrules.events({
+    'click .btnRefresh': function () {
+        Meteor._reload.reload();
+    },
     'click .btnAddNewPayCalender':function(){
         if( !$(".updateCalendarInActive").hasClass("d-none") || !$('.updateCalendarActive').hasClass('d-none')) {
             if(!$(".updateCalendarInActive").hasClass("d-none"))

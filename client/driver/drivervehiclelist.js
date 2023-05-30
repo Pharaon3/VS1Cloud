@@ -31,10 +31,13 @@ Template.drivervehiclelist.onCreated(function () {
             linestatus = "";
         } else if (data.Active == false) {
             linestatus = "In-Active";
-        }
-        ;
+        };
+        let chkBox = '<div class="custom-control custom-switch chkBox pointer text-center">' +
+        '<input name="pointer" class="custom-control-input chkBox notevent pointer" type="checkbox" id="' + data.EmployeeID + '" name="' + data.EmployeeID + '">' +
+        '<label class="custom-control-label chkBox pointer" for="' + data.EmployeeID + '"></label></div>';
         if(!data.isDriver){
             var dataList = [
+                chkBox,
                 data.EmployeeID || "",
                 data.EmployeeName || "",
                 data.FirstName || "",
@@ -52,21 +55,27 @@ Template.drivervehiclelist.onCreated(function () {
         }
     }
 
-    let headerStructure = [
-        {index: 0, label: 'Emp', class: 'colEmployeeNo', active: false, display: true, width: "10"},
-        {index: 1, label: 'Contact Name', class: 'colEmployeeName', active: true, display: true, width: "200"},
-        {index: 2, label: 'First Name', class: 'colFirstName', active: true, display: true, width: "100"},
-        {index: 3, label: 'Last Name', class: 'colLastName', active: true, display: true, width: "100"},
-        {index: 4, label: 'Type', class: 'colType', active: true, display: true, width: "20"},
-        {index: 5, label: 'Phone', class: 'colPhone', active: true, display: true, width: "110"},
-        {index: 6, label: 'Address', class: 'colAddress', active: true, display: true, width: "300"},
-        {index: 7, label: 'State', class: 'colState', active: true, display: true, width: "110"},
-        {index: 5, label: 'Shift Times', class: 'colShiftTimes', active: true, display: true, width: "110"},
-        {index: 6, label: 'Start Locations', class: 'colStartLocations', active: true, display: true, width: "300"},
-        {index: 7, label: 'Vehicle', class: 'colVehicle', active: true, display: true, width: "110"},
-        {index: 8, label: 'Status', class: 'colStatus', active: true, display: true, width: "120"},
+    let checkBoxHeader = `<div class="custom-control custom-switch colChkBoxAll  text-center pointer">
+        <input name="pointer" class="custom-control-input colChkBoxAll pointer" type="checkbox" id="colChkBoxAll" value="0">
+        <label class="custom-control-label colChkBoxAll" for="colChkBoxAll"></label>
+        </div>`;
+
+    let headerStruct = [
+        {index: 0, label: 'CheckBox', class: 'colCheckBox', active: true, display: true, width: "10"},
+        {index: 1, label: 'Emp', class: 'colEmployeeNo colEmployeeCard', active: false, display: true, width: "10"},
+        {index: 2, label: 'Contact Name', class: 'colEmployeeName colEmployeeCard', active: true, display: true, width: "200"},
+        {index: 3, label: 'First Name', class: 'colFirstName colEmployeeCard', active: true, display: true, width: "100"},
+        {index: 4, label: 'Last Name', class: 'colLastName colEmployeeCard', active: true, display: true, width: "100"},
+        {index: 5, label: 'Type', class: 'colType colEmployeeCard', active: true, display: true, width: "20"},
+        {index: 6, label: 'Phone', class: 'colPhone colEmployeeCard', active: true, display: true, width: "110"},
+        {index: 7, label: 'Address', class: 'colAddress colEmployeeCard', active: true, display: true, width: "300"},
+        {index: 8, label: 'State', class: 'colState colEmployeeCard', active: true, display: true, width: "110"},
+        {index: 9, label: 'Shift Times', class: 'colShiftTimes', active: true, display: true, width: "110"},
+        {index: 10, label: 'Start Locations', class: 'colStartLocations', active: true, display: true, width: "300"},
+        {index: 11, label: 'Vehicle', class: 'colVehicle', active: true, display: true, width: "110"},
+        {index: 12, label: 'Status', class: 'colStatus colEmployeeCard', active: true, display: true, width: "120"},
     ];
-    templateObject.tableheaderrecords.set(headerStructure);
+    templateObject.tableheaderrecords.set(headerStruct);
 });
 
 Template.drivervehiclelist.onRendered(function () {
@@ -80,7 +89,7 @@ Template.drivervehiclelist.onRendered(function () {
     if (FlowRouter.current().queryParams.success) {
         $('.btnRefresh').addClass('btnRefreshAlert');
     }
-    $('#tblEmployeelist tbody').on('click', 'tr', function () {
+    $('#tblDriverlist tbody').on('click', '.colEmployeeCard', function () {
         const listData = $(this).closest('tr').attr("id");
         if (listData) {
             let params = ''
@@ -110,7 +119,7 @@ Template.drivervehiclelist.onRendered(function () {
 });
 
 Template.drivervehiclelist.events({
-    "click #tblEmployeelist tbody tr": (e, ui) => {
+    "click .colEmployeeCard": (e, ui) => {
         const id = $(e.currentTarget).attr('id');
         if (id) {
             FlowRouter.go(`/employeescard?id=${id}`);
@@ -137,15 +146,25 @@ Template.drivervehiclelist.events({
             }
         })
     },
+    'click .btnSelectAll': function () {
+        if ($('input[type="checkbox"]').hasClass('allChecked')) {
+            $('input[type="checkbox"]').prop('checked', false);
+            $('table').css('background', '#fff');
+        } else {
+            $('input[type="checkbox"]').prop('checked', true);
+            $('table').css('background', '#e5f2d9');
+        }
+        $('input[type="checkbox"]').toggleClass('allChecked');
+    },
     'click .exportbtn': function () {
         $('.fullScreenSpin').css('display', 'inline-block');
-        jQuery('#tblEmployeelist_wrapper .dt-buttons .btntabletocsv').click();
+        jQuery('#tblDriverlist_wrapper .dt-buttons .btntabletocsv').click();
         $('.fullScreenSpin').css('display', 'none');
 
     },
     'click .exportbtnExcel': function () {
         $('.fullScreenSpin').css('display', 'inline-block');
-        jQuery('#tblEmployeelist_wrapper .dt-buttons .btntabletoexcel').click();
+        jQuery('#tblDriverlist_wrapper .dt-buttons .btntabletoexcel').click();
         $('.fullScreenSpin').css('display', 'none');
     },
     'click .btnRefresh': (e, ui) => {
@@ -157,7 +176,7 @@ Template.drivervehiclelist.events({
         playPrintAudio();
         setTimeout(function () {
             $('.fullScreenSpin').css('display', 'inline-block');
-            jQuery('#tblEmployeelist_wrapper .dt-buttons .btntabletopdf').click();
+            jQuery('#tblDriverlist_wrapper .dt-buttons .btntabletopdf').click();
             $('.fullScreenSpin').css('display', 'none');
         }, delayTimeAfterSound);
     },
@@ -349,7 +368,7 @@ Template.drivervehiclelist.helpers({
         return Template.instance().tableheaderrecords.get();
     },
     salesCloudPreferenceRec: () => {
-        return CloudPreference.findOne({userid: localStorage.getItem('mycloudLogonID'), PrefName: 'tblEmployeelist'});
+        return CloudPreference.findOne({userid: localStorage.getItem('mycloudLogonID'), PrefName: 'tblDriverlist'});
     },
     loggedCompany: () => {
         return localStorage.getItem('mySession') || '';

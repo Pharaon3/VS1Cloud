@@ -100,8 +100,8 @@
         <!-- All charts list -->
         {{> allChartLists tabGroupID="7" chartGroup="Purchases" currentTemplate="Purchases_Overview"}}
         <!-- All charts list -->
-        <div class="row ">
-            <div class="col-6 col-md-8">
+        <div class="row d-xl-flex flex-row justify-content-xl-center" style="padding: 0px 20px;">
+            <div class="col-6 col-md-8 float-left flex-grow-1 mb-4">
                 <button id="btnRefresh" class="btn btnNav btn-primary btnRefresh" type="button"
                     style="margin: 12px;margin-left:0"><i class="la la-lightbulb-o"
                         style="margin-right: 5px;"></i>Refresh</button>
@@ -155,8 +155,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-4">
-                <a class="btn btnOpenSettings btnOpenSettingsDesktop float-right" role="button" data-toggle="modal"
+            <div class="col-6 col-md-4 d-xl-flex justify-content-xl-end align-items-xl-start">
+                <!-- <a class="btn btnOpenSettings btnOpenSettingsDesktop float-right" role="button" data-toggle="modal"
                     href="#tableWodthModal" style="margin: 12px;"><i class="icon ion-android-more-horizontal"></i></a>
                 <button class="btn btnNav btn-primary printConfirm float-right" type="button"
                     style="margin:12px; background-color: #00A3D3; border-color: #00A3D3;"><i class="fa fa-print"
@@ -167,12 +167,13 @@
                         style="padding-right: 5px; background-color: #00A3D3; border-color: #00A3D3;"></i>Export</button>
                 <a class="btn btnOpenSettings btnOpenSettingsMobile float-right" role="button" data-toggle="modal"
                     href="#tableWodthModal" style="margin: 12px; display: none;"><i
-                        class="icon ion-android-more-horizontal"></i></a>
+                        class="icon ion-android-more-horizontal"></i></a> -->
+                {{> export_import_print_display_button Import="hiddenButton" tablename="tblPurchaseOverview"}}
             </div>
         </div>
 
         <div class="card-body px-0 py-3 rounded" style="padding-top: 0px !important;">
-            <div class="d-xl-flex justify-content-xl-end">
+            <!-- <div class="d-xl-flex justify-content-xl-end">
                 <div>
                     <div class="modal fade" role="dialog" tabindex="-1" id="tableWodthModal">
                         <div class="modal-dialog modal-dialog-centered" role="document" style="float: right;">
@@ -270,10 +271,10 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
             <!-- End -->
             <div class="table-responsive">
-                <div class="row no-gutters d-xl-flex align-items-xl-end">
+                <!-- <div class="row no-gutters d-xl-flex align-items-xl-end">
                     <div class="col d-sm-flex justify-content-sm-start align-items-sm-center">
 
                     </div>
@@ -304,8 +305,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <table id="tblPurchaseOverview" style="width:100%"
+                </div> -->
+                <!-- <table id="tblPurchaseOverview" style="width:100%"
                     class="dataTable table table-striped table-bordered tblPurchaseOverview">
                     <thead>
                         <tr class="dnd-moved">
@@ -378,7 +379,25 @@
                         {{/each}}
                         {{/if}}
                     </tbody>
-                </table>
+                </table> -->
+                {{>datatablelist
+                    tableclass="tblbilllist"
+                    tablename="tblPurchaseOverview"
+                    apiName= apiFunction
+                    indexeddbname = 'TPurchasesList'
+                    tableheaderrecords = tableheaderrecords
+                    exportfilename = 'Purchases List'
+                    istransaction = true
+                    apiParams= apiParams
+                    datahandler = datahandler
+                    service=service
+                    lowercaseDataName='tbilllist'
+                    exIndexDBName = 'tbilllist'
+                    exdatahandler = exDataHandler
+                    searchAPI = searchAPI
+                    orderby = '[[ 0, "desc" ],[ 1, "desc" ]]'
+                    attRowID = 1
+                }}
             </div>
         </div>
     </div>

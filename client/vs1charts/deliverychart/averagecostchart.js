@@ -173,7 +173,7 @@ Template.averagecostchart.onRendered(() => {
           responsive: true,
           legend: {
             display: true,
-            position: "bottom",
+            position: "right",
             reverse: false,
           },
           title: {

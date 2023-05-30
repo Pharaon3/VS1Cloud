@@ -205,9 +205,22 @@
                             </div>
                             <div class="col-12 col-md-4">
                               <div class="form-group" style="margin: 4px;">
-                                <label>Bank Codes</label>
+                                <!-- <label>Bank Codes</label>
                                 <select type="search" class="form-control pointer" id="sltBankCodes" name="sltBankCodes">
-                                </select>
+                                </select> -->
+                                {{> vs1___dropdown
+                                    type='search'
+                                    id='sltBankCodes'
+                                    name='sltBankCodes'
+                                    modalId= 'bankCodeListPop'
+                                    list_template_name='bankCodeModal'
+                                    innerModal=true
+                                    modal_title='Bank Code List'
+                                    label = 'Bank Codes'
+                                    colNameForValue = 'colAccountName'
+                                    is_editable=false
+                                    noBorder=false
+                            }}
                               </div>
                             </div>
                             <div class="col-12 col-md-4" style="display: flex; justify-content: end;">

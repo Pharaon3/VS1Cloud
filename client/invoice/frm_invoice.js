@@ -450,7 +450,7 @@ Template.invoice_temp.onCreated(function () {
         $(".transheader > #sltDept_fromtransactionheader").val(lastDepartment);
       });
   };
- 
+
   /**
  * Should be updated with indexeddb
  */
@@ -573,7 +573,7 @@ Template.invoice_temp.onCreated(function () {
             volume: data.fields.Lines[i].fields.Volume || 0,
             volumeUnit: data.fields.Lines[i].fields.VolumeUnit || "m3"
           };
-          
+
           lineItems.push(lineItemObj);
         }
       } else {
@@ -1320,7 +1320,7 @@ Template.invoice_temp.onCreated(function () {
   //         if (error && error.error === "error") {
   //           if(frequency) {
   //             await templateObject.checkEmailFrequencySetting()
-  //           } 
+  //           }
   //             FlowRouter.go("/invoicelist?success=true");
   //         } else {
   //           $("#html-Invoice-pdfwrapper").css("display", "none");
@@ -1335,7 +1335,7 @@ Template.invoice_temp.onCreated(function () {
   //             showCancelButton: false,
   //             confirmButtonText: "OK",
   //           }).then(async (result) => {
-              
+
   //             if (result.value) {
   //               if(frequency) {
   //                 await templateObject.checkEmailFrequencySetting();
@@ -1347,7 +1347,7 @@ Template.invoice_temp.onCreated(function () {
   //                   "&transTab=active"
   //                 );
   //               } else {
-                  
+
   //                 FlowRouter.go("/invoicelist?success=true");
   //               }
   //             } else if (result.dismiss === "cancel") { }
@@ -1389,7 +1389,7 @@ Template.invoice_temp.onCreated(function () {
   //             } else {
   //               if(frequency) {
   //                 await templateObject.checkEmailFrequencySetting()
-  //               } 
+  //               }
   //                 FlowRouter.go("/invoicelist?success=true");
   //             }
   //           });
@@ -1426,7 +1426,7 @@ Template.invoice_temp.onCreated(function () {
   //               if(frequency){
   //                 await templateObject.checkEmailFrequencySetting()
   //               }
-  //               $('.fullScreenSpin').css('display', 'none'); 
+  //               $('.fullScreenSpin').css('display', 'none');
   //             }
   //           })
   //         }
@@ -1471,7 +1471,7 @@ Template.invoice_temp.onCreated(function () {
         const taxamount = $(this).find('.colTaxAmount').val();
         const tdlineamt = $(this).find(".colAmountInc").text();
         const tdSalesLineCustField1 = $(this).find(".lineSalesLinesCustField1").text();
-  
+
         const lineItemObj = {
           description: tddescription || "",
           quantity: tdQty || 0,
@@ -1532,7 +1532,7 @@ Template.invoice_temp.onCreated(function () {
 
       let poNumber = $("#ponumber").val();
       let reference = $("#edtRef").val();
-  
+
       let departement = $(".transheader > #sltDept_fromtransactionheader").val();
       let shippingAddress = $("#txaShipingInfo").val();
       let comments = $("#txaComment").val();
@@ -2368,6 +2368,9 @@ Template.invoice_temp.onRendered(function () {
           return false;
         }
 
+        showSimpleMessageTransaction();
+        playSaveAudio();
+
         salesService.saveInvoiceEx(objDetails).then(function (objDetails) {
 
           sideBarService.getAllSerialNumber().then(async function(data) {
@@ -2492,7 +2495,7 @@ Template.invoice_temp.onRendered(function () {
           //   });
           // }
 
-          var htmlmailBody = generateHtmlMailBody(objDetails.fields.ID || '',stringQuery) 
+          var htmlmailBody = generateHtmlMailBody(objDetails.fields.ID || '',stringQuery)
 
           addAttachment("Invoice", "Supplier", objDetails.fields.ID || '', htmlmailBody, 'invoicelist', 54,  'html-Invoice-pdfwrapper', stringQuery, true)
           // async function addAttachment() {
@@ -2792,7 +2795,7 @@ Template.invoice_temp.helpers({
   vs1companyBankRoutingNo: () => {
     return localStorage.getItem("vs1companyBankRoutingNo") || "";
   },
-  
+
   invoicerecord: () => {
     return Template.instance().invoicerecord.get();
   },
@@ -3017,7 +3020,7 @@ Template.invoice_temp.helpers({
   listapifunction: function () {
     return sideBarService.getAllTInvoiceListData
   },
-  
+
   // apiFunction: function() {
   //   return salesService.getOneInvoicedataEx
   // },
@@ -3054,7 +3057,7 @@ Template.invoice_temp.helpers({
 });
 
 Template.invoice_temp.events({
-  
+
   "click .btnRefreshCustomField": function (event) {
     $(".fullScreenSpin").css("display", "inline-block");
     let templateObject = Template.instance();
@@ -3098,7 +3101,7 @@ Template.invoice_temp.events({
   },
   "change .transheader > #sltStatus_fromtransactionheader": function () {
     let status = $(".transheader > #sltStatus_fromtransactionheader").find(":selected").val();
- 
+
     if (status == "newstatus") {
       $("#statusModal").modal();
     }
@@ -3363,7 +3366,7 @@ Template.invoice_temp.events({
               let currencyname = CountryAbbr.toLowerCase();
               let stringQuery = "?";
               for (let l = 0; l < lineItems.length; l++) {
-                stringQuery = stringQuery + "product" + l + "=" + lineItems[l].description + "&price" + l + "=" + 
+                stringQuery = stringQuery + "product" + l + "=" + lineItems[l].description + "&price" + l + "=" +
                 lineItems[l].unitPrice + "&qty" + l + "=" +  lineItems[l].quantity + "&";
               }
               stringQuery = stringQuery + "tax=" + tax + "&total=" + total + "&customer=" + customer + "&name=" + name +
@@ -4052,7 +4055,7 @@ Template.invoice_temp.events({
       $(".fullScreenSpin").css("display", "none");
     }
   },
- 
+
   "focusout .lineShipped": function (event) {
     // $(".fullScreenSpin").css("display", "inline-block");
     var target = event.target;

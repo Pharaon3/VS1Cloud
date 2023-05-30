@@ -18,6 +18,22 @@ Template.eftExportModal.onCreated(function () {
     templateObject.eftRowId = new ReactiveVar(null);
     templateObject.tabadescriptiverecordList = new ReactiveVar([]);
     templateObject.tabadetailrecordList = new ReactiveVar([]);
+
+    templateObject.tableheaderrecords = new ReactiveVar([]);
+
+    let headerStructure = [
+        { index: 0, label: '#ID', class: '', active: false, display: true, width: "10" },
+        { index: 1, label: 'Apply?', class: 'colApply', active: true, display: true, width: "150" },
+        { index: 2, label: 'Account Name', class: 'colAccountName', active: true, display: true, width: "100" },
+        { index: 3, label: 'BSB', class: 'colBSB', active: true, display: true, width: "100" },
+        { index: 4, label: 'Account No', class: 'colAccountNo', active: true, display: true, width: "100" },
+        { index: 5, label: 'Transaction Code', class: 'colTransactionCode', active: true, display: true, width: "100" },
+        { index: 6, label: 'Lodgement References', class: 'colLodgementReferences', active: true, display: true, width: "100" },
+        { index: 7, label: 'Amount', class: 'colAmount', active: true, display: true, width: "100" },
+        { index: 8, label: 'From BSB', class: 'colFromBSB', active: true, display: true, width: "100" },
+    ];
+    
+    templateObject.tableheaderrecords.set(headerStructure);
 });
 
 Template.eftExportModal.onRendered(function () {

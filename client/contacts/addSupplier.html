@@ -440,14 +440,6 @@
                             Customer</label>
                         </div>
                       </div>
-                      <div class="col-6 col-md-2">
-                        <div class="custom-control custom-switch chkSameCustomer"
-                          style="padding: 0px 8px; padding-left: 4.25rem;">
-                          <input class="custom-control-input" type="checkbox" id="isDriver"
-                            style=" cursor: pointer;" checked="{{#if record.isDriver}}checked{{/if}}">
-                          <label class="custom-control-label" for="isDriver" style=" cursor: pointer;">Is Driver</label>
-                        </div>
-                      </div>
                       <div class="col-6 col-md-4">
                         <div class="form-group" style="padding: 0px 8px;">
                           <div class="one box checkbox1div"
@@ -506,6 +498,8 @@
                             <li class="nav-item attachmentTab" style="cursor: pointer;"><a class="nav-link" role="tab"
                                 data-toggle="tab" data-target="#tab-8">{{#if attachmentCount}}<span
                                   id="attachment-count">{{attachmentCount}}</span>{{/if}} Attachments</a></li>
+                            <li class="nav-item" style="cursor: pointer;"><a class="nav-link" role="tab"
+                                data-toggle="tab" data-target="#tab-delivery">Delivery</a></li>
                             <li class="nav-item" style="cursor: pointer;"><a class="nav-link" role="tab"
                                 data-toggle="tab" data-target="#tab-9">Custom Fields</a></li>
                             <li class="nav-item d-none vs1-login-nav" style="cursor: pointer;"><a class="vs1-login-nav-link nav-link" role="tab"
@@ -1120,7 +1114,169 @@
                               </div>
                             </div>
                             <!-- End View File attachment -->
-
+                            <!-- Delivery Tab -->
+                            <div class="tab-pane border rounded-0" role="tabpanel" id="tab-delivery"
+                              style="border-color: #ededed #00a3d3 #00a3d3 #00a3d3 !important; ">
+                              <div class="row no-gutters" style="margin: 12px;">
+                                <div class="col d-xl-flex align-items-xl-center">
+                                    <button class="btn btn-primary addNewDeliveryCustomField" type="button" style="margin: 4px;">
+                                        <i class="fa fa-plus" style="margin-right: 5px;"></i>Add New
+                                    </button>
+                                </div>
+                              </div>
+                              <div class="row no-gutters" style="margin: 12px;">
+                                <div class="col d-xl-flex align-items-xl-center col-6">
+                                    <div class="form-group flex-grow-1 checkbox1div"
+                                        style="margin: 4px;padding-right:4px;">
+                                        <div style="margin-left: 12px;">
+                                            {{> vs1___dropdown
+                                                type='search'
+                                                id="vehicles"
+                                                name="vehicles"
+                                                modalId='fixedassetlistpopModal'
+                                                list_template_name="fixedassetlistpop"
+                                                modal_title='Vehicles'
+                                                innerModal=true
+                                                label = 'Vehicles'
+                                                colNameForValue="colRegisterAssetName"
+                                                is_editable=false
+                                            }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3" style="padding: 0px;">
+                                    <div class="custom-control custom-switch chkSameSupplier" style="height:100%; display: flex; align-items: center; margin-left: 20px; margin-top: 12px;">
+                                        <input class="custom-control-input" type="checkbox" id="isDriver" style=" cursor: pointer;" checked="{{#if record.isDriver}}checked{{/if}}">
+                                        <label class="custom-control-label" for="isDriver" style=" cursor: pointer;">Is Driver</label>
+                                    </div>
+                                </div>
+                              </div>
+                              <div class="row no-gutters" style="margin: 12px;">
+                                <div class="col d-xl-flex align-items-xl-center">
+                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                            style="margin: 4px;padding-right:4px;">
+                                        <label class="lblCustomField1">
+                                            License Type
+                                        </label>
+                                        <input type="text" class="form-control" id="ltype" name="ltype" value="">
+                                    </div>
+                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                            style="margin: 4px;padding-right:4px;">
+                                        <label class="lblCustomField1">
+                                            License Number
+                                        </label>
+                                        <input type="text" class="form-control" id="lnumber" name="lnumber" value="">
+                                    </div>
+                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-2"
+                                        style="margin: 4px;padding-right:4px; margin-top:12px;">
+                                        {{> single_date_picker
+                                            id="lExpDate"
+                                            name="lExpDate"
+                                            defaultValue=record.lExpDate
+                                            label='License Expiry Date'
+                                        }}
+                                    </div>
+                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-4"
+                                            style="margin: 4px;padding-right:4px; margin-top:24px;">
+                                        <input type="file" id="license-attachment" style="display:none" multiple
+                                            accept="image/*;capture=camera,.jpg,.gif,.png,.bmp,.tiff,.pdf,.doc,.docx,.xls,.xlsx,.ppt,
+                                                    .pptx,.odf,.csv,.txt,.rtf,.eml,.msg,.ods,.odt,.keynote,.key,.pages-tef,
+                                                    .pages,.numbers-tef,.numbers,.zip,.rar,.zipx,.xzip,.7z,image/jpeg,
+                                                    image/gif,image/png,image/bmp,image/tiff,application/pdf,
+                                                    application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                                    application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                                    application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,
+                                                    application/vnd.oasis.opendocument.formula,text/csv,text/plain,text/rtf,message/rfc822,
+                                                    application/vnd.ms-outlook,application/vnd.oasis.opendocument.spreadsheet,
+                                                    application/vnd.oasis.opendocument.text,application/x-iwork-keynote-sffkey,
+                                                    application/vnd.apple.keynote,application/x-iwork-pages-sffpages,
+                                                    application/vnd.apple.pages,application/x-iwork-numbers-sffnumbers,
+                                                    application/vnd.apple.numbers,application/zip,application/rar,
+                                                    application/x-zip-compressed,application/x-zip,application/x-7z-compressed">
+                                    <button class="btn btn-primary btnUploadFile new_attachment_btn" type="button"
+                                            style="margin: 4px;"><i class="fa fa-cloud-upload"
+                                                                    style="margin-right: 5px;"></i>License Attachment</button>
+                                    </div>
+                                </div>
+                              </div>
+                              <div class="row no-gutters" style="margin: 12px;">
+                                <div class="col d-xl-flex align-items-xl-center">
+                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                            style="margin: 4px;padding-right:4px;">
+                                        <label class="lblCustomField1">
+                                            Permit Type
+                                        </label>
+                                        <input type="text" class="form-control" id="ptype" name="ptype" value="">
+                                    </div>
+                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                            style="margin: 4px;padding-right:4px;">
+                                        <label class="lblCustomField1">
+                                            Permit Number
+                                        </label>
+                                        <input type="text" class="form-control" id="pnumber" name="pnumber" value="">
+                                    </div>
+                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-2"
+                                            style="margin: 5px;padding-right:4px; margin-top:12px;">
+                                        {{> single_date_picker
+                                            id="pExpDate"
+                                            name="pExpDate"
+                                            defaultValue=record.pExpDate
+                                            label='Permit Expiry'
+                                        }}
+                                    </div>
+                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-4"
+                                            style="margin: 4px;padding-right:4px; margin-top:24px;">
+                                            <input type="file" id="permit-attachment" style="display:none" multiple
+                                            accept="image/*;capture=camera,.jpg,.gif,.png,.bmp,.tiff,.pdf,.doc,.docx,.xls,.xlsx,.ppt,
+                                                    .pptx,.odf,.csv,.txt,.rtf,.eml,.msg,.ods,.odt,.keynote,.key,.pages-tef,
+                                                    .pages,.numbers-tef,.numbers,.zip,.rar,.zipx,.xzip,.7z,image/jpeg,
+                                                    image/gif,image/png,image/bmp,image/tiff,application/pdf,
+                                                    application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                                    application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                                    application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,
+                                                    application/vnd.oasis.opendocument.formula,text/csv,text/plain,text/rtf,message/rfc822,
+                                                    application/vnd.ms-outlook,application/vnd.oasis.opendocument.spreadsheet,
+                                                    application/vnd.oasis.opendocument.text,application/x-iwork-keynote-sffkey,
+                                                    application/vnd.apple.keynote,application/x-iwork-pages-sffpages,
+                                                    application/vnd.apple.pages,application/x-iwork-numbers-sffnumbers,
+                                                    application/vnd.apple.numbers,application/zip,application/rar,
+                                                    application/x-zip-compressed,application/x-zip,application/x-7z-compressed">
+                                    <button class="btn btn-primary btnUploadFile new_attachment_btn" type="button"
+                                            style="margin: 4px;"><i class="fa fa-cloud-upload"
+                                                                    style="margin-right: 5px;"></i>Permit Attachment</button>
+                                    </div>
+                                </div>
+                              </div>
+                              <div id="deliveryCustom" class="row no-gutters" style="margin: 12px;display: none;">
+                                <div class="col d-xl-flex align-items-xl-center" style="">
+                                    <div id="deliveryCustom1" class="form-group flex-grow-1 checkbox1div" style="margin: 4px;padding-right:4px;">
+                                        <label class="lblCustomField1">
+                                            Custom Field 1
+                                        </label>
+                                        <input type="text" class="form-control" id="deliveryCustom1Val" name="deliveryCustom1Val" value="">
+                                    </div>
+                                    <div id="deliveryCustom2" class="form-group flex-grow-1 checkbox1div" style="margin: 4px;padding-right:4px; display: none;">
+                                        <label class="lblCustomField1">
+                                            Custom Field 2
+                                        </label>
+                                        <input type="text" class="form-control" id="deliveryCustom2Val" name="deliveryCustom2Val" value="">
+                                    </div>
+                                    <div id="deliveryCustom3" class="form-group flex-grow-1 checkbox1div" style="margin: 4px;padding-right:4px; display: none;">
+                                        <label class="lblCustomField1">
+                                            Custom Field 3
+                                        </label>
+                                        <input type="text" class="form-control" id="deliveryCustom3Val" name="deliveryCustom3Val" value="">
+                                    </div>
+                                    <div id="deliveryCustom4" class="form-group flex-grow-1 checkbox1div" style="margin: 4px;padding-right:4px; display: none;">
+                                        <label class="lblCustomField1">
+                                            Custom Field 4
+                                        </label>
+                                        <input type="text" class="form-control" id="deliveryCustom4Val" name="deliveryCustom4Val" value="">
+                                    </div>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- End Delivery Tab -->
                             <div class="tab-pane border rounded-0" role="tabpanel" id="tab-9"
                               style="border-color: #ededed #00a3d3 #00a3d3 #00a3d3 !important;">
                               <div class="row no-gutters" style="margin: 12px;">
