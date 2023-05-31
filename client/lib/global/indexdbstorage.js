@@ -83,6 +83,7 @@ openDb = function (dbName) {
       db.createObjectStore("TJobVS1", { keyPath: "EmployeeEmail" });
       db.createObjectStore("TJobVS1List", { keyPath: "EmployeeEmail" });
       db.createObjectStore("TStockAdjustEntry", { keyPath: "EmployeeEmail" });
+      db.createObjectStore("TStockMovement", { keyPath: "EmployeeEmail" });
       db.createObjectStore("TsalesOrderNonBackOrder", {
         keyPath: "EmployeeEmail",
       });
@@ -310,6 +311,7 @@ openDb = function (dbName) {
       db.createObjectStore("TQuoteList", { keyPath: "EmployeeEmail" });
       db.createObjectStore("TSalesOrderList", { keyPath: "EmployeeEmail" });
       db.createObjectStore("TInvoiceList", { keyPath: "EmployeeEmail" });
+      db.createObjectStore("TManifestList", { keyPath: "EmployeeEmail" });
       db.createObjectStore("TRefundSaleList", { keyPath: "EmployeeEmail" });
       db.createObjectStore("TSalesBackOrderReport", {
         keyPath: "EmployeeEmail",

@@ -37,6 +37,7 @@ Template.generalledger.onCreated(() => {
     { index: 6, label: 'Debits', class: 'colDebitsEx text-right', active: true, display: true, width: "130", calc: true},
     { index: 7, label: 'Credits', class: 'colCreditEx text-right', active: true, display: true, width: "130", calc: true},
     { index: 8, label: 'Amount', class: 'colAmountEx text-right', active: true, display: true, width: "130", calc: true},
+    { index: 9, label: 'Account', class: 'colAccount', active: false, display: true, width: "130", calc: false},
   ]
   templateObject.displaysettings.set(reset_data);
   templateObject.getReportDataRecord = function(data) {
@@ -51,10 +52,11 @@ Template.generalledger.onCreated(() => {
         data.DEBITSEX || 0,
         data.CREDITSEX || 0,
         data.AMOUNTEX || 0,
+        data.ACCOUNTNAME || "",
       ];
     }else {
       dataList = [
-        "", "", "",  "", "", 0, 0, 0,
+        "", "", "",  "", "", 0, 0, 0,""
       ]
     }
     return dataList;

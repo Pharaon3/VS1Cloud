@@ -8,11 +8,11 @@ import '../lib/global/indexdbstorage.js';
 let sideBarService = new SideBarService();
 
 import {Template} from 'meteor/templating';
-import './drivervehiclelist.html';
+import './depotlist.html';
 import {FlowRouter} from 'meteor/ostrio:flow-router-extra';
 
 //Template.drivervehiclelist.inheritsHooksFrom('non_transactional_list');
-Template.drivervehiclelist.onCreated(function () {
+Template.depotlist.onCreated(function () {
     const templateObject = Template.instance();
     templateObject.datatablerecords = new ReactiveVar([]);
     templateObject.tableheaderrecords = new ReactiveVar([]);
@@ -38,17 +38,11 @@ Template.drivervehiclelist.onCreated(function () {
         if(!data.isDriver){
             var dataList = [
                 chkBox,
-                data.EmployeeID || "",
-                data.EmployeeName || "",
-                data.FirstName || "",
-                data.LastName || "",
-                data.Type || "Employee",
-                data.Phone || "",
-                data.Street || "",
+                data.Address || "",
+                data.Town || "",
+                data.PostalCode || "",
                 data.State || "",
-                data.ShiftTimes || "",
-                data.StartLocations || "",
-                data.Vehicle || "",
+                data.Country || "",
                 linestatus,
             ];
             return dataList;
@@ -62,23 +56,17 @@ Template.drivervehiclelist.onCreated(function () {
 
     let headerStruct = [
         {index: 0, label: 'checkBoxHeader', class: 'colCheckBox', active: true, display: true, width: "20"},
-        {index: 1, label: 'Emp', class: 'colEmployeeNo', active: false, display: true, width: "10"},
-        {index: 2, label: 'Contact Name', class: 'colEmployeeName', active: true, display: true, width: "200"},
-        {index: 3, label: 'First Name', class: 'colFirstName', active: true, display: true, width: "100"},
-        {index: 4, label: 'Last Name', class: 'colLastName', active: true, display: true, width: "100"},
-        {index: 5, label: 'Type', class: 'colType', active: true, display: true, width: "20"},
-        {index: 6, label: 'Phone', class: 'colPhone', active: true, display: true, width: "110"},
-        {index: 7, label: 'Address', class: 'colAddress', active: true, display: true, width: "300"},
-        {index: 8, label: 'State', class: 'colState', active: true, display: true, width: "110"},
-        {index: 9, label: 'ShiftTimes', class: 'colShiftTimes', active: true, display: true, width: "110"},
-        {index: 10, label: 'StartLocations', class: 'colStartLocations', active: true, display: true, width: "300"},
-        {index: 11, label: 'Vehicle', class: 'colVehicle', active: true, display: true, width: "110"},
-        {index: 12, label: 'Status', class: 'colStatus', active: true, display: true, width: "120"},
+        {index: 1, label: 'Address', class: 'colAddress', active: false, display: true, width: "10"},
+        {index: 2, label: 'Town / City', class: 'colTown', active: true, display: true, width: "200"},
+        {index: 3, label: 'Postal / Zip Code', class: 'colPostalCode', active: true, display: true, width: "100"},
+        {index: 4, label: 'State', class: 'colState', active: true, display: true, width: "100"},
+        {index: 5, label: 'Country', class: 'colCountry', active: true, display: true, width: "20"},
+        {index: 9, label: 'Status', class: 'colStatus', active: true, display: true, width: "120"},
     ];
     templateObject.tableheaderrecords.set(headerStruct);
 });
 
-Template.drivervehiclelist.onRendered(function () {
+Template.depotlist.onRendered(function () {
     let templateObject = Template.instance();
     let contactService = new ContactService();
     const customerList = [];
@@ -122,7 +110,7 @@ Template.drivervehiclelist.onRendered(function () {
     checkSetupFinished();
 });
 
-Template.drivervehiclelist.events({
+Template.depotlist.events({
     "click .colEmployeeCard": (e, ui) => {
         const id = $(e.currentTarget).attr('id');
         if (id) {
@@ -372,7 +360,7 @@ Template.drivervehiclelist.events({
 
 });
 
-Template.drivervehiclelist.helpers({
+Template.depotlist.helpers({
     datatablerecords: () => {
         return Template.instance().datatablerecords.get().sort(function (a, b) {
             if (a.employeename == 'NA') {

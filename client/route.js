@@ -569,6 +569,15 @@ authenticatedRoutes.route('/deliveryoverview', {
     }
 });
 
+authenticatedRoutes.route('/depotlist', {
+    name: 'depotlist',
+    action() {
+        BlazeLayout.render('layout', {
+            yield: 'depotlist'
+        });
+    }
+});
+
 authenticatedRoutes.route('/drivervehiclelistcard', {
     name: 'addDriverVehicle',
     action() {
@@ -1747,6 +1756,15 @@ authenticatedRoutes.route('/manifestlist', {
     action() {
         BlazeLayout.render('layout', {
             yield: 'manifestlist'
+        });
+    }
+});
+
+authenticatedRoutes.route('/optimizedmap', {
+    name: 'optimizedmap',
+    action() {
+        BlazeLayout.render('layout', {
+            yield: 'optimized_map'
         });
     }
 });

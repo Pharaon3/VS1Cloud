@@ -26,10 +26,10 @@ Template.customerdetailsreport.onCreated(() => {
     { index: 1, label: 'Name', class:'colCompanyName', active: true, display: true, width: "200", calc: false},
     { index: 2, label: 'Phone', class:'colPhone', active: true, display: true, width: "150", calc: false },
     { index: 3, label: 'Type', class:'colType', active: true, display: true, width: "150", calc: false },
-    { index: 4, label: 'Total (Ex)', class:'colTotalEx text-right', active: true, display: true, width: "150", calc: false },
-    { index: 5, label: 'Total (Inc)', class:'colTotalInc text-right', active: true, display: true, width: "150", calc: false },
-    { index: 6, label: 'Gross Profit', class:'colGrossProfit text-right', active: true, display: true, width: "150", calc: false },
-    { index: 7, label: 'Margin', class:'colMargin', active: true, display: true, width: "150", calc: false },
+    { index: 4, label: 'Total (Ex)', class:'colTotalEx text-right', active: true, display: true, width: "150", calc: true },
+    { index: 5, label: 'Total (Inc)', class:'colTotalInc text-right', active: true, display: true, width: "150", calc: true },
+    { index: 6, label: 'Gross Profit', class:'colGrossProfit text-right', active: true, display: true, width: "150", calc: true },
+    { index: 7, label: 'Margin', class:'colMargin', active: true, display: true, width: "150", calc: true },
     { index: 8, label: 'Address', class:'colAddress', active: true, display: true, width: "150", calc: false },
     { index: 9, label: 'City', class:'colCity', active: true, display: true, width: "150", calc: false },
     { index: 10, label: 'Zip', class:'colZip', active: true, display: true, width: "150", calc: false },
@@ -43,17 +43,22 @@ Template.customerdetailsreport.onCreated(() => {
         data.Name || "",
         data.Phone || "",
         data.Type || "",
-        data["Total Amount (Ex)"] || "",
-        data["Total Amount (Inc)"] || "",
-        data["Gross Profit"] || "",
-        data["Total Cost"] || "",
+        data["Total Amount (Ex)"] || 0,
+        data["Total Amount (Inc)"] || 0,
+        data["Gross Profit"] || 0,
+        data["Total Cost"] || 0,
         data.Address || "",
         data["Address 2"] || "",
         data["Postcode"] || "",
         data["State"] || "",
       ];
       for(let i = 0 ; i < dataList.length ; i ++){
-        dataList[i] = GlobalFunctions.generateSpan(dataList[i])
+        if(i > 2 && i < 7) {
+          let tmp = dataList[i] - 0;
+          dataList[i] = (tmp >= 0) ? GlobalFunctions.generateSpan(GlobalFunctions.showCurrency(tmp), "text-primary") : GlobalFunctions.generateSpan(GlobalFunctions.showCurrency(tmp), "text-danger");
+        }
+        else
+          dataList[i] = GlobalFunctions.generateSpan(dataList[i], "text-primary")
       }
     }else {
       dataList = [

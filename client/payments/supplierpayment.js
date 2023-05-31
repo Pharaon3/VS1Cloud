@@ -17,10 +17,62 @@ import { FlowRouter } from 'meteor/ostrio:flow-router-extra';
 
 let sideBarService = new SideBarService();
 let utilityService = new UtilityService();
+let paymentService = new PaymentsService();
 Template.supplierpayment.onCreated(function(){
     const templateObject = Template.instance();
     templateObject.datatablerecords = new ReactiveVar([]);
     templateObject.tableheaderrecords = new ReactiveVar([]);
+    
+
+    templateObject.getDataTableList = function (data) {
+        let amount = utilityService.modifynegativeCurrencyFormat(data.Amount)|| 0.00;
+        let applied = utilityService.modifynegativeCurrencyFormat(data.Applied) || 0.00;
+        let balance = utilityService.modifynegativeCurrencyFormat(data.Balance)|| 0.00;
+        let totalPaid = utilityService.modifynegativeCurrencyFormat(data.TotalPaid)|| 0.00;
+        let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.TotalBalance)|| 0.00;
+        let paystatus = data.QuoteStatus || '';
+        if(data.Deleted == true){
+          paystatus = "Deleted";
+        }else if (data.Reconciled == true){
+          paystatus = "Rec";
+        }else if(data.Deleted != true){
+          if (data.PaidInFull == "Yes"){
+           paystatus = "Full";
+          }else{
+           paystatus = "Part";
+          }
+        };
+        var dataList = [
+            data.PaymentID || '',
+            data.PaymentDate !=''? moment(data.PaymentDate).format("YYYY/MM/DD"): data.PaymentDate,
+            data.CompanyName || '',
+            amount || 0.00,
+            applied || 0.00,
+            balance || 0.00,
+            data.BankAccountName || '',
+            data.Department || '',
+            data.ReferenceNo || '',
+            data.PaymentMethodName || '',
+            data.Notes || '',
+            paystatus || '',
+        ];
+        return dataList;
+    }
+    let headerStructure = [
+        { index: 0, label: 'ID', class:'colSortDate', active: false, display: true, width: "80" },
+        { index: 1, label: 'Date', class: 'colPaymentDate', active: true, width: "80", display: true },
+        { index: 2, label: 'Supplier Name', class: 'colCustomerName', active: true, width: "80", display: true },
+        { index: 3, label: 'Payment', class: 'colPaymentNo', active: true, width: "110", display: true },
+        { index: 4, label: 'Ref No.', class: 'colReceiptNo', active: true, width: "200", display: true },
+        { index: 5, label: 'Amount', class: 'colPaymentAmount', active: true, width: "200", display: true },
+        { index: 6, label: 'Bank', class: 'colBankAccount', active: true, width: "200", display: true },
+        { index: 7, label: 'Department', class: 'colDepartment', active: true, width: "200", display: true },
+        { index: 8, label: 'Custom Field 1', class: 'colRefNo', active: false, width: "80" , display: true},
+        { index: 9, label: 'Custom Field 2', class: 'colPaymentMethod', active: false, width: "200", display: true },
+        { index: 10, label: 'Comments', class: 'colNotes', active: true, width: "300", display: true },
+        { index: 11, label: 'Status', class: 'colStatus', active: true, width: "200", display: true },
+    ];
+      templateObject.tableheaderrecords.set(headerStructure);
 });
 
 
@@ -29,7 +81,6 @@ Template.supplierpayment.onRendered(function() {
     $('.fullScreenSpin').css('display','inline-block');
 
     let templateObject = Template.instance();
-    let paymentService = new PaymentsService();
     const customerList = [];
     let salesOrderTable;
     var splashArray = new Array();
@@ -76,1095 +127,1095 @@ Template.supplierpayment.onRendered(function() {
 
 
 
-    function MakeNegative() {
-        $('td').each(function(){
-            if($(this).text().indexOf('-'+Currency) >= 0) $(this).addClass('text-danger')
-        });
+    // function MakeNegative() {
+    //     $('td').each(function(){
+    //         if($(this).text().indexOf('-'+Currency) >= 0) $(this).addClass('text-danger')
+    //     });
 
-        $('td.colStatus').each(function(){
-            if($(this).text() == "Deleted") $(this).addClass('text-deleted');
-            if ($(this).text() == "Full") $(this).addClass('text-fullyPaid');
-            if ($(this).text() == "Part") $(this).addClass('text-partialPaid');
-            if ($(this).text() == "Rec") $(this).addClass('text-reconciled');
-        });
-    };
+    //     $('td.colStatus').each(function(){
+    //         if($(this).text() == "Deleted") $(this).addClass('text-deleted');
+    //         if ($(this).text() == "Full") $(this).addClass('text-fullyPaid');
+    //         if ($(this).text() == "Part") $(this).addClass('text-partialPaid');
+    //         if ($(this).text() == "Rec") $(this).addClass('text-reconciled');
+    //     });
+    // };
 
     templateObject.resetData = function (dataVal) {
       location.reload();
     }
 
     // $('#tblSupplierPayment').DataTable();
-    templateObject.getAllSupplierPaymentData = function () {
-      var currentBeginDate = new Date();
-      var begunDate = moment(currentBeginDate).format("DD/MM/YYYY");
-      let fromDateMonth = (currentBeginDate.getMonth() + 1);
-      let fromDateDay = currentBeginDate.getDate();
-      if((currentBeginDate.getMonth()+1) < 10){
-          fromDateMonth = "0" + (currentBeginDate.getMonth()+1);
-      }else{
-        fromDateMonth = (currentBeginDate.getMonth()+1);
-      }
-
-      if(currentBeginDate.getDate() < 10){
-          fromDateDay = "0" + currentBeginDate.getDate();
-      }
-      var toDate = currentBeginDate.getFullYear()+ "-" +(fromDateMonth) + "-"+(fromDateDay);
-      let prevMonth11Date = (moment().subtract(reportsloadMonths, 'months')).format("YYYY-MM-DD");
-      if(FlowRouter.current().queryParams.payment){
-        let paymentIDs = FlowRouter.current().queryParams.payment || '';
-        let supplierName = FlowRouter.current().queryParams.name || '';
-        sideBarService.getAllTSupplierPaymentListDataByPaymentID(supplierName).then(function (data) {
-            let lineItems = [];
-            let lineItemObj = {};
-            if (data.Params.IgnoreDates == true) {
-                $('#dateFrom').attr('readonly', true);
-                $('#dateTo').attr('readonly', true);
-            } else {
-                $("#dateFrom").val(data.Params.DateFrom != '' ? moment(data.Params.DateFrom).format("DD/MM/YYYY") : data.Params.DateFrom);
-                $("#dateTo").val(data.Params.DateTo != '' ? moment(data.Params.DateTo).format("DD/MM/YYYY") : data.Params.DateTo);
-            }
-            for(let i=0; i<data.tsupplierpaymentlist.length; i++){
-                let amount = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Amount)|| 0.00;
-                let applied = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Applied) || 0.00;
-                // Currency+''+data.tsupplierpayment[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
-                let balance = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Balance)|| 0.00;
-                let totalPaid = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalPaid)|| 0.00;
-                let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalBalance)|| 0.00;
-                let paystatus = data.tsupplierpaymentlist[i].QuoteStatus || '';
-                if(data.tsupplierpaymentlist[i].Deleted == true){
-                  paystatus = "Deleted";
-                }else if (data.tsupplierpaymentlist[i].Reconciled == true){
-                  paystatus = "Rec";
-                }else if(data.tsupplierpaymentlist[i].Deleted != true){
-                  if (data.tsupplierpaymentlist[i].PaidInFull == "Yes"){
-                   paystatus = "Full";
-                  }else{
-                   paystatus = "Part";
-                  }
-                };
-                var dataList = {
-                    id: data.tsupplierpaymentlist[i].PaymentID || '',
-                    sortdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("YYYY/MM/DD"): data.tsupplierpaymentlist[i].PaymentDate,
-                    paymentdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("DD/MM/YYYY"): data.tsupplierpaymentlist[i].PaymentDate,
-                    customername: data.tsupplierpaymentlist[i].CompanyName || '',
-                    paymentamount: amount || 0.00,
-                    applied: applied || 0.00,
-                    balance: balance || 0.00,
-                    bankaccount: data.tsupplierpaymentlist[i].BankAccountName || '',
-                    department: data.tsupplierpaymentlist[i].Department || '',
-                    paystatus: paystatus || '',
-                    refno: data.tsupplierpaymentlist[i].ReferenceNo || '',
-                    paymentmethod: data.tsupplierpaymentlist[i].PaymentMethodName || '',
-                    notes: data.tsupplierpaymentlist[i].Notes || ''
-                };
-
-                var arrSplit = paymentIDs.split(',');
-                $.each( arrSplit, function( index, value ) {
-                      if(data.tsupplierpaymentlist[i].PaymentID == value){
-                        dataTableList.push(dataList);
-                      }
-                });
-
-            }
-            templateObject.datatablerecords.set(dataTableList);
-            if(templateObject.datatablerecords.get()){
-
-
-
-
-                setTimeout(function () {
-                    MakeNegative();
-                }, 100);
-            }
-
-            $('.fullScreenSpin').css('display','none');
-            setTimeout(function () {
-                //$.fn.dataTable.moment('DD/MM/YY');
-                $('#tblSupplierPayment').DataTable({
-                    columnDefs: [
-                        {type: 'date', targets: 0}
-                    ],
-                    "sDom": "<'row'><'row'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
-                    buttons: [
-                        {
-                            extend: 'excelHtml5',
-                            text: '',
-                            download: 'open',
-                            className: "btntabletocsv hiddenColumn",
-                            filename: "Supplier Payment List - "+ moment().format(),
-                            orientation:'portrait',
-                            exportOptions: {
-                                columns: ':visible',
-                                format: {
-                                    body: function ( data, row, column ) {
-                                        if(data.includes("</span>")){
-                                            var res = data.split("</span>");
-                                            data = res[1];
-                                        }
-
-                                        return column === 1 ? data.replace(/<.*?>/ig, ""): data;
-
-                                    }
-                                }
-                            }
-                        },{
-                            extend: 'print',
-                            download: 'open',
-                            className: "btntabletopdf hiddenColumn",
-                            text: '',
-                            title: 'Supplier Payment',
-                            filename: "Supplier Payment List - "+ moment().format(),
-                            exportOptions: {
-                                columns: ':visible',
-                                stripHtml: false
-                            }
-                        }],
-                    select: true,
-                    destroy: true,
-                    colReorder: true,
-                    // bStateSave: true,
-                    // rowId: 0,
-                    pageLength: initialReportDatatableLoad,
-                    "bLengthChange": false,
-                    info: true,
-                    responsive: true,
-                    "order": [[ 0, "desc" ],[ 2, "desc" ]],
-                    // "aaSorting": [[1,'desc']],
-                    action: function () {
-                        $('#tblSupplierPayment').DataTable().ajax.reload();
-                    },
-                    language: { search: "",searchPlaceholder: "Search List..." },
-                     "fnInitComplete": function () {
-                       this.fnPageChange('last');
-                       if(data.Params.Search.replace(/\s/g, "") == ""){
-                         $("<button class='btn btn-danger btnHideDeleted' type='button' id='btnHideDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 12px !important;'><i class='far fa-check-circle' style='margin-right: 5px'></i>Hide Deleted</button>").insertAfter("#tblSupplierPayment_filter");
-                       }else{
-                         $("<button class='btn btn-primary btnViewDeleted' type='button' id='btnViewDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 12px !important;'><i class='fa fa-trash' style='margin-right: 5px'></i>View Deleted</button>").insertAfter("#tblSupplierPayment_filter");
-                       };
-                           $("<button class='btn btn-primary btnRefreshSupplierPayment' type='button' id='btnRefreshSupplierPayment' style='padding: 4px 10px; font-size: 16px; margin-left: 12px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblSupplierPayment_filter");
-                           $('.myvarFilterForm').appendTo(".colDateFilter");
-                       },
-                       "fnInfoCallback": function (oSettings, iStart, iEnd, iMax, iTotal, sPre) {
-                         let countTableData = data.Params.Count || 0; //get count from API data
-
-                           return 'Showing '+ iStart + " to " + iEnd + " of " + iEnd;
-                       }
-
-                }).on('page', function () {
-                    setTimeout(function () {
-                        MakeNegative();
-                    }, 100);
-                    let draftRecord = templateObject.datatablerecords.get();
-                    templateObject.datatablerecords.set(draftRecord);
-                }).on('column-reorder', function () {
-
-                }).on( 'length.dt', function ( e, settings, len ) {
-                    setTimeout(function () {
-                        MakeNegative();
-                    }, 100);
-                });
-                $('.fullScreenSpin').css('display','none');
-
-
-
-            }, 0);
-
-            var columns = $('#tblSupplierPayment th');
-            let sTible = "";
-            let sWidth = "";
-            let sIndex = "";
-            let sVisible = "";
-            let columVisible = false;
-            let sClass = "";
-            $.each(columns, function(i,v) {
-                if(v.hidden == false){
-                    columVisible =  true;
-                }
-                if((v.className.includes("hiddenColumn"))){
-                    columVisible = false;
-                }
-                sWidth = v.style.width.replace('px', "");
-
-                let datatablerecordObj = {
-                    sTitle: v.innerText || '',
-                    sWidth: sWidth || '',
-                    sIndex: v.cellIndex || 0,
-                    sVisible: columVisible || false,
-                    sClass: v.className || ''
-                };
-                tableHeaderList.push(datatablerecordObj);
-            });
-            templateObject.tableheaderrecords.set(tableHeaderList);
-            $('div.dataTables_filter input').addClass('form-control form-control-sm');
-            $('#tblSupplierPayment tbody').on( 'click', 'tr', function () {
-                var listData = $(this).closest('tr').attr('id');
-                var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-                if(listData){
-                  // if(checkDeleted == "Deleted"){
-                  //   swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-                  // }else{
-                    FlowRouter.go('/supplierpaymentcard?id=' + listData);
-                  //}
-                }
-            });
-
-        }).catch(function (err) {
-            // Bert.alert('<strong>' + err + '</strong>!', 'danger');
-            $('.fullScreenSpin').css('display','none');
-            // Meteor._reload.reload();
-        });
-      }else{
-        getVS1Data('TSupplierPaymentList').then(function (dataObject) {
-            if(dataObject.length == 0){
-                sideBarService.getAllTSupplierPaymentListData(prevMonth11Date,toDate, true,initialReportLoad,0).then(function (data) {
-                    let lineItems = [];
-                    let lineItemObj = {};
-                    addVS1Data('TSupplierPaymentList',JSON.stringify(data));
-                    if (data.Params.IgnoreDates == true) {
-                        $('#dateFrom').attr('readonly', true);
-                        $('#dateTo').attr('readonly', true);
-                    } else {
-                      $('#dateFrom').attr('readonly', false);
-                      $('#dateTo').attr('readonly', false);
-                        $("#dateFrom").val(data.Params.DateFrom != '' ? moment(data.Params.DateFrom).format("DD/MM/YYYY") : data.Params.DateFrom);
-                        $("#dateTo").val(data.Params.DateTo != '' ? moment(data.Params.DateTo).format("DD/MM/YYYY") : data.Params.DateTo);
-                    }
-                    for(let i=0; i<data.tsupplierpaymentlist.length; i++){
-                        let amount = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Amount)|| 0.00;
-                        let applied = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Applied) || 0.00;
-                        // Currency+''+data.tsupplierpayment[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
-                        let balance = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Balance)|| 0.00;
-                        let totalPaid = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalPaid)|| 0.00;
-                        let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalBalance)|| 0.00;
-                        let paystatus = data.tsupplierpaymentlist[i].QuoteStatus || '';
-                        if(data.tsupplierpaymentlist[i].Deleted == true){
-                          paystatus = "Deleted";
-                        }else if (data.tsupplierpaymentlist[i].Reconciled == true){
-                          paystatus = "Rec";
-                        }else if(data.tsupplierpaymentlist[i].Deleted != true){
-                          if (data.tsupplierpaymentlist[i].PaidInFull == "Yes"){
-                           paystatus = "Full";
-                          }else{
-                           paystatus = "Part";
-                          }
-                        };
-                        var dataList = {
-                            id: data.tsupplierpaymentlist[i].PaymentID || '',
-                            sortdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("YYYY/MM/DD"): data.tsupplierpaymentlist[i].PaymentDate,
-                            paymentdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("DD/MM/YYYY"): data.tsupplierpaymentlist[i].PaymentDate,
-                            customername: data.tsupplierpaymentlist[i].CompanyName || '',
-                            paymentamount: amount || 0.00,
-                            applied: applied || 0.00,
-                            balance: balance || 0.00,
-                            bankaccount: data.tsupplierpaymentlist[i].BankAccountName || '',
-                            department: data.tsupplierpaymentlist[i].Department || '',
-                            paystatus: paystatus || '',
-                            refno: data.tsupplierpaymentlist[i].ReferenceNo || '',
-                            paymentmethod: data.tsupplierpaymentlist[i].PaymentMethodName || '',
-                            notes: data.tsupplierpaymentlist[i].Notes || ''
-                        };
-                        dataTableList.push(dataList);
-                    }
-                    templateObject.datatablerecords.set(dataTableList);
-                    if(templateObject.datatablerecords.get()){
-
-
-
-                        setTimeout(function () {
-                            MakeNegative();
-                        }, 100);
-                    }
-
-                    $('.fullScreenSpin').css('display','none');
-                    setTimeout(function () {
-                        //$.fn.dataTable.moment('DD/MM/YY');
-                        $('#tblSupplierPayment').DataTable({
-                            columnDefs: [
-                                {type: 'date', targets: 0}
-                            ],
-                            "sDom": "<'row'><'row'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
-                            buttons: [
-                                {
-                                    extend: 'excelHtml5',
-                                    text: '',
-                                    download: 'open',
-                                    className: "btntabletocsv hiddenColumn",
-                                    filename: "Supplier Payment List - "+ moment().format(),
-                                    orientation:'portrait',
-                                    exportOptions: {
-                                        columns: ':visible',
-                                        format: {
-                                            body: function ( data, row, column ) {
-                                                if(data.includes("</span>")){
-                                                    var res = data.split("</span>");
-                                                    data = res[1];
-                                                }
-
-                                                return column === 1 ? data.replace(/<.*?>/ig, ""): data;
-
-                                            }
-                                        }
-                                    }
-                                },{
-                                    extend: 'print',
-                                    download: 'open',
-                                    className: "btntabletopdf hiddenColumn",
-                                    text: '',
-                                    title: 'Supplier Payment',
-                                    filename: "Supplier Payment List - "+ moment().format(),
-                                    exportOptions: {
-                                        columns: ':visible',
-                                        stripHtml: false
-                                    }
-                                }],
-                            select: true,
-                            destroy: true,
-                            colReorder: true,
-                            // bStateSave: true,
-                            // rowId: 0,
-                            pageLength: initialReportDatatableLoad,
-                            "bLengthChange": false,
-                            info: true,
-                            responsive: true,
-                            "order": [[ 0, "desc" ],[ 2, "desc" ]],
-                            // "aaSorting": [[1,'desc']],
-                            action: function () {
-                                $('#tblSupplierPayment').DataTable().ajax.reload();
-                            },
-                            "fnDrawCallback": function (oSettings) {
-                              let checkurlIgnoreDate = FlowRouter.current().queryParams.ignoredate;
-
-                                $('.paginate_button.page-item').removeClass('disabled');
-                                $('#tblSupplierPayment_ellipsis').addClass('disabled');
-
-                                if (oSettings._iDisplayLength == -1) {
-                                    if (oSettings.fnRecordsDisplay() > 150) {
-                                        $('.paginate_button.page-item.previous').addClass('disabled');
-                                        $('.paginate_button.page-item.next').addClass('disabled');
-                                    }
-                                } else {}
-                                if (oSettings.fnRecordsDisplay() < initialDatatableLoad) {
-                                    $('.paginate_button.page-item.next').addClass('disabled');
-                                }
-                                $('.paginate_button.next:not(.disabled)', this.api().table().container())
-                                .on('click', function () {
-                                    $('.fullScreenSpin').css('display', 'inline-block');
-                                    let dataLenght = oSettings._iDisplayLength;
-
-                                    var dateFrom = new Date($("#dateFrom").datepicker("getDate"));
-                                    var dateTo = new Date($("#dateTo").datepicker("getDate"));
-
-                                    let formatDateFrom = dateFrom.getFullYear() + "-" + (dateFrom.getMonth() + 1) + "-" + dateFrom.getDate();
-                                    let formatDateTo = dateTo.getFullYear() + "-" + (dateTo.getMonth() + 1) + "-" + dateTo.getDate();
-                                    if(data.Params.IgnoreDates == true){
-                                      sideBarService.getAllTSupplierPaymentListData(formatDateFrom, formatDateTo, true, initialDatatableLoad, oSettings.fnRecordsDisplay()).then(function (dataObjectnew) {
-                                          getVS1Data('TSupplierPaymentList').then(function (dataObjectold) {
-                                              if (dataObjectold.length == 0) {}
-                                              else {
-                                                  let dataOld = JSON.parse(dataObjectold[0].data);
-                                                  var thirdaryData = $.merge($.merge([], dataObjectnew.tsupplierpaymentlist), dataOld.tsupplierpaymentlist);
-                                                  let objCombineData = {
-                                                      Params: dataOld.Params,
-                                                      tsupplierpaymentlist: thirdaryData
-                                                  }
-
-                                                  addVS1Data('TSupplierPaymentList', JSON.stringify(objCombineData)).then(function (datareturn) {
-                                                      templateObject.resetData(objCombineData);
-                                                      $('.fullScreenSpin').css('display', 'none');
-                                                  }).catch(function (err) {
-                                                      $('.fullScreenSpin').css('display', 'none');
-                                                  });
-
-                                              }
-                                          }).catch(function (err) {});
-
-                                      }).catch(function (err) {
-                                          $('.fullScreenSpin').css('display', 'none');
-                                      });
-                                    }else{
-                                    sideBarService.getAllTSupplierPaymentListData(formatDateFrom, formatDateTo, false, initialDatatableLoad, oSettings.fnRecordsDisplay()).then(function (dataObjectnew) {
-                                        getVS1Data('TSupplierPaymentList').then(function (dataObjectold) {
-                                            if (dataObjectold.length == 0) {}
-                                            else {
-                                                let dataOld = JSON.parse(dataObjectold[0].data);
-                                                var thirdaryData = $.merge($.merge([], dataObjectnew.tsupplierpaymentlist), dataOld.tsupplierpaymentlist);
-                                                let objCombineData = {
-                                                    Params: dataOld.Params,
-                                                    tsupplierpaymentlist: thirdaryData
-                                                }
-
-                                                addVS1Data('TSupplierPaymentList', JSON.stringify(objCombineData)).then(function (datareturn) {
-                                                    templateObject.resetData(objCombineData);
-                                                    $('.fullScreenSpin').css('display', 'none');
-                                                }).catch(function (err) {
-                                                    $('.fullScreenSpin').css('display', 'none');
-                                                });
-
-                                            }
-                                        }).catch(function (err) {});
-
-                                    }).catch(function (err) {
-                                        $('.fullScreenSpin').css('display', 'none');
-                                    });
-                                  }
-
-                                });
-
-                                setTimeout(function () {
-                                    MakeNegative();
-                                }, 100);
-                            },
-                            language: { search: "",searchPlaceholder: "Search List..." },
-                             "fnInitComplete": function () {
-                               this.fnPageChange('last');
-                               if(data.Params.Search.replace(/\s/g, "") == ""){
-                                 $("<button class='btn btn-danger btnHideDeleted' type='button' id='btnHideDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='far fa-check-circle' style='margin-right: 5px'></i>Hide Deleted</button>").insertAfter("#tblSupplierPayment_filter");
-                               }else{
-                                 $("<button class='btn btn-primary btnViewDeleted' type='button' id='btnViewDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fa fa-trash' style='margin-right: 5px'></i>View Deleted</button>").insertAfter("#tblSupplierPayment_filter");
-                               };
-                                   $("<button class='btn btn-primary btnRefreshSupplierPayment' type='button' id='btnRefreshSupplierPayment' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblSupplierPayment_filter");
-                                   $('.myvarFilterForm').appendTo(".colDateFilter");
-                               },
-                               "fnInfoCallback": function (oSettings, iStart, iEnd, iMax, iTotal, sPre) {
-                                 let countTableData = data.Params.Count || 0; //get count from API data
-
-                                   return 'Showing '+ iStart + " to " + iEnd + " of " + countTableData;
-                               }
-
-                        }).on('page', function () {
-                            setTimeout(function () {
-                                MakeNegative();
-                            }, 100);
-                            let draftRecord = templateObject.datatablerecords.get();
-                            templateObject.datatablerecords.set(draftRecord);
-                        }).on('column-reorder', function () {
-
-                        }).on( 'length.dt', function ( e, settings, len ) {
-                            setTimeout(function () {
-                                MakeNegative();
-                            }, 100);
-                        });
-                        $('.fullScreenSpin').css('display','none');
-
-
-
-                    }, 0);
-
-                    var columns = $('#tblSupplierPayment th');
-                    let sTible = "";
-                    let sWidth = "";
-                    let sIndex = "";
-                    let sVisible = "";
-                    let columVisible = false;
-                    let sClass = "";
-                    $.each(columns, function(i,v) {
-                        if(v.hidden == false){
-                            columVisible =  true;
-                        }
-                        if((v.className.includes("hiddenColumn"))){
-                            columVisible = false;
-                        }
-                        sWidth = v.style.width.replace('px', "");
-
-                        let datatablerecordObj = {
-                            sTitle: v.innerText || '',
-                            sWidth: sWidth || '',
-                            sIndex: v.cellIndex || 0,
-                            sVisible: columVisible || false,
-                            sClass: v.className || ''
-                        };
-                        tableHeaderList.push(datatablerecordObj);
-                    });
-                    templateObject.tableheaderrecords.set(tableHeaderList);
-                    $('div.dataTables_filter input').addClass('form-control form-control-sm');
-                    $('#tblSupplierPayment tbody').on( 'click', 'tr', function () {
-                        var listData = $(this).closest('tr').attr('id');
-                        var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-                        if(listData){
-                          // if(checkDeleted == "Deleted"){
-                          //   swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-                          // }else{
-                            FlowRouter.go('/supplierpaymentcard?id=' + listData);
-                          //}
-                        }
-                    });
-
-                }).catch(function (err) {
-                    // Bert.alert('<strong>' + err + '</strong>!', 'danger');
-                    $('.fullScreenSpin').css('display','none');
-                    // Meteor._reload.reload();
-                });
-            }else{
-                let data = JSON.parse(dataObject[0].data);
-                let useData = data.tsupplierpaymentlist;
-                let lineItems = [];
-                let lineItemObj = {};
-                if (data.Params.IgnoreDates == true) {
-                    $('#dateFrom').attr('readonly', true);
-                    $('#dateTo').attr('readonly', true);
-                } else {
-                  $('#dateFrom').attr('readonly', false);
-                  $('#dateTo').attr('readonly', false);
-                    $("#dateFrom").val(data.Params.DateFrom != '' ? moment(data.Params.DateFrom).format("DD/MM/YYYY") : data.Params.DateFrom);
-                    $("#dateTo").val(data.Params.DateTo != '' ? moment(data.Params.DateTo).format("DD/MM/YYYY") : data.Params.DateTo);
-                }
-                for(let i=0; i<data.tsupplierpaymentlist.length; i++){
-                    let amount = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Amount)|| 0.00;
-                    let applied = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Applied) || 0.00;
-                    // Currency+''+data.tsupplierpayment[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
-                    let balance = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Balance)|| 0.00;
-                    let totalPaid = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalPaid)|| 0.00;
-                    let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalBalance)|| 0.00;
-                    let paystatus = data.tsupplierpaymentlist[i].QuoteStatus || '';
-                    if(data.tsupplierpaymentlist[i].Deleted == true){
-                      paystatus = "Deleted";
-                    }else if (data.tsupplierpaymentlist[i].Reconciled == true){
-                      paystatus = "Rec";
-                    }else if(data.tsupplierpaymentlist[i].Deleted != true){
-                      if (data.tsupplierpaymentlist[i].PaidInFull == "Yes"){
-                       paystatus = "Full";
-                      }else{
-                       paystatus = "Part";
-                      }
-                    };
-                    var dataList = {
-                        id: data.tsupplierpaymentlist[i].PaymentID || '',
-                        sortdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("YYYY/MM/DD"): data.tsupplierpaymentlist[i].PaymentDate,
-                        paymentdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("DD/MM/YYYY"): data.tsupplierpaymentlist[i].PaymentDate,
-                        customername: data.tsupplierpaymentlist[i].CompanyName || '',
-                        paymentamount: amount || 0.00,
-                        applied: applied || 0.00,
-                        balance: balance || 0.00,
-                        bankaccount: data.tsupplierpaymentlist[i].BankAccountName || '',
-                        department: data.tsupplierpaymentlist[i].Department || '',
-                        paystatus: paystatus || '',
-                        refno: data.tsupplierpaymentlist[i].ReferenceNo || '',
-                        paymentmethod: data.tsupplierpaymentlist[i].PaymentMethodName || '',
-                        notes: data.tsupplierpaymentlist[i].Notes || ''
-                    };
-                    dataTableList.push(dataList);
-                }
-                templateObject.datatablerecords.set(dataTableList);
-                if(templateObject.datatablerecords.get()){
-
-
-
-                    setTimeout(function () {
-                        MakeNegative();
-                    }, 100);
-                }
-
-                $('.fullScreenSpin').css('display','none');
-                setTimeout(function () {
-                    //$.fn.dataTable.moment('DD/MM/YY');
-                    $('#tblSupplierPayment').DataTable({
-                        columnDefs: [
-                            {type: 'date', targets: 0}
-                        ],
-                        "sDom": "<'row'><'row'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
-                        buttons: [
-                            {
-                                extend: 'excelHtml5',
-                                text: '',
-                                download: 'open',
-                                className: "btntabletocsv hiddenColumn",
-                                filename: "Supplier Payment List - "+ moment().format(),
-                                orientation:'portrait',
-                                exportOptions: {
-                                    columns: ':visible',
-                                    format: {
-                                        body: function ( data, row, column ) {
-                                            if(data.includes("</span>")){
-                                                var res = data.split("</span>");
-                                                data = res[1];
-                                            }
-
-                                            return column === 1 ? data.replace(/<.*?>/ig, ""): data;
-
-                                        }
-                                    }
-                                }
-                            },{
-                                extend: 'print',
-                                download: 'open',
-                                className: "btntabletopdf hiddenColumn",
-                                text: '',
-                                title: 'Supplier Payment',
-                                filename: "Supplier Payment List - "+ moment().format(),
-                                exportOptions: {
-                                    columns: ':visible',
-                                    stripHtml: false
-                                }
-                            }],
-                        select: true,
-                        destroy: true,
-                        colReorder: true,
-                        // bStateSave: true,
-                        // rowId: 0,
-                        pageLength: initialReportDatatableLoad,
-                        "bLengthChange": false,
-                        info: true,
-                        responsive: true,
-                        "order": [[ 0, "desc" ],[ 2, "desc" ]],
-                        // "aaSorting": [[1,'desc']],
-                        action: function () {
-                            $('#tblSupplierPayment').DataTable().ajax.reload();
-                        },
-                        "fnDrawCallback": function (oSettings) {
-                          let checkurlIgnoreDate = FlowRouter.current().queryParams.ignoredate;
-
-                            $('.paginate_button.page-item').removeClass('disabled');
-                            $('#tblSupplierPayment_ellipsis').addClass('disabled');
-
-                            if (oSettings._iDisplayLength == -1) {
-                                if (oSettings.fnRecordsDisplay() > 150) {
-                                    $('.paginate_button.page-item.previous').addClass('disabled');
-                                    $('.paginate_button.page-item.next').addClass('disabled');
-                                }
-                            } else {}
-                            if (oSettings.fnRecordsDisplay() < initialDatatableLoad) {
-                                $('.paginate_button.page-item.next').addClass('disabled');
-                            }
-                            $('.paginate_button.next:not(.disabled)', this.api().table().container())
-                            .on('click', function () {
-                                $('.fullScreenSpin').css('display', 'inline-block');
-                                let dataLenght = oSettings._iDisplayLength;
-
-                                var dateFrom = new Date($("#dateFrom").datepicker("getDate"));
-                                var dateTo = new Date($("#dateTo").datepicker("getDate"));
-
-                                let formatDateFrom = dateFrom.getFullYear() + "-" + (dateFrom.getMonth() + 1) + "-" + dateFrom.getDate();
-                                let formatDateTo = dateTo.getFullYear() + "-" + (dateTo.getMonth() + 1) + "-" + dateTo.getDate();
-                                if(data.Params.IgnoreDates == true){
-                                  sideBarService.getAllTSupplierPaymentListData(formatDateFrom, formatDateTo, true, initialDatatableLoad, oSettings.fnRecordsDisplay()).then(function (dataObjectnew) {
-                                      getVS1Data('TSupplierPaymentList').then(function (dataObjectold) {
-                                          if (dataObjectold.length == 0) {}
-                                          else {
-                                              let dataOld = JSON.parse(dataObjectold[0].data);
-                                              var thirdaryData = $.merge($.merge([], dataObjectnew.tsupplierpaymentlist), dataOld.tsupplierpaymentlist);
-                                              let objCombineData = {
-                                                  Params: dataOld.Params,
-                                                  tsupplierpaymentlist: thirdaryData
-                                              }
-
-                                              addVS1Data('TSupplierPaymentList', JSON.stringify(objCombineData)).then(function (datareturn) {
-                                                  templateObject.resetData(objCombineData);
-                                                  $('.fullScreenSpin').css('display', 'none');
-                                              }).catch(function (err) {
-                                                  $('.fullScreenSpin').css('display', 'none');
-                                              });
-
-                                          }
-                                      }).catch(function (err) {});
-
-                                  }).catch(function (err) {
-                                      $('.fullScreenSpin').css('display', 'none');
-                                  });
-                                }else{
-                                sideBarService.getAllTSupplierPaymentListData(formatDateFrom, formatDateTo, false, initialDatatableLoad, oSettings.fnRecordsDisplay()).then(function (dataObjectnew) {
-                                    getVS1Data('TSupplierPaymentList').then(function (dataObjectold) {
-                                        if (dataObjectold.length == 0) {}
-                                        else {
-                                            let dataOld = JSON.parse(dataObjectold[0].data);
-                                            var thirdaryData = $.merge($.merge([], dataObjectnew.tsupplierpaymentlist), dataOld.tsupplierpaymentlist);
-                                            let objCombineData = {
-                                                Params: dataOld.Params,
-                                                tsupplierpaymentlist: thirdaryData
-                                            }
-
-                                            addVS1Data('TSupplierPaymentList', JSON.stringify(objCombineData)).then(function (datareturn) {
-                                                templateObject.resetData(objCombineData);
-                                                $('.fullScreenSpin').css('display', 'none');
-                                            }).catch(function (err) {
-                                                $('.fullScreenSpin').css('display', 'none');
-                                            });
-
-                                        }
-                                    }).catch(function (err) {});
-
-                                }).catch(function (err) {
-                                    $('.fullScreenSpin').css('display', 'none');
-                                });
-                              }
-
-                            });
-
-                            setTimeout(function () {
-                                MakeNegative();
-                            }, 100);
-                        },
-                        language: { search: "",searchPlaceholder: "Search List..." },
-                         "fnInitComplete": function () {
-                           this.fnPageChange('last');
-                           if(data.Params.Search.replace(/\s/g, "") == ""){
-                             $("<button class='btn btn-danger btnHideDeleted' type='button' id='btnHideDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='far fa-check-circle' style='margin-right: 5px'></i>Hide Deleted</button>").insertAfter("#tblSupplierPayment_filter");
-                           }else{
-                             $("<button class='btn btn-primary btnViewDeleted' type='button' id='btnViewDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fa fa-trash' style='margin-right: 5px'></i>View Deleted</button>").insertAfter("#tblSupplierPayment_filter");
-                           };
-                               $("<button class='btn btn-primary btnRefreshSupplierPayment' type='button' id='btnRefreshSupplierPayment' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblSupplierPayment_filter");
-                               $('.myvarFilterForm').appendTo(".colDateFilter");
-                           },
-                           "fnInfoCallback": function (oSettings, iStart, iEnd, iMax, iTotal, sPre) {
-                             let countTableData = data.Params.Count || 0; //get count from API data
-
-                               return 'Showing '+ iStart + " to " + iEnd + " of " + countTableData;
-                           }
-
-                    }).on('page', function () {
-                        setTimeout(function () {
-                            MakeNegative();
-                        }, 100);
-                        let draftRecord = templateObject.datatablerecords.get();
-                        templateObject.datatablerecords.set(draftRecord);
-                    }).on('column-reorder', function () {
-
-                    }).on( 'length.dt', function ( e, settings, len ) {
-                        setTimeout(function () {
-                            MakeNegative();
-                        }, 100);
-                    });
-                    $('.fullScreenSpin').css('display','none');
-
-
-
-                }, 0);
-
-                var columns = $('#tblSupplierPayment th');
-                let sTible = "";
-                let sWidth = "";
-                let sIndex = "";
-                let sVisible = "";
-                let columVisible = false;
-                let sClass = "";
-                $.each(columns, function(i,v) {
-                    if(v.hidden == false){
-                        columVisible =  true;
-                    }
-                    if((v.className.includes("hiddenColumn"))){
-                        columVisible = false;
-                    }
-                    sWidth = v.style.width.replace('px', "");
-
-                    let datatablerecordObj = {
-                        sTitle: v.innerText || '',
-                        sWidth: sWidth || '',
-                        sIndex: v.cellIndex || 0,
-                        sVisible: columVisible || false,
-                        sClass: v.className || ''
-                    };
-                    tableHeaderList.push(datatablerecordObj);
-                });
-                templateObject.tableheaderrecords.set(tableHeaderList);
-                $('div.dataTables_filter input').addClass('form-control form-control-sm');
-                $('#tblSupplierPayment tbody').on( 'click', 'tr', function () {
-                    var listData = $(this).closest('tr').attr('id');
-                    var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-                    if(listData){
-                      // if(checkDeleted == "Deleted"){
-                      //   swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-                      // }else{
-                        FlowRouter.go('/supplierpaymentcard?id=' + listData);
-                      //}
-                    }
-                });
-
-            }
-        }).catch(function (err) {
-          sideBarService.getAllTSupplierPaymentListData(prevMonth11Date,toDate, true,initialReportLoad,0).then(function (data) {
-              let lineItems = [];
-              let lineItemObj = {};
-              addVS1Data('TSupplierPaymentList',JSON.stringify(data));
-              if (data.Params.IgnoreDates == true) {
-                  $('#dateFrom').attr('readonly', true);
-                  $('#dateTo').attr('readonly', true);
-              } else {
-                $('#dateFrom').attr('readonly', false);
-                $('#dateTo').attr('readonly', false);
-                  $("#dateFrom").val(data.Params.DateFrom != '' ? moment(data.Params.DateFrom).format("DD/MM/YYYY") : data.Params.DateFrom);
-                  $("#dateTo").val(data.Params.DateTo != '' ? moment(data.Params.DateTo).format("DD/MM/YYYY") : data.Params.DateTo);
-              }
-              for(let i=0; i<data.tsupplierpaymentlist.length; i++){
-                  let amount = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Amount)|| 0.00;
-                  let applied = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Applied) || 0.00;
-                  // Currency+''+data.tsupplierpayment[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
-                  let balance = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Balance)|| 0.00;
-                  let totalPaid = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalPaid)|| 0.00;
-                  let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalBalance)|| 0.00;
-                  let paystatus = data.tsupplierpaymentlist[i].QuoteStatus || '';
-                  if(data.tsupplierpaymentlist[i].Deleted == true){
-                    paystatus = "Deleted";
-                  }else if (data.tsupplierpaymentlist[i].Reconciled == true){
-                    paystatus = "Rec";
-                  }else if(data.tsupplierpaymentlist[i].Deleted != true){
-                    if (data.tsupplierpaymentlist[i].PaidInFull == "Yes"){
-                     paystatus = "Full";
-                    }else{
-                     paystatus = "Part";
-                    }
-                  };
-                  var dataList = {
-                      id: data.tsupplierpaymentlist[i].PaymentID || '',
-                      sortdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("YYYY/MM/DD"): data.tsupplierpaymentlist[i].PaymentDate,
-                      paymentdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("DD/MM/YYYY"): data.tsupplierpaymentlist[i].PaymentDate,
-                      customername: data.tsupplierpaymentlist[i].CompanyName || '',
-                      paymentamount: amount || 0.00,
-                      applied: applied || 0.00,
-                      balance: balance || 0.00,
-                      bankaccount: data.tsupplierpaymentlist[i].BankAccountName || '',
-                      department: data.tsupplierpaymentlist[i].Department || '',
-                      paystatus: paystatus || '',
-                      refno: data.tsupplierpaymentlist[i].ReferenceNo || '',
-                      paymentmethod: data.tsupplierpaymentlist[i].PaymentMethodName || '',
-                      notes: data.tsupplierpaymentlist[i].Notes || ''
-                  };
-                  dataTableList.push(dataList);
-              }
-              templateObject.datatablerecords.set(dataTableList);
-              if(templateObject.datatablerecords.get()){
-
-
-
-                  setTimeout(function () {
-                      MakeNegative();
-                  }, 100);
-              }
-
-              $('.fullScreenSpin').css('display','none');
-              setTimeout(function () {
-                  //$.fn.dataTable.moment('DD/MM/YY');
-                  $('#tblSupplierPayment').DataTable({
-                      columnDefs: [
-                          {type: 'date', targets: 0}
-                      ],
-                      "sDom": "<'row'><'row'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
-                      buttons: [
-                          {
-                              extend: 'excelHtml5',
-                              text: '',
-                              download: 'open',
-                              className: "btntabletocsv hiddenColumn",
-                              filename: "Supplier Payment List - "+ moment().format(),
-                              orientation:'portrait',
-                              exportOptions: {
-                                  columns: ':visible',
-                                  format: {
-                                      body: function ( data, row, column ) {
-                                          if(data.includes("</span>")){
-                                              var res = data.split("</span>");
-                                              data = res[1];
-                                          }
-
-                                          return column === 1 ? data.replace(/<.*?>/ig, ""): data;
-
-                                      }
-                                  }
-                              }
-                          },{
-                              extend: 'print',
-                              download: 'open',
-                              className: "btntabletopdf hiddenColumn",
-                              text: '',
-                              title: 'Supplier Payment',
-                              filename: "Supplier Payment List - "+ moment().format(),
-                              exportOptions: {
-                                  columns: ':visible',
-                                  stripHtml: false
-                              }
-                          }],
-                      select: true,
-                      destroy: true,
-                      colReorder: true,
-                      // bStateSave: true,
-                      // rowId: 0,
-                      pageLength: initialReportDatatableLoad,
-                      "bLengthChange": false,
-                      info: true,
-                      responsive: true,
-                      "order": [[ 0, "desc" ],[ 2, "desc" ]],
-                      // "aaSorting": [[1,'desc']],
-                      action: function () {
-                          $('#tblSupplierPayment').DataTable().ajax.reload();
-                      },
-                      "fnDrawCallback": function (oSettings) {
-                        let checkurlIgnoreDate = FlowRouter.current().queryParams.ignoredate;
-
-                          $('.paginate_button.page-item').removeClass('disabled');
-                          $('#tblSupplierPayment_ellipsis').addClass('disabled');
-
-                          if (oSettings._iDisplayLength == -1) {
-                              if (oSettings.fnRecordsDisplay() > 150) {
-                                  $('.paginate_button.page-item.previous').addClass('disabled');
-                                  $('.paginate_button.page-item.next').addClass('disabled');
-                              }
-                          } else {}
-                          if (oSettings.fnRecordsDisplay() < initialDatatableLoad) {
-                              $('.paginate_button.page-item.next').addClass('disabled');
-                          }
-                          $('.paginate_button.next:not(.disabled)', this.api().table().container())
-                          .on('click', function () {
-                              $('.fullScreenSpin').css('display', 'inline-block');
-                              let dataLenght = oSettings._iDisplayLength;
-
-                              var dateFrom = new Date($("#dateFrom").datepicker("getDate"));
-                              var dateTo = new Date($("#dateTo").datepicker("getDate"));
-
-                              let formatDateFrom = dateFrom.getFullYear() + "-" + (dateFrom.getMonth() + 1) + "-" + dateFrom.getDate();
-                              let formatDateTo = dateTo.getFullYear() + "-" + (dateTo.getMonth() + 1) + "-" + dateTo.getDate();
-                              if(data.Params.IgnoreDates == true){
-                                sideBarService.getAllTSupplierPaymentListData(formatDateFrom, formatDateTo, true, initialDatatableLoad, oSettings.fnRecordsDisplay()).then(function (dataObjectnew) {
-                                    getVS1Data('TSupplierPaymentList').then(function (dataObjectold) {
-                                        if (dataObjectold.length == 0) {}
-                                        else {
-                                            let dataOld = JSON.parse(dataObjectold[0].data);
-                                            var thirdaryData = $.merge($.merge([], dataObjectnew.tsupplierpaymentlist), dataOld.tsupplierpaymentlist);
-                                            let objCombineData = {
-                                                Params: dataOld.Params,
-                                                tsupplierpaymentlist: thirdaryData
-                                            }
-
-                                            addVS1Data('TSupplierPaymentList', JSON.stringify(objCombineData)).then(function (datareturn) {
-                                                templateObject.resetData(objCombineData);
-                                                $('.fullScreenSpin').css('display', 'none');
-                                            }).catch(function (err) {
-                                                $('.fullScreenSpin').css('display', 'none');
-                                            });
-
-                                        }
-                                    }).catch(function (err) {});
-
-                                }).catch(function (err) {
-                                    $('.fullScreenSpin').css('display', 'none');
-                                });
-                              }else{
-                              sideBarService.getAllTSupplierPaymentListData(formatDateFrom, formatDateTo, false, initialDatatableLoad, oSettings.fnRecordsDisplay()).then(function (dataObjectnew) {
-                                  getVS1Data('TSupplierPaymentList').then(function (dataObjectold) {
-                                      if (dataObjectold.length == 0) {}
-                                      else {
-                                          let dataOld = JSON.parse(dataObjectold[0].data);
-                                          var thirdaryData = $.merge($.merge([], dataObjectnew.tsupplierpaymentlist), dataOld.tsupplierpaymentlist);
-                                          let objCombineData = {
-                                              Params: dataOld.Params,
-                                              tsupplierpaymentlist: thirdaryData
-                                          }
-
-                                          addVS1Data('TSupplierPaymentList', JSON.stringify(objCombineData)).then(function (datareturn) {
-                                              templateObject.resetData(objCombineData);
-                                              $('.fullScreenSpin').css('display', 'none');
-                                          }).catch(function (err) {
-                                              $('.fullScreenSpin').css('display', 'none');
-                                          });
-
-                                      }
-                                  }).catch(function (err) {});
-
-                              }).catch(function (err) {
-                                  $('.fullScreenSpin').css('display', 'none');
-                              });
-                            }
-
-                          });
-
-                          setTimeout(function () {
-                              MakeNegative();
-                          }, 100);
-                      },
-                      language: { search: "",searchPlaceholder: "Search List..." },
-                       "fnInitComplete": function () {
-                         this.fnPageChange('last');
-                         if(data.Params.Search.replace(/\s/g, "") == ""){
-                           $("<button class='btn btn-danger btnHideDeleted' type='button' id='btnHideDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='far fa-check-circle' style='margin-right: 5px'></i>Hide Deleted</button>").insertAfter("#tblSupplierPayment_filter");
-                         }else{
-                           $("<button class='btn btn-primary btnViewDeleted' type='button' id='btnViewDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fa fa-trash' style='margin-right: 5px'></i>View Deleted</button>").insertAfter("#tblSupplierPayment_filter");
-                         };
-                             $("<button class='btn btn-primary btnRefreshSupplierPayment' type='button' id='btnRefreshSupplierPayment' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblSupplierPayment_filter");
-                             $('.myvarFilterForm').appendTo(".colDateFilter");
-                         },
-                         "fnInfoCallback": function (oSettings, iStart, iEnd, iMax, iTotal, sPre) {
-                           let countTableData = data.Params.Count || 0; //get count from API data
-
-                             return 'Showing '+ iStart + " to " + iEnd + " of " + countTableData;
-                         }
-
-                  }).on('page', function () {
-                      setTimeout(function () {
-                          MakeNegative();
-                      }, 100);
-                      let draftRecord = templateObject.datatablerecords.get();
-                      templateObject.datatablerecords.set(draftRecord);
-                  }).on('column-reorder', function () {
-
-                  }).on( 'length.dt', function ( e, settings, len ) {
-                      setTimeout(function () {
-                          MakeNegative();
-                      }, 100);
-                  });
-                  $('.fullScreenSpin').css('display','none');
-
-
-
-              }, 0);
-
-              var columns = $('#tblSupplierPayment th');
-              let sTible = "";
-              let sWidth = "";
-              let sIndex = "";
-              let sVisible = "";
-              let columVisible = false;
-              let sClass = "";
-              $.each(columns, function(i,v) {
-                  if(v.hidden == false){
-                      columVisible =  true;
-                  }
-                  if((v.className.includes("hiddenColumn"))){
-                      columVisible = false;
-                  }
-                  sWidth = v.style.width.replace('px', "");
-
-                  let datatablerecordObj = {
-                      sTitle: v.innerText || '',
-                      sWidth: sWidth || '',
-                      sIndex: v.cellIndex || 0,
-                      sVisible: columVisible || false,
-                      sClass: v.className || ''
-                  };
-                  tableHeaderList.push(datatablerecordObj);
-              });
-              templateObject.tableheaderrecords.set(tableHeaderList);
-              $('div.dataTables_filter input').addClass('form-control form-control-sm');
-              $('#tblSupplierPayment tbody').on( 'click', 'tr', function () {
-                  var listData = $(this).closest('tr').attr('id');
-                  var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
-                  if(listData){
-                    // if(checkDeleted == "Deleted"){
-                    //   swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
-                    // }else{
-                      FlowRouter.go('/supplierpaymentcard?id=' + listData);
-                    //}
-                  }
-              });
-
-          }).catch(function (err) {
-              // Bert.alert('<strong>' + err + '</strong>!', 'danger');
-              $('.fullScreenSpin').css('display','none');
-              // Meteor._reload.reload();
-          });
-        });
-      }
-    }
-
-    templateObject.getAllSupplierPaymentData();
-
-    templateObject.getAllFilterSuppPaymentData = function(fromDate, toDate, ignoreDate) {
-        sideBarService.getAllTSupplierPaymentListData(fromDate, toDate, ignoreDate,initialReportLoad,0).then(function(data) {
-            addVS1Data('TSupplierPaymentList', JSON.stringify(data)).then(function(datareturn) {
-                location.reload();
-            }).catch(function(err) {
-                location.reload();
-            });
-        }).catch(function(err) {
-            $('.fullScreenSpin').css('display', 'none');
-        });
-    }
+    // templateObject.getAllSupplierPaymentData = function () {
+    //   var currentBeginDate = new Date();
+    //   var begunDate = moment(currentBeginDate).format("DD/MM/YYYY");
+    //   let fromDateMonth = (currentBeginDate.getMonth() + 1);
+    //   let fromDateDay = currentBeginDate.getDate();
+    //   if((currentBeginDate.getMonth()+1) < 10){
+    //       fromDateMonth = "0" + (currentBeginDate.getMonth()+1);
+    //   }else{
+    //     fromDateMonth = (currentBeginDate.getMonth()+1);
+    //   }
+
+    //   if(currentBeginDate.getDate() < 10){
+    //       fromDateDay = "0" + currentBeginDate.getDate();
+    //   }
+    //   var toDate = currentBeginDate.getFullYear()+ "-" +(fromDateMonth) + "-"+(fromDateDay);
+    //   let prevMonth11Date = (moment().subtract(reportsloadMonths, 'months')).format("YYYY-MM-DD");
+    //   if(FlowRouter.current().queryParams.payment){
+    //     let paymentIDs = FlowRouter.current().queryParams.payment || '';
+    //     let supplierName = FlowRouter.current().queryParams.name || '';
+    //     sideBarService.getAllTSupplierPaymentListDataByPaymentID(supplierName).then(function (data) {
+    //         let lineItems = [];
+    //         let lineItemObj = {};
+    //         if (data.Params.IgnoreDates == true) {
+    //             $('#dateFrom').attr('readonly', true);
+    //             $('#dateTo').attr('readonly', true);
+    //         } else {
+    //             $("#dateFrom").val(data.Params.DateFrom != '' ? moment(data.Params.DateFrom).format("DD/MM/YYYY") : data.Params.DateFrom);
+    //             $("#dateTo").val(data.Params.DateTo != '' ? moment(data.Params.DateTo).format("DD/MM/YYYY") : data.Params.DateTo);
+    //         }
+    //         for(let i=0; i<data.tsupplierpaymentlist.length; i++){
+    //             let amount = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Amount)|| 0.00;
+    //             let applied = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Applied) || 0.00;
+    //             // Currency+''+data.tsupplierpayment[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
+    //             let balance = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Balance)|| 0.00;
+    //             let totalPaid = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalPaid)|| 0.00;
+    //             let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalBalance)|| 0.00;
+    //             let paystatus = data.tsupplierpaymentlist[i].QuoteStatus || '';
+    //             if(data.tsupplierpaymentlist[i].Deleted == true){
+    //               paystatus = "Deleted";
+    //             }else if (data.tsupplierpaymentlist[i].Reconciled == true){
+    //               paystatus = "Rec";
+    //             }else if(data.tsupplierpaymentlist[i].Deleted != true){
+    //               if (data.tsupplierpaymentlist[i].PaidInFull == "Yes"){
+    //                paystatus = "Full";
+    //               }else{
+    //                paystatus = "Part";
+    //               }
+    //             };
+    //             var dataList = {
+    //                 id: data.tsupplierpaymentlist[i].PaymentID || '',
+    //                 sortdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("YYYY/MM/DD"): data.tsupplierpaymentlist[i].PaymentDate,
+    //                 paymentdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("DD/MM/YYYY"): data.tsupplierpaymentlist[i].PaymentDate,
+    //                 customername: data.tsupplierpaymentlist[i].CompanyName || '',
+    //                 paymentamount: amount || 0.00,
+    //                 applied: applied || 0.00,
+    //                 balance: balance || 0.00,
+    //                 bankaccount: data.tsupplierpaymentlist[i].BankAccountName || '',
+    //                 department: data.tsupplierpaymentlist[i].Department || '',
+    //                 paystatus: paystatus || '',
+    //                 refno: data.tsupplierpaymentlist[i].ReferenceNo || '',
+    //                 paymentmethod: data.tsupplierpaymentlist[i].PaymentMethodName || '',
+    //                 notes: data.tsupplierpaymentlist[i].Notes || ''
+    //             };
+
+    //             var arrSplit = paymentIDs.split(',');
+    //             $.each( arrSplit, function( index, value ) {
+    //                   if(data.tsupplierpaymentlist[i].PaymentID == value){
+    //                     dataTableList.push(dataList);
+    //                   }
+    //             });
+
+    //         }
+    //         templateObject.datatablerecords.set(dataTableList);
+    //         if(templateObject.datatablerecords.get()){
+
+
+
+
+    //             setTimeout(function () {
+    //                 MakeNegative();
+    //             }, 100);
+    //         }
+
+    //         $('.fullScreenSpin').css('display','none');
+    //         setTimeout(function () {
+    //             //$.fn.dataTable.moment('DD/MM/YY');
+    //             $('#tblSupplierPayment').DataTable({
+    //                 columnDefs: [
+    //                     {type: 'date', targets: 0}
+    //                 ],
+    //                 "sDom": "<'row'><'row'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
+    //                 buttons: [
+    //                     {
+    //                         extend: 'excelHtml5',
+    //                         text: '',
+    //                         download: 'open',
+    //                         className: "btntabletocsv hiddenColumn",
+    //                         filename: "Supplier Payment List - "+ moment().format(),
+    //                         orientation:'portrait',
+    //                         exportOptions: {
+    //                             columns: ':visible',
+    //                             format: {
+    //                                 body: function ( data, row, column ) {
+    //                                     if(data.includes("</span>")){
+    //                                         var res = data.split("</span>");
+    //                                         data = res[1];
+    //                                     }
+
+    //                                     return column === 1 ? data.replace(/<.*?>/ig, ""): data;
+
+    //                                 }
+    //                             }
+    //                         }
+    //                     },{
+    //                         extend: 'print',
+    //                         download: 'open',
+    //                         className: "btntabletopdf hiddenColumn",
+    //                         text: '',
+    //                         title: 'Supplier Payment',
+    //                         filename: "Supplier Payment List - "+ moment().format(),
+    //                         exportOptions: {
+    //                             columns: ':visible',
+    //                             stripHtml: false
+    //                         }
+    //                     }],
+    //                 select: true,
+    //                 destroy: true,
+    //                 colReorder: true,
+    //                 // bStateSave: true,
+    //                 // rowId: 0,
+    //                 pageLength: initialReportDatatableLoad,
+    //                 "bLengthChange": false,
+    //                 info: true,
+    //                 responsive: true,
+    //                 "order": [[ 0, "desc" ],[ 2, "desc" ]],
+    //                 // "aaSorting": [[1,'desc']],
+    //                 action: function () {
+    //                     $('#tblSupplierPayment').DataTable().ajax.reload();
+    //                 },
+    //                 language: { search: "",searchPlaceholder: "Search List..." },
+    //                  "fnInitComplete": function () {
+    //                    this.fnPageChange('last');
+    //                    if(data.Params.Search.replace(/\s/g, "") == ""){
+    //                      $("<button class='btn btn-danger btnHideDeleted' type='button' id='btnHideDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 12px !important;'><i class='far fa-check-circle' style='margin-right: 5px'></i>Hide Deleted</button>").insertAfter("#tblSupplierPayment_filter");
+    //                    }else{
+    //                      $("<button class='btn btn-primary btnViewDeleted' type='button' id='btnViewDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 12px !important;'><i class='fa fa-trash' style='margin-right: 5px'></i>View Deleted</button>").insertAfter("#tblSupplierPayment_filter");
+    //                    };
+    //                        $("<button class='btn btn-primary btnRefreshSupplierPayment' type='button' id='btnRefreshSupplierPayment' style='padding: 4px 10px; font-size: 16px; margin-left: 12px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblSupplierPayment_filter");
+    //                        $('.myvarFilterForm').appendTo(".colDateFilter");
+    //                    },
+    //                    "fnInfoCallback": function (oSettings, iStart, iEnd, iMax, iTotal, sPre) {
+    //                      let countTableData = data.Params.Count || 0; //get count from API data
+
+    //                        return 'Showing '+ iStart + " to " + iEnd + " of " + iEnd;
+    //                    }
+
+    //             }).on('page', function () {
+    //                 setTimeout(function () {
+    //                     MakeNegative();
+    //                 }, 100);
+    //                 let draftRecord = templateObject.datatablerecords.get();
+    //                 templateObject.datatablerecords.set(draftRecord);
+    //             }).on('column-reorder', function () {
+
+    //             }).on( 'length.dt', function ( e, settings, len ) {
+    //                 setTimeout(function () {
+    //                     MakeNegative();
+    //                 }, 100);
+    //             });
+    //             $('.fullScreenSpin').css('display','none');
+
+
+
+    //         }, 0);
+
+    //         var columns = $('#tblSupplierPayment th');
+    //         let sTible = "";
+    //         let sWidth = "";
+    //         let sIndex = "";
+    //         let sVisible = "";
+    //         let columVisible = false;
+    //         let sClass = "";
+    //         $.each(columns, function(i,v) {
+    //             if(v.hidden == false){
+    //                 columVisible =  true;
+    //             }
+    //             if((v.className.includes("hiddenColumn"))){
+    //                 columVisible = false;
+    //             }
+    //             sWidth = v.style.width.replace('px', "");
+
+    //             let datatablerecordObj = {
+    //                 sTitle: v.innerText || '',
+    //                 sWidth: sWidth || '',
+    //                 sIndex: v.cellIndex || 0,
+    //                 sVisible: columVisible || false,
+    //                 sClass: v.className || ''
+    //             };
+    //             tableHeaderList.push(datatablerecordObj);
+    //         });
+    //         templateObject.tableheaderrecords.set(tableHeaderList);
+    //         $('div.dataTables_filter input').addClass('form-control form-control-sm');
+    //         $('#tblSupplierPayment tbody').on( 'click', 'tr', function () {
+    //             var listData = $(this).closest('tr').attr('id');
+    //             var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+    //             if(listData){
+    //               // if(checkDeleted == "Deleted"){
+    //               //   swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+    //               // }else{
+    //                 FlowRouter.go('/supplierpaymentcard?id=' + listData);
+    //               //}
+    //             }
+    //         });
+
+    //     }).catch(function (err) {
+    //         // Bert.alert('<strong>' + err + '</strong>!', 'danger');
+    //         $('.fullScreenSpin').css('display','none');
+    //         // Meteor._reload.reload();
+    //     });
+    //   }else{
+    //     getVS1Data('TSupplierPaymentList').then(function (dataObject) {
+    //         if(dataObject.length == 0){
+    //             sideBarService.getAllTSupplierPaymentListData(prevMonth11Date,toDate, true,initialReportLoad,0).then(function (data) {
+    //                 let lineItems = [];
+    //                 let lineItemObj = {};
+    //                 addVS1Data('TSupplierPaymentList',JSON.stringify(data));
+    //                 if (data.Params.IgnoreDates == true) {
+    //                     $('#dateFrom').attr('readonly', true);
+    //                     $('#dateTo').attr('readonly', true);
+    //                 } else {
+    //                   $('#dateFrom').attr('readonly', false);
+    //                   $('#dateTo').attr('readonly', false);
+    //                     $("#dateFrom").val(data.Params.DateFrom != '' ? moment(data.Params.DateFrom).format("DD/MM/YYYY") : data.Params.DateFrom);
+    //                     $("#dateTo").val(data.Params.DateTo != '' ? moment(data.Params.DateTo).format("DD/MM/YYYY") : data.Params.DateTo);
+    //                 }
+    //                 for(let i=0; i<data.tsupplierpaymentlist.length; i++){
+    //                     let amount = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Amount)|| 0.00;
+    //                     let applied = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Applied) || 0.00;
+    //                     // Currency+''+data.tsupplierpayment[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
+    //                     let balance = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Balance)|| 0.00;
+    //                     let totalPaid = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalPaid)|| 0.00;
+    //                     let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalBalance)|| 0.00;
+    //                     let paystatus = data.tsupplierpaymentlist[i].QuoteStatus || '';
+    //                     if(data.tsupplierpaymentlist[i].Deleted == true){
+    //                       paystatus = "Deleted";
+    //                     }else if (data.tsupplierpaymentlist[i].Reconciled == true){
+    //                       paystatus = "Rec";
+    //                     }else if(data.tsupplierpaymentlist[i].Deleted != true){
+    //                       if (data.tsupplierpaymentlist[i].PaidInFull == "Yes"){
+    //                        paystatus = "Full";
+    //                       }else{
+    //                        paystatus = "Part";
+    //                       }
+    //                     };
+    //                     var dataList = {
+    //                         id: data.tsupplierpaymentlist[i].PaymentID || '',
+    //                         sortdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("YYYY/MM/DD"): data.tsupplierpaymentlist[i].PaymentDate,
+    //                         paymentdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("DD/MM/YYYY"): data.tsupplierpaymentlist[i].PaymentDate,
+    //                         customername: data.tsupplierpaymentlist[i].CompanyName || '',
+    //                         paymentamount: amount || 0.00,
+    //                         applied: applied || 0.00,
+    //                         balance: balance || 0.00,
+    //                         bankaccount: data.tsupplierpaymentlist[i].BankAccountName || '',
+    //                         department: data.tsupplierpaymentlist[i].Department || '',
+    //                         paystatus: paystatus || '',
+    //                         refno: data.tsupplierpaymentlist[i].ReferenceNo || '',
+    //                         paymentmethod: data.tsupplierpaymentlist[i].PaymentMethodName || '',
+    //                         notes: data.tsupplierpaymentlist[i].Notes || ''
+    //                     };
+    //                     dataTableList.push(dataList);
+    //                 }
+    //                 templateObject.datatablerecords.set(dataTableList);
+    //                 if(templateObject.datatablerecords.get()){
+
+
+
+    //                     setTimeout(function () {
+    //                         MakeNegative();
+    //                     }, 100);
+    //                 }
+
+    //                 $('.fullScreenSpin').css('display','none');
+    //                 setTimeout(function () {
+    //                     //$.fn.dataTable.moment('DD/MM/YY');
+    //                     $('#tblSupplierPayment').DataTable({
+    //                         columnDefs: [
+    //                             {type: 'date', targets: 0}
+    //                         ],
+    //                         "sDom": "<'row'><'row'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
+    //                         buttons: [
+    //                             {
+    //                                 extend: 'excelHtml5',
+    //                                 text: '',
+    //                                 download: 'open',
+    //                                 className: "btntabletocsv hiddenColumn",
+    //                                 filename: "Supplier Payment List - "+ moment().format(),
+    //                                 orientation:'portrait',
+    //                                 exportOptions: {
+    //                                     columns: ':visible',
+    //                                     format: {
+    //                                         body: function ( data, row, column ) {
+    //                                             if(data.includes("</span>")){
+    //                                                 var res = data.split("</span>");
+    //                                                 data = res[1];
+    //                                             }
+
+    //                                             return column === 1 ? data.replace(/<.*?>/ig, ""): data;
+
+    //                                         }
+    //                                     }
+    //                                 }
+    //                             },{
+    //                                 extend: 'print',
+    //                                 download: 'open',
+    //                                 className: "btntabletopdf hiddenColumn",
+    //                                 text: '',
+    //                                 title: 'Supplier Payment',
+    //                                 filename: "Supplier Payment List - "+ moment().format(),
+    //                                 exportOptions: {
+    //                                     columns: ':visible',
+    //                                     stripHtml: false
+    //                                 }
+    //                             }],
+    //                         select: true,
+    //                         destroy: true,
+    //                         colReorder: true,
+    //                         // bStateSave: true,
+    //                         // rowId: 0,
+    //                         pageLength: initialReportDatatableLoad,
+    //                         "bLengthChange": false,
+    //                         info: true,
+    //                         responsive: true,
+    //                         "order": [[ 0, "desc" ],[ 2, "desc" ]],
+    //                         // "aaSorting": [[1,'desc']],
+    //                         action: function () {
+    //                             $('#tblSupplierPayment').DataTable().ajax.reload();
+    //                         },
+    //                         "fnDrawCallback": function (oSettings) {
+    //                           let checkurlIgnoreDate = FlowRouter.current().queryParams.ignoredate;
+
+    //                             $('.paginate_button.page-item').removeClass('disabled');
+    //                             $('#tblSupplierPayment_ellipsis').addClass('disabled');
+
+    //                             if (oSettings._iDisplayLength == -1) {
+    //                                 if (oSettings.fnRecordsDisplay() > 150) {
+    //                                     $('.paginate_button.page-item.previous').addClass('disabled');
+    //                                     $('.paginate_button.page-item.next').addClass('disabled');
+    //                                 }
+    //                             } else {}
+    //                             if (oSettings.fnRecordsDisplay() < initialDatatableLoad) {
+    //                                 $('.paginate_button.page-item.next').addClass('disabled');
+    //                             }
+    //                             $('.paginate_button.next:not(.disabled)', this.api().table().container())
+    //                             .on('click', function () {
+    //                                 $('.fullScreenSpin').css('display', 'inline-block');
+    //                                 let dataLenght = oSettings._iDisplayLength;
+
+    //                                 var dateFrom = new Date($("#dateFrom").datepicker("getDate"));
+    //                                 var dateTo = new Date($("#dateTo").datepicker("getDate"));
+
+    //                                 let formatDateFrom = dateFrom.getFullYear() + "-" + (dateFrom.getMonth() + 1) + "-" + dateFrom.getDate();
+    //                                 let formatDateTo = dateTo.getFullYear() + "-" + (dateTo.getMonth() + 1) + "-" + dateTo.getDate();
+    //                                 if(data.Params.IgnoreDates == true){
+    //                                   sideBarService.getAllTSupplierPaymentListData(formatDateFrom, formatDateTo, true, initialDatatableLoad, oSettings.fnRecordsDisplay()).then(function (dataObjectnew) {
+    //                                       getVS1Data('TSupplierPaymentList').then(function (dataObjectold) {
+    //                                           if (dataObjectold.length == 0) {}
+    //                                           else {
+    //                                               let dataOld = JSON.parse(dataObjectold[0].data);
+    //                                               var thirdaryData = $.merge($.merge([], dataObjectnew.tsupplierpaymentlist), dataOld.tsupplierpaymentlist);
+    //                                               let objCombineData = {
+    //                                                   Params: dataOld.Params,
+    //                                                   tsupplierpaymentlist: thirdaryData
+    //                                               }
+
+    //                                               addVS1Data('TSupplierPaymentList', JSON.stringify(objCombineData)).then(function (datareturn) {
+    //                                                   templateObject.resetData(objCombineData);
+    //                                                   $('.fullScreenSpin').css('display', 'none');
+    //                                               }).catch(function (err) {
+    //                                                   $('.fullScreenSpin').css('display', 'none');
+    //                                               });
+
+    //                                           }
+    //                                       }).catch(function (err) {});
+
+    //                                   }).catch(function (err) {
+    //                                       $('.fullScreenSpin').css('display', 'none');
+    //                                   });
+    //                                 }else{
+    //                                 sideBarService.getAllTSupplierPaymentListData(formatDateFrom, formatDateTo, false, initialDatatableLoad, oSettings.fnRecordsDisplay()).then(function (dataObjectnew) {
+    //                                     getVS1Data('TSupplierPaymentList').then(function (dataObjectold) {
+    //                                         if (dataObjectold.length == 0) {}
+    //                                         else {
+    //                                             let dataOld = JSON.parse(dataObjectold[0].data);
+    //                                             var thirdaryData = $.merge($.merge([], dataObjectnew.tsupplierpaymentlist), dataOld.tsupplierpaymentlist);
+    //                                             let objCombineData = {
+    //                                                 Params: dataOld.Params,
+    //                                                 tsupplierpaymentlist: thirdaryData
+    //                                             }
+
+    //                                             addVS1Data('TSupplierPaymentList', JSON.stringify(objCombineData)).then(function (datareturn) {
+    //                                                 templateObject.resetData(objCombineData);
+    //                                                 $('.fullScreenSpin').css('display', 'none');
+    //                                             }).catch(function (err) {
+    //                                                 $('.fullScreenSpin').css('display', 'none');
+    //                                             });
+
+    //                                         }
+    //                                     }).catch(function (err) {});
+
+    //                                 }).catch(function (err) {
+    //                                     $('.fullScreenSpin').css('display', 'none');
+    //                                 });
+    //                               }
+
+    //                             });
+
+    //                             setTimeout(function () {
+    //                                 MakeNegative();
+    //                             }, 100);
+    //                         },
+    //                         language: { search: "",searchPlaceholder: "Search List..." },
+    //                          "fnInitComplete": function () {
+    //                            this.fnPageChange('last');
+    //                            if(data.Params.Search.replace(/\s/g, "") == ""){
+    //                              $("<button class='btn btn-danger btnHideDeleted' type='button' id='btnHideDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='far fa-check-circle' style='margin-right: 5px'></i>Hide Deleted</button>").insertAfter("#tblSupplierPayment_filter");
+    //                            }else{
+    //                              $("<button class='btn btn-primary btnViewDeleted' type='button' id='btnViewDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fa fa-trash' style='margin-right: 5px'></i>View Deleted</button>").insertAfter("#tblSupplierPayment_filter");
+    //                            };
+    //                                $("<button class='btn btn-primary btnRefreshSupplierPayment' type='button' id='btnRefreshSupplierPayment' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblSupplierPayment_filter");
+    //                                $('.myvarFilterForm').appendTo(".colDateFilter");
+    //                            },
+    //                            "fnInfoCallback": function (oSettings, iStart, iEnd, iMax, iTotal, sPre) {
+    //                              let countTableData = data.Params.Count || 0; //get count from API data
+
+    //                                return 'Showing '+ iStart + " to " + iEnd + " of " + countTableData;
+    //                            }
+
+    //                     }).on('page', function () {
+    //                         setTimeout(function () {
+    //                             MakeNegative();
+    //                         }, 100);
+    //                         let draftRecord = templateObject.datatablerecords.get();
+    //                         templateObject.datatablerecords.set(draftRecord);
+    //                     }).on('column-reorder', function () {
+
+    //                     }).on( 'length.dt', function ( e, settings, len ) {
+    //                         setTimeout(function () {
+    //                             MakeNegative();
+    //                         }, 100);
+    //                     });
+    //                     $('.fullScreenSpin').css('display','none');
+
+
+
+    //                 }, 0);
+
+    //                 var columns = $('#tblSupplierPayment th');
+    //                 let sTible = "";
+    //                 let sWidth = "";
+    //                 let sIndex = "";
+    //                 let sVisible = "";
+    //                 let columVisible = false;
+    //                 let sClass = "";
+    //                 $.each(columns, function(i,v) {
+    //                     if(v.hidden == false){
+    //                         columVisible =  true;
+    //                     }
+    //                     if((v.className.includes("hiddenColumn"))){
+    //                         columVisible = false;
+    //                     }
+    //                     sWidth = v.style.width.replace('px', "");
+
+    //                     let datatablerecordObj = {
+    //                         sTitle: v.innerText || '',
+    //                         sWidth: sWidth || '',
+    //                         sIndex: v.cellIndex || 0,
+    //                         sVisible: columVisible || false,
+    //                         sClass: v.className || ''
+    //                     };
+    //                     tableHeaderList.push(datatablerecordObj);
+    //                 });
+    //                 templateObject.tableheaderrecords.set(tableHeaderList);
+    //                 $('div.dataTables_filter input').addClass('form-control form-control-sm');
+    //                 $('#tblSupplierPayment tbody').on( 'click', 'tr', function () {
+    //                     var listData = $(this).closest('tr').attr('id');
+    //                     var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+    //                     if(listData){
+    //                       // if(checkDeleted == "Deleted"){
+    //                       //   swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+    //                       // }else{
+    //                         FlowRouter.go('/supplierpaymentcard?id=' + listData);
+    //                       //}
+    //                     }
+    //                 });
+
+    //             }).catch(function (err) {
+    //                 // Bert.alert('<strong>' + err + '</strong>!', 'danger');
+    //                 $('.fullScreenSpin').css('display','none');
+    //                 // Meteor._reload.reload();
+    //             });
+    //         }else{
+    //             let data = JSON.parse(dataObject[0].data);
+    //             let useData = data.tsupplierpaymentlist;
+    //             let lineItems = [];
+    //             let lineItemObj = {};
+    //             if (data.Params.IgnoreDates == true) {
+    //                 $('#dateFrom').attr('readonly', true);
+    //                 $('#dateTo').attr('readonly', true);
+    //             } else {
+    //               $('#dateFrom').attr('readonly', false);
+    //               $('#dateTo').attr('readonly', false);
+    //                 $("#dateFrom").val(data.Params.DateFrom != '' ? moment(data.Params.DateFrom).format("DD/MM/YYYY") : data.Params.DateFrom);
+    //                 $("#dateTo").val(data.Params.DateTo != '' ? moment(data.Params.DateTo).format("DD/MM/YYYY") : data.Params.DateTo);
+    //             }
+    //             for(let i=0; i<data.tsupplierpaymentlist.length; i++){
+    //                 let amount = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Amount)|| 0.00;
+    //                 let applied = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Applied) || 0.00;
+    //                 // Currency+''+data.tsupplierpayment[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
+    //                 let balance = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Balance)|| 0.00;
+    //                 let totalPaid = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalPaid)|| 0.00;
+    //                 let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalBalance)|| 0.00;
+    //                 let paystatus = data.tsupplierpaymentlist[i].QuoteStatus || '';
+    //                 if(data.tsupplierpaymentlist[i].Deleted == true){
+    //                   paystatus = "Deleted";
+    //                 }else if (data.tsupplierpaymentlist[i].Reconciled == true){
+    //                   paystatus = "Rec";
+    //                 }else if(data.tsupplierpaymentlist[i].Deleted != true){
+    //                   if (data.tsupplierpaymentlist[i].PaidInFull == "Yes"){
+    //                    paystatus = "Full";
+    //                   }else{
+    //                    paystatus = "Part";
+    //                   }
+    //                 };
+    //                 var dataList = {
+    //                     id: data.tsupplierpaymentlist[i].PaymentID || '',
+    //                     sortdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("YYYY/MM/DD"): data.tsupplierpaymentlist[i].PaymentDate,
+    //                     paymentdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("DD/MM/YYYY"): data.tsupplierpaymentlist[i].PaymentDate,
+    //                     customername: data.tsupplierpaymentlist[i].CompanyName || '',
+    //                     paymentamount: amount || 0.00,
+    //                     applied: applied || 0.00,
+    //                     balance: balance || 0.00,
+    //                     bankaccount: data.tsupplierpaymentlist[i].BankAccountName || '',
+    //                     department: data.tsupplierpaymentlist[i].Department || '',
+    //                     paystatus: paystatus || '',
+    //                     refno: data.tsupplierpaymentlist[i].ReferenceNo || '',
+    //                     paymentmethod: data.tsupplierpaymentlist[i].PaymentMethodName || '',
+    //                     notes: data.tsupplierpaymentlist[i].Notes || ''
+    //                 };
+    //                 dataTableList.push(dataList);
+    //             }
+    //             templateObject.datatablerecords.set(dataTableList);
+    //             if(templateObject.datatablerecords.get()){
+
+
+
+    //                 setTimeout(function () {
+    //                     MakeNegative();
+    //                 }, 100);
+    //             }
+
+    //             $('.fullScreenSpin').css('display','none');
+    //             setTimeout(function () {
+    //                 //$.fn.dataTable.moment('DD/MM/YY');
+    //                 $('#tblSupplierPayment').DataTable({
+    //                     columnDefs: [
+    //                         {type: 'date', targets: 0}
+    //                     ],
+    //                     "sDom": "<'row'><'row'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
+    //                     buttons: [
+    //                         {
+    //                             extend: 'excelHtml5',
+    //                             text: '',
+    //                             download: 'open',
+    //                             className: "btntabletocsv hiddenColumn",
+    //                             filename: "Supplier Payment List - "+ moment().format(),
+    //                             orientation:'portrait',
+    //                             exportOptions: {
+    //                                 columns: ':visible',
+    //                                 format: {
+    //                                     body: function ( data, row, column ) {
+    //                                         if(data.includes("</span>")){
+    //                                             var res = data.split("</span>");
+    //                                             data = res[1];
+    //                                         }
+
+    //                                         return column === 1 ? data.replace(/<.*?>/ig, ""): data;
+
+    //                                     }
+    //                                 }
+    //                             }
+    //                         },{
+    //                             extend: 'print',
+    //                             download: 'open',
+    //                             className: "btntabletopdf hiddenColumn",
+    //                             text: '',
+    //                             title: 'Supplier Payment',
+    //                             filename: "Supplier Payment List - "+ moment().format(),
+    //                             exportOptions: {
+    //                                 columns: ':visible',
+    //                                 stripHtml: false
+    //                             }
+    //                         }],
+    //                     select: true,
+    //                     destroy: true,
+    //                     colReorder: true,
+    //                     // bStateSave: true,
+    //                     // rowId: 0,
+    //                     pageLength: initialReportDatatableLoad,
+    //                     "bLengthChange": false,
+    //                     info: true,
+    //                     responsive: true,
+    //                     "order": [[ 0, "desc" ],[ 2, "desc" ]],
+    //                     // "aaSorting": [[1,'desc']],
+    //                     action: function () {
+    //                         $('#tblSupplierPayment').DataTable().ajax.reload();
+    //                     },
+    //                     "fnDrawCallback": function (oSettings) {
+    //                       let checkurlIgnoreDate = FlowRouter.current().queryParams.ignoredate;
+
+    //                         $('.paginate_button.page-item').removeClass('disabled');
+    //                         $('#tblSupplierPayment_ellipsis').addClass('disabled');
+
+    //                         if (oSettings._iDisplayLength == -1) {
+    //                             if (oSettings.fnRecordsDisplay() > 150) {
+    //                                 $('.paginate_button.page-item.previous').addClass('disabled');
+    //                                 $('.paginate_button.page-item.next').addClass('disabled');
+    //                             }
+    //                         } else {}
+    //                         if (oSettings.fnRecordsDisplay() < initialDatatableLoad) {
+    //                             $('.paginate_button.page-item.next').addClass('disabled');
+    //                         }
+    //                         $('.paginate_button.next:not(.disabled)', this.api().table().container())
+    //                         .on('click', function () {
+    //                             $('.fullScreenSpin').css('display', 'inline-block');
+    //                             let dataLenght = oSettings._iDisplayLength;
+
+    //                             var dateFrom = new Date($("#dateFrom").datepicker("getDate"));
+    //                             var dateTo = new Date($("#dateTo").datepicker("getDate"));
+
+    //                             let formatDateFrom = dateFrom.getFullYear() + "-" + (dateFrom.getMonth() + 1) + "-" + dateFrom.getDate();
+    //                             let formatDateTo = dateTo.getFullYear() + "-" + (dateTo.getMonth() + 1) + "-" + dateTo.getDate();
+    //                             if(data.Params.IgnoreDates == true){
+    //                               sideBarService.getAllTSupplierPaymentListData(formatDateFrom, formatDateTo, true, initialDatatableLoad, oSettings.fnRecordsDisplay()).then(function (dataObjectnew) {
+    //                                   getVS1Data('TSupplierPaymentList').then(function (dataObjectold) {
+    //                                       if (dataObjectold.length == 0) {}
+    //                                       else {
+    //                                           let dataOld = JSON.parse(dataObjectold[0].data);
+    //                                           var thirdaryData = $.merge($.merge([], dataObjectnew.tsupplierpaymentlist), dataOld.tsupplierpaymentlist);
+    //                                           let objCombineData = {
+    //                                               Params: dataOld.Params,
+    //                                               tsupplierpaymentlist: thirdaryData
+    //                                           }
+
+    //                                           addVS1Data('TSupplierPaymentList', JSON.stringify(objCombineData)).then(function (datareturn) {
+    //                                               templateObject.resetData(objCombineData);
+    //                                               $('.fullScreenSpin').css('display', 'none');
+    //                                           }).catch(function (err) {
+    //                                               $('.fullScreenSpin').css('display', 'none');
+    //                                           });
+
+    //                                       }
+    //                                   }).catch(function (err) {});
+
+    //                               }).catch(function (err) {
+    //                                   $('.fullScreenSpin').css('display', 'none');
+    //                               });
+    //                             }else{
+    //                             sideBarService.getAllTSupplierPaymentListData(formatDateFrom, formatDateTo, false, initialDatatableLoad, oSettings.fnRecordsDisplay()).then(function (dataObjectnew) {
+    //                                 getVS1Data('TSupplierPaymentList').then(function (dataObjectold) {
+    //                                     if (dataObjectold.length == 0) {}
+    //                                     else {
+    //                                         let dataOld = JSON.parse(dataObjectold[0].data);
+    //                                         var thirdaryData = $.merge($.merge([], dataObjectnew.tsupplierpaymentlist), dataOld.tsupplierpaymentlist);
+    //                                         let objCombineData = {
+    //                                             Params: dataOld.Params,
+    //                                             tsupplierpaymentlist: thirdaryData
+    //                                         }
+
+    //                                         addVS1Data('TSupplierPaymentList', JSON.stringify(objCombineData)).then(function (datareturn) {
+    //                                             templateObject.resetData(objCombineData);
+    //                                             $('.fullScreenSpin').css('display', 'none');
+    //                                         }).catch(function (err) {
+    //                                             $('.fullScreenSpin').css('display', 'none');
+    //                                         });
+
+    //                                     }
+    //                                 }).catch(function (err) {});
+
+    //                             }).catch(function (err) {
+    //                                 $('.fullScreenSpin').css('display', 'none');
+    //                             });
+    //                           }
+
+    //                         });
+
+    //                         setTimeout(function () {
+    //                             MakeNegative();
+    //                         }, 100);
+    //                     },
+    //                     language: { search: "",searchPlaceholder: "Search List..." },
+    //                      "fnInitComplete": function () {
+    //                        this.fnPageChange('last');
+    //                        if(data.Params.Search.replace(/\s/g, "") == ""){
+    //                          $("<button class='btn btn-danger btnHideDeleted' type='button' id='btnHideDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='far fa-check-circle' style='margin-right: 5px'></i>Hide Deleted</button>").insertAfter("#tblSupplierPayment_filter");
+    //                        }else{
+    //                          $("<button class='btn btn-primary btnViewDeleted' type='button' id='btnViewDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fa fa-trash' style='margin-right: 5px'></i>View Deleted</button>").insertAfter("#tblSupplierPayment_filter");
+    //                        };
+    //                            $("<button class='btn btn-primary btnRefreshSupplierPayment' type='button' id='btnRefreshSupplierPayment' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblSupplierPayment_filter");
+    //                            $('.myvarFilterForm').appendTo(".colDateFilter");
+    //                        },
+    //                        "fnInfoCallback": function (oSettings, iStart, iEnd, iMax, iTotal, sPre) {
+    //                          let countTableData = data.Params.Count || 0; //get count from API data
+
+    //                            return 'Showing '+ iStart + " to " + iEnd + " of " + countTableData;
+    //                        }
+
+    //                 }).on('page', function () {
+    //                     setTimeout(function () {
+    //                         MakeNegative();
+    //                     }, 100);
+    //                     let draftRecord = templateObject.datatablerecords.get();
+    //                     templateObject.datatablerecords.set(draftRecord);
+    //                 }).on('column-reorder', function () {
+
+    //                 }).on( 'length.dt', function ( e, settings, len ) {
+    //                     setTimeout(function () {
+    //                         MakeNegative();
+    //                     }, 100);
+    //                 });
+    //                 $('.fullScreenSpin').css('display','none');
+
+
+
+    //             }, 0);
+
+    //             var columns = $('#tblSupplierPayment th');
+    //             let sTible = "";
+    //             let sWidth = "";
+    //             let sIndex = "";
+    //             let sVisible = "";
+    //             let columVisible = false;
+    //             let sClass = "";
+    //             $.each(columns, function(i,v) {
+    //                 if(v.hidden == false){
+    //                     columVisible =  true;
+    //                 }
+    //                 if((v.className.includes("hiddenColumn"))){
+    //                     columVisible = false;
+    //                 }
+    //                 sWidth = v.style.width.replace('px', "");
+
+    //                 let datatablerecordObj = {
+    //                     sTitle: v.innerText || '',
+    //                     sWidth: sWidth || '',
+    //                     sIndex: v.cellIndex || 0,
+    //                     sVisible: columVisible || false,
+    //                     sClass: v.className || ''
+    //                 };
+    //                 tableHeaderList.push(datatablerecordObj);
+    //             });
+    //             templateObject.tableheaderrecords.set(tableHeaderList);
+    //             $('div.dataTables_filter input').addClass('form-control form-control-sm');
+    //             $('#tblSupplierPayment tbody').on( 'click', 'tr', function () {
+    //                 var listData = $(this).closest('tr').attr('id');
+    //                 var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+    //                 if(listData){
+    //                   // if(checkDeleted == "Deleted"){
+    //                   //   swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+    //                   // }else{
+    //                     FlowRouter.go('/supplierpaymentcard?id=' + listData);
+    //                   //}
+    //                 }
+    //             });
+
+    //         }
+    //     }).catch(function (err) {
+    //       sideBarService.getAllTSupplierPaymentListData(prevMonth11Date,toDate, true,initialReportLoad,0).then(function (data) {
+    //           let lineItems = [];
+    //           let lineItemObj = {};
+    //           addVS1Data('TSupplierPaymentList',JSON.stringify(data));
+    //           if (data.Params.IgnoreDates == true) {
+    //               $('#dateFrom').attr('readonly', true);
+    //               $('#dateTo').attr('readonly', true);
+    //           } else {
+    //             $('#dateFrom').attr('readonly', false);
+    //             $('#dateTo').attr('readonly', false);
+    //               $("#dateFrom").val(data.Params.DateFrom != '' ? moment(data.Params.DateFrom).format("DD/MM/YYYY") : data.Params.DateFrom);
+    //               $("#dateTo").val(data.Params.DateTo != '' ? moment(data.Params.DateTo).format("DD/MM/YYYY") : data.Params.DateTo);
+    //           }
+    //           for(let i=0; i<data.tsupplierpaymentlist.length; i++){
+    //               let amount = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Amount)|| 0.00;
+    //               let applied = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Applied) || 0.00;
+    //               // Currency+''+data.tsupplierpayment[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
+    //               let balance = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].Balance)|| 0.00;
+    //               let totalPaid = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalPaid)|| 0.00;
+    //               let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.tsupplierpaymentlist[i].TotalBalance)|| 0.00;
+    //               let paystatus = data.tsupplierpaymentlist[i].QuoteStatus || '';
+    //               if(data.tsupplierpaymentlist[i].Deleted == true){
+    //                 paystatus = "Deleted";
+    //               }else if (data.tsupplierpaymentlist[i].Reconciled == true){
+    //                 paystatus = "Rec";
+    //               }else if(data.tsupplierpaymentlist[i].Deleted != true){
+    //                 if (data.tsupplierpaymentlist[i].PaidInFull == "Yes"){
+    //                  paystatus = "Full";
+    //                 }else{
+    //                  paystatus = "Part";
+    //                 }
+    //               };
+    //               var dataList = {
+    //                   id: data.tsupplierpaymentlist[i].PaymentID || '',
+    //                   sortdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("YYYY/MM/DD"): data.tsupplierpaymentlist[i].PaymentDate,
+    //                   paymentdate: data.tsupplierpaymentlist[i].PaymentDate !=''? moment(data.tsupplierpaymentlist[i].PaymentDate).format("DD/MM/YYYY"): data.tsupplierpaymentlist[i].PaymentDate,
+    //                   customername: data.tsupplierpaymentlist[i].CompanyName || '',
+    //                   paymentamount: amount || 0.00,
+    //                   applied: applied || 0.00,
+    //                   balance: balance || 0.00,
+    //                   bankaccount: data.tsupplierpaymentlist[i].BankAccountName || '',
+    //                   department: data.tsupplierpaymentlist[i].Department || '',
+    //                   paystatus: paystatus || '',
+    //                   refno: data.tsupplierpaymentlist[i].ReferenceNo || '',
+    //                   paymentmethod: data.tsupplierpaymentlist[i].PaymentMethodName || '',
+    //                   notes: data.tsupplierpaymentlist[i].Notes || ''
+    //               };
+    //               dataTableList.push(dataList);
+    //           }
+    //           templateObject.datatablerecords.set(dataTableList);
+    //           if(templateObject.datatablerecords.get()){
+
+
+
+    //               setTimeout(function () {
+    //                   MakeNegative();
+    //               }, 100);
+    //           }
+
+    //           $('.fullScreenSpin').css('display','none');
+    //           setTimeout(function () {
+    //               //$.fn.dataTable.moment('DD/MM/YY');
+    //               $('#tblSupplierPayment').DataTable({
+    //                   columnDefs: [
+    //                       {type: 'date', targets: 0}
+    //                   ],
+    //                   "sDom": "<'row'><'row'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
+    //                   buttons: [
+    //                       {
+    //                           extend: 'excelHtml5',
+    //                           text: '',
+    //                           download: 'open',
+    //                           className: "btntabletocsv hiddenColumn",
+    //                           filename: "Supplier Payment List - "+ moment().format(),
+    //                           orientation:'portrait',
+    //                           exportOptions: {
+    //                               columns: ':visible',
+    //                               format: {
+    //                                   body: function ( data, row, column ) {
+    //                                       if(data.includes("</span>")){
+    //                                           var res = data.split("</span>");
+    //                                           data = res[1];
+    //                                       }
+
+    //                                       return column === 1 ? data.replace(/<.*?>/ig, ""): data;
+
+    //                                   }
+    //                               }
+    //                           }
+    //                       },{
+    //                           extend: 'print',
+    //                           download: 'open',
+    //                           className: "btntabletopdf hiddenColumn",
+    //                           text: '',
+    //                           title: 'Supplier Payment',
+    //                           filename: "Supplier Payment List - "+ moment().format(),
+    //                           exportOptions: {
+    //                               columns: ':visible',
+    //                               stripHtml: false
+    //                           }
+    //                       }],
+    //                   select: true,
+    //                   destroy: true,
+    //                   colReorder: true,
+    //                   // bStateSave: true,
+    //                   // rowId: 0,
+    //                   pageLength: initialReportDatatableLoad,
+    //                   "bLengthChange": false,
+    //                   info: true,
+    //                   responsive: true,
+    //                   "order": [[ 0, "desc" ],[ 2, "desc" ]],
+    //                   // "aaSorting": [[1,'desc']],
+    //                   action: function () {
+    //                       $('#tblSupplierPayment').DataTable().ajax.reload();
+    //                   },
+    //                   "fnDrawCallback": function (oSettings) {
+    //                     let checkurlIgnoreDate = FlowRouter.current().queryParams.ignoredate;
+
+    //                       $('.paginate_button.page-item').removeClass('disabled');
+    //                       $('#tblSupplierPayment_ellipsis').addClass('disabled');
+
+    //                       if (oSettings._iDisplayLength == -1) {
+    //                           if (oSettings.fnRecordsDisplay() > 150) {
+    //                               $('.paginate_button.page-item.previous').addClass('disabled');
+    //                               $('.paginate_button.page-item.next').addClass('disabled');
+    //                           }
+    //                       } else {}
+    //                       if (oSettings.fnRecordsDisplay() < initialDatatableLoad) {
+    //                           $('.paginate_button.page-item.next').addClass('disabled');
+    //                       }
+    //                       $('.paginate_button.next:not(.disabled)', this.api().table().container())
+    //                       .on('click', function () {
+    //                           $('.fullScreenSpin').css('display', 'inline-block');
+    //                           let dataLenght = oSettings._iDisplayLength;
+
+    //                           var dateFrom = new Date($("#dateFrom").datepicker("getDate"));
+    //                           var dateTo = new Date($("#dateTo").datepicker("getDate"));
+
+    //                           let formatDateFrom = dateFrom.getFullYear() + "-" + (dateFrom.getMonth() + 1) + "-" + dateFrom.getDate();
+    //                           let formatDateTo = dateTo.getFullYear() + "-" + (dateTo.getMonth() + 1) + "-" + dateTo.getDate();
+    //                           if(data.Params.IgnoreDates == true){
+    //                             sideBarService.getAllTSupplierPaymentListData(formatDateFrom, formatDateTo, true, initialDatatableLoad, oSettings.fnRecordsDisplay()).then(function (dataObjectnew) {
+    //                                 getVS1Data('TSupplierPaymentList').then(function (dataObjectold) {
+    //                                     if (dataObjectold.length == 0) {}
+    //                                     else {
+    //                                         let dataOld = JSON.parse(dataObjectold[0].data);
+    //                                         var thirdaryData = $.merge($.merge([], dataObjectnew.tsupplierpaymentlist), dataOld.tsupplierpaymentlist);
+    //                                         let objCombineData = {
+    //                                             Params: dataOld.Params,
+    //                                             tsupplierpaymentlist: thirdaryData
+    //                                         }
+
+    //                                         addVS1Data('TSupplierPaymentList', JSON.stringify(objCombineData)).then(function (datareturn) {
+    //                                             templateObject.resetData(objCombineData);
+    //                                             $('.fullScreenSpin').css('display', 'none');
+    //                                         }).catch(function (err) {
+    //                                             $('.fullScreenSpin').css('display', 'none');
+    //                                         });
+
+    //                                     }
+    //                                 }).catch(function (err) {});
+
+    //                             }).catch(function (err) {
+    //                                 $('.fullScreenSpin').css('display', 'none');
+    //                             });
+    //                           }else{
+    //                           sideBarService.getAllTSupplierPaymentListData(formatDateFrom, formatDateTo, false, initialDatatableLoad, oSettings.fnRecordsDisplay()).then(function (dataObjectnew) {
+    //                               getVS1Data('TSupplierPaymentList').then(function (dataObjectold) {
+    //                                   if (dataObjectold.length == 0) {}
+    //                                   else {
+    //                                       let dataOld = JSON.parse(dataObjectold[0].data);
+    //                                       var thirdaryData = $.merge($.merge([], dataObjectnew.tsupplierpaymentlist), dataOld.tsupplierpaymentlist);
+    //                                       let objCombineData = {
+    //                                           Params: dataOld.Params,
+    //                                           tsupplierpaymentlist: thirdaryData
+    //                                       }
+
+    //                                       addVS1Data('TSupplierPaymentList', JSON.stringify(objCombineData)).then(function (datareturn) {
+    //                                           templateObject.resetData(objCombineData);
+    //                                           $('.fullScreenSpin').css('display', 'none');
+    //                                       }).catch(function (err) {
+    //                                           $('.fullScreenSpin').css('display', 'none');
+    //                                       });
+
+    //                                   }
+    //                               }).catch(function (err) {});
+
+    //                           }).catch(function (err) {
+    //                               $('.fullScreenSpin').css('display', 'none');
+    //                           });
+    //                         }
+
+    //                       });
+
+    //                       setTimeout(function () {
+    //                           MakeNegative();
+    //                       }, 100);
+    //                   },
+    //                   language: { search: "",searchPlaceholder: "Search List..." },
+    //                    "fnInitComplete": function () {
+    //                      this.fnPageChange('last');
+    //                      if(data.Params.Search.replace(/\s/g, "") == ""){
+    //                        $("<button class='btn btn-danger btnHideDeleted' type='button' id='btnHideDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='far fa-check-circle' style='margin-right: 5px'></i>Hide Deleted</button>").insertAfter("#tblSupplierPayment_filter");
+    //                      }else{
+    //                        $("<button class='btn btn-primary btnViewDeleted' type='button' id='btnViewDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fa fa-trash' style='margin-right: 5px'></i>View Deleted</button>").insertAfter("#tblSupplierPayment_filter");
+    //                      };
+    //                          $("<button class='btn btn-primary btnRefreshSupplierPayment' type='button' id='btnRefreshSupplierPayment' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblSupplierPayment_filter");
+    //                          $('.myvarFilterForm').appendTo(".colDateFilter");
+    //                      },
+    //                      "fnInfoCallback": function (oSettings, iStart, iEnd, iMax, iTotal, sPre) {
+    //                        let countTableData = data.Params.Count || 0; //get count from API data
+
+    //                          return 'Showing '+ iStart + " to " + iEnd + " of " + countTableData;
+    //                      }
+
+    //               }).on('page', function () {
+    //                   setTimeout(function () {
+    //                       MakeNegative();
+    //                   }, 100);
+    //                   let draftRecord = templateObject.datatablerecords.get();
+    //                   templateObject.datatablerecords.set(draftRecord);
+    //               }).on('column-reorder', function () {
+
+    //               }).on( 'length.dt', function ( e, settings, len ) {
+    //                   setTimeout(function () {
+    //                       MakeNegative();
+    //                   }, 100);
+    //               });
+    //               $('.fullScreenSpin').css('display','none');
+
+
+
+    //           }, 0);
+
+    //           var columns = $('#tblSupplierPayment th');
+    //           let sTible = "";
+    //           let sWidth = "";
+    //           let sIndex = "";
+    //           let sVisible = "";
+    //           let columVisible = false;
+    //           let sClass = "";
+    //           $.each(columns, function(i,v) {
+    //               if(v.hidden == false){
+    //                   columVisible =  true;
+    //               }
+    //               if((v.className.includes("hiddenColumn"))){
+    //                   columVisible = false;
+    //               }
+    //               sWidth = v.style.width.replace('px', "");
+
+    //               let datatablerecordObj = {
+    //                   sTitle: v.innerText || '',
+    //                   sWidth: sWidth || '',
+    //                   sIndex: v.cellIndex || 0,
+    //                   sVisible: columVisible || false,
+    //                   sClass: v.className || ''
+    //               };
+    //               tableHeaderList.push(datatablerecordObj);
+    //           });
+    //           templateObject.tableheaderrecords.set(tableHeaderList);
+    //           $('div.dataTables_filter input').addClass('form-control form-control-sm');
+    //           $('#tblSupplierPayment tbody').on( 'click', 'tr', function () {
+    //               var listData = $(this).closest('tr').attr('id');
+    //               var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+    //               if(listData){
+    //                 // if(checkDeleted == "Deleted"){
+    //                 //   swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+    //                 // }else{
+    //                   FlowRouter.go('/supplierpaymentcard?id=' + listData);
+    //                 //}
+    //               }
+    //           });
+
+    //       }).catch(function (err) {
+    //           // Bert.alert('<strong>' + err + '</strong>!', 'danger');
+    //           $('.fullScreenSpin').css('display','none');
+    //           // Meteor._reload.reload();
+    //       });
+    //     });
+    //   }
+    // }
+
+    // templateObject.getAllSupplierPaymentData();
+
+    // templateObject.getAllFilterSuppPaymentData = function(fromDate, toDate, ignoreDate) {
+    //     sideBarService.getAllTSupplierPaymentListData(fromDate, toDate, ignoreDate,initialReportLoad,0).then(function(data) {
+    //         addVS1Data('TSupplierPaymentList', JSON.stringify(data)).then(function(datareturn) {
+    //             location.reload();
+    //         }).catch(function(err) {
+    //             location.reload();
+    //         });
+    //     }).catch(function(err) {
+    //         $('.fullScreenSpin').css('display', 'none');
+    //     });
+    // }
 
     let urlParametersDateFrom = FlowRouter.current().queryParams.fromDate;
     let urlParametersDateTo = FlowRouter.current().queryParams.toDate;
@@ -1179,6 +1230,17 @@ Template.supplierpayment.onRendered(function() {
             $("#dateTo").val(urlParametersDateTo != '' ? moment(urlParametersDateTo).format("DD/MM/YYYY") : urlParametersDateTo);
         }
     }
+    $('#tblSupplierPayment tbody').on( 'click', 'tr', function () {
+        var listData = $(this).closest('tr').find('.colSortDate').text()
+        var checkDeleted = $(this).closest('tr').find('.colStatus').text() || '';
+        if(listData){
+          // if(checkDeleted == "Deleted"){
+          //   swal('You Cannot View This Transaction', 'Because It Has Been Deleted', 'info');
+          // }else{
+            FlowRouter.go('/supplierpaymentcard?id=' + listData);
+          //}
+        }
+    });
 
 });
 
@@ -1841,5 +1903,53 @@ Template.supplierpayment.helpers({
     salesCloudPreferenceRec: () => {
         return CloudPreference.findOne({userid:localStorage.getItem('mycloudLogonID'),PrefName:'tblSupplierPayment'});
     },
-    isCurrencyEnable: () => FxGlobalFunctions.isCurrencyEnabled()
+    isCurrencyEnable: () => FxGlobalFunctions.isCurrencyEnabled(),
+    loggedCompany: () => {
+        return localStorage.getItem("mySession") || "";
+      },
+    
+      // custom fields displaysettings
+      custfields: () => {
+        return Template.instance().custfields.get();
+      },
+    
+      // custom fields displaysettings
+      displayfields: () => {
+        return Template.instance().displayfields.get();
+      },
+      convertedStatus: () => {
+        return Template.instance().convertedStatus.get()
+      },
+    
+      apiFunction:function() { // do not use arrow function
+        return sideBarService.getAllTSupplierPaymentListData
+      },
+    
+      searchAPI: function() {
+        return sideBarService.getAllTSupplierPaymentListDataByPaymentID
+      },
+    
+      apiParams: function() {
+        return ['dateFrom', 'dateTo', 'ignoredate', 'limitCount', 'limitFrom', 'deleteFilter'];
+      },
+    
+      service: ()=>{
+        return sideBarService;
+      },
+    
+      datahandler: function () {
+        let templateObject = Template.instance();
+        return function(data) {
+            let dataReturn =  templateObject.getDataTableList(data)
+            return dataReturn
+        }
+      },
+    
+      exDataHandler: function() {
+        let templateObject = Template.instance();
+        return function(data) {
+          let dataReturn = templateObject.getDataTableList(data);
+          return dataReturn
+        }
+      }
 });

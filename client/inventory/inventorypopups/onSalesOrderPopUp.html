@@ -14,9 +14,31 @@
                         <div class="col-12 product_recent_trans" style="display:block; margin-top: 16px;">
                             <h3>Recent Transactions</h3>
                             <!-- {{>recentTransactionTable productID=productID type="Sales Order"}} -->
-                            {{#if productID}}
+                            <!-- {{#if productID}}
                             {{>transaction_list tablename="productrecentlist" type="Sales Order" productID = productID}}
-                            {{/if}}
+                            {{/if}} -->
+                            <style>
+                                td.Qty, td.TotalRunning, td.UnitPrice, td.Total{
+                                    text-align: right !important;
+                                }
+                            </style>
+                            {{>datatablelist
+                                tablename="productrecentlist2"
+                                apiName= apiFunction
+                                indexeddbname = 'T_VS1_Report_Productmovement'
+                                tableheaderrecords = tableheaderrecords
+                                exportfilename = 'Product Recent List'
+                                istransaction = true
+                                apiParams= apiParams
+                                datahandler = datahandler
+                                service=service
+                                lowercaseDataName='t_vs1_report_productmovement'
+                                exIndexDBName = 't_vs1_report_productmovement'
+                                exdatahandler = exDataHandler
+                                searchAPI = searchAPI
+                                typefilter = typefilter
+                        }}
+
                         </div>
                     </div>
                 </div>

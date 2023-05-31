@@ -130,5 +130,13 @@ export class ManufacturingService extends BaseService {
       }
       return this.getList(this.ERPObjects.TVS1WorkOrder, options)
     }  
+
+    getOneWorkOrderByCustomer(dataSearchName) {
+      let options={
+        ListType:'Detail',
+        select: '[Customer] f7like "' + dataSearchName +'" OR [ID] f7like "' + dataSearchName +'"',
+      }
+      return this.getList(this.ERPObjects.TVS1WorkOrder, options);
   
+}
 }

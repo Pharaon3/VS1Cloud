@@ -1524,6 +1524,38 @@ Template.onsuccesswaterfall.onRendered(function () {
     });
   }
 
+  templateObject.getAllTManifestListData = function () {
+
+    sideBarService.getAllTManifestListData(prevMonth11Date, toDate, true, initialReportLoad, 0).then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      //$(".progressBarInner").text("Bank Deposit "+Math.round(progressPercentage)+"%");
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Invoice List");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      addVS1Data('TManifestList', JSON.stringify(data)).then(function (datareturn) {
+        $("<span class='process'>Manifest List Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+      }).catch(function (err) {
+
+      });
+
+    }).catch(function (err) {
+
+    });
+  }
+
   templateObject.getAllRefundListData = function () {
     sideBarService.getAllRefundList(initialDataLoad, 0).then(function (data) {
       countObjectTimes++;

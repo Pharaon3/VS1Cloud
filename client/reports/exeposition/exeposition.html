@@ -1,226 +1,204 @@
 <template name="exepositionreport">
-    <!-- {{# vs1_report_template tabledisplayname="Position Report" tablename="tblPositionExecutive" dateAsAt=dateAsAt}} 
+    {{# vs1_report_template tabledisplayname="Position Report" tablename="tblPositionExecutive" dateAsAt=dateAsAt}}
         <div class="table-responsive">
             <table class="table table-sm tableExportDetailDiv" id="tableExport" name="tableExport">
                 <thead>
-                    <tr class="table-secondary customDoubleTableHeading">
+                <tr class="table-active">
+                    <th></th>
+                    <th colspan="{{countActive currencyList }}" class="text-nowrap text-center text-center{{countActive currencyList }} titleMonth1" style="font-weight: bold;"></th>
+                    <th colspan="{{countActive currencyList }}" class="text-nowrap text-center text-center{{countActive currencyList }} titleMonth2" style="font-weight: bold;"></th>
+                    <th class="text-nowrap text-center text-center{{countActive currencyList }}" style="font-weight: bold;">Variance(%)</th>
+                </tr>
+                {{#if isOnlyDefaultActive equal "false" }}
+                    <tr class="table-active">
+
+                        {{#if currencyList}}
+                            <th class="text-left"></th>
+                            {{#each c in currencyList }}
+                                {{# if c.active}}
+                                    <th class="text-right __alighnMent{{countActive currencyList }}" active="{{ c.active }}" >{{ c.code }}</th>
+                                {{/if}}
+                            {{/each}}
+
+                            {{#each c in currencyList }}
+                                {{# if c.active}}
+                                    <th class="text-right __alighnMent{{countActive currencyList }}" active="{{ c.active }}">{{ c.code }}</th>
+                                {{/if}}
+                            {{/each}}
+                        {{/if}}
                         <th></th>
-                        <th colspan="{{countActive currencyList }}" class="text-nowrap text-center text-center{{countActive currencyList }} titleMonth1" style="font-weight: 800;"></th>
-                        <th colspan="{{countActive currencyList }}" class="text-nowrap text-center text-center{{countActive currencyList }} titleMonth2" style="font-weight: 800;"></th>
-                        <th class="text-nowrap text-center text-center{{countActive currencyList }}" style="font-weight: 800;">Variance(%)</th>
                     </tr>
-                    {{#if isOnlyDefaultActive equal "false" }}
-                        <tr class="table-active tblAvoid customDoubleTableHeading">
-
-                            {{#if currencyList}}
-                                <th class="text-left"></th>
-                                {{#each c in currencyList }}
-                                    {{# if c.active}}
-                                        <th class="text-right __alighnMent{{countActive currencyList }}" active="{{ c.active }}" >{{ c.code }}</th>
-                                    {{/if}}
-                                {{/each}}
-
-                                {{#each c in currencyList }}
-                                    {{# if c.active}}
-                                        <th class="text-right __alighnMent{{countActive currencyList }}" active="{{ c.active }}">{{ c.code }}</th>
-                                    {{/if}}
-                                {{/each}}
-                            {{/if}}
-                            <th></th>
-                        </tr>
-                    {{/if}}
+                {{/if}}
                 </thead>
                 <tbody>
-                    <tr class="balacesheettable">
-                        <td class="text-nowrap text-left" style="font-weight: 800;" >
-                            Average Debtors Days
-                        </td>
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                <tr class="balacesheettable">
+                    <td class="text-nowrap text-left" style="font-weight: bold;" >
+                        Average Debtors Days
+                    </td>
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{avgDebtors1}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{avgDebtors1}}
-                            </td>
-                        {{/if}}
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{avgDebtors1}}
+                        </td>
+                    {{/if}}
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{avgDebtors2}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{avgDebtors2}}
-                            </td>
-                        {{/if}}
-                        <td class="text-nowrap text-right spnAverageDebtorsVariance" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{avgDebtors2}}
                         </td>
-                    </tr>
-                    <tr class="balacesheettable">
-                        <td class="text-nowrap text-left" style="font-weight: 800;" >
-                            Average Creditors Days
-                        </td>
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                    {{/if}}
+                    <td class="text-nowrap text-right spnAverageDebtorsVariance" style="font-weight: bold;" >
+                    </td>
+                </tr>
+                <tr class="balacesheettable">
+                    <td class="text-nowrap text-left" style="font-weight: bold;" >
+                        Average Creditors Days
+                    </td>
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{avgCreditors1}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{avgCreditors1}}
-                            </td>
-                        {{/if}}
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{avgCreditors1}}
+                        </td>
+                    {{/if}}
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{avgCreditors2}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{avgCreditors2}}
-                            </td>
-                        {{/if}}
-                        <td class="text-nowrap text-right spnAverageCreditorsVariance" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{avgCreditors2}}
                         </td>
-                    </tr>
-                    <tr class="balacesheettable">
-                        <td class="text-nowrap text-left" style="font-weight: 800;" >
-                            Short Term Cash Forecast
-                        </td>
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                    {{/if}}
+                    <td class="text-nowrap text-right spnAverageCreditorsVariance" style="font-weight: bold;" >
+                    </td>
+                </tr>
+                <tr class="balacesheettable">
+                    <td class="text-nowrap text-left" style="font-weight: bold;" >
+                        Short Term Cash Forecast
+                    </td>
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount shortTermCash1 c}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{shortTermCash1}}
-                            </td>
-                        {{/if}}
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{shortTermCash1}}
+                        </td>
+                    {{/if}}
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount shortTermCash2 c}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{shortTermCash2}}
-                            </td>
-                        {{/if}}
-                        <td class="text-nowrap text-right spnShortTermCashVariance" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{shortTermCash2}}
                         </td>
-                    </tr>
-                    <tr class="balacesheettable">
-                        <td class="text-nowrap text-left" style="font-weight: 800;" >
-                            Current Asset to Liabilities
-                        </td>
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                    {{/if}}
+                    <td class="text-nowrap text-right spnShortTermCashVariance" style="font-weight: bold;" >
+                    </td>
+                </tr>
+                <tr class="balacesheettable">
+                    <td class="text-nowrap text-left" style="font-weight: bold;" >
+                        Current Asset to Liabilities
+                    </td>
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount currentAsset1 c}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{currentAsset1}}
-                            </td>
-                        {{/if}}
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{currentAsset1}}
+                        </td>
+                    {{/if}}
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount currentAsset2 c}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{currentAsset2}}
-                            </td>
-                        {{/if}}
-                        <td class="text-nowrap text-right spnCurrentAssetVariance" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{currentAsset2}}
                         </td>
-                    </tr>
-                    <tr class="balacesheettable">
-                        <td class="text-nowrap text-left" style="font-weight: 800;" >
-                            Term Asset to Liabilities
-                        </td>
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                    {{/if}}
+                    <td class="text-nowrap text-right spnCurrentAssetVariance" style="font-weight: bold;" >
+                    </td>
+                </tr>
+                <tr class="balacesheettable">
+                    <td class="text-nowrap text-left" style="font-weight: bold;" >
+                        Term Asset to Liabilities
+                    </td>
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount termAsset1 c}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{termAsset1}}
-                            </td>
-                        {{/if}}
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{termAsset1}}
+                        </td>
+                    {{/if}}
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount termAsset2 c}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{termAsset2}}
-                            </td>
-                        {{/if}}
-                        <td class="text-nowrap text-right spnTermAssetVariance" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{termAsset2}}
                         </td>
-                    </tr>
+                    {{/if}}
+                    <td class="text-nowrap text-right spnTermAssetVariance" style="font-weight: bold;" >
+                    </td>
+                </tr>
                 </tbody>
 
             </table>
         </div>
-    {{/vs1_report_template}} -->
-    {{> reportcard
-        datahandler=datahandler
-        mainfieldname='ACCOUNTNAME'
-        mainfieldClass='colAccountName'
-        lowercasename='positionreport'
-        indexDBName='PositionReport'
-        tabledisplayname="Position Report"
-        tablename="tblPositionExecutive"
-        sheetname="Position Report Result"
-        printDocTitle='Position Report.pdf'
-        typeIndex=6
-        localStorageKeyName='VS1BalanceSheet_Report'
-        listParam=listParams
-        apiName=apiFunction
-        printTaleName='printReport'
-        exportfilename='Position Report'
-        service=service
-        transType='purchase'
-        searchFunction=searchFunction
-        displaysettings=displaysettings
-        subGroup=true
-    }}
+    {{/vs1_report_template}}
 </template>

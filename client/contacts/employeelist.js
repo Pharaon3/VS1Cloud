@@ -57,8 +57,8 @@ Template.employeelist.onCreated(function () {
     let headerStructure = [
         {index: 0, label: 'Emp', class: 'colEmployeeNo', active: false, display: true, width: "10"},
         {index: 1, label: 'Employee Name', class: 'colEmployeeName', active: true, display: true, width: "200"},
-        {index: 2, label: 'First Name', class: 'colFirstName', active: true, display: true, width: "100"},
-        {index: 3, label: 'Last Name', class: 'colLastName', active: true, display: true, width: "100"},
+        {index: 2, label: 'First Name', class: 'colFirstName', active: true, display: true, width: "200"},
+        {index: 3, label: 'Last Name', class: 'colLastName', active: true, display: true, width: "200"},
         {index: 4, label: 'Phone', class: 'colPhone', active: true, display: true, width: "110"},
         {index: 5, label: 'Mobile', class: 'colMobile', active: false, display: true, width: "110"},
         {index: 6, label: 'Email', class: 'colEmail', active: true, display: true, width: "200"},
@@ -466,8 +466,8 @@ Template.employeelist.events({
         let utilityService = new UtilityService();
         let rows = [];
         const filename = 'SampleEmployee' + '.csv';
-        rows[0] = ['Emplyoee Name','First Name', 'Last Name', 'Phone', 'Email', 'Department', 'Addresss'];
-        rows[1] = ['John Smith','John', 'Smith', '9995551213', 'johnsmith@email.com','Default','12 Somewhere Place'];
+        rows[0] = ['Emplyoee Name','First Name', 'Last Name', 'Phone', 'Email', 'Department', 'Address','Gender'];
+        rows[1] = ['John Smith','John', 'Smith', '9995551213', 'johnsmith@email.com','Default','12 Somewhere Place','M'];
         utilityService.exportToCsv(rows, filename, 'csv');
     },
     'click .templateDownloadXLSX': function (e) {
@@ -557,10 +557,11 @@ Template.employeelist.events({
             complete: function (results) {
 
                 if (results.data.length > 0) {
-                    if ((results.data[0][0] == "Employee Name")
+                    if ((results.data[0][0] == "Emplyoee Name")
                         && (results.data[0][1] == "First Name") && (results.data[0][2] == "Last Name")
                         && (results.data[0][3] == "Phone") && (results.data[0][4] == "Email")
-                        && (results.data[0][5] == "Department") && (results.data[0][6] == "Address")) {
+                        && (results.data[0][5] == "Department") && (results.data[0][6] == "Address")
+                        && (results.data[0][7] == "Gender")) {
 
                         let dataLength = results.data.length * 500;
                         setTimeout(function () {
@@ -594,6 +595,9 @@ Template.employeelist.events({
                                         Email: results.data[i + 1][4],
                                         DefaultClassName: results.data[i + 1][5],
                                         Street: results.data[i + 1][6],
+                                        Sex: results.data[i + 1][7] || "F",
+                                        DateStarted: empStartDate,
+                                        DOB: empStartDate,
                                         Active: true,
 
                                         // BillStreet: results.data[i+1][6],

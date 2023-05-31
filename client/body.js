@@ -722,6 +722,7 @@ import './settings/tax-rates-setting/taxratelistpopwithswitch.js';
 /* Pablo Begin */ 
 import './overviews/deliveryoverview.js';
 import './driver/drivervehiclelist.js';
+import './driver/depotlist.js';
 import './driver/addDriverVehicle.js';
 import './fixedassets/vehiclelist.js';
 import './fixedassets/components/assetcostlist/assetcostlist.js';
@@ -740,10 +741,11 @@ import './delivery/manifest_list.js';
 
 /* Nowak */
 import './packages/currency/modals/NewCountryModal.js';
+import './inventory/inventorypopups/RecentTransactionPopUp.js';
 /* Nowak */
 
 /* Denys */
-// import './delivery/optimize_map';
+import './delivery/optimize_map.js';
 /* Denys */
 
 //import { FlowRouter } from 'meteor/kadira:flow-router';

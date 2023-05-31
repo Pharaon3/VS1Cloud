@@ -93,6 +93,7 @@ Template.vs1_report_template.onRendered(function () {
           { index: 6, label: 'Debits', class: 'colDebitsEx text-right', active: true, display: true, width: "130", calc: true},
           { index: 7, label: 'Credits', class: 'colCreditEx text-right', active: true, display: true, width: "130", calc: true},
           { index: 8, label: 'Amount', class: 'colAmountEx text-right', active: true, display: true, width: "130", calc: true},
+          { index: 9, label: 'Account', class: 'colAccount', active: false, display: true, width: "130", calc: false},
         ];
         break;
       case "taxSummary":
@@ -111,6 +112,7 @@ Template.vs1_report_template.onRendered(function () {
         break;
       case "tblBalanceSheet":
         reset_data = [
+          { index: 0, label: 'ID', class:'colLineId', active: false, display: true, width: "10", calc: false},
           { index: 1, label: '', class: 'colAccountTree', active: true, display: true, width: "400" },
           { index: 2, label: 'Sub Account Totals', class: 'colSubAccountTotals', active: true, display: true, width: "" },
           { index: 3, label: 'Header Account Totals', class: 'colHeaderAccountTotals', active: true, display: true, width: "" },
@@ -577,16 +579,16 @@ Template.vs1_report_template.onRendered(function () {
         break;
       case "jobsalessummary":
         reset_data = [
-          { index: 1, label: 'Customer', class: 'colCustomer', active: true, display: true, width: "100" },
-          { index: 2, label: 'Job Customer', class: 'colJobCustomer', active: true, display: true, width: "150" },
-          { index: 3, label: 'Job Number', class: 'colJobNumber', active: true, display: true, width: "100" },
-          { index: 4, label: 'Job Name', class: 'colJobName', active: true, display: true, width: "100" },
-          { index: 5, label: 'Product ID', class: 'colProductID', active: true, display: true, width: "100" },
-          { index: 6, label: 'Qty Shipped', class: 'colQtyShipped', active: true, display: true, width: "100" },
-          { index: 7, label: 'Discount', class: 'colDiscount', active: true, display: true, width: "100" },
-          { index: 8, label: 'Tax', class: 'colTax', active: true, display: true, width: "100" },
-          { index: 9, label: 'Amount Ex', class: 'colAmountEx', active: true, display: true, width: "100" },
-          { index: 10, label: 'Amount Inc', class: 'colAmountInc', active: true, display: true, width: "100" },
+          { index: 1, label: 'Customer', class: 'colCustomer', active: true, display: true, width: "130", calc: false},
+          { index: 2, label: 'Job Customer', class: 'colJobCustomer', active: true, display: true, width: "130", calc: false},
+          { index: 3, label: 'Job Number', class: 'colJobNumber', active: true, display: true, width: "130", calc: false},
+          { index: 4, label: 'Job Name', class: 'colJobName', active: true, display: true, width: "130", calc: false},
+          { index: 5, label: 'Product Name', class: 'colProductID', active: true, display: true, width: "130", calc: false},
+          { index: 6, label: 'Qty Shipped', class: 'colQtyShipped', active: true, display: true, width: "130", calc: false},
+          { index: 7, label: 'Discount', class: 'colDiscount', active: true, display: true, width: "130", calc: false},
+          { index: 8, label: 'Tax', class: 'colTax text-right', active: true, display: true, width: "130", calc: true},
+          { index: 9, label: 'Amount (ex)', class: 'colAmountEx text-right', active: true, display: true, width: "130", calc: true},
+          { index: 10, label: 'Amount (inc)', class: 'colAmountInc text-right', active: true, display: true, width: "130", calc: true},
           // { index: 11, label: 'DetailType', class: 'colDetailType', active: false, display: true, width: "100" },
           // { index: 12, label: 'ParentClientID', class: 'colParentClientID', active: false, display: true, width: "100" },
           // { index: 13, label: 'ClientID', class: 'colClientID', active: false, display: true, width: "100" },

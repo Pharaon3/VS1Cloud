@@ -1046,7 +1046,11 @@ Template.newsidenav.onRendered(function () {
         $('#sidenavdelivery').removeClass('active');
         $('#sidenavfixedAssets').addClass('active');
         // $('.collapse').collapse('hide');
-      } else if ((currentLoc == "/deliveryOverview")) {
+      } else if ((currentLoc == "/deliveryOverview") || 
+                  (currentLoc == "/depotlist") || 
+                  (currentLoc == "/drivervehiclelist") || 
+                  (currentLoc == "/drivervehiclelistcard") || 
+                  (currentLoc == "/vehiclelist")) {
         console.log("/deliveryoverview");
         $('#sidenavaccounts').removeClass('active');
         $('#sidenavbanking').removeClass('active');
@@ -3427,6 +3431,12 @@ Template.newsidenav.events({
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },
+  'click #sidenavoptimisedmaps': function (event) {
+    event.preventDefault();
+    FlowRouter.go('/optimizedmap');
+    let templateObject = Template.instance();
+    templateObject.getSetSideNavFocus();
+  },
   'click #sidenavproductionplanner': function (event) {
     event.preventDefault();
     FlowRouter.go('/productionplanner');
@@ -3745,7 +3755,7 @@ Template.newsidenav.events({
   },
   'click #sidenavnewcustomerjob': function (event) {
     event.preventDefault();
-    FlowRouter.go('/customerlist');
+    FlowRouter.go('/customerscard');
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },
@@ -4857,28 +4867,30 @@ Template.newsidenav.events({
   'click .deliveryHeader': function (event) {
     event.preventDefault();
     FlowRouter.go('/deliveryOverview');
-    $('#sidenavdelivery').addClass('active');
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },
   'click #sidenavnewdriver': function (event) {
     event.preventDefault();
     FlowRouter.go('/drivervehiclelistcard');
-    $('#sidenavdelivery').addClass('active');
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },
   'click .sidenavdriverlist': function (event) {
     event.preventDefault();
     FlowRouter.go('/drivervehiclelist');
-    $('#sidenavdelivery').addClass('active');
+    let templateObject = Template.instance();
+    templateObject.getSetSideNavFocus();
+  },
+  'click .sidenavdepotlist': function (event) {
+    event.preventDefault();
+    FlowRouter.go('/depotlist');
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },
   'click .sidenavvehicles': function (event) {
     event.preventDefault();
     FlowRouter.go('/vehiclelist');
-    $('#sidenavdelivery').addClass('active');
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },

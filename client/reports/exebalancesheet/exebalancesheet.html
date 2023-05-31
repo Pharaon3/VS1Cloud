@@ -1,160 +1,138 @@
 <template name="exebalancesheetreport">
-    <!-- {{# vs1_report_template tabledisplayname="Balance Sheet Report" tablename="tblBalanceSheet" dateAsAt=dateAsAt}}
+    {{# vs1_report_template tabledisplayname="Balance Sheet Report" tablename="tblBalanceSheet" dateAsAt=dateAsAt}}
         <div class="table-responsive">
             <table class="table table-sm tableExportDetailDiv" id="tableExport" name="tableExport">
                 <thead>
-                    <tr class="table-secondary customDoubleTableHeading">
-                        <th style="width: 240px;"></th>
-                        <th colspan="{{countActive currencyList }}" class="text-nowrap text-center text-center{{countActive currencyList }} titleMonth1" style="font-weight: 800; width: 240px;"></th>
-                        <th colspan="{{countActive currencyList }}" class="text-nowrap text-center text-center{{countActive currencyList }} titleMonth2" style="font-weight: 800; width: 240px;"></th>
-                        <th class="text-nowrap text-center text-center{{countActive currencyList }}" style="font-weight: 800; width: 300px;">Variance(%)</th>
+                <tr class="table-active">
+                    <th style="width: 240px;"></th>
+                    <th colspan="{{countActive currencyList }}" class="text-nowrap text-center text-center{{countActive currencyList }} titleMonth1" style="font-weight: bold; width: 240px;"></th>
+                    <th colspan="{{countActive currencyList }}" class="text-nowrap text-center text-center{{countActive currencyList }} titleMonth2" style="font-weight: bold; width: 240px;"></th>
+                    <th class="text-nowrap text-center text-center{{countActive currencyList }}" style="font-weight: bold; width: 300px;">Variance(%)</th>
+                </tr>
+                {{#if isOnlyDefaultActive equal "false" }}
+                    <tr class="table-active tblAvoid customDoubleTableHeading">
+
+                        {{#if currencyList}}
+                            <th class="text-left"></th>
+                            {{#each c in currencyList }}
+                                {{# if c.active}}
+                                    <th class="text-right __alighnMent{{countActive currencyList }}" active="{{ c.active }}" >{{ c.code }}</th>
+                                {{/if}}
+                            {{/each}}
+
+                            {{#each c in currencyList }}
+                                {{# if c.active}}
+                                    <th class="text-right __alighnMent{{countActive currencyList }}" active="{{ c.active }}">{{ c.code }}</th>
+                                {{/if}}
+                            {{/each}}
+                        {{/if}}
+                        <th></th>
                     </tr>
-                    {{#if isOnlyDefaultActive equal "false" }}
-                        <tr class="table-active tblAvoid customDoubleTableHeading">
-
-                            {{#if currencyList}}
-                                <th class="text-left"></th>
-                                {{#each c in currencyList }}
-                                    {{# if c.active}}
-                                        <th class="text-right __alighnMent{{countActive currencyList }}" active="{{ c.active }}" >{{ c.code }}</th>
-                                    {{/if}}
-                                {{/each}}
-
-                                {{#each c in currencyList }}
-                                    {{# if c.active}}
-                                        <th class="text-right __alighnMent{{countActive currencyList }}" active="{{ c.active }}">{{ c.code }}</th>
-                                    {{/if}}
-                                {{/each}}
-                            {{/if}}
-                            <th></th>
-                        </tr>
-                    {{/if}}
+                {{/if}}
                 </thead>
                 <tbody>
-                    <tr class="balacesheettable">
-                        <td class="text-nowrap text-left" style="font-weight: 800;" >
-                            Debtors
-                        </td>
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                <tr class="balacesheettable">
+                    <td class="text-nowrap text-left" style="font-weight: bold;" >
+                        Debtors
+                    </td>
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount totalAgedReceivables1 c}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{totalAgedReceivables1}}
-                            </td>
-                        {{/if}}
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{totalAgedReceivables1}}
+                        </td>
+                    {{/if}}
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount totalAgedReceivables2 c}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{totalAgedReceivables2}}
-                            </td>
-                        {{/if}}
-                        <td class="text-nowrap text-right spnTotalAgedReceivablesVariance" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{totalAgedReceivables2}}
                         </td>
-                    </tr>
-                    <tr class="balacesheettable">
-                        <td class="text-nowrap text-left" style="font-weight: 800;" >
-                            Creditors
-                        </td>
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                    {{/if}}
+                    <td class="text-nowrap text-right spnTotalAgedReceivablesVariance" style="font-weight: bold;" >
+                    </td>
+                </tr>
+                <tr class="balacesheettable">
+                    <td class="text-nowrap text-left" style="font-weight: bold;" >
+                        Creditors
+                    </td>
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount totalAgedPayables1 c}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{totalAgedPayables1}}
-                            </td>
-                        {{/if}}
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{totalAgedPayables1}}
+                        </td>
+                    {{/if}}
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount totalAgedPayables2 c}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{totalAgedPayables2}}
-                            </td>
-                        {{/if}}
-                        <td class="text-nowrap text-right spnTotalAgedPayablesVariance" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{totalAgedPayables2}}
                         </td>
-                    </tr>
-                    <tr class="balacesheettable">
-                        <td class="text-nowrap text-left" style="font-weight: 800;" >
-                            Net Assets
-                        </td>
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                    {{/if}}
+                    <td class="text-nowrap text-right spnTotalAgedPayablesVariance" style="font-weight: bold;" >
+                    </td>
+                </tr>
+                <tr class="balacesheettable">
+                    <td class="text-nowrap text-left" style="font-weight: bold;" >
+                        Net Assets
+                    </td>
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount totalNettAssets1 c}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{totalNettAssets1}}
-                            </td>
-                        {{/if}}
-                        {{#if currencyList}}
-                            {{#each c in currencyList}}
-                                {{#if c.active}}
-                                <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{totalNettAssets1}}
+                        </td>
+                    {{/if}}
+                    {{#if currencyList}}
+                        {{#each c in currencyList}}
+                            {{#if c.active}}
+                                <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount totalNettAssets2 c}}
                                 </td>
-                                {{/if}}
-                            {{/each}}
-                        {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
-                                {{totalNettAssets2}}
-                            </td>
-                        {{/if}}
-                        <td class="text-nowrap text-right spnTotalNettAssetVariance" style="font-weight: 800;" >
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
+                            {{totalNettAssets2}}
                         </td>
-                    </tr>
+                    {{/if}}
+                    <td class="text-nowrap text-right spnTotalNettAssetVariance" style="font-weight: bold;" >
+                    </td>
+                </tr>
                 </tbody>
 
             </table>
         </div>
-    {{/vs1_report_template}} -->
-    {{> reportcard
-        datahandler=datahandler
-        mainfieldname='ACCOUNTNAME'
-        mainfieldClass='colAccountName'
-        lowercasename='balancesheetreport'
-        indexDBName='BalanceSheetReport'
-        tabledisplayname="Balance Sheet Report"
-        tablename="tblExeBalanceSheet"
-        sheetname="Balance Sheet Report Result"
-        printDocTitle='Balance Sheet Report.pdf'
-        typeIndex=6
-        localStorageKeyName='VS1BalanceSheet_Report'
-        listParam=listParams
-        apiName=apiFunction
-        printTaleName='printReport'
-        exportfilename='Balance Sheet Report'
-        service=service
-        transType='purchase'
-        searchFunction=searchFunction
-        displaysettings=displaysettings
-        subGroup=true
-    }}
+    {{/vs1_report_template}}
 </template>

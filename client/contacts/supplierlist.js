@@ -281,8 +281,8 @@ Template.supplierlist.events({
         let utilityService = new UtilityService();
         let rows = [];
         const filename = 'SampleSupplier' + '.csv';
-        rows[0] = ['Company', 'First Name', 'Last Name', 'Phone', 'Mobile', 'Email', 'Skype', 'Street', 'City/Suburb', 'State', 'Post Code', 'Country'];
-        rows[1] = ['ABC Company', 'John', 'Smith', '9995551213', '9995551213', 'johnsmith@email.com', 'johnsmith', '123 Main Street', 'Brooklyn', 'New York', '1234', 'United States'];
+        rows[0] = ['Company','Client Name','First Name','Last Name','Phone', 'AR Balance', 'Credit Balance', 'Balance', 'Credit Limit', 'Order Balance', 'City/Suburb', 'Country', 'Comments'];
+        rows[1] = ['Water Company','William Smith','William','Smith', '9995551213', '5000,00', '20','5.000,00', '2000', '2.000,00', 'Sydney', 'Australia', ''];
         utilityService.exportToCsv(rows, filename, 'csv');
     },
     'click .templateDownloadXLSX': function(e) {
@@ -364,51 +364,64 @@ Template.supplierlist.events({
         let firstName = '';
         let lastName = '';
         let taxCode = '';
-        Papa.parse(templateObject.selectedFile.get(), {
+        var filename = $("#attachment-upload")[0].files[0]["name"];
+        var fileType = filename.split(".").pop().toLowerCase();
+        if (fileType == "csv" || fileType == "txt" || fileType == "xlsx") {
+          Papa.parse(templateObject.selectedFile.get(), {
             complete: function(results) {
 
                 if (results.data.length > 0) {
-                    if ((results.data[0][0] == "Company") && (results.data[0][1] == "First Name") &&
-                        (results.data[0][2] == "Last Name") && (results.data[0][3] == "Phone") &&
-                        (results.data[0][4] == "Mobile") && (results.data[0][5] == "Email") &&
-                        (results.data[0][6] == "Skype") && (results.data[0][7] == "Street") &&
-                        (results.data[0][8] == "Street2" || results.data[0][8] == "City/Suburb") && (results.data[0][9] == "State") &&
-                        (results.data[0][10] == "Post Code") && (results.data[0][11] == "Country")) {
+                    if ((results.data[0][0] == "Company") && 
+                        (results.data[0][1] == "Client Name" ) &&
+                        (results.data[0][2] == "First Name" ) &&
+                        (results.data[0][3] == "Last Name" ) &&
+                        (results.data[0][4] == "Phone") &&
+                        (results.data[0][5] == "AR Balance") && (results.data[0][6] == "Credit Balance") &&
+                        (results.data[0][7] == "Balance") && (results.data[0][8] == "Credit Limit") &&
+                        (results.data[0][9] == "Order Balance") && (results.data[0][10] == "Street2" || results.data[0][10] == "City/Suburb") && 
+                        (results.data[0][11] == "Country") && (results.data[0][12] == "Comments")) {
 
                         let dataLength = results.data.length * 500;
                         setTimeout(function() {
-                            window.open('/supplierlist?success=true', '_self');
-                            $('.fullScreenSpin').css('display', 'none');
+                            sideBarService
+                            .getSupplierVS1()
+                            .then(function(dataReload) {
+                                addVS1Data("TSupplierVS1", JSON.stringify(dataReload))
+                                    .then(function(datareturn) {
+                                        window.open("/supplierlist", "_self");
+                                    })
+                                    .catch(function(err) {
+                                        window.open("/supplierlist", "_self");
+                                    });
+                            })
+                            .catch(function(err) {
+                                window.open("/supplierlist", "_self");
+                            });
                         }, parseInt(dataLength));
 
                         for (let i = 0; i < results.data.length - 1; i++) {
-                            firstName = results.data[i + 1][1] !== undefined ? results.data[i + 1][1] : '';
-                            lastName = results.data[i + 1][2] !== undefined ? results.data[i + 1][2] : '';
+                            firstName = results.data[i + 1][2] !== undefined ? results.data[i + 1][2] : '';
+                            lastName = results.data[i + 1][3] !== undefined ? results.data[i + 1][3] : '';
                             //taxCode = results.data[i+1][12]!== undefined? results.data[i+1][12] :'NT';
 
                             objDetails = {
                                 type: "TSupplier",
                                 fields: {
-                                    ClientName: results.data[i + 1][0],
+                                    Companyname:results.data[i+1][0],
+                                    ClientName:results.data[i+1][1]||'',
                                     FirstName: firstName || '',
-                                    LastName: lastName || '',
-                                    Phone: results.data[i + 1][3],
-                                    Mobile: results.data[i + 1][4],
-                                    Email: results.data[i + 1][5],
-                                    SkypeName: results.data[i + 1][6],
-                                    Street: results.data[i + 1][7],
-                                    Street2: results.data[i + 1][8],
-                                    Suburb: results.data[i + 1][8] || '',
-                                    State: results.data[i + 1][9],
-                                    PostCode: results.data[i + 1][10],
-                                    Country: results.data[i + 1][11],
-
-                                    BillStreet: results.data[i + 1][7],
-                                    BillStreet2: results.data[i + 1][8],
-                                    BillState: results.data[i + 1][9],
-                                    BillPostCode: results.data[i + 1][10],
-                                    Billcountry: results.data[i + 1][11],
+                                    LastName: lastName|| '',
+                                    Phone: results.data[i + 1][4],
+                                    ARBalance: Number(results.data[i + 1][5].replace(/[^0-9.-]+/g, "")) || 0.00,
+                                    CreditBalance: Number(results.data[i + 1][6].replace(/[^0-9.-]+/g, "")) || 0.00,
+                                    Balance: Number(results.data[i + 1][7].replace(/[^0-9.-]+/g, "")) || 0.00,
+                                    CreditLimit: Number(results.data[i + 1][8].replace(/[^0-9.-]+/g, "")) || 0.00,
+                                    SalesOrderBalance:Number(results.data[i + 1][9].replace(/[^0-9.-]+/g, "")) || 0.00,
+                                    Suburb: results.data[i+1][10]||'',
+                                    Country: results.data[i+1][11]||'',
+                                    Notes:results.data[i+1][12]||'',
                                     //TaxCodeName:taxCode||'NT',
+                                    Active:true,
                                     PublishOnVS1: true
                                 }
                             };
@@ -421,9 +434,9 @@ Template.supplierlist.events({
                                         //$('.fullScreenSpin').css('display','none');
                                         swal({ title: 'Oooops...', text: err, type: 'error', showCancelButton: false, confirmButtonText: 'Try Again' }).then((result) => {
                                             if (result.value) {
-                                                window.open('/supplierlist?success=true', '_self');
+                                                // window.open('/supplierlist?success=true', '_self');
                                             } else if (result.dismiss === 'cancel') {
-                                                window.open('/supplierlist?success=false', '_self');
+                                                // window.open('/supplierlist?success=false', '_self');
                                             }
                                         });
                                     });
@@ -442,7 +455,8 @@ Template.supplierlist.events({
 
 
             }
-        });
+          });
+    }
     },
     'click #setUpCustomerList':function(){
         localStorage.setItem('VS1Cloud_SETUP_STEP',9)

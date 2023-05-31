@@ -262,7 +262,7 @@ Template.reportcard.onRendered(async function() {
                         let index = sumFieldsIndex[k] - 1;
                         if(index != undefined) {
                             for(n = 0; n< subArr.length; n++) {
-                                calcedValues[k] = calcedValues[k] + subArr[n][index];
+                                calcedValues[k] = calcedValues[k] + subArr[n][index] - 0;
                             }
                         }
                     }
@@ -407,19 +407,20 @@ Template.reportcard.onRendered(async function() {
           info: true,
           responsive: false,
           action: function () {
-            $('#'+tablename).DataTable().ajax.reload();
+            // $('#'+tablename).DataTable().ajax.reload();
           },
           "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
                 // if(aData[0] == GlobalFunctions.generateSpan(`Grand Total`, 'table-cells text-bold'))
                 //     $(nRow).addClass("grandtotal");
                 // else if(nRow != 0 && aData[6] == "")
                 //     $(nRow).addClass("totalhr");
+                if(templateObject.data.disableStyle == true)  return;
                 if(nRow !=0 && aData[3] == '' && aData[2] == "") {
-                  $(nRow).addClass("totalline")
                   if(aData[aData.length -1] == '' && aData[aData.length-2]=='') {
                     $(nRow).addClass('titleLine');
-                  } else {
+                  } else if(aData[1].includes('Total') == true ) {
                     $(nRow).addClass("listhr");
+                    $(nRow).addClass("totalline")
                   }
                 }
           },
@@ -475,8 +476,6 @@ Template.reportcard.onRendered(async function() {
                   templateObject.recordCount.get(),
                   false
                 )
-
-
 
                 let that = templateObject.data.service;
                 // templateObject.data.apiName.apply(that, params).then(function (dataObjectnew) {

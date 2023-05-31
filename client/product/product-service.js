@@ -209,6 +209,15 @@ export class ProductService extends BaseService {
         return this.getList(this.ERPObjects.T_VS1_Report_Productmovement, options);
     }
 
+    getOneProductRecentTransaction(dataSearchName){
+        let options = "";
+        options = {
+        PropertyList: "TransactionDate,ProductName,FirstColumn,SecondColumn,ThirdColumn,Qty,TotalCost,ProductID,ClassID,TransactionNo,AverageCost,Cost,Available,InStock,so,invbo,pobo,onbuild,building,Price,TotalPrice,ExtraDesc,TranstypeDesc,Deptname",
+        select:'[TransactionDate] f7like "' +dataSearchName +'" OR [TranstypeDesc] f7like "' +dataSearchName +'"',
+    };
+    return this.getList(this.ERPObjects.T_VS1_Report_Productmovement, options);
+    }
+
     getProductList() {
         let options = {
             PropertyList: "ID,Active,ProductPrintName,ProductName,BuyQty1CostInc,SellQty1PriceInc,SalesDescription",

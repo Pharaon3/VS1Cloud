@@ -25,7 +25,7 @@ Template.balancesheetreport.onCreated(function(){
 
     FxGlobalFunctions.initVars(templateObject);
     let reset_data = [
-        { index: 0, label: '#', class:'colLineId', active: false, display: true, width: "10", calc: false},
+        { index: 0, label: 'ID', class:'colLineId', active: false, display: false, width: "10", calc: false},
         { index: 1, label: '', class: 'colAccountTree', active: true, display: true, width: "370", calc: false},
         { index: 2, label: 'Sub Account Totals', class: 'colSubAccountTotals text-right', active: true, display: true, width: "", calc: false},
         { index: 3, label: 'Header Account Totals', class: 'colHeaderAccountTotals text-right', active: true, display: true, width: "", calc: false},

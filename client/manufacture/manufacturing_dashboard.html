@@ -129,7 +129,7 @@
         </style>
 
         <div class="row">
-            <div class="col-6 col-md-7 col-lg-8">
+            <div class="col-6 col-md-7 col-lg-8 float-left flex-grow-1 mb-4">
                 <button id="btnRefresh" class="btn btn-primary btnRefresh btnNav" type="button" style="margin: 12px; margin-left:0;"><i
                         class="la la-lightbulb-o" style="margin-right: 5px;"></i>Refresh</button>
 
@@ -186,9 +186,8 @@
                     
                 </div>
             </div>
-            <div class="col-6 col-md-5 col-lg-4">
-                
-                        {{> export_import_print_display_button Import="hiddenButton" displayHref="tblWorkorderList_Modal"}}
+            <div class="col-6 col-md-5 col-lg-4 d-xl-flex justify-content-xl-end align-items-xl-start">
+                {{> export_import_print_display_button Import="hiddenButton" tablename="tblWorkorderList"}}
             </div>
         </div>
 
@@ -238,14 +237,19 @@
                 {{>datatablelist
                     tableclass="tblWorkorderList"
                     tablename="tblWorkorderList"
+                    apiName= apiFunction
                     indexeddbname = 'TVS1Workorder'
                     tableheaderrecords = tableheaderrecords
                     exportfilename = 'Work Order List'
                     istransaction = true
+                    apiParams= apiParams
                     datahandler = datahandler
                     lowercaseDataName='tvs1workorder'
                     exportfilename='Work Order List'
                     exIndexDBName = 'tvs1workorder'
+                    exdatahandler = exDataHandler
+                    service=service
+                    searchAPI = searchAPI
                 }}
             </div>
     </div>

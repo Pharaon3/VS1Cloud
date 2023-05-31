@@ -22,7 +22,7 @@ Template.supplierdetail.onCreated(() => {
 
   FxGlobalFunctions.initVars(templateObject);
   let reset_data = [
-    { index: 0, label: 'ID', class: 'colSupplierID', active: true, display: true, width: "150" },
+    { index: 0, label: 'ID', class: 'colSupplierID', active: false, display: true, width: "150" },
     { index: 1, label: 'Supplier', class: 'colContactName', active: true, display: true, width: "150" },
     { index: 2, label: 'PO No', class: 'colPhone', active: true, display: true, width: "150" },
     { index: 3, label: 'Trans Type', class: 'colTransType', active: true, display: true, width: "150" },

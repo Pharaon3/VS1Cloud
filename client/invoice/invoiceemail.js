@@ -14,10 +14,69 @@ import { FlowRouter } from 'meteor/ostrio:flow-router-extra';
 
 let sideBarService = new SideBarService();
 let utilityService = new UtilityService();
+let salesService= new SalesBoardService();
 Template.invoiceemail.onCreated(function(){
   const templateObject = Template.instance();
   templateObject.datatablerecords = new ReactiveVar([]);
   templateObject.tableheaderrecords = new ReactiveVar([]);
+
+  templateObject.getDataTableList = function (data) {
+    let totalAmountEx = utilityService.modifynegativeCurrencyFormat(data.TotalAmount)|| 0.00;
+    let totalTax = utilityService.modifynegativeCurrencyFormat(data.TotalTax) || 0.00;
+    let totalAmount = utilityService.modifynegativeCurrencyFormat(data.TotalAmountInc)|| 0.00;
+    let totalPaid = utilityService.modifynegativeCurrencyFormat(data.TotalPaid)|| 0.00;
+    let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.TotalBalance)|| 0.00;
+    let chkBox =
+            '<div class="custom-control custom-switch chkBox pointer text-center"><input name="pointer" class="custom-control-input chkBox chkAppointment notevent pointer" type="checkbox" id="f-' +
+            data.Id +
+            '" name="' +
+            data.Id +
+            '"><label class="custom-control-label chkBox pointer" for="f--' +
+            data.Id +
+            '"></label></div>';
+    var dataList = [
+      chkBox,
+      data.Id || '',
+      data.SaleDate !=''? moment(data.SaleDate).format("YYYY/MM/DD"): data.SaleDate,
+      data.SaleID,
+      data.DueDate !=''? moment(data.DueDate).format("DD/MM/YYYY"): data.DueDate,
+      data.CustomerName || '',
+      totalAmountEx || 0.00,
+      totalTax || 0.00,
+      totalAmount || 0.00,
+      totalPaid || 0.00,
+      totalOutstanding || 0.00,
+      data.SaleCustField1 || '',
+      data.SaleCustField2 || '',
+      data.EmployeeName || '',
+      data.Comments || '',
+      data.SalesStatus || '',
+    ];
+    return dataList;
+}
+    let checkBoxHeader = `<div class="custom-control custom-switch colChkBoxAll  text-center pointer">
+        <input name="pointer" class="custom-control-input colChkBoxAll pointer" type="checkbox" id="colChkBoxAll" value="0">
+        <label class="custom-control-label colChkBoxAll" for="colChkBoxAll"></label>
+        </div>`;
+    let headerStructure = [
+    { index: 0, label: 'checkBoxHeader', class:'chkBox', active: false, display: true, width: "80" },
+    { index: 1, label: 'ID', class: 'colSortDate', active: false, width: "80", display: true },
+    { index: 2, label: 'Sale Date', class: 'colSaleDate', active: true, width: "80", display: true },
+    { index: 3, label: 'Sales No.', class: 'colSalesNo', active: true, width: "110", display: true },
+    { index: 4, label: 'Due Date', class: 'colDueDate', active: true, width: "200", display: true },
+    { index: 5, label: 'Customer', class: 'colCustomer', active: true, width: "200", display: true },
+    { index: 6, label: 'Amount (Ex)', class: 'colAmountEx', active: true, width: "200", display: true },
+    { index: 7, label: 'Tax', class: 'colTax', active: true, width: "200", display: true },
+    { index: 8, label: 'Amount (Inc)', class: 'colAmount', active: false, width: "80" , display: true},
+    { index: 9, label: 'Paid', class: 'colPaid', active: false, width: "200", display: true },
+    { index: 10, label: 'Outstanding', class: 'colBalanceOutstanding', active: true, width: "300", display: true },
+    { index: 11, label: 'Custom Field 1', class: 'colSaleCustField1', active: false, width: "80" , display: true},
+    { index: 12, label: 'Custom Field 2', class: 'colSaleCustField2', active: false, width: "200", display: true },
+    { index: 13, label: 'Employee', class: 'colEmployee', active: false, width: "300", display: true },
+    { index: 14, label: 'Comments', class: 'colComments', active: true, width: "200", display: true },
+    { index: 15, label: 'Status', class: 'colStatus', active: true, width: "200", display: true },
+    ];
+  templateObject.tableheaderrecords.set(headerStructure);
 });
 
 Template.invoiceemail.onRendered(function() {
@@ -111,606 +170,606 @@ Template.invoiceemail.onRendered(function() {
         location.reload();
     }
 
-    templateObject.getAllSalesOrderData = function () {
-
-      var currentBeginDate = new Date();
-      var begunDate = moment(currentBeginDate).format("DD/MM/YYYY");
-      let fromDateMonth = (currentBeginDate.getMonth() + 1);
-      let fromDateDay = currentBeginDate.getDate();
-      if ((currentBeginDate.getMonth() + 1) < 10) {
-          fromDateMonth = "0" + (currentBeginDate.getMonth() + 1);
-      } else {
-          fromDateMonth = (currentBeginDate.getMonth() + 1);
-      }
-
-      if (currentBeginDate.getDate() < 10) {
-          fromDateDay = "0" + currentBeginDate.getDate();
-      }
-      var toDate = currentBeginDate.getFullYear() + "-" + (fromDateMonth) + "-" + (fromDateDay);
-      let prevMonth11Date = (moment().subtract(reportsloadMonths, 'months')).format("YYYY-MM-DD");
-
-      getVS1Data('TInvoiceEx').then(function (dataObject) {
-        if(dataObject.length == 0){
-          salesService.getAllInvoiceListNonBO().then(function (data) {
-            let lineItems = [];
-            let lineItemObj = {};
-
-            if (data.Params.IgnoreDates == true) {
-                $('#dateFrom').attr('readonly', true);
-                $('#dateTo').attr('readonly', true);
-            } else {
-              $('#dateFrom').attr('readonly', false);
-              $('#dateTo').attr('readonly', false);
-                $("#dateFrom").val(data.Params.DateFrom != '' ? moment(data.Params.DateFrom).format("DD/MM/YYYY") : data.Params.DateFrom);
-                $("#dateTo").val(data.Params.DateTo != '' ? moment(data.Params.DateTo).format("DD/MM/YYYY") : data.Params.DateTo);
-            }
-
-            for(let i=0; i<data.tinvoicenonbackorder.length; i++){
-              let totalAmountEx = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalAmount)|| 0.00;
-              let totalTax = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalTax) || 0.00;
-              // Currency+''+data.tinvoicenonbackorder[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
-              let totalAmount = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalAmountInc)|| 0.00;
-              let totalPaid = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalPaid)|| 0.00;
-              let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalBalance)|| 0.00;
-                 var dataList = {
-                   id: data.tinvoicenonbackorder[i].Id || '',
-                   employee:data.tinvoicenonbackorder[i].EmployeeName || '',
-                   sortdate: data.tinvoicenonbackorder[i].SaleDate !=''? moment(data.tinvoicenonbackorder[i].SaleDate).format("YYYY/MM/DD"): data.tinvoicenonbackorder[i].SaleDate,
-                   saledate: data.tinvoicenonbackorder[i].SaleDate !=''? moment(data.tinvoicenonbackorder[i].SaleDate).format("DD/MM/YYYY"): data.tinvoicenonbackorder[i].SaleDate,
-                   duedate: data.tinvoicenonbackorder[i].DueDate !=''? moment(data.tinvoicenonbackorder[i].DueDate).format("DD/MM/YYYY"): data.tinvoicenonbackorder[i].DueDate,
-                   customername: data.tinvoicenonbackorder[i].CustomerName || '',
-                   totalamountex: totalAmountEx || 0.00,
-                   totaltax: totalTax || 0.00,
-                   totalamount: totalAmount || 0.00,
-                   totalpaid: totalPaid || 0.00,
-                   totaloustanding: totalOutstanding || 0.00,
-                   salestatus: data.tinvoicenonbackorder[i].SalesStatus || '',
-                   custfield1: data.tinvoicenonbackorder[i].SaleCustField1 || '',
-                   custfield2: data.tinvoicenonbackorder[i].SaleCustField2 || '',
-                   comments: data.tinvoicenonbackorder[i].Comments || '',
-                   // shipdate:data.tinvoicenonbackorder[i].ShipDate !=''? moment(data.tinvoicenonbackorder[i].ShipDate).format("DD/MM/YYYY"): data.tinvoicenonbackorder[i].ShipDate,
-
-               };
-
-               if(data.tinvoicenonbackorder[i].Deleted == false && data.tinvoicenonbackorder[i].CustomerName.replace(/\s/g, '') != ''){
-                 dataTableList.push(dataList);
-               }
-
-                //}
-            }
-
-            templateObject.datatablerecords.set(dataTableList);
-
-            if(templateObject.datatablerecords.get()){
-
-              Meteor.call('readPrefMethod',localStorage.getItem('mycloudLogonID'),'tblInvoicelistemail', function(error, result){
-              if(error){
-
-              }else{
-                if(result){
-                  for (let i = 0; i < result.customFields.length; i++) {
-                    let customcolumn = result.customFields;
-                    let columData = customcolumn[i].label;
-                    let columHeaderUpdate = customcolumn[i].thclass.replace(/ /g, ".");
-                    let hiddenColumn = customcolumn[i].hidden;
-                    let columnClass = columHeaderUpdate.split('.')[1];
-                    let columnWidth = customcolumn[i].width;
-                    let columnindex = customcolumn[i].index + 1;
-
-                    if(hiddenColumn == true){
-
-                      $("."+columnClass+"").addClass('hiddenColumn');
-                      $("."+columnClass+"").removeClass('showColumn');
-                    }else if(hiddenColumn == false){
-                      $("."+columnClass+"").removeClass('hiddenColumn');
-                      $("."+columnClass+"").addClass('showColumn');
-                    }
-
-                  }
-                }
-
-              }
-              });
-
+//     templateObject.getAllSalesOrderData = function () {
+
+//       var currentBeginDate = new Date();
+//       var begunDate = moment(currentBeginDate).format("DD/MM/YYYY");
+//       let fromDateMonth = (currentBeginDate.getMonth() + 1);
+//       let fromDateDay = currentBeginDate.getDate();
+//       if ((currentBeginDate.getMonth() + 1) < 10) {
+//           fromDateMonth = "0" + (currentBeginDate.getMonth() + 1);
+//       } else {
+//           fromDateMonth = (currentBeginDate.getMonth() + 1);
+//       }
+
+//       if (currentBeginDate.getDate() < 10) {
+//           fromDateDay = "0" + currentBeginDate.getDate();
+//       }
+//       var toDate = currentBeginDate.getFullYear() + "-" + (fromDateMonth) + "-" + (fromDateDay);
+//       let prevMonth11Date = (moment().subtract(reportsloadMonths, 'months')).format("YYYY-MM-DD");
+
+//       getVS1Data('TInvoiceEx').then(function (dataObject) {
+//         if(dataObject.length == 0){
+//           salesService.getAllInvoiceListNonBO().then(function (data) {
+//             let lineItems = [];
+//             let lineItemObj = {};
+
+//             if (data.Params.IgnoreDates == true) {
+//                 $('#dateFrom').attr('readonly', true);
+//                 $('#dateTo').attr('readonly', true);
+//             } else {
+//               $('#dateFrom').attr('readonly', false);
+//               $('#dateTo').attr('readonly', false);
+//                 $("#dateFrom").val(data.Params.DateFrom != '' ? moment(data.Params.DateFrom).format("DD/MM/YYYY") : data.Params.DateFrom);
+//                 $("#dateTo").val(data.Params.DateTo != '' ? moment(data.Params.DateTo).format("DD/MM/YYYY") : data.Params.DateTo);
+//             }
+
+//             for(let i=0; i<data.tinvoicenonbackorder.length; i++){
+//               let totalAmountEx = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalAmount)|| 0.00;
+//               let totalTax = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalTax) || 0.00;
+//               // Currency+''+data.tinvoicenonbackorder[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
+//               let totalAmount = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalAmountInc)|| 0.00;
+//               let totalPaid = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalPaid)|| 0.00;
+//               let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalBalance)|| 0.00;
+//                  var dataList = {
+//                    id: data.tinvoicenonbackorder[i].Id || '',
+//                    employee:data.tinvoicenonbackorder[i].EmployeeName || '',
+//                    sortdate: data.tinvoicenonbackorder[i].SaleDate !=''? moment(data.tinvoicenonbackorder[i].SaleDate).format("YYYY/MM/DD"): data.tinvoicenonbackorder[i].SaleDate,
+//                    saledate: data.tinvoicenonbackorder[i].SaleDate !=''? moment(data.tinvoicenonbackorder[i].SaleDate).format("DD/MM/YYYY"): data.tinvoicenonbackorder[i].SaleDate,
+//                    duedate: data.tinvoicenonbackorder[i].DueDate !=''? moment(data.tinvoicenonbackorder[i].DueDate).format("DD/MM/YYYY"): data.tinvoicenonbackorder[i].DueDate,
+//                    customername: data.tinvoicenonbackorder[i].CustomerName || '',
+//                    totalamountex: totalAmountEx || 0.00,
+//                    totaltax: totalTax || 0.00,
+//                    totalamount: totalAmount || 0.00,
+//                    totalpaid: totalPaid || 0.00,
+//                    totaloustanding: totalOutstanding || 0.00,
+//                    salestatus: data.tinvoicenonbackorder[i].SalesStatus || '',
+//                    custfield1: data.tinvoicenonbackorder[i].SaleCustField1 || '',
+//                    custfield2: data.tinvoicenonbackorder[i].SaleCustField2 || '',
+//                    comments: data.tinvoicenonbackorder[i].Comments || '',
+//                    // shipdate:data.tinvoicenonbackorder[i].ShipDate !=''? moment(data.tinvoicenonbackorder[i].ShipDate).format("DD/MM/YYYY"): data.tinvoicenonbackorder[i].ShipDate,
+
+//                };
+
+//                if(data.tinvoicenonbackorder[i].Deleted == false && data.tinvoicenonbackorder[i].CustomerName.replace(/\s/g, '') != ''){
+//                  dataTableList.push(dataList);
+//                }
+
+//                 //}
+//             }
+
+//             templateObject.datatablerecords.set(dataTableList);
+
+//             if(templateObject.datatablerecords.get()){
+
+//               Meteor.call('readPrefMethod',localStorage.getItem('mycloudLogonID'),'tblInvoicelistemail', function(error, result){
+//               if(error){
+
+//               }else{
+//                 if(result){
+//                   for (let i = 0; i < result.customFields.length; i++) {
+//                     let customcolumn = result.customFields;
+//                     let columData = customcolumn[i].label;
+//                     let columHeaderUpdate = customcolumn[i].thclass.replace(/ /g, ".");
+//                     let hiddenColumn = customcolumn[i].hidden;
+//                     let columnClass = columHeaderUpdate.split('.')[1];
+//                     let columnWidth = customcolumn[i].width;
+//                     let columnindex = customcolumn[i].index + 1;
+
+//                     if(hiddenColumn == true){
+
+//                       $("."+columnClass+"").addClass('hiddenColumn');
+//                       $("."+columnClass+"").removeClass('showColumn');
+//                     }else if(hiddenColumn == false){
+//                       $("."+columnClass+"").removeClass('hiddenColumn');
+//                       $("."+columnClass+"").addClass('showColumn');
+//                     }
+
+//                   }
+//                 }
+
+//               }
+//               });
+
 
-              setTimeout(function () {
-                MakeNegative();
-              }, 100);
-            }
-
-            $('.fullScreenSpin').css('display','none');
-            setTimeout(function () {
-                $('#tblInvoicelistemail').DataTable({
-                  columnDefs: [
-                      {"orderable": false,"targets": 0},
-                      {type: 'date', targets: 1}
-                  ],
-                  "sDom": "<'row'><'row'<'col-sm-12 col-lg-6'f><'col-sm-12 col-lg-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
-                  buttons: [
-                        {
-                     extend: 'excelHtml5',
-                     text: '',
-                     download: 'open',
-                     className: "btntabletocsv hiddenColumn",
-                     filename: "invoicelist_"+ moment().format(),
-                     orientation:'portrait',
-                      exportOptions: {
-                      columns: ':visible'
-                    }
-                  },{
-                      extend: 'print',
-                      download: 'open',
-                      className: "btntabletopdf hiddenColumn",
-                      text: '',
-                      title: 'Invoice List',
-                      filename: "invoicelist_"+ moment().format(),
-                      exportOptions: {
-                      columns: ':visible'
-                    }
-                  }],
-                      select: true,
-                      destroy: true,
-                      colReorder: true,
-                      // bStateSave: true,
-                      // rowId: 0,
-                      pageLength: initialDatatableLoad,
-                      "bLengthChange": false,
-                      info: true,
-                      responsive: true,
-                      "order": [[ 1, "desc" ],[ 3, "desc" ]],
-                      action: function () {
-                          $('#tblInvoicelistemail').DataTable().ajax.reload();
-                      },
-                      "fnDrawCallback": function (oSettings) {
-                        setTimeout(function () {
-                          MakeNegative();
-                        }, 100);
-                      },
-                      language: { search: "",searchPlaceholder: "Search List..." },
-                      "fnInitComplete": function () {
-                        this.fnPageChange('last');
-                          $("<button class='btn btn-primary btnRefreshInvoiceList' type='button' id='btnRefreshInvoiceList' style='padding: 4px 10px; font-size: 16px; margin-left: 12px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblInvoicelistemail_filter");
-                          $('.myvarFilterForm').appendTo(".colDateFilter");
-                      }
-
-                  }).on('page', function () {
-                    setTimeout(function () {
-                      MakeNegative();
-                    }, 100);
-                      let draftRecord = templateObject.datatablerecords.get();
-                      templateObject.datatablerecords.set(draftRecord);
-                  }).on('column-reorder', function () {
-
-                  }).on( 'length.dt', function ( e, settings, len ) {
-                    setTimeout(function () {
-                      MakeNegative();
-                    }, 100);
-                  });
-
-                  // $('#tblInvoicelistemail').DataTable().column( 0 ).visible( true );
-                  $('.fullScreenSpin').css('display','none');
-              }, 0);
-
-              var columns = $('#tblInvoicelistemail th');
-              let sTible = "";
-              let sWidth = "";
-              let sIndex = "";
-              let sVisible = "";
-              let columVisible = false;
-              let sClass = "";
-              $.each(columns, function(i,v) {
-                if(v.hidden == false){
-                  columVisible =  true;
-                }
-                if((v.className.includes("hiddenColumn"))){
-                  columVisible = false;
-                }
-                sWidth = v.style.width.replace('px', "");
-
-                let datatablerecordObj = {
-                  sTitle: v.innerText || '',
-                  sWidth: sWidth || '',
-                  sIndex: v.cellIndex || 0,
-                  sVisible: columVisible || false,
-                  sClass: v.className || ''
-                };
-                tableHeaderList.push(datatablerecordObj);
-              });
-            templateObject.tableheaderrecords.set(tableHeaderList);
-             $('div.dataTables_filter input').addClass('form-control form-control-sm');
-             $('#tblInvoicelistemail tbody').on( 'click', 'tr', function () {
-             var listData = $(this).closest('tr').attr('id');
-             if(listData){
-               FlowRouter.go('/invoicecard?id=' + listData);
-             }
-           });
-
-          }).catch(function (err) {
-              // Bert.alert('<strong>' + err + '</strong>!', 'danger');
-              $('.fullScreenSpin').css('display','none');
-              // Meteor._reload.reload();
-          });
-        }else{
-          let data = JSON.parse(dataObject[0].data);
-          let useData = data.tinvoiceex;
-          let lineItems = [];
-let lineItemObj = {};
-
-for(let i=0; i<useData.length; i++){
-  let totalAmountEx = utilityService.modifynegativeCurrencyFormat(useData[i].fields.TotalAmount)|| 0.00;
-  let totalTax = utilityService.modifynegativeCurrencyFormat(useData[i].fields.TotalTax) || 0.00;
-  // Currency+''+useData[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
-  let totalAmount = utilityService.modifynegativeCurrencyFormat(useData[i].fields.TotalAmountInc)|| 0.00;
-  let totalPaid = utilityService.modifynegativeCurrencyFormat(useData[i].fields.TotalPaid)|| 0.00;
-  let totalOutstanding = utilityService.modifynegativeCurrencyFormat(useData[i].fields.TotalBalance)|| 0.00;
-     var dataList = {
-       id: useData[i].fields.ID || '',
-       employee:useData[i].fields.EmployeeName || '',
-       sortdate: useData[i].fields.SaleDate !=''? moment(useData[i].fields.SaleDate).format("YYYY/MM/DD"): useData[i].fields.SaleDate,
-       duedate: useData[i].fields.DueDate !=''? moment(useData[i].fields.DueDate).format("DD/MM/YYYY"): useData[i].fields.DueDate,
-       saledate: useData[i].fields.SaleDate !=''? moment(useData[i].fields.SaleDate).format("DD/MM/YYYY"): useData[i].fields.SaleDate,
-       customername: useData[i].fields.CustomerName || '',
-       totalamountex: totalAmountEx || 0.00,
-       totaltax: totalTax || 0.00,
-       totalamount: totalAmount || 0.00,
-       totalpaid: totalPaid || 0.00,
-       totaloustanding: totalOutstanding || 0.00,
-       salestatus: useData[i].fields.SalesStatus || '',
-       custfield1: useData[i].fields.SaleCustField1 || '',
-       custfield2: useData[i].fields.SaleCustField2 || '',
-       comments: useData[i].fields.Comments || '',
-       // shipdate:useData[i].ShipDate !=''? moment(useData[i].ShipDate).format("DD/MM/YYYY"): useData[i].ShipDate,
-
-   };
-
-   if(useData[i].fields.Deleted == false && useData[i].fields.IsBackOrder == false && useData[i].fields.CustomerName.replace(/\s/g, '') != ''){
-     dataTableList.push(dataList);
-   }
-
-    //}
-}
-
-templateObject.datatablerecords.set(dataTableList);
-
-if(templateObject.datatablerecords.get()){
-
-  Meteor.call('readPrefMethod',localStorage.getItem('mycloudLogonID'),'tblInvoicelistemail', function(error, result){
-  if(error){
-
-  }else{
-    if(result){
-      for (let i = 0; i < result.customFields.length; i++) {
-        let customcolumn = result.customFields;
-        let columData = customcolumn[i].label;
-        let columHeaderUpdate = customcolumn[i].thclass.replace(/ /g, ".");
-        let hiddenColumn = customcolumn[i].hidden;
-        let columnClass = columHeaderUpdate.split('.')[1];
-        let columnWidth = customcolumn[i].width;
-        let columnindex = customcolumn[i].index + 1;
-
-        if(hiddenColumn == true){
-
-          $("."+columnClass+"").addClass('hiddenColumn');
-          $("."+columnClass+"").removeClass('showColumn');
-        }else if(hiddenColumn == false){
-          $("."+columnClass+"").removeClass('hiddenColumn');
-          $("."+columnClass+"").addClass('showColumn');
-        }
-
-      }
-    }
-
-  }
-  });
-
-
-  setTimeout(function () {
-    MakeNegative();
-  }, 100);
-}
-
-$('.fullScreenSpin').css('display','none');
-setTimeout(function () {
-    $('#tblInvoicelistemail').DataTable({
-      columnDefs: [
-          {"orderable": false,"targets": 0},
-          {type: 'date', targets: 1}
-      ],
-      "sDom": "<'row'><'row'<'col-sm-12 col-lg-6'f><'col-sm-12 col-lg-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
-      buttons: [
-            {
-         extend: 'excelHtml5',
-         text: '',
-         download: 'open',
-         className: "btntabletocsv hiddenColumn",
-         filename: "invoicelist_"+ moment().format(),
-         orientation:'portrait',
-          exportOptions: {
-          columns: ':visible'
-        }
-      },{
-          extend: 'print',
-          download: 'open',
-          className: "btntabletopdf hiddenColumn",
-          text: '',
-          title: 'Invoice List',
-          filename: "invoicelist_"+ moment().format(),
-          exportOptions: {
-          columns: ':visible'
-        }
-      }],
-          select: true,
-          destroy: true,
-          colReorder: true,
-          // bStateSave: true,
-          // rowId: 0,
-          pageLength: initialDatatableLoad,
-          "bLengthChange": false,
-          info: true,
-          responsive: true,
-          "order": [[ 1, "desc" ],[ 3, "desc" ]],
-          action: function () {
-              $('#tblInvoicelistemail').DataTable().ajax.reload();
-          },
-          "fnDrawCallback": function (oSettings) {
-            setTimeout(function () {
-              MakeNegative();
-            }, 100);
-          },
-          language: { search: "",searchPlaceholder: "Search List..." },
-          "fnInitComplete": function () {
-            this.fnPageChange('last');
-              $("<button class='btn btn-primary btnRefreshInvoiceList' type='button' id='btnRefreshInvoiceList' style='padding: 4px 10px; font-size: 16px; margin-left: 12px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblInvoicelistemail_filter");
-              $('.myvarFilterForm').appendTo(".colDateFilter");
-          }
-
-      }).on('page', function () {
-        setTimeout(function () {
-          MakeNegative();
-        }, 100);
-          let draftRecord = templateObject.datatablerecords.get();
-          templateObject.datatablerecords.set(draftRecord);
-      }).on('column-reorder', function () {
-
-      }).on( 'length.dt', function ( e, settings, len ) {
-        setTimeout(function () {
-          MakeNegative();
-        }, 100);
-      });
-
-      // $('#tblInvoicelistemail').DataTable().column( 0 ).visible( true );
-      $('.fullScreenSpin').css('display','none');
-  }, 0);
-
-  var columns = $('#tblInvoicelistemail th');
-  let sTible = "";
-  let sWidth = "";
-  let sIndex = "";
-  let sVisible = "";
-  let columVisible = false;
-  let sClass = "";
-  $.each(columns, function(i,v) {
-    if(v.hidden == false){
-      columVisible =  true;
-    }
-    if((v.className.includes("hiddenColumn"))){
-      columVisible = false;
-    }
-    sWidth = v.style.width.replace('px', "");
-
-    let datatablerecordObj = {
-      sTitle: v.innerText || '',
-      sWidth: sWidth || '',
-      sIndex: v.cellIndex || 0,
-      sVisible: columVisible || false,
-      sClass: v.className || ''
-    };
-    tableHeaderList.push(datatablerecordObj);
-  });
-templateObject.tableheaderrecords.set(tableHeaderList);
- $('div.dataTables_filter input').addClass('form-control form-control-sm');
- $('#tblInvoicelistemail tbody').on( 'click', 'tr', function () {
- var listData = $(this).closest('tr').attr('id');
- if(listData){
-   FlowRouter.go('/invoicecard?id=' + listData);
- }
-});
-
-        }
-        }).catch(function (err) {
-          salesService.getAllInvoiceListNonBO().then(function (data) {
-            let lineItems = [];
-            let lineItemObj = {};
-
-            for(let i=0; i<data.tinvoicenonbackorder.length; i++){
-              let totalAmountEx = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalAmount)|| 0.00;
-              let totalTax = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalTax) || 0.00;
-              // Currency+''+data.tinvoicenonbackorder[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
-              let totalAmount = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalAmountInc)|| 0.00;
-              let totalPaid = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalPaid)|| 0.00;
-              let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalBalance)|| 0.00;
-                 var dataList = {
-                   id: data.tinvoicenonbackorder[i].Id || '',
-                   employee:data.tinvoicenonbackorder[i].EmployeeName || '',
-                  sortdate: data.tinvoicenonbackorder[i].SaleDate !=''? moment(data.tinvoicenonbackorder[i].SaleDate).format("YYYY/MM/DD"): data.tinvoicenonbackorder[i].SaleDate,
-                   saledate: data.tinvoicenonbackorder[i].SaleDate !=''? moment(data.tinvoicenonbackorder[i].SaleDate).format("DD/MM/YYYY"): data.tinvoicenonbackorder[i].SaleDate,
-                   duedate: data.tinvoicenonbackorder[i].DueDate !=''? moment(data.tinvoicenonbackorder[i].DueDate).format("DD/MM/YYYY"): data.tinvoicenonbackorder[i].DueDate,
-                   customername: data.tinvoicenonbackorder[i].CustomerName || '',
-                   totalamountex: totalAmountEx || 0.00,
-                   totaltax: totalTax || 0.00,
-                   totalamount: totalAmount || 0.00,
-                   totalpaid: totalPaid || 0.00,
-                   totaloustanding: totalOutstanding || 0.00,
-                   salestatus: data.tinvoicenonbackorder[i].SalesStatus || '',
-                   custfield1: data.tinvoicenonbackorder[i].SaleCustField1 || '',
-                   custfield2: data.tinvoicenonbackorder[i].SaleCustField2 || '',
-                   comments: data.tinvoicenonbackorder[i].Comments || '',
-                   // shipdate:data.tinvoicenonbackorder[i].ShipDate !=''? moment(data.tinvoicenonbackorder[i].ShipDate).format("DD/MM/YYYY"): data.tinvoicenonbackorder[i].ShipDate,
-
-               };
-
-               if(data.tinvoicenonbackorder[i].Deleted == false && data.tinvoicenonbackorder[i].CustomerName.replace(/\s/g, '') != ''){
-                 dataTableList.push(dataList);
-               }
-
-                //}
-            }
-
-            templateObject.datatablerecords.set(dataTableList);
-
-            if(templateObject.datatablerecords.get()){
-
-              Meteor.call('readPrefMethod',localStorage.getItem('mycloudLogonID'),'tblInvoicelistemail', function(error, result){
-              if(error){
-
-              }else{
-                if(result){
-                  for (let i = 0; i < result.customFields.length; i++) {
-                    let customcolumn = result.customFields;
-                    let columData = customcolumn[i].label;
-                    let columHeaderUpdate = customcolumn[i].thclass.replace(/ /g, ".");
-                    let hiddenColumn = customcolumn[i].hidden;
-                    let columnClass = columHeaderUpdate.split('.')[1];
-                    let columnWidth = customcolumn[i].width;
-                    let columnindex = customcolumn[i].index + 1;
-
-                    if(hiddenColumn == true){
-
-                      $("."+columnClass+"").addClass('hiddenColumn');
-                      $("."+columnClass+"").removeClass('showColumn');
-                    }else if(hiddenColumn == false){
-                      $("."+columnClass+"").removeClass('hiddenColumn');
-                      $("."+columnClass+"").addClass('showColumn');
-                    }
-
-                  }
-                }
-
-              }
-              });
-
-
-              setTimeout(function () {
-                MakeNegative();
-              }, 100);
-            }
-
-            $('.fullScreenSpin').css('display','none');
-            setTimeout(function () {
-                $('#tblInvoicelistemail').DataTable({
-                  columnDefs: [
-                      {"orderable": false,"targets": 0},
-                      {type: 'date', targets: 1}
-                  ],
-                  "sDom": "<'row'><'row'<'col-sm-12 col-lg-6'f><'col-sm-12 col-lg-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
-                  buttons: [
-                        {
-                     extend: 'excelHtml5',
-                     text: '',
-                     download: 'open',
-                     className: "btntabletocsv hiddenColumn",
-                     filename: "invoicelist_"+ moment().format(),
-                     orientation:'portrait',
-                      exportOptions: {
-                      columns: ':visible'
-                    }
-                  },{
-                      extend: 'print',
-                      download: 'open',
-                      className: "btntabletopdf hiddenColumn",
-                      text: '',
-                      title: 'Invoice List',
-                      filename: "invoicelist_"+ moment().format(),
-                      exportOptions: {
-                      columns: ':visible'
-                    }
-                  }],
-                      select: true,
-                      destroy: true,
-                      colReorder: true,
-                      // bStateSave: true,
-                      // rowId: 0,
-                      pageLength: initialDatatableLoad,
-                      "bLengthChange": false,
-                      info: true,
-                      responsive: true,
-                      "order": [[ 1, "desc" ],[ 3, "desc" ]],
-                      action: function () {
-                          $('#tblInvoicelistemail').DataTable().ajax.reload();
-                      },
-                      "fnDrawCallback": function (oSettings) {
-                        setTimeout(function () {
-                          MakeNegative();
-                        }, 100);
-                      },
-                      language: { search: "",searchPlaceholder: "Search List..." },
-                      "fnInitComplete": function () {
-                        this.fnPageChange('last');
-                          $("<button class='btn btn-primary btnRefreshInvoiceList' type='button' id='btnRefreshInvoiceList' style='padding: 4px 10px; font-size: 16px; margin-left: 12px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblInvoicelistemail_filter");
-                          $('.myvarFilterForm').appendTo(".colDateFilter");
-                      }
-
-                  }).on('page', function () {
-                    setTimeout(function () {
-                      MakeNegative();
-                    }, 100);
-                      let draftRecord = templateObject.datatablerecords.get();
-                      templateObject.datatablerecords.set(draftRecord);
-                  }).on('column-reorder', function () {
-
-                  }).on( 'length.dt', function ( e, settings, len ) {
-                    setTimeout(function () {
-                      MakeNegative();
-                    }, 100);
-                  });
-
-                  // $('#tblInvoicelistemail').DataTable().column( 0 ).visible( true );
-                  $('.fullScreenSpin').css('display','none');
-              }, 0);
-
-              var columns = $('#tblInvoicelistemail th');
-              let sTible = "";
-              let sWidth = "";
-              let sIndex = "";
-              let sVisible = "";
-              let columVisible = false;
-              let sClass = "";
-              $.each(columns, function(i,v) {
-                if(v.hidden == false){
-                  columVisible =  true;
-                }
-                if((v.className.includes("hiddenColumn"))){
-                  columVisible = false;
-                }
-                sWidth = v.style.width.replace('px', "");
-
-                let datatablerecordObj = {
-                  sTitle: v.innerText || '',
-                  sWidth: sWidth || '',
-                  sIndex: v.cellIndex || 0,
-                  sVisible: columVisible || false,
-                  sClass: v.className || ''
-                };
-                tableHeaderList.push(datatablerecordObj);
-              });
-            templateObject.tableheaderrecords.set(tableHeaderList);
-             $('div.dataTables_filter input').addClass('form-control form-control-sm');
-             $('#tblInvoicelistemail tbody').on( 'click', 'tr', function () {
-             var listData = $(this).closest('tr').attr('id');
-             if(listData){
-               FlowRouter.go('/invoicecard?id=' + listData);
-             }
-           });
-
-          }).catch(function (err) {
-              // Bert.alert('<strong>' + err + '</strong>!', 'danger');
-              $('.fullScreenSpin').css('display','none');
-              // Meteor._reload.reload();
-          });
-        });
-    }
-
-    templateObject.getAllSalesOrderData();
+//               setTimeout(function () {
+//                 MakeNegative();
+//               }, 100);
+//             }
+
+//             $('.fullScreenSpin').css('display','none');
+//             setTimeout(function () {
+//                 $('#tblInvoicelistemail').DataTable({
+//                   columnDefs: [
+//                       {"orderable": false,"targets": 0},
+//                       {type: 'date', targets: 1}
+//                   ],
+//                   "sDom": "<'row'><'row'<'col-sm-12 col-lg-6'f><'col-sm-12 col-lg-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
+//                   buttons: [
+//                         {
+//                      extend: 'excelHtml5',
+//                      text: '',
+//                      download: 'open',
+//                      className: "btntabletocsv hiddenColumn",
+//                      filename: "invoicelist_"+ moment().format(),
+//                      orientation:'portrait',
+//                       exportOptions: {
+//                       columns: ':visible'
+//                     }
+//                   },{
+//                       extend: 'print',
+//                       download: 'open',
+//                       className: "btntabletopdf hiddenColumn",
+//                       text: '',
+//                       title: 'Invoice List',
+//                       filename: "invoicelist_"+ moment().format(),
+//                       exportOptions: {
+//                       columns: ':visible'
+//                     }
+//                   }],
+//                       select: true,
+//                       destroy: true,
+//                       colReorder: true,
+//                       // bStateSave: true,
+//                       // rowId: 0,
+//                       pageLength: initialDatatableLoad,
+//                       "bLengthChange": false,
+//                       info: true,
+//                       responsive: true,
+//                       "order": [[ 1, "desc" ],[ 3, "desc" ]],
+//                       action: function () {
+//                           $('#tblInvoicelistemail').DataTable().ajax.reload();
+//                       },
+//                       "fnDrawCallback": function (oSettings) {
+//                         setTimeout(function () {
+//                           MakeNegative();
+//                         }, 100);
+//                       },
+//                       language: { search: "",searchPlaceholder: "Search List..." },
+//                       "fnInitComplete": function () {
+//                         this.fnPageChange('last');
+//                           $("<button class='btn btn-primary btnRefreshInvoiceList' type='button' id='btnRefreshInvoiceList' style='padding: 4px 10px; font-size: 16px; margin-left: 12px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblInvoicelistemail_filter");
+//                           $('.myvarFilterForm').appendTo(".colDateFilter");
+//                       }
+
+//                   }).on('page', function () {
+//                     setTimeout(function () {
+//                       MakeNegative();
+//                     }, 100);
+//                       let draftRecord = templateObject.datatablerecords.get();
+//                       templateObject.datatablerecords.set(draftRecord);
+//                   }).on('column-reorder', function () {
+
+//                   }).on( 'length.dt', function ( e, settings, len ) {
+//                     setTimeout(function () {
+//                       MakeNegative();
+//                     }, 100);
+//                   });
+
+//                   // $('#tblInvoicelistemail').DataTable().column( 0 ).visible( true );
+//                   $('.fullScreenSpin').css('display','none');
+//               }, 0);
+
+//               var columns = $('#tblInvoicelistemail th');
+//               let sTible = "";
+//               let sWidth = "";
+//               let sIndex = "";
+//               let sVisible = "";
+//               let columVisible = false;
+//               let sClass = "";
+//               $.each(columns, function(i,v) {
+//                 if(v.hidden == false){
+//                   columVisible =  true;
+//                 }
+//                 if((v.className.includes("hiddenColumn"))){
+//                   columVisible = false;
+//                 }
+//                 sWidth = v.style.width.replace('px', "");
+
+//                 let datatablerecordObj = {
+//                   sTitle: v.innerText || '',
+//                   sWidth: sWidth || '',
+//                   sIndex: v.cellIndex || 0,
+//                   sVisible: columVisible || false,
+//                   sClass: v.className || ''
+//                 };
+//                 tableHeaderList.push(datatablerecordObj);
+//               });
+//             templateObject.tableheaderrecords.set(tableHeaderList);
+//              $('div.dataTables_filter input').addClass('form-control form-control-sm');
+//              $('#tblInvoicelistemail tbody').on( 'click', 'tr', function () {
+//              var listData = $(this).closest('tr').attr('id');
+//              if(listData){
+//                FlowRouter.go('/invoicecard?id=' + listData);
+//              }
+//            });
+
+//           }).catch(function (err) {
+//               // Bert.alert('<strong>' + err + '</strong>!', 'danger');
+//               $('.fullScreenSpin').css('display','none');
+//               // Meteor._reload.reload();
+//           });
+//         }else{
+//           let data = JSON.parse(dataObject[0].data);
+//           let useData = data.tinvoiceex;
+//           let lineItems = [];
+// let lineItemObj = {};
+
+// for(let i=0; i<useData.length; i++){
+//   let totalAmountEx = utilityService.modifynegativeCurrencyFormat(useData[i].fields.TotalAmount)|| 0.00;
+//   let totalTax = utilityService.modifynegativeCurrencyFormat(useData[i].fields.TotalTax) || 0.00;
+//   // Currency+''+useData[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
+//   let totalAmount = utilityService.modifynegativeCurrencyFormat(useData[i].fields.TotalAmountInc)|| 0.00;
+//   let totalPaid = utilityService.modifynegativeCurrencyFormat(useData[i].fields.TotalPaid)|| 0.00;
+//   let totalOutstanding = utilityService.modifynegativeCurrencyFormat(useData[i].fields.TotalBalance)|| 0.00;
+//      var dataList = {
+//        id: useData[i].fields.ID || '',
+//        employee:useData[i].fields.EmployeeName || '',
+//        sortdate: useData[i].fields.SaleDate !=''? moment(useData[i].fields.SaleDate).format("YYYY/MM/DD"): useData[i].fields.SaleDate,
+//        duedate: useData[i].fields.DueDate !=''? moment(useData[i].fields.DueDate).format("DD/MM/YYYY"): useData[i].fields.DueDate,
+//        saledate: useData[i].fields.SaleDate !=''? moment(useData[i].fields.SaleDate).format("DD/MM/YYYY"): useData[i].fields.SaleDate,
+//        customername: useData[i].fields.CustomerName || '',
+//        totalamountex: totalAmountEx || 0.00,
+//        totaltax: totalTax || 0.00,
+//        totalamount: totalAmount || 0.00,
+//        totalpaid: totalPaid || 0.00,
+//        totaloustanding: totalOutstanding || 0.00,
+//        salestatus: useData[i].fields.SalesStatus || '',
+//        custfield1: useData[i].fields.SaleCustField1 || '',
+//        custfield2: useData[i].fields.SaleCustField2 || '',
+//        comments: useData[i].fields.Comments || '',
+//        // shipdate:useData[i].ShipDate !=''? moment(useData[i].ShipDate).format("DD/MM/YYYY"): useData[i].ShipDate,
+
+//    };
+
+//    if(useData[i].fields.Deleted == false && useData[i].fields.IsBackOrder == false && useData[i].fields.CustomerName.replace(/\s/g, '') != ''){
+//      dataTableList.push(dataList);
+//    }
+
+//     //}
+// }
+
+// templateObject.datatablerecords.set(dataTableList);
+
+// if(templateObject.datatablerecords.get()){
+
+//   Meteor.call('readPrefMethod',localStorage.getItem('mycloudLogonID'),'tblInvoicelistemail', function(error, result){
+//   if(error){
+
+//   }else{
+//     if(result){
+//       for (let i = 0; i < result.customFields.length; i++) {
+//         let customcolumn = result.customFields;
+//         let columData = customcolumn[i].label;
+//         let columHeaderUpdate = customcolumn[i].thclass.replace(/ /g, ".");
+//         let hiddenColumn = customcolumn[i].hidden;
+//         let columnClass = columHeaderUpdate.split('.')[1];
+//         let columnWidth = customcolumn[i].width;
+//         let columnindex = customcolumn[i].index + 1;
+
+//         if(hiddenColumn == true){
+
+//           $("."+columnClass+"").addClass('hiddenColumn');
+//           $("."+columnClass+"").removeClass('showColumn');
+//         }else if(hiddenColumn == false){
+//           $("."+columnClass+"").removeClass('hiddenColumn');
+//           $("."+columnClass+"").addClass('showColumn');
+//         }
+
+//       }
+//     }
+
+//   }
+//   });
+
+
+//   setTimeout(function () {
+//     MakeNegative();
+//   }, 100);
+// }
+
+// $('.fullScreenSpin').css('display','none');
+// setTimeout(function () {
+//     $('#tblInvoicelistemail').DataTable({
+//       columnDefs: [
+//           {"orderable": false,"targets": 0},
+//           {type: 'date', targets: 1}
+//       ],
+//       "sDom": "<'row'><'row'<'col-sm-12 col-lg-6'f><'col-sm-12 col-lg-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
+//       buttons: [
+//             {
+//          extend: 'excelHtml5',
+//          text: '',
+//          download: 'open',
+//          className: "btntabletocsv hiddenColumn",
+//          filename: "invoicelist_"+ moment().format(),
+//          orientation:'portrait',
+//           exportOptions: {
+//           columns: ':visible'
+//         }
+//       },{
+//           extend: 'print',
+//           download: 'open',
+//           className: "btntabletopdf hiddenColumn",
+//           text: '',
+//           title: 'Invoice List',
+//           filename: "invoicelist_"+ moment().format(),
+//           exportOptions: {
+//           columns: ':visible'
+//         }
+//       }],
+//           select: true,
+//           destroy: true,
+//           colReorder: true,
+//           // bStateSave: true,
+//           // rowId: 0,
+//           pageLength: initialDatatableLoad,
+//           "bLengthChange": false,
+//           info: true,
+//           responsive: true,
+//           "order": [[ 1, "desc" ],[ 3, "desc" ]],
+//           action: function () {
+//               $('#tblInvoicelistemail').DataTable().ajax.reload();
+//           },
+//           "fnDrawCallback": function (oSettings) {
+//             setTimeout(function () {
+//               MakeNegative();
+//             }, 100);
+//           },
+//           language: { search: "",searchPlaceholder: "Search List..." },
+//           "fnInitComplete": function () {
+//             this.fnPageChange('last');
+//               $("<button class='btn btn-primary btnRefreshInvoiceList' type='button' id='btnRefreshInvoiceList' style='padding: 4px 10px; font-size: 16px; margin-left: 12px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblInvoicelistemail_filter");
+//               $('.myvarFilterForm').appendTo(".colDateFilter");
+//           }
+
+//       }).on('page', function () {
+//         setTimeout(function () {
+//           MakeNegative();
+//         }, 100);
+//           let draftRecord = templateObject.datatablerecords.get();
+//           templateObject.datatablerecords.set(draftRecord);
+//       }).on('column-reorder', function () {
+
+//       }).on( 'length.dt', function ( e, settings, len ) {
+//         setTimeout(function () {
+//           MakeNegative();
+//         }, 100);
+//       });
+
+//       // $('#tblInvoicelistemail').DataTable().column( 0 ).visible( true );
+//       $('.fullScreenSpin').css('display','none');
+//   }, 0);
+
+//   var columns = $('#tblInvoicelistemail th');
+//   let sTible = "";
+//   let sWidth = "";
+//   let sIndex = "";
+//   let sVisible = "";
+//   let columVisible = false;
+//   let sClass = "";
+//   $.each(columns, function(i,v) {
+//     if(v.hidden == false){
+//       columVisible =  true;
+//     }
+//     if((v.className.includes("hiddenColumn"))){
+//       columVisible = false;
+//     }
+//     sWidth = v.style.width.replace('px', "");
+
+//     let datatablerecordObj = {
+//       sTitle: v.innerText || '',
+//       sWidth: sWidth || '',
+//       sIndex: v.cellIndex || 0,
+//       sVisible: columVisible || false,
+//       sClass: v.className || ''
+//     };
+//     tableHeaderList.push(datatablerecordObj);
+//   });
+// templateObject.tableheaderrecords.set(tableHeaderList);
+//  $('div.dataTables_filter input').addClass('form-control form-control-sm');
+//  $('#tblInvoicelistemail tbody').on( 'click', 'tr', function () {
+//  var listData = $(this).closest('tr').attr('id');
+//  if(listData){
+//    FlowRouter.go('/invoicecard?id=' + listData);
+//  }
+// });
+
+//         }
+//         }).catch(function (err) {
+//           salesService.getAllInvoiceListNonBO().then(function (data) {
+//             let lineItems = [];
+//             let lineItemObj = {};
+
+//             for(let i=0; i<data.tinvoicenonbackorder.length; i++){
+//               let totalAmountEx = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalAmount)|| 0.00;
+//               let totalTax = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalTax) || 0.00;
+//               // Currency+''+data.tinvoicenonbackorder[i].TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2});
+//               let totalAmount = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalAmountInc)|| 0.00;
+//               let totalPaid = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalPaid)|| 0.00;
+//               let totalOutstanding = utilityService.modifynegativeCurrencyFormat(data.tinvoicenonbackorder[i].TotalBalance)|| 0.00;
+//                  var dataList = {
+//                    id: data.tinvoicenonbackorder[i].Id || '',
+//                    employee:data.tinvoicenonbackorder[i].EmployeeName || '',
+//                   sortdate: data.tinvoicenonbackorder[i].SaleDate !=''? moment(data.tinvoicenonbackorder[i].SaleDate).format("YYYY/MM/DD"): data.tinvoicenonbackorder[i].SaleDate,
+//                    saledate: data.tinvoicenonbackorder[i].SaleDate !=''? moment(data.tinvoicenonbackorder[i].SaleDate).format("DD/MM/YYYY"): data.tinvoicenonbackorder[i].SaleDate,
+//                    duedate: data.tinvoicenonbackorder[i].DueDate !=''? moment(data.tinvoicenonbackorder[i].DueDate).format("DD/MM/YYYY"): data.tinvoicenonbackorder[i].DueDate,
+//                    customername: data.tinvoicenonbackorder[i].CustomerName || '',
+//                    totalamountex: totalAmountEx || 0.00,
+//                    totaltax: totalTax || 0.00,
+//                    totalamount: totalAmount || 0.00,
+//                    totalpaid: totalPaid || 0.00,
+//                    totaloustanding: totalOutstanding || 0.00,
+//                    salestatus: data.tinvoicenonbackorder[i].SalesStatus || '',
+//                    custfield1: data.tinvoicenonbackorder[i].SaleCustField1 || '',
+//                    custfield2: data.tinvoicenonbackorder[i].SaleCustField2 || '',
+//                    comments: data.tinvoicenonbackorder[i].Comments || '',
+//                    // shipdate:data.tinvoicenonbackorder[i].ShipDate !=''? moment(data.tinvoicenonbackorder[i].ShipDate).format("DD/MM/YYYY"): data.tinvoicenonbackorder[i].ShipDate,
+
+//                };
+
+//                if(data.tinvoicenonbackorder[i].Deleted == false && data.tinvoicenonbackorder[i].CustomerName.replace(/\s/g, '') != ''){
+//                  dataTableList.push(dataList);
+//                }
+
+//                 //}
+//             }
+
+//             templateObject.datatablerecords.set(dataTableList);
+
+//             if(templateObject.datatablerecords.get()){
+
+//               Meteor.call('readPrefMethod',localStorage.getItem('mycloudLogonID'),'tblInvoicelistemail', function(error, result){
+//               if(error){
+
+//               }else{
+//                 if(result){
+//                   for (let i = 0; i < result.customFields.length; i++) {
+//                     let customcolumn = result.customFields;
+//                     let columData = customcolumn[i].label;
+//                     let columHeaderUpdate = customcolumn[i].thclass.replace(/ /g, ".");
+//                     let hiddenColumn = customcolumn[i].hidden;
+//                     let columnClass = columHeaderUpdate.split('.')[1];
+//                     let columnWidth = customcolumn[i].width;
+//                     let columnindex = customcolumn[i].index + 1;
+
+//                     if(hiddenColumn == true){
+
+//                       $("."+columnClass+"").addClass('hiddenColumn');
+//                       $("."+columnClass+"").removeClass('showColumn');
+//                     }else if(hiddenColumn == false){
+//                       $("."+columnClass+"").removeClass('hiddenColumn');
+//                       $("."+columnClass+"").addClass('showColumn');
+//                     }
+
+//                   }
+//                 }
+
+//               }
+//               });
+
+
+//               setTimeout(function () {
+//                 MakeNegative();
+//               }, 100);
+//             }
+
+//             $('.fullScreenSpin').css('display','none');
+//             setTimeout(function () {
+//                 $('#tblInvoicelistemail').DataTable({
+//                   columnDefs: [
+//                       {"orderable": false,"targets": 0},
+//                       {type: 'date', targets: 1}
+//                   ],
+//                   "sDom": "<'row'><'row'<'col-sm-12 col-lg-6'f><'col-sm-12 col-lg-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
+//                   buttons: [
+//                         {
+//                      extend: 'excelHtml5',
+//                      text: '',
+//                      download: 'open',
+//                      className: "btntabletocsv hiddenColumn",
+//                      filename: "invoicelist_"+ moment().format(),
+//                      orientation:'portrait',
+//                       exportOptions: {
+//                       columns: ':visible'
+//                     }
+//                   },{
+//                       extend: 'print',
+//                       download: 'open',
+//                       className: "btntabletopdf hiddenColumn",
+//                       text: '',
+//                       title: 'Invoice List',
+//                       filename: "invoicelist_"+ moment().format(),
+//                       exportOptions: {
+//                       columns: ':visible'
+//                     }
+//                   }],
+//                       select: true,
+//                       destroy: true,
+//                       colReorder: true,
+//                       // bStateSave: true,
+//                       // rowId: 0,
+//                       pageLength: initialDatatableLoad,
+//                       "bLengthChange": false,
+//                       info: true,
+//                       responsive: true,
+//                       "order": [[ 1, "desc" ],[ 3, "desc" ]],
+//                       action: function () {
+//                           $('#tblInvoicelistemail').DataTable().ajax.reload();
+//                       },
+//                       "fnDrawCallback": function (oSettings) {
+//                         setTimeout(function () {
+//                           MakeNegative();
+//                         }, 100);
+//                       },
+//                       language: { search: "",searchPlaceholder: "Search List..." },
+//                       "fnInitComplete": function () {
+//                         this.fnPageChange('last');
+//                           $("<button class='btn btn-primary btnRefreshInvoiceList' type='button' id='btnRefreshInvoiceList' style='padding: 4px 10px; font-size: 16px; margin-left: 12px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter("#tblInvoicelistemail_filter");
+//                           $('.myvarFilterForm').appendTo(".colDateFilter");
+//                       }
+
+//                   }).on('page', function () {
+//                     setTimeout(function () {
+//                       MakeNegative();
+//                     }, 100);
+//                       let draftRecord = templateObject.datatablerecords.get();
+//                       templateObject.datatablerecords.set(draftRecord);
+//                   }).on('column-reorder', function () {
+
+//                   }).on( 'length.dt', function ( e, settings, len ) {
+//                     setTimeout(function () {
+//                       MakeNegative();
+//                     }, 100);
+//                   });
+
+//                   // $('#tblInvoicelistemail').DataTable().column( 0 ).visible( true );
+//                   $('.fullScreenSpin').css('display','none');
+//               }, 0);
+
+//               var columns = $('#tblInvoicelistemail th');
+//               let sTible = "";
+//               let sWidth = "";
+//               let sIndex = "";
+//               let sVisible = "";
+//               let columVisible = false;
+//               let sClass = "";
+//               $.each(columns, function(i,v) {
+//                 if(v.hidden == false){
+//                   columVisible =  true;
+//                 }
+//                 if((v.className.includes("hiddenColumn"))){
+//                   columVisible = false;
+//                 }
+//                 sWidth = v.style.width.replace('px', "");
+
+//                 let datatablerecordObj = {
+//                   sTitle: v.innerText || '',
+//                   sWidth: sWidth || '',
+//                   sIndex: v.cellIndex || 0,
+//                   sVisible: columVisible || false,
+//                   sClass: v.className || ''
+//                 };
+//                 tableHeaderList.push(datatablerecordObj);
+//               });
+//             templateObject.tableheaderrecords.set(tableHeaderList);
+//              $('div.dataTables_filter input').addClass('form-control form-control-sm');
+//              $('#tblInvoicelistemail tbody').on( 'click', 'tr', function () {
+//              var listData = $(this).closest('tr').attr('id');
+//              if(listData){
+//                FlowRouter.go('/invoicecard?id=' + listData);
+//              }
+//            });
+
+//           }).catch(function (err) {
+//               // Bert.alert('<strong>' + err + '</strong>!', 'danger');
+//               $('.fullScreenSpin').css('display','none');
+//               // Meteor._reload.reload();
+//           });
+//         });
+//     }
+
+//     templateObject.getAllSalesOrderData();
 
     $('#tblInvoicelistemail tbody').on( 'click', 'tr', function () {
     var listData = $(this).closest('tr').attr('id');
@@ -1217,5 +1276,53 @@ Template.invoiceemail.helpers({
   },
   salesCloudPreferenceRec: () => {
   return CloudPreference.findOne({userid:localStorage.getItem('mycloudLogonID'),PrefName:'tblInvoicelistemail'});
-}
+  },
+  loggedCompany: () => {
+    return localStorage.getItem("mySession") || "";
+  },
+
+  // custom fields displaysettings
+  custfields: () => {
+    return Template.instance().custfields.get();
+  },
+
+  // custom fields displaysettings
+  displayfields: () => {
+    return Template.instance().displayfields.get();
+  },
+  convertedStatus: () => {
+    return Template.instance().convertedStatus.get()
+  },
+
+  apiFunction:function() { // do not use arrow function
+    return sideBarService.getAllInvoiceList
+  },
+
+  searchAPI: function() {
+    return sideBarService.getNewInvoiceByNameOrID
+  },
+
+  apiParams: function() {
+    return ['dateFrom', 'dateTo', 'ignoredate', 'limitCount', 'limitFrom', 'deleteFilter'];
+  },
+
+  service: ()=>{
+    return sideBarService;
+  },
+
+  datahandler: function () {
+    let templateObject = Template.instance();
+    return function(data) {
+        let dataReturn =  templateObject.getDataTableList(data)
+        return dataReturn
+    }
+  },
+
+  exDataHandler: function() {
+    let templateObject = Template.instance();
+    return function(data) {
+      let dataReturn = templateObject.getDataTableList(data);
+      return dataReturn
+    }
+  }
 });

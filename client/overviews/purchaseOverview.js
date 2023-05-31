@@ -1313,55 +1313,74 @@ Template.purchasesoverview.onRendered(function () {
   // };
 
   // templateObject.getAllPurchaseOrderAll();
-  // templateObject.getAllFilterPurchasesData = function (fromDate,toDate,ignoreDate) {
-  //   sideBarService.getAllPurchasesList(fromDate,toDate,ignoreDate,initialReportLoad,0).then(function (data) {
-  //       addVS1Data("TPurchasesList", JSON.stringify(data)).then(function (datareturn) {
-  //           location.reload();
-  //         }).catch(function (err) {
-  //           location.reload();
-  //         });
-  //     }).catch(function (err) {
-  //       $(".fullScreenSpin").css("display", "none");
-  //       // Meteor._reload.reload();
-  //     });
-  // };
+  templateObject.getAllFilterPurchasesData = function (fromDate,toDate,ignoreDate) {
+    sideBarService.getAllPurchasesList(fromDate,toDate,ignoreDate,initialReportLoad,0).then(function (data) {
+        addVS1Data("TPurchasesList", JSON.stringify(data)).then(function (datareturn) {
+            location.reload();
+          }).catch(function (err) {
+            location.reload();
+          });
+      }).catch(function (err) {
+        $(".fullScreenSpin").css("display", "none");
+        // Meteor._reload.reload();
+      });
 
-  // let urlParametersDateFrom = FlowRouter.current().queryParams.fromDate;
-  // let urlParametersDateTo = FlowRouter.current().queryParams.toDate;
-  // let urlParametersIgnoreDate = FlowRouter.current().queryParams.ignoredate;
-  // if (urlParametersDateFrom) {
-  //   if (urlParametersIgnoreDate == true) {
-  //     $("#dateFrom").attr("readonly", true);
-  //     $("#dateTo").attr("readonly", true);
-  //   } else {
-  //     $("#dateFrom").val(
-  //       urlParametersDateFrom != ""
-  //         ? moment(urlParametersDateFrom).format("DD/MM/YYYY")
-  //         : urlParametersDateFrom
-  //     );
-  //     $("#dateTo").val(
-  //       urlParametersDateTo != ""
-  //         ? moment(urlParametersDateTo).format("DD/MM/YYYY")
-  //         : urlParametersDateTo
-  //     );
-  //   }
-  // }
-  $("#tblPurchaseOverview tbody").on("click", "tr", function () {
-    var listData = $(this).closest("tr").find(".colPurchaseNo").text();
-    var checkDeleted =
-        $(this).closest("tr").find(".colStatus").text() || "";
-    if (listData) {
-        if (checkDeleted == "Deleted") {
-            swal(
-                "You Cannot View This Transaction",
-                "Because It Has Been Deleted",
-                "info"
-            );
-        } else {
-            FlowRouter.go("/billcard?id=" + listData);
-        }
+  
+  };
+
+  let urlParametersDateFrom = FlowRouter.current().queryParams.fromDate;
+  let urlParametersDateTo = FlowRouter.current().queryParams.toDate;
+  let urlParametersIgnoreDate = FlowRouter.current().queryParams.ignoredate;
+  if (urlParametersDateFrom) {
+    if (urlParametersIgnoreDate == true) {
+      $("#dateFrom").attr("readonly", true);
+      $("#dateTo").attr("readonly", true);
+    } else {
+      $("#dateFrom").val(
+        urlParametersDateFrom != ""
+          ? moment(urlParametersDateFrom).format("DD/MM/YYYY")
+          : urlParametersDateFrom
+      );
+      $("#dateTo").val(
+        urlParametersDateTo != ""
+          ? moment(urlParametersDateTo).format("DD/MM/YYYY")
+          : urlParametersDateTo
+      );
     }
-});
+  }
+//   $("#tblPurchaseOverview tbody").on("click", "tr", function () {
+//     var listData = $(this).closest("tr").find(".colPurchaseNo").text();
+//     var checkDeleted =
+//         $(this).closest("tr").find(".colStatus").text() || "";
+//     if (listData) {
+//         if (checkDeleted == "Deleted") {
+//             swal(
+//                 "You Cannot View This Transaction",
+//                 "Because It Has Been Deleted",
+//                 "info"
+//             );
+//         } else {
+//             FlowRouter.go("/billcard?id=" + listData);
+//         }
+//     }
+// });
+
+$("#tblPurchaseOverview tbody").on("click", "tr", function () {
+              var listData = $(this).closest("tr").find(".colPurchaseNo").text();
+              var transactiontype = $(event.target)
+                .closest("tr")
+                .find(".Type")
+                .text();
+              if (listData && transactiontype) {
+                if (transactiontype == "Purchase Order") {
+                  FlowRouter.go("/purchaseordercard?id=" + listData);
+                } else if (transactiontype == "Bill") {
+                  FlowRouter.go("/billcard?id=" + listData);
+                } else if (transactiontype == "Credit") {
+                  FlowRouter.go("/creditcard?id=" + listData);
+                } else if (transactiontype == "PO") {
+                  FlowRouter.go("/purchaseordercard?id=" + listData);
+                }}})
 });
 
 Template.purchasesoverview.events({
@@ -2412,7 +2431,7 @@ Template.purchasesoverview.helpers({
   exDataHandler: function() {
     let templateObject = Template.instance();
     return function(data) {
-      let dataReturn = templateObject.getExData(data);
+      let dataReturn = templateObject.getDataTableList(data);
       return dataReturn
     }
   }

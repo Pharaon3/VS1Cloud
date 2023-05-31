@@ -1146,18 +1146,73 @@ export class ReportService extends BaseService {
         // return this.getList(this.ERPObjects.TLeaveAccrualList, options);
     }
 
-    getStockQuantityLocationReport(dateFrom, dateTo, ignoreDate = false) {
+    getStockQuantityLocationReport(limitCount, limitFrom, dateFrom, dateTo, ignoreDate = false) {
         let options = "";
-        if (ignoreDate == true) {
-            options = {
-                IgnoreDates: true,
-            };
+        if(limitCount == undefined || limitCount == 'All') {
+            if (ignoreDate == true) {
+                options = {
+                    IgnoreDates: true,
+                };
+            } else {
+                options = {
+                    IgnoreDates: false,
+                    DateFrom: '"' + dateFrom + '"',
+                    DateTo: '"' + dateTo + '"',
+                    LimitCount: parseInt(initialReportLoad),
+                };
+            }
         } else {
-            options = {
-                IgnoreDates: false,
-                DateFrom: '"' + dateFrom + '"',
-                DateTo: '"' + dateTo + '"',
-            };
+            if (ignoreDate == true) {
+                options = {
+                    IgnoreDates: true,
+                    LimitCount: limitCount,
+                    LimitFrom: limitFrom,
+                };
+            } else {
+                options = {
+                    IgnoreDates: false,
+                    DateFrom: '"' + dateFrom + '"',
+                    DateTo: '"' + dateTo + '"',
+                    LimitCount: limitCount,
+                    LimitFrom: limitFrom,
+                };
+            }
+        }
+        return this.getList(this.ERPObjects.TStockQuantityLocation, options);
+    }
+    getStockQuantityLocationReportByKeyword(limitCount, limitFrom, dateFrom, dateTo, ignoreDate , keyword) {
+        let options = "";
+        let Search = `'ACCOUNTNAME' like '%${keyword}%' OR 'ACCOUNTNUMBER' like '%${keyword}%' OR 'DATE' like '%${keyword}%' OR 'CLIENT NAME' like '%${keyword}%'
+                    OR 'TYPE' like '%${keyword}%' OR 'DEBITSEX' like '%${keyword}%' OR 'CREDITSEX' like '%${keyword}%' OR 'AMOUNTEX' like '%${keyword}%'`;
+        if(limitCount == undefined || limitCount == 'All') {
+            if (ignoreDate == true) {
+                options = {
+                    IgnoreDates: true,
+                };
+            } else {
+                options = {
+                    IgnoreDates: false,
+                    DateFrom: '"' + dateFrom + '"',
+                    DateTo: '"' + dateTo + '"',
+                    LimitCount: parseInt(initialReportLoad),
+                };
+            }
+        } else {
+            if (ignoreDate == true) {
+                options = {
+                    IgnoreDates: true,
+                    LimitCount: limitCount,
+                    LimitFrom: limitFrom,
+                };
+            } else {
+                options = {
+                    IgnoreDates: false,
+                    DateFrom: '"' + dateFrom + '"',
+                    DateTo: '"' + dateTo + '"',
+                    LimitCount: limitCount,
+                    LimitFrom: limitFrom,
+                };
+            }
         }
         return this.getList(this.ERPObjects.TStockQuantityLocation, options);
     }
@@ -1270,18 +1325,16 @@ export class ReportService extends BaseService {
     }
 
 
-    getStockMovementReport(limitCount, limitFrom, dateFrom, dateTo, ignoreDate = false) {
+    getStockMovementReport(limitFrom, limitCount, dateFrom, dateTo, ignoreDate = false) {
         let options = "";
         if(limitCount == undefined || limitCount == 'All') {
             if (ignoreDate == true) {
                 options = {
                     IgnoreDates: true,
-                    ListType: "'Detail'"
                 };
             } else {
                 options = {
                     IgnoreDates: false,
-                    ListType: "'Detail'",
                     DateFrom: '"' + dateFrom + '"',
                     DateTo: '"' + dateTo + '"',
                     LimitCount: parseInt(initialReportLoad),
@@ -1291,14 +1344,12 @@ export class ReportService extends BaseService {
             if (ignoreDate == true) {
                 options = {
                     IgnoreDates: true,
-                    ListType: "'Detail'",
                     LimitCount: limitCount,
                     LimitFrom: limitFrom,
                 };
             } else {
                 options = {
                     IgnoreDates: false,
-                    ListType: "'Detail'",
                     DateFrom: '"' + dateFrom + '"',
                     DateTo: '"' + dateTo + '"',
                     LimitCount: limitCount,
@@ -1307,51 +1358,7 @@ export class ReportService extends BaseService {
             }
         }
         // return this.getList(this.ERPObjects.TProductMovementList, options);
-        return this.getList(this.ERPObjects.TStockMovement, options);
-    }
-
-    getStockMovementDataByKeyword(limitCount, limitFrom, dateFrom, dateTo, ignoreDate = false, keyword) {
-        let options = "";
-        let search = 'ProductName like "%'+keyword+'%"';
-        if(limitCount == undefined || limitCount == 'All') {
-            if (ignoreDate == true) {
-                options = {
-                    IgnoreDates: true,
-                    ListType: "'Detail'",
-                    Search: search
-                };
-            } else {
-                options = {
-                    IgnoreDates: false,
-                    ListType: "'Detail'",
-                    DateFrom: '"' + dateFrom + '"',
-                    DateTo: '"' + dateTo + '"',
-                    LimitCount: parseInt(initialReportLoad),
-                    Search: search
-                };
-            }
-        } else {
-            if (ignoreDate == true) {
-                options = {
-                    IgnoreDates: true,
-                    ListType: "'Detail'",
-                    LimitCount: limitCount,
-                    LimitFrom: limitFrom,
-                    Search: search
-                };
-            } else {
-                options = {
-                    IgnoreDates: false,
-                    ListType: "'Detail'",
-                    DateFrom: '"' + dateFrom + '"',
-                    DateTo: '"' + dateTo + '"',
-                    LimitCount: limitCount,
-                    LimitFrom: limitFrom,
-                    Search: search
-                };
-            }
-        }
-        return this.getList(this.ERPObjects.TStockMovement, options);
+        return this.getList(this.ERPObjects.TStockMovementList, options);
     }
 
     getSerialNumberReport(dateFrom, dateTo, ignoreDate = false) {
@@ -1390,6 +1397,90 @@ export class ReportService extends BaseService {
         return this.getList(this.ERPObjects.TProductBin, options);
     }
 
+    getJobSalesSummaryReport(limitFrom, limitCount, dateFrom, dateTo, ignoreDate) {
+        let options = "";
+        if(limitCount == undefined || limitCount == 'All') {
+            if (ignoreDate == true) {
+                options = {
+                    IgnoreDates: true,
+                    ListType: "Summary",
+                };
+            } else {
+                options = {
+                    IgnoreDates: false,
+                    DateFrom: '"' + dateFrom + '"',
+                    DateTo: '"' + dateTo + '"',
+                    LimitCount: parseInt(initialReportLoad),
+                    ListType: "Summary",
+                };
+            }
+        } else {
+            if (ignoreDate == true) {
+                options = {
+                    IgnoreDates: true,
+                    LimitCount: limitCount,
+                    LimitFrom: limitFrom,
+                    ListType: "Summary",
+                };
+            } else {
+                options = {
+                    IgnoreDates: false,
+                    DateFrom: '"' + dateFrom + '"',
+                    DateTo: '"' + dateTo + '"',
+                    LimitCount: limitCount,
+                    LimitFrom: limitFrom,
+                    ListType: "Summary",
+                };
+            }
+        }
+        return this.getList(this.ERPObjects.TJobSalesSummary, options);
+    }
+
+    getJobSalesSummaryReportByKeyword(limitFrom, limitCount, dateFrom, dateTo, ignoreDate, keyword) {
+        let options = "";
+        let Search = `'JobCustomer' like '%${keyword}%' OR 'CustomerJobNumber' like '%${keyword}%' OR 'JobName' like '%${keyword}%' OR 'ProductName' like '%${keyword}%'
+                    OR 'QtyShipped' like '%${keyword}%' OR 'TotalDiscount' like '%${keyword}%' OR 'TotalTax' like '%${keyword}%' OR 'TotalAmountEx' like '%${keyword}%' OR 'TotalAmountInc' like '%${keyword}%'`;
+        if(limitCount == undefined || limitCount == 'All') {
+            if (ignoreDate == true) {
+                options = {
+                    IgnoreDates: true,
+                    ListType: "Summary",
+                    Search: Search
+                };
+            } else {
+                options = {
+                    IgnoreDates: false,
+                    DateFrom: '"' + dateFrom + '"',
+                    DateTo: '"' + dateTo + '"',
+                    LimitCount: parseInt(initialReportLoad),
+                    ListType: "Summary",
+                    Search: Search
+                };
+            }
+        } else {
+            if (ignoreDate == true) {
+                options = {
+                    IgnoreDates: true,
+                    LimitCount: limitCount,
+                    LimitFrom: limitFrom,
+                    ListType: "Summary",
+                    Search: Search
+                };
+            } else {
+                options = {
+                    IgnoreDates: false,
+                    DateFrom: '"' + dateFrom + '"',
+                    DateTo: '"' + dateTo + '"',
+                    LimitCount: limitCount,
+                    LimitFrom: limitFrom,
+                    ListType: "Summary",
+                    Search: Search
+                };
+            }
+        }
+        return this.getList(this.ERPObjects.TJobSalesSummary, options);
+    }
+
     getTransactionJournalReport(dateFrom, dateTo, ignoreDate = false) {
         let options = "";
         if (ignoreDate == true) {
@@ -1407,83 +1498,7 @@ export class ReportService extends BaseService {
         }
         return this.getList(this.ERPObjects.TTransactionListReport, options);
     }
-
-    getJobSalesSummaryReport(limitCount, limitFrom, dateFrom, dateTo, ignoreDate = false) {
-        let options = "";
-        if(limitCount == undefined || limitCount == 'All') {
-            if (ignoreDate == true) {
-                options = {
-                    IgnoreDates: true,
-                };
-            } else {
-                options = {
-                    IgnoreDates: false,
-                    DateFrom: '"' + dateFrom + '"',
-                    DateTo: '"' + dateTo + '"',
-                    LimitCount: parseInt(initialReportLoad),
-                };
-            }
-        } else {
-            if (ignoreDate == true) {
-                options = {
-                    IgnoreDates: true,
-                    LimitCount: limitCount,
-                    LimitFrom: limitFrom,
-                };
-            } else {
-                options = {
-                    IgnoreDates: false,
-                    DateFrom: '"' + dateFrom + '"',
-                    DateTo: '"' + dateTo + '"',
-                    LimitCount: limitCount,
-                    LimitFrom: limitFrom,
-                };
-            }
-        }
-        return this.getList(this.ERPObjects.TJobSalesSummary, options);
-    }
-
-    getJobSalesSummaryDataByKeyword(limitCount, limitFrom, dateFrom, dateTo, ignoreDate = false, keyword) {
-        let options = "";
-        let search = 'Customer like "%'+keyword+'%"';
-        if(limitCount == undefined || limitCount == 'All') {
-            if (ignoreDate == true) {
-                options = {
-                    IgnoreDates: true,
-                    Search: search
-                };
-            } else {
-                options = {
-                    IgnoreDates: false,
-                    DateFrom: '"' + dateFrom + '"',
-                    DateTo: '"' + dateTo + '"',
-                    LimitCount: parseInt(initialReportLoad),
-                    Search: search
-                };
-            }
-        } else {
-            if (ignoreDate == true) {
-                options = {
-                    IgnoreDates: true,
-                    LimitCount: limitCount,
-                    LimitFrom: limitFrom,
-                    Search: search
-                };
-            } else {
-                options = {
-                    IgnoreDates: false,
-                    DateFrom: '"' + dateFrom + '"',
-                    DateTo: '"' + dateTo + '"',
-                    LimitCount: limitCount,
-                    LimitFrom: limitFrom,
-                    Search: search
-                };
-            }
-        }
-        return this.getList(this.ERPObjects.TJobSalesSummary, options);
-    }
-
-    getJobProfitabilityReport(limitCount, limitFrom, dateFrom, dateTo, ignoreDate = false) {
+    getJobProfitabilityReport(limitCount, limitFrom, dateFrom, dateTo, ignoreDate) {
         let options = "";
         if(limitCount == undefined || limitCount == 'All') {
             if (ignoreDate == true) {
@@ -1518,14 +1533,16 @@ export class ReportService extends BaseService {
         return this.getList(this.ERPObjects.TJobProfitability, options);
     }
 
-    getJobProfitabilityDataByKeyword(limitCount, limitFrom, dateFrom, dateTo, ignoreDate = false, keyword) {
+    getJobProfitabilityReportByKeyword(limitCount, limitFrom, dateFrom, dateTo, ignoreDate, keyword) {
         let options = "";
-        let search = 'CompanyName like "%'+keyword+'%"';
+        let Search = `'ACCOUNTNAME' like '%${keyword}%' OR 'ACCOUNTNUMBER' like '%${keyword}%' OR 'DATE' like '%${keyword}%' OR 'CLIENT NAME' like '%${keyword}%'
+                    OR 'TYPE' like '%${keyword}%' OR 'DEBITSEX' like '%${keyword}%' OR 'CREDITSEX' like '%${keyword}%' OR 'AMOUNTEX' like '%${keyword}%'`;
+
         if(limitCount == undefined || limitCount == 'All') {
             if (ignoreDate == true) {
                 options = {
                     IgnoreDates: true,
-                    Search: search
+                    Search: Search
                 };
             } else {
                 options = {
@@ -1533,7 +1550,7 @@ export class ReportService extends BaseService {
                     DateFrom: '"' + dateFrom + '"',
                     DateTo: '"' + dateTo + '"',
                     LimitCount: parseInt(initialReportLoad),
-                    Search: search
+                    Search: Search
                 };
             }
         } else {
@@ -1542,7 +1559,7 @@ export class ReportService extends BaseService {
                     IgnoreDates: true,
                     LimitCount: limitCount,
                     LimitFrom: limitFrom,
-                    Search: search
+                    Search: Search
                 };
             } else {
                 options = {
@@ -1551,7 +1568,7 @@ export class ReportService extends BaseService {
                     DateTo: '"' + dateTo + '"',
                     LimitCount: limitCount,
                     LimitFrom: limitFrom,
-                    Search: search
+                    Search: Search
                 };
             }
         }

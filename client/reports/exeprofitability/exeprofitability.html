@@ -3,14 +3,14 @@
         <div class="table-responsive">
             <table class="table table-sm tableExportDetailDiv" id="tableExport" name="tableExport">
                 <thead>
-                    <tr class="table-secondary customDoubleTableHeading">
+                    <tr class="table-active">
                         <th></th>
-                        <th colspan="{{countActive currencyList }}" class="text-nowrap text-center text-center{{countActive currencyList }} titleMonth1" style="font-weight: 800;"></th>
-                        <th colspan="{{countActive currencyList }}" class="text-nowrap text-center text-center{{countActive currencyList }} titleMonth2" style="font-weight: 800;"></th>
-                        <th class="text-nowrap text-center text-center{{countActive currencyList }}" style="font-weight: 800;">Variance(%)</th>
+                        <th colspan="{{countActive currencyList }}" class="text-nowrap text-center text-center{{countActive currencyList }} titleMonth1" style="font-weight: bold;"></th>
+                        <th colspan="{{countActive currencyList }}" class="text-nowrap text-center text-center{{countActive currencyList }} titleMonth2" style="font-weight: bold;"></th>
+                        <th class="text-nowrap text-center text-center{{countActive currencyList }}" style="font-weight: bold;">Variance(%)</th>
                     </tr>
                     {{#if isOnlyDefaultActive equal "false" }}
-                        <tr class="table-active tblAvoid customDoubleTableHeading">
+                        <tr class="table-active">
 
                             {{#if currencyList}}
                                 <th class="text-left"></th>
@@ -32,135 +32,135 @@
                 </thead>
                 <tbody>
                     <tr class="balacesheettable">
-                        <td class="text-nowrap text-left" style="font-weight: 800;" >
+                        <td class="text-nowrap text-left" style="font-weight: bold;" >
                             Income
                         </td>
                         {{#if currencyList}}
                             {{#each c in currencyList}}
                                 {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount totalSales1 c}}
                                 </td>
                                 {{/if}}
                             {{/each}}
                         {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                 {{totalSales1}}
                             </td>
                         {{/if}}
                         {{#if currencyList}}
                             {{#each c in currencyList}}
                                 {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount totalSales2 c}}
                                 </td>
                                 {{/if}}
                             {{/each}}
                         {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                 {{totalSales2}}
                             </td>
                         {{/if}}
-                        <td class="text-nowrap text-right spnTotalSalesVariance" style="font-weight: 800;" >
+                        <td class="text-nowrap text-right spnTotalSalesVariance" style="font-weight: bold;" >
                         </td>
                     </tr>
                     <tr class="balacesheettable">
-                        <td class="text-nowrap text-left" style="font-weight: 800;" >
+                        <td class="text-nowrap text-left" style="font-weight: bold;" >
                             Gross Profit
                         </td>
                         {{#if currencyList}}
                             {{#each c in currencyList}}
                                 {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount grossProfit1 c}}
                                 </td>
                                 {{/if}}
                             {{/each}}
                         {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                 {{grossProfit1}}
                             </td>
                         {{/if}}
                         {{#if currencyList}}
                             {{#each c in currencyList}}
                                 {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount grossProfit2 c}}
                                 </td>
                                 {{/if}}
                             {{/each}}
                         {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                 {{grossProfit2}}
                             </td>
                         {{/if}}
-                        <td class="text-nowrap text-right spnGrossProfitVariance" style="font-weight: 800;" >
+                        <td class="text-nowrap text-right spnGrossProfitVariance" style="font-weight: bold;" >
                         </td>
                     </tr>
                     <tr class="balacesheettable">
-                        <td class="text-nowrap text-left" style="font-weight: 800;" >
+                        <td class="text-nowrap text-left" style="font-weight: bold;" >
                             Expenses
                         </td>
                         {{#if currencyList}}
                             {{#each c in currencyList}}
                                 {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount totalExpense1 c}}
                                 </td>
                                 {{/if}}
                             {{/each}}
                         {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                 {{totalExpense1}}
                             </td>
                         {{/if}}
                         {{#if currencyList}}
                             {{#each c in currencyList}}
                                 {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount totalExpense2 c}}
                                 </td>
                                 {{/if}}
                             {{/each}}
                         {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                 {{totalExpense2}}
                             </td>
                         {{/if}}
-                        <td class="text-nowrap text-right spnTotalExpenseVariance" style="font-weight: 800;" >
+                        <td class="text-nowrap text-right spnTotalExpenseVariance" style="font-weight: bold;" >
                         </td>
                     </tr>
                     <tr class="balacesheettable">
-                        <td class="text-nowrap text-left" style="font-weight: 800;" >
+                        <td class="text-nowrap text-left" style="font-weight: bold;" >
                             Profit
                         </td>
                         {{#if currencyList}}
                             {{#each c in currencyList}}
                                 {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount nettProfit1 c}}
                                 </td>
                                 {{/if}}
                             {{/each}}
                         {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                 {{nettProfit1}}
                             </td>
                         {{/if}}
                         {{#if currencyList}}
                             {{#each c in currencyList}}
                                 {{#if c.active}}
-                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: 800;" >
+                                <td class="text-nowrap text-right Indent1 {{#if isNegativeAmount item.amount}} text-danger {{/if}}" currency="{{c.code}}" style="font-weight: bold;" >
                                     {{convertAmount nettProfit2 c}}
                                 </td>
                                 {{/if}}
                             {{/each}}
                         {{else}}
-                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: 800;" >
+                            <td class="text-nowrap text-right" currency="{{c.code}}" style="font-weight: bold;" >
                                 {{nettProfit2}}
                             </td>
                         {{/if}}
-                        <td class="text-nowrap text-right spnNettProfitVariance" style="font-weight: 800;" >
+                        <td class="text-nowrap text-right spnNettProfitVariance" style="font-weight: bold;" >
                         </td>
                     </tr>
                 </tbody>

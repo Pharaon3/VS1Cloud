@@ -508,21 +508,22 @@ export class SideBarService extends BaseService {
     return this.getList(this.ERPObjects.TInvoiceEx, options);
   }
 
-  getNewManifestByNameOrID(dataSearchName) {
+  getNewManifestListByNameOrID(dataSearchName) {
     let options = "";
     options = {
       ListType: "Detail",
-      select:'[ClientName] f7like "' +dataSearchName +'" OR [ID] f7like "' +dataSearchName +'"',
+      // select:'[ClientName] f7like "' +dataSearchName +'" OR [ID] f7like "' +dataSearchName +'"',
+      Search: 'AND TransHeader.AddToManifest = "T" AND TransHeader.Deleted = "F" AND TransHeader.CustomerName like "%' + dataSearchName + '%" OR TransHeader.InvoiceDocNumber like "%' + dataSearchName + '%" OR TransHeader.EmployeeName like "%' + dataSearchName + '%" OR TransHeader.Comments like "%' + dataSearchName + '%" OR TransHeader.SaleDate like "%' + dataSearchName + '%"',
     };
-    return this.getList(this.ERPObjects.TInvoiceEx, options);
+    return this.getList(this.ERPObjects.TInvoiceList, options);
   }
 
 
   getNewInvoiceListByNameOrID(dataSearchName) {
     let options = "";
     options = {
-      //ListType: "Detail",
-      //select:'[ClientName] f7like "' +dataSearchName +'" OR [ID] f7like "' +dataSearchName +'"',
+      ListType: "Detail",
+      // select:'[ClientName] f7like "' +dataSearchName +'" OR [ID] f7like "' +dataSearchName +'"',
       Search: ' AND TransHeader.Deleted = "F" AND TransHeader.CustomerName like "%' + dataSearchName + '%" OR TransHeader.InvoiceDocNumber like "%' + dataSearchName + '%" OR TransHeader.EmployeeName like "%' + dataSearchName + '%" OR TransHeader.Comments like "%' + dataSearchName + '%" OR TransHeader.SaleDate like "%' + dataSearchName + '%"',
     };
     return this.getList(this.ERPObjects.TInvoiceList, options);
@@ -929,28 +930,28 @@ export class SideBarService extends BaseService {
     return this.getList(this.ERPObjects.TSupplierPayment, options);
   }
 
-  getAllTSupplierPaymentListDataByPaymentID(suppliername) {
+  getAllTSupplierPaymentListDataByPaymentID(dataSearchName) {
     let options = "";
 
     options = {
       IgnoreDates: true,
       IsDetailReport: true,
       OrderBy: "PaymentDate desc",
-      Search: 'CompanyName = "' + suppliername + '"',
+      Search: 'Active = true and CompanyName like "%' + dataSearchName + '%"',
     };
 
     return this.getList(this.ERPObjects.TSupplierPaymentList, options);
   }
 
-  getAllTSupplierPaymentListData(dateFrom,dateTo,ignoreDate,limitcount,limitfrom) {
+  getAllTSupplierPaymentListData(dateFrom,dateTo,ignoreDate,limitcount,limitfrom,deleteFilter) {
     let options = "";
-
+    if(deleteFilter == undefined || deleteFilter == null || deleteFilter == '' || deleteFilter == false) {
     if (ignoreDate == true) {
       options = {
         IgnoreDates: true,
         IsDetailReport: true,
         OrderBy: "PaymentDate desc",
-        Search: 'Deleted != true',
+        Search: "Deleted != 'T'",
         LimitCount: parseInt(limitcount)||initialReportLoad,
         LimitFrom: parseInt(limitfrom)||0,
       };
@@ -959,13 +960,34 @@ export class SideBarService extends BaseService {
         IgnoreDates: false,
         IsDetailReport: true,
         OrderBy: "PaymentDate desc",
-        Search: 'Deleted != true',
+        Search: "Deleted != 'T'",
         DateFrom: '"' + dateFrom + '"',
         DateTo: '"' + dateTo + '"',
         LimitCount: parseInt(limitcount)||initialReportLoad,
         LimitFrom: parseInt(limitfrom)||0,
       };
     }
+  }else{
+    if (ignoreDate == true) {
+      options = {
+        IgnoreDates: true,
+        IsDetailReport: true,
+        OrderBy: "PaymentDate desc",
+        LimitCount: parseInt(limitcount)||initialReportLoad,
+        LimitFrom: parseInt(limitfrom)||0,
+      };
+    } else {
+      options = {
+        IsDetailReport: true,
+        OrderBy: "PaymentDate desc",
+        IgnoreDates: false,
+        DateFrom: '"' + dateFrom + '"',
+        DateTo: '"' + dateTo + '"',
+        LimitCount: parseInt(limitcount)||initialReportLoad,
+        LimitFrom: parseInt(limitfrom)||0,
+      };
+    }  
+  }
     return this.getList(this.ERPObjects.TSupplierPaymentList, options);
   }
 
@@ -1112,7 +1134,7 @@ export class SideBarService extends BaseService {
       ListType: "Detail",
       orderby: '"PrintName asc"',
       //select: '[ClientName] f7like "' + dataSearchName + '"',
-      Search: 'Company like "%' + dataSearchName + '%"',
+      Search: 'Active = true and Company like "%' + dataSearchName + '%"',
     };
     return this.getList(this.ERPObjects.TSupplierVS1List, options);
   }
@@ -1152,6 +1174,15 @@ export class SideBarService extends BaseService {
     }
 
     return this.getList(this.ERPObjects.TSupplierVS1List, options);
+  }
+
+  getSupplierVS1() {
+    let options = {
+      ListType:"Detail",
+      orderby: '"PrintName asc"',
+      select: "[Active]=true",
+    };
+    return this.getList(this.ERPObjects.TSupplierVS1, options);
   }
 
   getNewLeadByNameOrID(dataSearchName) {
@@ -1220,9 +1251,9 @@ export class SideBarService extends BaseService {
     return this.getList(this.ERPObjects.TCustomerVS1, options);
   }
 
-  getClientVS1() {
+  getCustomerVS1() {
     let options = {
-      PropertyList:"ClientName,Email,Abn,Street,Street2,Street3,Suburb,State,Postcode,Country,TermsName,FirstName,LastName,TaxCodeName,ClientTypeName,Discount,BillStreet,BillStreet2,BillState,BillPostcode,Billcountry",
+      ListType:"Detail",
       orderby: '"PrintName asc"',
       select: "[Active]=true",
     };
@@ -1457,10 +1488,12 @@ export class SideBarService extends BaseService {
           IgnoreDates:true,
           orderby: '"PrintName asc"',
           Search: "Active = true",
+          ListType:"Detail"
         };
       } else {
         options = {
           IgnoreDates:true,
+          ListType:"Detail",
           orderby: '"PrintName asc"',
           Search: "Active = true",
           LimitCount: parseInt(limitcount)||initialReportLoad,
@@ -1471,11 +1504,13 @@ export class SideBarService extends BaseService {
       if (limitcount == "All") {
         options = {
           orderby: '"PrintName asc"',
+          ListType:"Detail",
           IgnoreDates:true,
         };
       } else {
         options = {
           IgnoreDates:true,
+          ListType:"Detail",
           orderby: '"PrintName asc"',
           LimitCount: parseInt(limitcount)||initialReportLoad,
           LimitFrom: parseInt(limitfrom)||0,
@@ -1517,7 +1552,7 @@ export class SideBarService extends BaseService {
   }
   getAllEmployees() {
       let options = {
-        PropertyList: "ID,EmployeeName,FirstName,LastName,Phone,Email,DefaultClassName,Street",
+        ListType: "Detail",
         select: "[Active]=true",
       };
     return this.getList(this.ERPObjects.TEmployee, options);
@@ -2980,22 +3015,71 @@ export class SideBarService extends BaseService {
     return this.getList(this.ERPObjects.TStockTransferEntryList, options);
   }
 
-  getAllInvoiceList(limitcount, limitfrom) {
+  // getAllInvoiceList(limitcount, limitfrom) {
+  //   let options = "";
+  //   if (limitcount == "All") {
+  //     options = {
+  //       OrderBy: "SaleID desc",
+  //       ListType: "Detail",
+  //       select: "[Deleted]=false",
+  //     };
+  //   } else {
+  //     options = {
+  //       OrderBy: "SaleID desc",
+  //       ListType: "Detail",
+  //       select: "[Deleted]=false",
+  //       LimitCount: parseInt(limitcount)||initialReportLoad,
+  //       LimitFrom: parseInt(limitfrom)||0,
+  //     };
+  //   }
+  //   return this.getList(this.ERPObjects.TInvoiceEx, options);
+  // }
+
+  getAllInvoiceList(dateFrom,dateTo,ignoreDate,limitcount,limitfrom, deleteFilter) {
     let options = "";
-    if (limitcount == "All") {
-      options = {
-        OrderBy: "SaleID desc",
-        ListType: "Detail",
-        select: "[Deleted]=false",
-      };
+
+    if(deleteFilter == undefined || deleteFilter == null || deleteFilter == '' || deleteFilter == false) {
+      if (ignoreDate == true) {
+        options = {
+          IgnoreDates: true,
+          OrderBy: "SaleID desc",
+          PropertyList:"Id,SaleDate,SaleID,DueDate,CustomerName,TotalAmount,TotalTax,TotalAmountInc,TotalPaid,TotalBalance,SaleCustField1,SaleCustField2,EmployeeName,Comments",
+          Search: "Deleted = 'F'",
+          LimitCount: parseInt(limitcount)||initialReportLoad,
+          LimitFrom: parseInt(limitfrom)||0,
+        };
+      } else {
+        options = {
+          OrderBy: "SaleID desc",
+          IgnoreDates: false,
+          PropertyList:"Id,SaleDate,SaleID,DueDate,CustomerName,TotalAmount,TotalTax,TotalAmountInc,TotalPaid,TotalBalance,SaleCustField1,SaleCustField2,EmployeeName,Comments",
+          Search: "Deleted = 'F'",
+          DateFrom: '"' + dateFrom + '"',
+          DateTo: '"' + dateTo + '"',
+          LimitCount: parseInt(limitcount)||initialReportLoad,
+          LimitFrom: parseInt(limitfrom)||0,
+        };
+      }
     } else {
-      options = {
-        OrderBy: "SaleID desc",
-        ListType: "Detail",
-        select: "[Deleted]=false",
-        LimitCount: parseInt(limitcount)||initialReportLoad,
-        LimitFrom: parseInt(limitfrom)||0,
-      };
+      if (ignoreDate == true) {
+        options = {
+          IgnoreDates: true,
+          OrderBy: "SaleID desc",
+          PropertyList:"Id,SaleDate,SaleID,DueDate,CustomerName,TotalAmount,TotalTax,TotalAmountInc,TotalPaid,TotalBalance,SaleCustField1,SaleCustField2,EmployeeName,Comments",
+          LimitCount: parseInt(limitcount)||initialReportLoad,
+          LimitFrom: parseInt(limitfrom)||0,
+        };
+      } else {
+        options = {
+          OrderBy: "SaleID desc",
+          IgnoreDates: false,
+          PropertyList:"Id,SaleDate,SaleID,DueDate,CustomerName,TotalAmount,TotalTax,TotalAmountInc,TotalPaid,TotalBalance,SaleCustField1,SaleCustField2,EmployeeName,Comments",
+          DateFrom: '"' + dateFrom + '"',
+          DateTo: '"' + dateTo + '"',
+          LimitCount: parseInt(limitcount)||initialReportLoad,
+          LimitFrom: parseInt(limitfrom)||0,
+        };
+      }
     }
     return this.getList(this.ERPObjects.TInvoiceEx, options);
   }
@@ -3058,7 +3142,7 @@ export class SideBarService extends BaseService {
     if (ignoreDate == true) {
       options = {
         IgnoreDates: true,
-        Search: " AND TransHeader.Deleted = 'F'",
+        Search: "AND TransHeader.Deleted = 'F' AND TransHeader.AddToManifest='T'",
         OrderBy: "SaleID desc",
         IncludeBo: false,
         IncludeShipped: true,
@@ -3070,7 +3154,7 @@ export class SideBarService extends BaseService {
       options = {
         OrderBy: "SaleID desc",
         IgnoreDates: false,
-        Search: " AND TransHeader.Deleted = 'F'",
+        Search: "AND TransHeader.Deleted = 'F' AND TransHeader.AddToManifest='T'",
         IncludeBo: false,
         IncludeShipped: true,
         IncludeLines: false,
@@ -3080,7 +3164,7 @@ export class SideBarService extends BaseService {
         LimitFrom: parseInt(limitfrom)||0,
       };
     }
-    if(deleteFilter) options.Search = "";
+    if(deleteFilter) options.Search = "AND TransHeader.AddToManifest='T'";
     return this.getList(this.ERPObjects.TInvoiceList, options);
   }
 

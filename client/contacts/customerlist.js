@@ -107,282 +107,282 @@ Template.customerlist.onRendered(function() {
         $('.btnRefresh').addClass('btnRefreshAlert');
     }
 
-    templateObject.getCustomerList = function(){
-        getVS1Data('TCustomerVS1List').then(function (dataObject) {
-            if (dataObject.length == 0) {
-                sideBarService.getAllTCustomerList(initialBaseDataLoad, 0).then(async function (data) {
-                    addVS1Data('TCustomerVS1List', JSON.stringify(data));
-                    templateObject.displayCustomerList(data);
-                }).catch(function (err) {
+    // templateObject.getCustomerList = function(){
+    //     getVS1Data('TCustomerVS1List').then(function (dataObject) {
+    //         if (dataObject.length == 0) {
+    //             sideBarService.getAllTCustomerList(initialBaseDataLoad, 0).then(async function (data) {
+    //                 addVS1Data('TCustomerVS1List', JSON.stringify(data));
+    //                 templateObject.displayCustomerList(data);
+    //             }).catch(function (err) {
 
-                });
-            } else {
-                let data = JSON.parse(dataObject[0].data);
+    //             });
+    //         } else {
+    //             let data = JSON.parse(dataObject[0].data);
 
-                templateObject.displayCustomerList(data);
-            }
-        }).catch(function (err) {
-          sideBarService.getAllTCustomerList(initialBaseDataLoad, 0).then(async function (data) {
-                addVS1Data('TCustomerVS1List', JSON.stringify(data));
-                templateObject.displayCustomerList(data);
-          }).catch(function (err) {
+    //             templateObject.displayCustomerList(data);
+    //         }
+    //     }).catch(function (err) {
+    //       sideBarService.getAllTCustomerList(initialBaseDataLoad, 0).then(async function (data) {
+    //             addVS1Data('TCustomerVS1List', JSON.stringify(data));
+    //             templateObject.displayCustomerList(data);
+    //       }).catch(function (err) {
 
-          });
-        });
-    }
+    //       });
+    //     });
+    // }
 
-    templateObject.displayCustomerList = async function(data){
-        let dataTableList = [];
-        const splashArrayCustomerList = [];
-        for (let i = 0; i < data.tcustomervs1list.length; i++) {
-            let arBalance = utilityService.modifynegativeCurrencyFormat(data.tcustomervs1list[i].ARBalance)|| 0.00;
-            let creditBalance = 0.00;
-            // utilityService.modifynegativeCurrencyFormat(data.tcustomervs1list[i].CreditBalance) || 0.00;
-            let balance = utilityService.modifynegativeCurrencyFormat(data.tcustomervs1list[i].Balance)|| 0.00;
-            let creditLimit = utilityService.modifynegativeCurrencyFormat(data.tcustomervs1list[i].CreditLimit)|| 0.00;
-            let salesOrderBalance = utilityService.modifynegativeCurrencyFormat(data.tcustomervs1list[i].SOBalance)|| 0.00;
-            let mobile = contactService.changeMobileFormat(data.tcustomervs1list[i].Mobile);
+    // templateObject.displayCustomerList = async function(data){
+    //     let dataTableList = [];
+    //     const splashArrayCustomerList = [];
+    //     for (let i = 0; i < data.tcustomervs1list.length; i++) {
+    //         let arBalance = utilityService.modifynegativeCurrencyFormat(data.tcustomervs1list[i].ARBalance)|| 0.00;
+    //         let creditBalance = 0.00;
+    //         // utilityService.modifynegativeCurrencyFormat(data.tcustomervs1list[i].CreditBalance) || 0.00;
+    //         let balance = utilityService.modifynegativeCurrencyFormat(data.tcustomervs1list[i].Balance)|| 0.00;
+    //         let creditLimit = utilityService.modifynegativeCurrencyFormat(data.tcustomervs1list[i].CreditLimit)|| 0.00;
+    //         let salesOrderBalance = utilityService.modifynegativeCurrencyFormat(data.tcustomervs1list[i].SOBalance)|| 0.00;
+    //         let mobile = contactService.changeMobileFormat(data.tcustomervs1list[i].Mobile);
 
-            var dataListCustomer = [
-                  data.tcustomervs1list[i].ClientID || '',
-                  data.tcustomervs1list[i].Company || '-',
-                  data.tcustomervs1list[i].JobName || '',
-                  data.tcustomervs1list[i].Phone || '',
-                  mobile || '',
-                  arBalance || 0.00,
-                  creditBalance || 0.00,
-                  balance || 0.00,
-                  creditLimit || 0.00,
-                  salesOrderBalance || 0.00,
-                  data.tcustomervs1list[i].Street || '',
-                  data.tcustomervs1list[i].Street2 || data.tcustomervs1list[i].Suburb || '',
-                  data.tcustomervs1list[i].State || '',
-                  data.tcustomervs1list[i].Postcode || '',
-                  data.tcustomervs1list[i].Country || '',
-                  data.tcustomervs1list[i].Email || '',
-                  data.tcustomervs1list[i].BankAccountNo || '',
-                  data.tcustomervs1list[i].ClientTypeName || 'Default',
-                  data.tcustomervs1list[i].Discount || 0,
-                  data.tcustomervs1list[i].TermsName || loggedTermsSales || 'COD',
-                  data.tcustomervs1list[i].FirstName || '',
-                  data.tcustomervs1list[i].LastName || '',
-                  data.tcustomervs1list[i].TaxCodeName || 'E',
-                  data.tcustomervs1list[i].ClientNo || '',
-                  data.tcustomervs1list[i].JobTitle || '',
-                  data.tcustomervs1list[i].Notes || ''
-              ];
-            splashArrayCustomerList.push(dataListCustomer);
-            templateObject.transactiondatatablerecords.set(splashArrayCustomerList);
-        }
+    //         var dataListCustomer = [
+    //               data.tcustomervs1list[i].ClientID || '',
+    //               data.tcustomervs1list[i].Company || '-',
+    //               data.tcustomervs1list[i].JobName || '',
+    //               data.tcustomervs1list[i].Phone || '',
+    //               mobile || '',
+    //               arBalance || 0.00,
+    //               creditBalance || 0.00,
+    //               balance || 0.00,
+    //               creditLimit || 0.00,
+    //               salesOrderBalance || 0.00,
+    //               data.tcustomervs1list[i].Street || '',
+    //               data.tcustomervs1list[i].Street2 || data.tcustomervs1list[i].Suburb || '',
+    //               data.tcustomervs1list[i].State || '',
+    //               data.tcustomervs1list[i].Postcode || '',
+    //               data.tcustomervs1list[i].Country || '',
+    //               data.tcustomervs1list[i].Email || '',
+    //               data.tcustomervs1list[i].BankAccountNo || '',
+    //               data.tcustomervs1list[i].ClientTypeName || 'Default',
+    //               data.tcustomervs1list[i].Discount || 0,
+    //               data.tcustomervs1list[i].TermsName || loggedTermsSales || 'COD',
+    //               data.tcustomervs1list[i].FirstName || '',
+    //               data.tcustomervs1list[i].LastName || '',
+    //               data.tcustomervs1list[i].TaxCodeName || 'E',
+    //               data.tcustomervs1list[i].ClientNo || '',
+    //               data.tcustomervs1list[i].JobTitle || '',
+    //               data.tcustomervs1list[i].Notes || ''
+    //           ];
+    //         splashArrayCustomerList.push(dataListCustomer);
+    //         templateObject.transactiondatatablerecords.set(splashArrayCustomerList);
+    //     }
 
-        $('#' + currenttablename).DataTable({
-            data: splashArrayCustomerList,
-            "sDom": "<'row'><'row'<'col-sm-12 col-lg-6'f><'col-sm-12 col-lg-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
-            columnDefs: [
-                {
-                    className: "colCustomerID colID hiddenColumn",
-                    targets:0,
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).closest("tr").attr("id", rowData[0]);
-                        $(td).closest("tr").attr("isjob", rowData[2]);
-                    }
-                },
-                {
-                    className: "colCompany",
-                    targets: 1
-                },
-                {
-                    className: "colJob",
-                    targets: 2
-                },
-                {
-                    className: "colPhone",
-                    targets: 3
-                },
-                {
-                    className: "colMobile hiddenColumn",
-                    targets: 4
-                },
-                {
-                    className: "colARBalance hiddenColumn text-right",
-                    targets: 5
-                },
-                {
-                    className: "colCreditBalance hiddenColumn text-right",
-                    targets: 6
-                },
-                {
-                    className: "colBalance text-right",
-                    targets: 7
-                },
-                {
-                    className: "colCreditLimit text-right",
-                    targets: 8
-                },
-                {
-                    className: "colSalesOrderBalance text-right",
-                    targets: 9
-                },
-                {
-                    className: "colStreetAddress hiddenColumn",
-                    targets: 10
-                },
-                {
-                    className: "colSuburb colCity",
-                    targets: 11
-                },
-                {
-                    className: "colState hiddenColumn",
-                    targets: 12
-                },
-                {
-                    className: "colZipCode hiddenColumn",
-                    targets: 13
-                },
-                {
-                    className: "colCountry",
-                    targets: 14
-                },
-                {
-                    className: "colEmail hiddenColumn",
-                    targets: 15
-                },
-                {
-                    className: "colAccountNo hiddenColumn",
-                    targets: 16
-                },
-                {
-                    className: "colCustomerType hiddenColumn",
-                    targets: 17
-                },
-                {
-                    className: "colCustomerDiscount hiddenColumn",
-                    targets: 18
-                },
-                {
-                    className: "colCustomerTermName hiddenColumn",
-                    targets: 19
-                },
-                {
-                    className: "colCustomerFirstName hiddenColumn",
-                    targets: 20
-                },
-                {
-                    className: "colCustomerLastName hiddenColumn",
-                    targets: 21
-                },
-                {
-                    className: "colCustomerTaxCode hiddenColumn",
-                    targets: 22
-                },
-                {
-                    className: "colClientNo hiddenColumn",
-                    targets: 23
-                },
-                {
-                    className: "colJobTitle hiddenColumn",
-                    targets: 24
-                },
-                {
-                    className: "colNotes",
-                    targets: 25
-                },
-            ],
-            buttons: [{
-                    extend: 'csvHtml5',
-                    text: '',
-                    download: 'open',
-                    className: "btntabletocsv hiddenColumn",
-                    filename: "STP List",
-                    orientation: 'portrait',
-                    exportOptions: {
-                        columns: ':visible'
-                    }
-                }, {
-                    extend: 'print',
-                    download: 'open',
-                    className: "btntabletopdf hiddenColumn",
-                    text: '',
-                    title: 'STP List',
-                    filename: "STP List",
-                    exportOptions: {
-                        columns: ':visible',
-                        stripHtml: false
-                    }
-                },
-                {
-                    extend: 'excelHtml5',
-                    title: '',
-                    download: 'open',
-                    className: "btntabletoexcel hiddenColumn",
-                    filename: "STP List",
-                    orientation: 'portrait',
-                    exportOptions: {
-                        columns: ':visible'
-                    }
+    //     $('#' + currenttablename).DataTable({
+    //         data: splashArrayCustomerList,
+    //         "sDom": "<'row'><'row'<'col-sm-12 col-lg-6'f><'col-sm-12 col-lg-6 colDateFilter'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
+    //         columnDefs: [
+    //             {
+    //                 className: "colCustomerID colID hiddenColumn",
+    //                 targets:0,
+    //                 createdCell: function (td, cellData, rowData, row, col) {
+    //                     $(td).closest("tr").attr("id", rowData[0]);
+    //                     $(td).closest("tr").attr("isjob", rowData[2]);
+    //                 }
+    //             },
+    //             {
+    //                 className: "colCompany",
+    //                 targets: 1
+    //             },
+    //             {
+    //                 className: "colJob",
+    //                 targets: 2
+    //             },
+    //             {
+    //                 className: "colPhone",
+    //                 targets: 3
+    //             },
+    //             {
+    //                 className: "colMobile hiddenColumn",
+    //                 targets: 4
+    //             },
+    //             {
+    //                 className: "colARBalance hiddenColumn text-right",
+    //                 targets: 5
+    //             },
+    //             {
+    //                 className: "colCreditBalance hiddenColumn text-right",
+    //                 targets: 6
+    //             },
+    //             {
+    //                 className: "colBalance text-right",
+    //                 targets: 7
+    //             },
+    //             {
+    //                 className: "colCreditLimit text-right",
+    //                 targets: 8
+    //             },
+    //             {
+    //                 className: "colSalesOrderBalance text-right",
+    //                 targets: 9
+    //             },
+    //             {
+    //                 className: "colStreetAddress hiddenColumn",
+    //                 targets: 10
+    //             },
+    //             {
+    //                 className: "colSuburb colCity",
+    //                 targets: 11
+    //             },
+    //             {
+    //                 className: "colState hiddenColumn",
+    //                 targets: 12
+    //             },
+    //             {
+    //                 className: "colZipCode hiddenColumn",
+    //                 targets: 13
+    //             },
+    //             {
+    //                 className: "colCountry",
+    //                 targets: 14
+    //             },
+    //             {
+    //                 className: "colEmail hiddenColumn",
+    //                 targets: 15
+    //             },
+    //             {
+    //                 className: "colAccountNo hiddenColumn",
+    //                 targets: 16
+    //             },
+    //             {
+    //                 className: "colCustomerType hiddenColumn",
+    //                 targets: 17
+    //             },
+    //             {
+    //                 className: "colCustomerDiscount hiddenColumn",
+    //                 targets: 18
+    //             },
+    //             {
+    //                 className: "colCustomerTermName hiddenColumn",
+    //                 targets: 19
+    //             },
+    //             {
+    //                 className: "colCustomerFirstName hiddenColumn",
+    //                 targets: 20
+    //             },
+    //             {
+    //                 className: "colCustomerLastName hiddenColumn",
+    //                 targets: 21
+    //             },
+    //             {
+    //                 className: "colCustomerTaxCode hiddenColumn",
+    //                 targets: 22
+    //             },
+    //             {
+    //                 className: "colClientNo hiddenColumn",
+    //                 targets: 23
+    //             },
+    //             {
+    //                 className: "colJobTitle hiddenColumn",
+    //                 targets: 24
+    //             },
+    //             {
+    //                 className: "colNotes",
+    //                 targets: 25
+    //             },
+    //         ],
+    //         buttons: [{
+    //                 extend: 'csvHtml5',
+    //                 text: '',
+    //                 download: 'open',
+    //                 className: "btntabletocsv hiddenColumn",
+    //                 filename: "STP List",
+    //                 orientation: 'portrait',
+    //                 exportOptions: {
+    //                     columns: ':visible'
+    //                 }
+    //             }, {
+    //                 extend: 'print',
+    //                 download: 'open',
+    //                 className: "btntabletopdf hiddenColumn",
+    //                 text: '',
+    //                 title: 'STP List',
+    //                 filename: "STP List",
+    //                 exportOptions: {
+    //                     columns: ':visible',
+    //                     stripHtml: false
+    //                 }
+    //             },
+    //             {
+    //                 extend: 'excelHtml5',
+    //                 title: '',
+    //                 download: 'open',
+    //                 className: "btntabletoexcel hiddenColumn",
+    //                 filename: "STP List",
+    //                 orientation: 'portrait',
+    //                 exportOptions: {
+    //                     columns: ':visible'
+    //                 }
 
-                }
-            ],
-            select: true,
-            destroy: true,
-            colReorder: true,
-            pageLength: initialDatatableLoad,
-            bAutoWidth : false,
-            lengthMenu: [
-                [initialDatatableLoad, -1],
-                [initialDatatableLoad, "All"]
-            ],
-            info: true,
-            responsive: true,
-            "order": [
-                [1, "asc"]
-            ],
-            action: function() {
-                $('#' + currenttablename).DataTable().ajax.reload();
-            },
-            "fnDrawCallback": function(oSettings) {
-                $('.paginate_button.page-item').removeClass('disabled');
-                $('#' + currenttablename + '_ellipsis').addClass('disabled');
-                if (oSettings._iDisplayLength == -1) {
-                    if (oSettings.fnRecordsDisplay() > 150) {
+    //             }
+    //         ],
+    //         select: true,
+    //         destroy: true,
+    //         colReorder: true,
+    //         pageLength: initialDatatableLoad,
+    //         bAutoWidth : false,
+    //         lengthMenu: [
+    //             [initialDatatableLoad, -1],
+    //             [initialDatatableLoad, "All"]
+    //         ],
+    //         info: true,
+    //         responsive: true,
+    //         "order": [
+    //             [1, "asc"]
+    //         ],
+    //         action: function() {
+    //             $('#' + currenttablename).DataTable().ajax.reload();
+    //         },
+    //         "fnDrawCallback": function(oSettings) {
+    //             $('.paginate_button.page-item').removeClass('disabled');
+    //             $('#' + currenttablename + '_ellipsis').addClass('disabled');
+    //             if (oSettings._iDisplayLength == -1) {
+    //                 if (oSettings.fnRecordsDisplay() > 150) {
 
-                    }
-                } else {
+    //                 }
+    //             } else {
 
-                }
-                if (oSettings.fnRecordsDisplay() < initialDatatableLoad) {
-                    $('.paginate_button.page-item.next').addClass('disabled');
-                }
+    //             }
+    //             if (oSettings.fnRecordsDisplay() < initialDatatableLoad) {
+    //                 $('.paginate_button.page-item.next').addClass('disabled');
+    //             }
 
-                $('.paginate_button.next:not(.disabled)', this.api().table().container()).on('click', function() {
-                });
+    //             $('.paginate_button.next:not(.disabled)', this.api().table().container()).on('click', function() {
+    //             });
 
-            },
-            language: { search: "", searchPlaceholder: "Search ST Payroll..." },
-            "fnInitComplete": function(oSettings) {
-                if (data?.Params?.Search?.replace(/\s/g, "") == "") {
-                    $("<button class='btn btn-danger btnHideDeleted' type='button' id='btnHideDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='far fa-check-circle' style='margin-right: 5px'></i>Hide In-Active</button>").insertAfter('#' + currenttablename + '_filter');
-                } else {
-                    $("<button class='btn btn-primary btnViewDeleted' type='button' id='btnViewDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fa fa-trash' style='margin-right: 5px'></i>View In-Active</button>").insertAfter('#' + currenttablename + '_filter');
-                }
-                $("<button class='btn btn-primary btnRefreshList' type='button' id='btnRefreshList' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter('#' + currenttablename + '_filter');
-            },
-            "fnInfoCallback": function(oSettings, iStart, iEnd, iMax, iTotal, sPre) {
-                let countTableData = data.Params.Count || 0; //get count from API data
+    //         },
+    //         language: { search: "", searchPlaceholder: "Search ST Payroll..." },
+    //         "fnInitComplete": function(oSettings) {
+    //             if (data?.Params?.Search?.replace(/\s/g, "") == "") {
+    //                 $("<button class='btn btn-danger btnHideDeleted' type='button' id='btnHideDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='far fa-check-circle' style='margin-right: 5px'></i>Hide In-Active</button>").insertAfter('#' + currenttablename + '_filter');
+    //             } else {
+    //                 $("<button class='btn btn-primary btnViewDeleted' type='button' id='btnViewDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fa fa-trash' style='margin-right: 5px'></i>View In-Active</button>").insertAfter('#' + currenttablename + '_filter');
+    //             }
+    //             $("<button class='btn btn-primary btnRefreshList' type='button' id='btnRefreshList' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fas fa-search-plus' style='margin-right: 5px'></i>Search</button>").insertAfter('#' + currenttablename + '_filter');
+    //         },
+    //         "fnInfoCallback": function(oSettings, iStart, iEnd, iMax, iTotal, sPre) {
+    //             let countTableData = data.Params.Count || 0; //get count from API data
 
-                return 'Showing ' + iStart + " to " + iEnd + " of " + countTableData;
-            }
+    //             return 'Showing ' + iStart + " to " + iEnd + " of " + countTableData;
+    //         }
 
-        }).on('page', function() {
-            setTimeout(function() {
-                makeNegativeGlobal();
-            }, 100);
-        })
+    //     }).on('page', function() {
+    //         setTimeout(function() {
+    //             makeNegativeGlobal();
+    //         }, 100);
+    //     })
 
-        $('div.dataTables_filter input').addClass('form-control form-control-sm');
-        $('.fullScreenSpin').css('display', 'none');
+    //     $('div.dataTables_filter input').addClass('form-control form-control-sm');
+    //     $('.fullScreenSpin').css('display', 'none');
 
-    }
+    // }
 
     //templateObject.getCustomerList();
 
@@ -754,9 +754,23 @@ Template.customerlist.events({
 
       sideBarService.getAllTCustomerList(initialBaseDataLoad,0).then(function(data) {
           addVS1Data('TCustomerVS1List',JSON.stringify(data)).then(function (datareturn) {
-              setTimeout(function () {
-                  window.open('/customerlist','_self');
-              }, 2000);
+            sideBarService.getCustomerVS1().then(function (dataReload) {
+                addVS1Data("TCustomerVS1", JSON.stringify(dataReload)).then(function (datareturn) {
+                    setTimeout(function () {
+                      window.open('/customerlist','_self');
+                    }, 2000);
+                  })
+                  .catch(function (err) {
+                    setTimeout(function () {
+                      window.open('/customerlist','_self');
+                    }, 2000);
+                  });
+              })
+              .catch(function (err) {
+                setTimeout(function () {
+                  window.open('/termsettings','_self');
+                }, 2000);
+              });
           }).catch(function (err) {
               setTimeout(function () {
                   window.open('/customerlist','_self');
@@ -788,8 +802,8 @@ Template.customerlist.events({
       let utilityService = new UtilityService();
       let rows =[];
       const filename = 'SampleCustomer'+'.csv';
-      rows[0]= ['Company','First Name', 'Last Name', 'Phone','Mobile', 'Email','Skype', 'Street', 'City/Suburb', 'State', 'Post Code', 'Country', 'Tax Code'];
-      rows[1]= ['ABC Company','John', 'Smith', '9995551213','9995551213', 'johnsmith@email.com','johnsmith', '123 Main Street', 'Brooklyn', 'New York', '1234', 'United States', 'NT'];
+      rows[0]= ['Company','Job','Client Name','First Name','Last Name','Phone','AR Balance', 'Credit Balance','Balance', 'Credit Limit', 'Order Balance','City/Suburb','Country', 'Note'];
+      rows[1]= ['BBC Company','Building','Michael Smith','Michael','Smith','9995551213','$5.000,00', '$20','$5.000,00', '$2000', '$2.000,00', 'Sydney', 'Australia', ''];
       utilityService.exportToCsv(rows, filename, 'csv');
   },
   'click .btnUploadFile':function(event){
@@ -873,53 +887,65 @@ Template.customerlist.events({
       let firstName= '';
       let lastName = '';
       let taxCode = '';
-
-      Papa.parse(templateObject.selectedFile.get(), {
+      var filename = $("#attachment-upload")[0].files[0]["name"];
+      var fileType = filename.split(".").pop().toLowerCase();
+      if (fileType == "csv" || fileType == "txt" || fileType == "xlsx") {
+        Papa.parse(templateObject.selectedFile.get(), {
           complete: function(results) {
 
               if(results.data.length > 0){
-                  if((results.data[0][0] == "Company") && (results.data[0][1] == "First Name")
-                     && (results.data[0][2] == "Last Name") && (results.data[0][3] == "Phone")
-                     && (results.data[0][4] == "Mobile") && (results.data[0][5] == "Email")
-                     && (results.data[0][6] == "Skype") && (results.data[0][7] == "Street")
-                     && (results.data[0][8] == "Street2" || results.data[0][8] == "City/Suburb") && (results.data[0][9] == "State")
-                     && (results.data[0][10] == "Post Code") && (results.data[0][11] == "Country")) {
+                  if((results.data[0][0] == "Company") && (results.data[0][1] == "Job")
+                     && (results.data[0][2] == "Client Name" )
+                     && (results.data[0][3] == "First Name" )
+                     && (results.data[0][4] == "Last Name" )
+                     && (results.data[0][5] == "Phone") && (results.data[0][6] == "AR Balance")
+                     && (results.data[0][7] == "Credit Balance") && (results.data[0][8] == "Balance")
+                     && (results.data[0][9] == "Credit Limit") && (results.data[0][10] == "Order Balance")
+                     && (results.data[0][11] == "Street2" || results.data[0][11] == "City/Suburb") 
+                     && (results.data[0][12] == "Country")
+                     && (results.data[0][13] == "Note" )  ) {
 
                       let dataLength = results.data.length * 500;
                       setTimeout(function(){
-                        window.open('/customerlist?success=true','_self');
-                        $('.fullScreenSpin').css('display','none');
+                        sideBarService
+                            .getCustomerVS1()
+                            .then(function(dataReload) {
+                                addVS1Data("TCustomerVS1", JSON.stringify(dataReload))
+                                    .then(function(datareturn) {
+                                        window.open("/customerlist", "_self");
+                                    })
+                                    .catch(function(err) {
+                                        window.open("/customerlist", "_self");
+                                    });
+                            })
+                            .catch(function(err) {
+                                window.open("/customerlist", "_self");
+                            });
                       },parseInt(dataLength));
 
                       for (let i = 0; i < results.data.length -1; i++) {
-                        firstName = results.data[i+1][1] !== undefined? results.data[i+1][1] :'';
-                        lastName = results.data[i+1][2]!== undefined? results.data[i+1][2] :'';
-                        taxCode = results.data[i+1][12]!== undefined? results.data[i+1][12] :'NT';
+                        firstName = results.data[i+1][3] !== undefined? results.data[i+1][3] :'';
+                        lastName = results.data[i+1][4]!== undefined? results.data[i+1][4] :'';
                           objDetails = {
                               type: "TCustomer",
                               fields:
                               {
-                                  ClientName: results.data[i+1][0]||'',
+                                  Companyname: results.data[i+1][0]||'',
+                                  JobName: results.data[i+1][1]||'',
+                                  ClientName:results.data[i+1][2]||'',
                                   FirstName: firstName || '',
                                   LastName: lastName|| '',
-                                  Phone: results.data[i+1][3]||'',
-                                  Mobile: results.data[i+1][4]||'',
-                                  Email: results.data[i+1][5]||'',
-                                  SkypeName: results.data[i+1][6]||'',
-                                  Street: results.data[i+1][7]||'',
-                                  Street2: results.data[i+1][8]||'',
-                                  Suburb: results.data[i+1][8]||'',
-                                  State: results.data[i+1][9]||'',
-                                  PostCode:results.data[i+1][10]||'',
-                                  Country:results.data[i+1][11]||'',
-
-                                  BillStreet: results.data[i+1][7]||'',
-                                  BillStreet2: results.data[i+1][8]||'',
-                                  BillState: results.data[i+1][9]||'',
-                                  BillPostCode:results.data[i+1][10]||'',
-                                  Billcountry:results.data[i+1][11]||'',
-                                  TaxCodeName:taxCode||'NT',
-                                  Active: true
+                                  Phone: results.data[i+1][5]||'',
+                                  ARBalance: Number(results.data[i + 1][6].replace(/[^0-9.-]+/g, "")) || 0.00,
+                                  CreditBalance: Number(results.data[i + 1][7].replace(/[^0-9.-]+/g, "")) || 0.00,
+                                  Balance: Number(results.data[i + 1][8].replace(/[^0-9.-]+/g, "")) || 0.00,
+                                  CreditLimit: Number(results.data[i + 1][9].replace(/[^0-9.-]+/g, "")) || 0.00,
+                                  SalesOrderBalance:Number(results.data[i + 1][10].replace(/[^0-9.-]+/g, "")) || 0.00,
+                                  Suburb: results.data[i+1][11]||'',
+                                  Country: results.data[i+1][12]||'',
+                                  Notes:results.data[i+1][13]||'',
+                                  Active: true,
+                                  PublishOnVS1: true
                               }
                           };
                           if(results.data[i+1][0]){
@@ -937,9 +963,10 @@ Template.customerlist.events({
                                           confirmButtonText: 'Try Again'
                                       }).then((result) => {
                                           if (result.value) {
-                                              window.open('/customerlist?success=true','_self');
+                                            Meteor._reload.reload();
+                                            //   window.open('/customerlist?success=true','_self');
                                           } else if (result.dismiss === 'cancel') {
-                                            window.open('/customerlist?success=true','_self');
+                                            // window.open('/customerlist?success=true','_self');
                                           }
                                       });
                                   });
@@ -959,7 +986,8 @@ Template.customerlist.events({
               }
 
           }
-      });
+        });
+    }
   },
   // "click .btnViewDeleted": async function(e) {
   //     $(".fullScreenSpin").css("display", "inline-block");

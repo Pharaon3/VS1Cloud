@@ -58,7 +58,7 @@ export default class Datehandler {
       }
     });
 
-    $("#dateFrom").val(fromDate);
+    $("#dateTo").val(fromDate);
     // $("#dateTo").val(begunDate);
 
     // $("#dateTo").trigger("change");

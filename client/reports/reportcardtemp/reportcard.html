@@ -72,6 +72,7 @@
             <tbody>
                 {{#unless equals reportdata ''}}
                 {{#each object in reportdata}}
+                    {{printdata subGroup}}
                     {{#if equals subGroup false}}
                         {{#let object_idx=@index}}
                             <tr>
@@ -112,7 +113,7 @@
                                     {{/unless}}
                                 {{/each}}
                             </tr>
-                            {{#each item in object.subArr}}
+                                    {{#each item in object.subArr}}
                                 <tr>
                                     <td class="hiddenColumn colLineId">{{concat object_idx @index}}</td>
                                     {{#each setting in reset_data}}

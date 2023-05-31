@@ -237,7 +237,7 @@ Template.datatablelist.onRendered(async function () {
               if (templateObject.data.typefilter) {//Martin Tony
                     let that = templateObject.data.service;
                     let params = [initialDatatableLoad, 0, deleteFilter, templateObject.data.typefilter];
-                    
+
                     templateObject.data.apiName.apply(that, params).then(function (dataReturn) {
                         resolve(dataReturn)
                     })
@@ -535,7 +535,8 @@ Template.datatablelist.onRendered(async function () {
                     filename: templateObject.data.exportfilename,
                     orientation: 'portrait',
                     exportOptions: {
-                        columns: ':visible'
+                        columns: ':visible',
+                        stripHtml: false
                     }
                 }, {
                     extend: 'print',
@@ -558,9 +559,17 @@ Template.datatablelist.onRendered(async function () {
                         filename: templateObject.data.exportfilename,
                         orientation: 'portrait',
                         exportOptions: {
-                            columns: ':visible'
+                            columns: ':visible',
+                            format: {
+                              body: function ( data, row, column ) {
+                                  if(data.toString().includes("</span>")){
+                                      var res = data.split("</span>");
+                                      data = res[1];
+                                  }
+                                  return column === 1 ? data.toString().replace(/<.*?>/ig, ""): data;
+                              }
+                          }
                         },
-
                     }
                 ],
                 // "autoWidth": false, // might need this
@@ -693,7 +702,7 @@ Template.datatablelist.onRendered(async function () {
                         if (data.Params?.Search?.replace(/\s/g, "") == "") {
                             $("<button class='btn btn-danger btnHideDeleted' type='button' id='btnHideDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='far fa-check-circle' style='margin-right: 5px'></i>"+hideViewDeletedLabel+"</button>").insertAfter('#' + currenttablename + '_filter');
                         } else {
-                          if (data.Params?.Search == "IsBill = true and IsCheque != true" || data.Params?.Search == "AccountType IN ('Bank')") {//Josue
+                          if ((data.Params?.Search == "IsBill = true and IsCheque != true") || (data.Params?.Search == "AccountType IN ('Bank')") || (data.Params?.Search == "AND TransHeader.AddToManifest='T'")) {//Josue//Samet
                             $("<button class='btn btn-danger btnHideDeleted' type='button' id='btnHideDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='far fa-check-circle' style='margin-right: 5px'></i>"+hideViewDeletedLabel+"</button>").insertAfter('#' + currenttablename + '_filter');
                           }else{
                             $("<button class='btn btn-primary btnViewDeleted' type='button' id='btnViewDeleted' style='padding: 4px 10px; font-size: 16px; margin-left: 14px !important;'><i class='fa fa-trash' style='margin-right: 5px'></i>"+activeViewDeletedLabel+"</button>").insertAfter('#' + currenttablename + '_filter');

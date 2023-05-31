@@ -2287,6 +2287,12 @@ Template.invoice_temp.onRendered(function () {
         var showingFx = $("#toggleShowFx").prop('checked') == true? 'true': 'false';
         var showingDelivery = $('#toggleShowDelivery').prop('checked') ==true? 'true': 'false';
         var objDetails = "";
+        let manifestToggle = $('.toggleManifest').val();
+        let AddToManifest = false;
+        if (manifestToggle === 'on') {
+          AddToManifest = true;
+        };
+        console.log("start", AddToManifest);
         if (departement === "") {
           swal({
             title: "Department has not been selected!",
@@ -2330,7 +2336,8 @@ Template.invoice_temp.onRendered(function () {
                 Attachments: uploadedItems,
                 SalesStatus: $(".transheader > #sltStatus_fromtransactionheader").val(),
                 SaleCustField10: showingFx,
-                SaleCustField9: showingDelivery
+                SaleCustField9: showingDelivery,
+                addtomanifest: AddToManifest,
               },
             };
 
@@ -2357,7 +2364,8 @@ Template.invoice_temp.onRendered(function () {
                 Attachments: uploadedItems,
                 SalesStatus: $(".transheader > #sltStatus_fromtransactionheader").val(),
                 SaleCustField10: showingFx,
-                SaleCustField9: showingDelivery
+                SaleCustField9: showingDelivery,
+                addtomanifest: AddToManifest,
               },
             };
           }

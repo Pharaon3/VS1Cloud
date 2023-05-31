@@ -2174,6 +2174,10 @@ Template.stocktransfercard.onRendered(function() {
     $(document).on("click", ".chkEmailCopy", function(e) {
         if ($(event.target).is(':checked')) {
             $('#employeeList').modal('show');
+            setTimeout(function () {
+                $('#tblEmployeelist_filter .form-control-sm').get(0).focus()
+              }, 500);
+
         }
     });
 

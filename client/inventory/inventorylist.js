@@ -1,6 +1,6 @@
 import "./inventorylist.html";
 
-import "./inventorypopups/RecentTransactionPopUp.html";
+// import "./inventorypopups/RecentTransactionPopUp.html";
 import { ProductService } from "../product/product-service";
 import { ReactiveVar } from "meteor/reactive-var";
 import { UtilityService } from "../utility-service";
@@ -179,7 +179,7 @@ Template.inventorylist.onRendered(function () {
 
 Template.inventorylist.helpers({
   datatablerecords: () => {
-    return Template.instance().datatablerecords.get();
+    // return Template.instance().datatablerecords.get();
 
     return Template.instance()
       .datatablerecords.get()
@@ -1655,9 +1655,11 @@ Template.inventorylist.events({
       let templateObject = Template.instance();
       templateObject.productID.set(listData);
       templateObject.transtype.set("all");
+      $("#recentTransactionPopUp").modal("show");
       setTimeout(() => {
-        $("#recentTransactionPopUp").modal("show");
-      });
+        
+        $('#productrecentlist_filter .form-control-sm').get(0).focus();
+      },1000);
     }
   },
 
@@ -1669,9 +1671,11 @@ Template.inventorylist.events({
       let templateObject = Template.instance();
       templateObject.productID.set(listData);
       templateObject.transtype.set("Sales Order");
+      $("#onSalesOrderPopUp").modal("show");
       setTimeout(() => {
-        $("#recentTransactionPopUp").modal("show");
-      });
+        $('#productrecentlist2_filter .form-control-sm').get(0).focus();
+
+      },1000);
     }
   },
 
@@ -1684,9 +1688,11 @@ Template.inventorylist.events({
       let templateObject = Template.instance();
       templateObject.productID.set(listData);
       templateObject.transtype.set("Invoice");
+      $("#onOrderPopUp").modal("show");
       setTimeout(() => {
-        $("#recentTransactionPopUp").modal("show");
-      });
+        
+        $('#productrecentlist3_filter .form-control-sm').get(0).focus();
+      },1000);
       // $(".productNameOnOrder").text(listProductName);
     }
   },
