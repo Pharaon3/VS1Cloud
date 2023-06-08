@@ -1,18 +1,18 @@
 <template name="purchasesoverviewcards">
     <div class="col-md-6 col-xl-3 mb-4 hideelement card-visibility"  card-id="0" data-default-position="0" position="0" chartgroup="Purchases" card-active="true" card-key="outstanding-purchase-orders">
-        <div class="card shadow border-left-info py-2 customCardMainDiv" style="cursor: pointer;">
+        <div class="card shadow border-left-info customCardMainDiv" style="cursor: pointer;">
             <div class="hideShowDiv">
                 {{> editCardChartOptions}}
                 <a href="javascript:void(0);" class="cardSettingBtn editCardBtn"><i class="fas fa-cog"></i></a>
             </div>
-            <div class="card-body cardOutPO">
+            <div class="card-body cardOutPO chart-canvas" style="padding-top: 2rem !important; padding-bottom: 2rem !important;">
                 <div class="row align-items-center no-gutters">
                     <a href="/purchaseorderlist?ignoredate=true" class="col mr-2">
                         <div class="text-uppercase text-primary font-weight-bold text-xs mb-1">
-                            <span class="text-info">Outstanding PO</span>
+                            <span class="text-info" style="font-size: 14px;">Outstanding PO</span>
                         </div>
                         <div class="text-dark font-weight-bold h5 mb-0">
-                                <span class="suppAwaitingAmt">0.00</span>
+                                <span class="suppAwaitingAmt" style="font-size: 28px;">0.00</span>
                         </div>
                     </a>
                     <div class="col-auto">
@@ -20,40 +20,43 @@
                     </div>
                 </div>
             </div>
+            <img class="chart-img d-none w-100 h-100" src="img/charts/OUTSTANDING PO.png"/>
         </div>
     </div>
     <div class="col-md-6 col-xl-3 mb-4 hideelement card-visibility"  card-id="0" data-default-position="1" position="1" chartgroup="Purchases" card-active="true" card-key="outstanding-bills">
-        <div class="card shadow border-left-info py-2 customCardMainDiv" style="cursor: pointer;">
+        <div class="card shadow border-left-info customCardMainDiv" style="cursor: pointer;">
             <div class="hideShowDiv">
                 {{> editCardChartOptions}}
                 <a href="javascript:void(0);" class="cardSettingBtn editCardBtn"><i class="fas fa-cog"></i></a>
             </div>
-            <div class="card-body cardBills">
+            <div class="card-body cardBills chart-canvas" style="padding-top: 2rem !important; padding-bottom: 2rem !important;">
                 <div class="row align-items-center no-gutters">
                     <a href="/billlist?overview=true" class="col mr-2">
-                        <div class="text-uppercase text-primary font-weight-bold text-xs mb-1"><span class="text-info">Outstanding Bills</span></div>
-                        <div class="text-dark font-weight-bold h5 mb-0"><span class="billAmt">0.00</span></div>
+                        <div class="text-uppercase text-primary font-weight-bold text-xs mb-1"><span class="text-info" style="font-size: 14px;">Outstanding Bills</span></div>
+                        <div class="text-dark font-weight-bold h5 mb-0"><span class="billAmt" style="font-size: 28px;">0.00</span></div>
                     </a>
                     <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i></div>
                 </div>
             </div>
+            <img class="chart-img d-none w-100 h-100" src="img/charts/OUTSTANDING BILLS.png"/>
         </div>
     </div>
     <div class="col-md-6 col-xl-3 mb-4 hideelement card-visibility"  card-id="0" data-default-position="2" position="2" chartgroup="Purchases" card-active="true" card-key="outstanding-credit">
-        <div class="card shadow border-left-info py-2 customCardMainDiv" key="" style="cursor: pointer;">
+        <div class="card shadow border-left-info customCardMainDiv" key="" style="cursor: pointer;">
             <div class="hideShowDiv">
                 {{> editCardChartOptions}}
                 <a href="javascript:void(0);" class="cardSettingBtn editCardBtn"><i class="fas fa-cog"></i></a>
             </div>
-            <div class="card-body cardCredit">
+            <div class="card-body cardCredit chart-canvas" style="padding-top: 2rem !important; padding-bottom: 2rem !important;">
                 <div class="row align-items-center no-gutters">
                     <a href="/creditlist?ignoredate=true" class="col mr-2">
-                        <div class="text-uppercase text-primary font-weight-bold text-xs mb-1"><span class="text-info">Outstanding Credit</span></div>
-                        <div class="text-dark font-weight-bold h5 mb-0"><span class="creditAmt">0.00</span></div>
+                        <div class="text-uppercase text-primary font-weight-bold text-xs mb-1"><span class="text-info" style="font-size: 14px;">Outstanding Credit</span></div>
+                        <div class="text-dark font-weight-bold h5 mb-0"><span class="creditAmt" style="font-size: 28px;">0.00</span></div>
                     </a>
                     <div class="col-auto"><i class="fas fa-file-invoice fa-2x text-gray-300"></i></div>
                 </div>
             </div>
+            <img class="chart-img d-none w-100 h-100" src="img/charts/OUTSTANDING CREDIT.png"/>
         </div>
     </div>
 </template>

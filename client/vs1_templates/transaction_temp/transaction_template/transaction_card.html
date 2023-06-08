@@ -13,7 +13,8 @@
             payment=payment 
             headerfields=headerfields 
             headerbuttons=headerbuttons 
-            currency=true
+            currency=currency
+            onlyCurrencyField=onlyCurrencyField
             balanceDue= transactionrecord.balanceDue
             isPaid=transactionrecord.ispaid
             data=transactionrecord
@@ -27,7 +28,7 @@
             tablename= gridTableId
             recordLineItems= transactionrecord.LineItems
             isForeignEnabled=isForeignEnabled
-            canShowBackOrder=true
+            canShowBackOrder=canShowBackOrder
             canShowUOM=true
             includeBOnShippedQty=includeBOnShippedQty
             isBatchSerialNoTracking=isBatchSerialNoTracking
@@ -55,8 +56,14 @@
             selectedLineId=selectedLineId
             showFx=showFx
             fxEnabled=fxEnabled
-            showDelivery=transactionrecord.showDelivery
+            showSN=transactionrecord.showingSN
+            showDelivery=transactionrecord.showingDelivery
             calculation=calculation
+            customfooter = customfooter
+            clientPhone = clientPhone
+            tablename=gridTableId
+            delivery=delivery
+            seriallotno=seriallotno
           }}
 
         </form>

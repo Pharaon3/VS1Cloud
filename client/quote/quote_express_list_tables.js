@@ -23,6 +23,7 @@ Template.quoteslist.onCreated(function(){
     templateObject.convertedStatus = new ReactiveVar();
 
     templateObject.tableheaderrecords = new ReactiveVar([]);
+    templateObject.temporaryfiles = new ReactiveVar([]);
     templateObject.getDataTableList = function(data) {
         let totalAmountEx = utilityService.modifynegativeCurrencyFormat(data.TotalAmount)|| 0.00;
         let totalTax = utilityService.modifynegativeCurrencyFormat(data.TotalTax) || 0.00;
@@ -67,6 +68,18 @@ Template.quoteslist.onCreated(function(){
         { index: 11, label: "Status", class: "colStatus", active: true, display: true, width: "120" },
     ];
     templateObject.tableheaderrecords.set(headerStructure);
+
+    getVS1Data('TQuoteTemp').then(function(dataObject) {
+      if(dataObject.length == 0) {
+      } else {
+        let data = JSON.parse(dataObject[0].data);
+        let useData = data.tquotetemp;
+        if(useData.length > 0) {
+            templateObject.temporaryfiles.set(useData);
+          $(".btnRefresh").addClass("btnRefreshAlert");
+        }
+      }
+    })
 });
 
 Template.quoteslist.onRendered(function() {
@@ -3084,8 +3097,40 @@ Template.quoteslist.events({
     //     $('.fullScreenSpin').css('display','none');
     //   }, delayTimeAfterSound);
     //   },
-    'click .btnRefresh': function () {
+    'click .btnRefresh': async function () {
         $('.fullScreenSpin').css('display','inline-block');
+        let templateObject = Template.instance();
+        let tempfiles = templateObject.temporaryfiles.get()
+        let salesService = new SalesBoardService();
+        async function sendPostRequest  () {
+          return new Promise((resolve, reject) => {
+            for(let i=0; i< tempfiles.length; i++) {
+              // return
+              salesService.saveQuoteEx(tempfiles[i]).then(function() {
+                let newTemp = tempfiles.slice(i+1, tempfiles.length);
+                addVS1Data('TQuoteTemp', JSON.stringify({tquotetemp: newTemp})).then(function() {
+                  if(i == tempfiles.length -1) {
+                    resolve()
+                  }
+                })
+              }).catch(function(e) {
+                return
+                resolve();
+              })
+            }
+          })
+        }
+        if(tempfiles&&tempfiles.length) {
+          await sendPostRequest();
+        }
+        getVS1Data('TInvoiceTemp').then(function(dataObject) {
+          if(dataObject.length ==0) {
+            $('.btnRefresh').removeClass('btnRefreshAlert');
+          } else {
+          }
+        }).catch(function(e) {
+          $('.btnRefresh').removeClass('btnRefreshAlert');
+        })
         let currentDate = new Date();
         let hours = currentDate.getHours(); //returns 0-23
         let minutes = currentDate.getMinutes(); //returns 0-59
@@ -3101,7 +3146,6 @@ Template.quoteslist.events({
             days = "0" + currentDate.getDate();
         }
         let currenctTodayDate = currentDate.getFullYear() + "-" + month + "-" + days + " "+ hours+ ":"+ minutes+ ":"+ seconds;
-        let templateObject = Template.instance();
 
         var currentBeginDate = new Date();
         var begunDate = moment(currentBeginDate).format("DD/MM/YYYY");

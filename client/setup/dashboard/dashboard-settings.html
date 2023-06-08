@@ -163,6 +163,11 @@
                   </button>
                 </div>
               </div>
+              <style>
+                .btn.btnViewDeleted, .btn.btnHideDeleted {
+                  display: none !important;
+                }
+              </style>
               {{>datatablelist
                 tablename="tblDashboardOptionsList"
                 apiName= apiFunction

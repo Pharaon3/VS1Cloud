@@ -18,6 +18,7 @@
         xs=xs sm=sm md=md lg=lg xl=xl
         defaultPosition=defaultPosition
         key=key
+        hLenght=100
         id="bankaccountschart"
         headerClass="bankaccountschartheader"
         headerColor="primary"
@@ -60,8 +61,8 @@
               orderby: Pass which column to order datatble with. Default 1
               orderdesc : Specify if order is desc or asc. Deafult asc
             -->
-
-            {{>datatablelist
+            <div class="chart-canvas">
+                {{>datatablelist
                     tablename="tblBankAccountChartList"
                     apiName= apiFunction
                     indexeddbname = 'TReconciliationBankAccountsList'
@@ -81,7 +82,9 @@
                     viewCompletedButton = false
                     showPlusButton = false
                     showPlusButtonCRM = false
-            }}
+                }}
+            </div>
+            <img class="chart-img w-100 h-100" src="img/charts/Bank Accounts.png"/>
         </div>
 
 <!--        <div class="table-responsive" style="overflow-x: hidden!important;">-->

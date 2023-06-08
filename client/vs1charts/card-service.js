@@ -211,6 +211,8 @@ export class CardService extends BaseService {
     $(".card-visibility").addClass("dimmedChart");
     $(".on-editor-change-mode").removeClass("hideelement");
     $(".actionButtonsTop").removeClass("hideelement");
+    $(".chart-canvas").addClass("d-none");
+    $(".chart-img").removeClass("d-none");
   }
 
   async exitEdit() {
@@ -220,5 +222,7 @@ export class CardService extends BaseService {
     $(".card-visibility").removeClass("dimmedChart");
     $(".on-editor-change-mode").addClass("hideelement");
     $(".cardSettingBtn").removeClass("hideelement");
+    $(".chart-canvas").removeClass("d-none");
+    $(".chart-img").addClass("d-none");
   }
 }

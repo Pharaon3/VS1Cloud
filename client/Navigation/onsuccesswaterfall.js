@@ -154,7 +154,7 @@ Template.onsuccesswaterfall.onCreated(function () {
 });
 Template.onsuccesswaterfall.onRendered(function () {
   var countObjectTimes = 0;
-  let allDataToLoad = 106;
+  let allDataToLoad = 123;
   let progressPercentage = 0;
   let templateObject = Template.instance();
 
@@ -254,6 +254,80 @@ Template.onsuccesswaterfall.onRendered(function () {
       if (dataObject.length == 0) {
         reportService.getCardDataReport(dateAsOfReport).then(function (data) {
           addVS1Data('TDashboardExecData1', JSON.stringify(data));
+        }).catch(function (err) {
+
+        });
+      }
+    });
+
+    getVS1Data('TDashboardSalesData1').then(function (dataObject) {
+      if (dataObject.length == 0) {
+        reportService.getDashboardSalesData1(dateAsOfReport).then(function (data) {
+          addVS1Data('TDashboardSalesData1', JSON.stringify(data));
+        }).catch(function (err) {
+
+        });
+      }
+    });
+
+    getVS1Data('TDashboardSalesData2').then(function (dataObject) {
+      if (dataObject.length == 0) {
+        reportService.getDashboardSalesData2(dateAsOfReport).then(function (data) {
+          addVS1Data('TDashboardSalesData2', JSON.stringify(data));
+        }).catch(function (err) {
+
+        });
+      }
+    });
+
+    getVS1Data('TDashboardSalesData3').then(function (dataObject) {
+      if (dataObject.length == 0) {
+        reportService.getDashboardSalesData3(dateAsOfReport).then(function (data) {
+          addVS1Data('TDashboardSalesData3', JSON.stringify(data));
+        }).catch(function (err) {
+
+        });
+      }
+    });
+
+    getVS1Data('TDashboardMyData1').then(function (dataObject) {
+      if (dataObject.length == 0) {
+        reportService.getDashboardMyData1(dateAsOfReport).then(function (data) {
+          addVS1Data('TDashboardMyData1', JSON.stringify(data));
+        }).catch(function (err) {
+
+        });
+      }
+    });
+
+    getVS1Data('TDashboardMyData2').then(function (dataObject) {
+      if (dataObject.length == 0) {
+        reportService.getDashboardMyData2(dateAsOfReport).then(function (data) {
+          addVS1Data('TDashboardMyData2', JSON.stringify(data));
+        }).catch(function (err) {
+
+        });
+      }
+    });
+
+    getVS1Data('TDashboardMyData3').then(function (dataObject) {
+      if (dataObject.length == 0) {
+        reportService.getDashboardMyData3(dateAsOfReport).then(function (data) {
+          addVS1Data('TDashboardMyData3', JSON.stringify(data));
+        }).catch(function (err) {
+
+        });
+      }
+    });
+
+    getVS1Data('VS1AgedReceivableSummary_Card').then(function (dataObject) {
+      if (dataObject.length == 0) {
+        let dateTo = moment().format("YYYY-MM-DD");
+        let dateFrom = moment().subtract(3, "months").format("YYYY-MM-DD");
+        let contactID = "";
+        let ignoreDate = true;
+        reportService.getAgedReceivableDetailsSummaryData(limitCount=initialReportLoad, limitFrom=0, dateFrom=dateFrom, dateTo=dateTo, ignoreDate=ignoreDate, contactID=contactID).then(function (data) {
+          addVS1Data('VS1AgedReceivableSummary_Card', JSON.stringify(data));
         }).catch(function (err) {
 
         });
@@ -516,7 +590,7 @@ Template.onsuccesswaterfall.onRendered(function () {
 
     }).catch(function (err) {
     });
-    sideBarService.getAllTAccountVS1List('All', 0, false).then(function (data) {
+    sideBarService.getAllTAccountVS1List(initialBaseDataLoad, 0, false).then(function (data) {
       countObjectTimes++;
       progressPercentage = (countObjectTimes * 100) / allDataToLoad;
       $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
@@ -870,7 +944,7 @@ Template.onsuccesswaterfall.onRendered(function () {
       $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
       //$(".progressBarInner").text("Tax Code "+Math.round(progressPercentage)+"%");
       $(".progressBarInner").text(Math.round(progressPercentage) + "%");
-      $(".progressName").text("Tax Code ");
+      $(".progressName").text("Tax Code");
       if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
         if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
           $('.headerprogressbar').removeClass('headerprogressbarHidden');
@@ -897,6 +971,34 @@ Template.onsuccesswaterfall.onRendered(function () {
     });
   }
 
+  templateObject.getAllTaxCodeListData = function () {
+    sideBarService.getTaxRateVS1List().then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      //$(".progressBarInner").text("Tax Code "+Math.round(progressPercentage)+"%");
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Tax Code List");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      //localStorage.setItem('VS1TaxCodeList', JSON.stringify(data) || '');
+      addVS1Data('TTaxcodeVS1List', JSON.stringify(data));
+      $("<span class='process'>Tax Codes List Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+    }).catch(function (err) {
+
+    });
+  }
+
   templateObject.getAllCRMData = function () {
     sideBarService.getAllTaskList().then(function (data) {
       countObjectTimes++;
@@ -918,6 +1020,31 @@ Template.onsuccesswaterfall.onRendered(function () {
       }
       addVS1Data('TCRMTaskList', JSON.stringify(data));
       $("<span class='process'>Task List <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+    }).catch(function (err) {
+
+    });
+
+
+    sideBarService.getAllTasksList('','',true,initialBaseDataLoad, 0).then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Customer Task List ");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      addVS1Data('TCRMCustomerTaskList', JSON.stringify(data));
+      $("<span class='process'>Customer Task List <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
     }).catch(function (err) {
 
     });
@@ -1012,6 +1139,55 @@ Template.onsuccesswaterfall.onRendered(function () {
     }).catch(function (err) {
 
     });
+
+    sideBarService.getUOMDataList(initialBaseDataLoad, 0, false).then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Unit Of Measure List ");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      addVS1Data('TUnitOfMeasureList', JSON.stringify(data));
+      $("<span class='process'>Unit Of Measure List Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+    }).catch(function (err) {
+
+    });
+
+    sideBarService.getTermsDataList(initialBaseDataLoad, 0, false).then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Term List ");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      addVS1Data('TTermsVS1List', JSON.stringify(data));
+      $("<span class='process'>Term List Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+    }).catch(function (err) {
+
+    });
+
   }
 
   templateObject.getAllDepartmentData = function () {
@@ -1037,6 +1213,30 @@ Template.onsuccesswaterfall.onRendered(function () {
       //localStorage.setItem('VS1DepartmentList', JSON.stringify(data) || '');
       addVS1Data('TDeptClass', JSON.stringify(data));
       $("<span class='process'>Departments Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+    }).catch(function (err) {
+
+    });
+
+    sideBarService.getDepartmentDataList(initialBaseDataLoad, 0, false).then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Department List ");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      addVS1Data('TDeptClassList', JSON.stringify(data));
+      $("<span class='process'>Department List Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
     }).catch(function (err) {
 
     });
@@ -1124,6 +1324,33 @@ Template.onsuccesswaterfall.onRendered(function () {
     });
   }
 
+  templateObject.getTPaymentMethodListData = function () {
+    sideBarService.getPaymentMethodDataList().then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      //$(".progressBarInner").text("Payment Method "+valeur+"%");
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Payment Method List");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      addVS1Data('TPaymentMethodList', JSON.stringify(data));
+      $("<span class='process'>Payment Method List Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+    }).catch(function (err) {
+
+    });
+  }
+
   templateObject.getTClientTypeData = function () {
     sideBarService.getClientTypeData().then(function (data) {
       countObjectTimes++;
@@ -1174,6 +1401,30 @@ Template.onsuccesswaterfall.onRendered(function () {
       //localStorage.setItem('VS1LeadStatusList', JSON.stringify(data) || '');
       addVS1Data('TLeadStatusType', JSON.stringify(data));
       $("<span class='process'>Statuses Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+    }).catch(function (err) {
+
+    });
+
+    sideBarService.getLeadStatusDataList(initialBaseDataLoad, 0, false).then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Lead Status Type List ");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      addVS1Data('TLeadStatusTypeList', JSON.stringify(data));
+      $("<span class='process'>Lead Status Type List Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
     }).catch(function (err) {
 
     });
@@ -1230,6 +1481,30 @@ Template.onsuccesswaterfall.onRendered(function () {
       //localStorage.setItem('VS1AccountTypeList', JSON.stringify(data) || '');
       addVS1Data('TAccountType', JSON.stringify(data));
       $("<span class='process'>Account Types Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+    }).catch(function (err) {
+
+    });
+
+    sideBarService.getBankCode(initialBaseDataLoad, 0,false).then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Bank Codes ");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      addVS1Data('TBankCode', JSON.stringify(data));
+      $("<span class='process'>Bank Codes Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
     }).catch(function (err) {
 
     });
@@ -2008,6 +2283,31 @@ Template.onsuccesswaterfall.onRendered(function () {
     }).catch(function (err) {
 
     });
+
+    sideBarService.getCostTypeList(initialBaseDataLoad, 0, false).then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Cost Types ");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      addVS1Data('TCostTypes', JSON.stringify(data));
+      $("<span class='process'>Cost Types Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+    }).catch(function (err) {
+
+    });
+
   }
 
   templateObject.getAllTProductStocknSalePeriodReportData = function () {
@@ -2089,6 +2389,30 @@ Template.onsuccesswaterfall.onRendered(function () {
       //localStorage.setItem('VS1TJobVS1List', JSON.stringify(data) || '');
       addVS1Data('TJobVS1', JSON.stringify(data));
       $("<span class='process'>Jobs Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+    }).catch(function (err) {
+
+    });
+
+    sideBarService.getAllJobssDataVS1(initialBaseDataLoad, 0, false).then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Job List");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      addVS1Data('TJobVS1List', JSON.stringify(data));
+      $("<span class='process'>Job List Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
     }).catch(function (err) {
 
     });
@@ -2614,6 +2938,8 @@ Template.onsuccesswaterfall.onRendered(function () {
     sideBarService.getAgedReceivableDetailsSummaryData(prevMonth11Date, toDate, true, '').then(function (data) {
       localStorage.setItem("VS1AgedReceivableSummary_Report", JSON.stringify(data) || "");
       localStorage.setItem("VS1AgedReceivableSummary_Card", JSON.stringify(data) || "");
+      addVS1Data('VS1AgedReceivableSummary_Report', JSON.stringify(data));
+      addVS1Data('VS1AgedReceivableSummary_Card', JSON.stringify(data));
     });
   }
 
@@ -2644,7 +2970,7 @@ Template.onsuccesswaterfall.onRendered(function () {
 
     });
 
-    sideBarService.getAgedPayableDetailsSummaryData(prevMonth11Date, toDate, true, '').then(function (data) {
+    sideBarService.getAgedPayableDetailsSummaryData(initialReportLoad, 0,prevMonth11Date, toDate, true, '').then(function (data) {
       localStorage.setItem("VS1AgedPayablesSummary_Report", JSON.stringify(data) || "");
       localStorage.setItem("VS1AgedPayablesSummary_Card", JSON.stringify(data) || "");
     });
@@ -3442,7 +3768,7 @@ Template.onsuccesswaterfall.onRendered(function () {
     let dateTo =
         moment(toDate).format("YYYY-MM-DD") ||
         moment().format("YYYY-MM-DD");
-    reportService.getJobSalesSummaryReport(dateFrom, dateTo, false).then(async function (data) {
+    reportService.getJobSalesSummaryReport(initialBaseDataLoad, 0,dateFrom, dateTo, false).then(async function (data) {
       countObjectTimes++;
       progressPercentage = (countObjectTimes * 100) / allDataToLoad;
       $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
@@ -3483,7 +3809,7 @@ Template.onsuccesswaterfall.onRendered(function () {
     let dateTo =
         moment(toDate).format("YYYY-MM-DD") ||
         moment().format("YYYY-MM-DD");
-    reportService.getJobProfitabilityReport(dateFrom, dateTo, false).then(async function (data) {
+    reportService.getJobProfitabilityReport(initialBaseDataLoad, 0,dateFrom, dateTo, false).then(async function (data) {
       countObjectTimes++;
       progressPercentage = (countObjectTimes * 100) / allDataToLoad;
       $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
@@ -3598,6 +3924,54 @@ Template.onsuccesswaterfall.onRendered(function () {
     }).catch(function (err) {
 
     });
+
+    sideBarService.getAllSerialNumberListReport(initialBaseDataLoad, 0, false).then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Serial Number List");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      addVS1Data('TSerialNumberListCurrentReport', JSON.stringify(data));
+      $("<span class='process'>Serial Number List Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+    }).catch(function (err) {
+
+    });
+
+    sideBarService.getProductBatchesList(initialBaseDataLoad, 0, false).then(function (data) {
+      countObjectTimes++;
+      progressPercentage = (countObjectTimes * 100) / allDataToLoad;
+      $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
+      $(".progressBarInner").text(Math.round(progressPercentage) + "%");
+      $(".progressName").text("Product Batches ");
+      if ((progressPercentage > 0) && (Math.round(progressPercentage) != 100)) {
+        if ($('.headerprogressbar').hasClass("headerprogressbarShow")) {
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        } else {
+          $('.headerprogressbar').addClass('headerprogressbarShow');
+          $('.headerprogressbar').removeClass('headerprogressbarHidden');
+        }
+
+      } else if (Math.round(progressPercentage) >= 100) {
+        $('.checkmarkwrapper').removeClass("hide");
+        templateObject.dashboardRedirectOnLogin();
+      }
+      addVS1Data('TProductBatches', JSON.stringify(data));
+      $("<span class='process'>Product Batches Loaded <i class='fas fa-check process-check'></i><br></span>").insertAfter(".processContainerAnchor");
+    }).catch(function (err) {
+
+    });
   }
   templateObject.getStockMovementReportData = function() {
     let dateFrom =
@@ -3606,7 +3980,7 @@ Template.onsuccesswaterfall.onRendered(function () {
     let dateTo =
         moment(toDate).format("YYYY-MM-DD") ||
         moment().format("YYYY-MM-DD");
-    reportService.getStockMovementReport(dateFrom, dateTo, false).then(async function (data) {
+    reportService.getStockMovementReport(initialBaseDataLoad, 0,dateFrom, dateTo, false).then(async function (data) {
       countObjectTimes++;
       progressPercentage = (countObjectTimes * 100) / allDataToLoad;
       $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
@@ -3647,7 +4021,7 @@ Template.onsuccesswaterfall.onRendered(function () {
     let dateTo =
         moment(toDate).format("YYYY-MM-DD") ||
         moment().format("YYYY-MM-DD");
-    reportService.getStockQuantityLocationReport(dateFrom, dateTo, false).then(async function (data) {
+    reportService.getStockQuantityLocationReport(initialBaseDataLoad, 0,dateFrom, dateTo, false).then(async function (data) {
       countObjectTimes++;
       progressPercentage = (countObjectTimes * 100) / allDataToLoad;
       $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
@@ -3729,7 +4103,7 @@ Template.onsuccesswaterfall.onRendered(function () {
     let dateTo =
         moment(toDate).format("YYYY-MM-DD") ||
         moment().format("YYYY-MM-DD");
-    reportService.getAgedReceivableDetailsData(dateFrom, dateTo, false, '').then(async function (data) {
+    reportService.getAgedReceivableDetailsData(limitCount=initialReportLoad, limitFrom=0,dateFrom=dateFrom, dateTo=dateTo, ignoreDate=false, contactID='').then(async function (data) {
       countObjectTimes++;
       progressPercentage = (countObjectTimes * 100) / allDataToLoad;
       $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
@@ -3770,7 +4144,7 @@ Template.onsuccesswaterfall.onRendered(function () {
     let dateTo =
         moment(toDate).format("YYYY-MM-DD") ||
         moment().format("YYYY-MM-DD");
-    reportService.getAgedReceivableDetailsSummaryData(dateFrom, dateTo, false, '').then(async function (data) {
+    reportService.getAgedReceivableDetailsSummaryData(limitCount=initialReportLoad, limitFrom=0,dateFrom=dateFrom, dateTo=dateTo, ignoreDate=false, contactID='').then(async function (data) {
       countObjectTimes++;
       progressPercentage = (countObjectTimes * 100) / allDataToLoad;
       $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
@@ -3811,7 +4185,7 @@ Template.onsuccesswaterfall.onRendered(function () {
     let dateTo =
         moment(toDate).format("YYYY-MM-DD") ||
         moment().format("YYYY-MM-DD");
-    reportService.getAllProductSalesDetails(dateFrom, dateTo, false).then(async function (data) {
+    reportService.getAllProductSalesDetails(initialBaseDataLoad, 0,dateFrom, dateTo, false).then(async function (data) {
       countObjectTimes++;
       progressPercentage = (countObjectTimes * 100) / allDataToLoad;
       $('.loadingbar').css('width', progressPercentage + '%').attr('aria-valuenow', progressPercentage);
@@ -5206,6 +5580,15 @@ Template.onsuccesswaterfall.onRendered(function () {
           });
         }
         if (JSON.parse(isSettings)) {
+          getVS1Data('TTaxcodeVS1List').then(function (dataObject) {
+            if (dataObject.length == 0) {
+              templateObject.getAllTaxCodeListData();
+            } else { }
+          }).catch(function (err) {
+            templateObject.getAllTaxCodeListData();
+          });
+        }
+        if (JSON.parse(isSettings)) {
           getVS1Data('TTermsVS1').then(function (dataObject) {
             if (dataObject.length == 0) {
               templateObject.getAllTermsData();
@@ -5264,6 +5647,13 @@ Template.onsuccesswaterfall.onRendered(function () {
             } else { }
           }).catch(function (err) {
             templateObject.getTPaymentMethodData();
+          });
+          getVS1Data('TPaymentMethodList').then(function (dataObject) {
+            if (dataObject.length == 0) {
+              templateObject.getTPaymentMethodListData();
+            } else { }
+          }).catch(function (err) {
+            templateObject.getTPaymentMethodListData();
           });
         }
 
@@ -6513,6 +6903,26 @@ Template.onsuccesswaterfall.onRendered(function () {
         templateObject.getFollowedContactDetailsPull();
       }
     }
+
+    getVS1Data('T_VS1_Report_Productmovement_OnOrder').then(function (dataObject) {
+      if (dataObject.length == 0) {
+        productService.getProductRecentTransactionsOnOrder().then(function (data) {
+          addVS1Data('T_VS1_Report_Productmovement_OnOrder', JSON.stringify(data));
+        }).catch(function (err) {
+
+        });
+      }
+    });
+
+    getVS1Data('T_VS1_Report_Productmovement_OnSalesOrder').then(function (dataObject) {
+      if (dataObject.length == 0) {
+        productService.getProductRecentTransactionsSalesOrder().then(function (data) {
+          addVS1Data('T_VS1_Report_Productmovement_OnSalesOrder', JSON.stringify(data));
+        }).catch(function (err) {
+
+        });
+      }
+    });
 
 
 } else {

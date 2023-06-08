@@ -199,15 +199,86 @@ export class ProductService extends BaseService {
         return this.getList(this.ERPObjects.TProductSalesDetailsReport, options);
     }
 
-    getProductRecentTransactionsAll(productID, deleteFilter) {
-        let options = {
-            select: productID == "all" ? "" : ("[ProductID]='" + productID + "'") ,
-            PropertyList: "TransactionDate,ProductName,FirstColumn,SecondColumn,ThirdColumn,Qty,TotalCost,ProductID,ClassID,TransactionNo,AverageCost,Cost,Available,InStock,so,invbo,pobo,onbuild,building,Price,TotalPrice,ExtraDesc,TranstypeDesc,Deptname",
-            OrderBy: "TransactionDate DESC"
+    // getProductRecentTransactionsAll(productID, deleteFilter) {
+    //     let options = {
+            
+    //         PropertyList: "TransactionDate,ProductName,FirstColumn,SecondColumn,ThirdColumn,Qty,TotalCost,productID,ClassID,TransactionNo,AverageCost,Cost,Available,InStock,so,invbo,pobo,onbuild,building,Price,TotalPrice,ExtraDesc,TranstypeDesc,Deptname",
+    //         OrderBy: "TransactionNo desc",
+    //         select: productID == "all" ? "" : ("[productID]='" + productID + "'") ,
+            
+                
+    //     };
+    //     if (!deleteFilter) options.Search = "Active = true"
+    //     return this.getList(this.ERPObjects.T_VS1_Report_Productmovement, options);
+    // }
+
+    getProductRecentTransactionsAll(limitcount,limitfrom,productID, deleteFilter) {
+        let options = {};
+        if (limitcount == "All") {
+          options = {
+            OrderBy: "TransactionNo desc",
+            PropertyList: "TransactionDate,ProductName,FirstColumn,SecondColumn,ThirdColumn,Qty,TotalCost,productID,ClassID,TransactionNo,AverageCost,Cost,Available,InStock,so,invbo,pobo,onbuild,building,Price,TotalPrice,ExtraDesc,TranstypeDesc,Deptname",
+           
+
+
         };
+        } else {
+          options = {
+            OrderBy: "TransactionNo desc",
+            PropertyList: "TransactionDate,ProductName,FirstColumn,SecondColumn,ThirdColumn,Qty,TotalCost,productID,ClassID,TransactionNo,AverageCost,Cost,Available,InStock,so,invbo,pobo,onbuild,building,Price,TotalPrice,ExtraDesc,TranstypeDesc,Deptname",
+            LimitCount: parseInt(limitcount)||initialReportLoad,
+            LimitFrom: parseInt(limitfrom)||0,
+          };
+        }
         if (!deleteFilter) options.Search = "Active = true"
         return this.getList(this.ERPObjects.T_VS1_Report_Productmovement, options);
     }
+
+    getProductRecentTransactionsSalesOrder(limitcount,limitfrom,productID, deleteFilter) {
+        let options = {};
+        if (limitcount == "All") {
+          options = {
+            OrderBy: "TransactionNo desc",
+            PropertyList: "TransactionDate,ProductName,FirstColumn,SecondColumn,ThirdColumn,Qty,TotalCost,ProductID,ClassID,TransactionNo,AverageCost,Cost,Available,InStock,so,invbo,pobo,onbuild,building,Price,TotalPrice,ExtraDesc,TranstypeDesc,Deptname",
+            select:"[TranstypeDesc]='Sales Order'"
+        };
+        } else {
+          options = {
+            IgnoreDates: true,
+            OrderBy: "TransactionNo desc",
+            PropertyList: "TransactionDate,ProductName,FirstColumn,SecondColumn,ThirdColumn,Qty,TotalCost,ProductID,ClassID,TransactionNo,AverageCost,Cost,Available,InStock,so,invbo,pobo,onbuild,building,Price,TotalPrice,ExtraDesc,TranstypeDesc,Deptname",
+            LimitCount: parseInt(limitcount)||initialReportLoad,
+            LimitFrom: parseInt(limitfrom)||0,
+             select:"[TranstypeDesc]='Sales Order'"
+          };
+        }
+        if (!deleteFilter) options.Search = "Active = true"
+        return this.getList(this.ERPObjects.T_VS1_Report_Productmovement, options);
+    }
+
+    getProductRecentTransactionsOnOrder(limitcount,limitfrom,productID, deleteFilter) {
+        let options = {};
+        if (limitcount == "All") {
+          options = {
+            OrderBy: "TransactionNo desc",
+            PropertyList: "TransactionDate,ProductName,FirstColumn,SecondColumn,ThirdColumn,Qty,TotalCost,ProductID,ClassID,TransactionNo,AverageCost,Cost,Available,InStock,so,invbo,pobo,onbuild,building,Price,TotalPrice,ExtraDesc,TranstypeDesc,Deptname",
+            select: "[TranstypeDesc]='Invoice'",
+        };
+        } else {
+          options = {
+            IgnoreDates: true,
+            OrderBy: "TransactionNo desc",
+            PropertyList: "TransactionDate,ProductName,FirstColumn,SecondColumn,ThirdColumn,Qty,TotalCost,ProductID,ClassID,TransactionNo,AverageCost,Cost,Available,InStock,so,invbo,pobo,onbuild,building,Price,TotalPrice,ExtraDesc,TranstypeDesc,Deptname",
+            LimitCount: parseInt(limitcount)||initialReportLoad,
+            LimitFrom: parseInt(limitfrom)||0,
+            select: "[TranstypeDesc]='Invoice'",
+          };
+        }
+        if (!deleteFilter) options.Search = "Active = true"
+        return this.getList(this.ERPObjects.T_VS1_Report_Productmovement, options);
+    }
+
+   
 
     getOneProductRecentTransaction(dataSearchName){
         let options = "";

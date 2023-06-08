@@ -170,6 +170,10 @@
                         <span class="itemLabel">Customer: </span>
                         <span class="eventDetailItem">{{viewInfoData.Customer}}</span>
                     </li>
+                    <li>
+                        <span class="itemLabel">BOM: </span>
+                        <span class="eventDetailItem">{{viewInfoData.BomName}}</span>
+                    </li>
                     {{#unless equals viewInfoData.Status 'unscheduled'}}
                     <li>
                         <span class="itemLabel">Overall Job % completed: </span>

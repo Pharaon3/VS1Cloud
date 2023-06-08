@@ -25,12 +25,11 @@
         includeClient=false
         includeAddress=false
         Category='deposite'
-        TranascationType='quotes'
+        TranascationType='deposit'
         clientType='Account'
         payment=false
         headerfields=headerfields
         headerbuttons=headerbuttons
-        currency=true
         data=record
         gridTableId='tblDepositEntryLine'
         printTableId='cheque_print'
@@ -56,10 +55,15 @@
         saveTransaction=saveTransaction
         transCategory='Accounting'
         calculation=false
+
+        saveapifunction=saveapifunction
+        updateTransactionTemp = updateTransactionTemp
+        printfields = printfields
+        seriallotno=false
         }}
 
         <!-- Start PDF -->
-        <div style="width: 210mm; background-color: #ffffff; padding: 8px; height: 297mm; font-size: 13.33px; display: none; color: #000000; overflow-x: visible;" id="html-2-pdfwrapper_deposite" name="html-2-pdfwrapper_deposite">
+        <div style="width: 210mm; background-color: #ffffff; padding: 8px; height: 297mm; font-size: 13.33px; display: none; color: #000000; overflow-x: visible;" id="html-2-pdfwrapper" name="html-2-pdfwrapper">
             <div style="display: flex; height: 70mm;">
                 <div style="margin: 0; padding: 16px; width: 130mm; max-width: 130mm;">
                     <div style="display: flex;">

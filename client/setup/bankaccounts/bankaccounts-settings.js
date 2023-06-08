@@ -90,6 +90,7 @@ Template.wizard_bankaccounts.onRendered(function () {
         var level1 = $(event.target).closest("tr").find(".colLevel1").text() || "";
         var level2 = $(event.target).closest("tr").find(".colLevel2").text() || "";
         var level3 = $(event.target).closest("tr").find(".colLevel3").text() || "";
+        var status = $(event.target).closest("tr").find(".colStatus").text();
 
         if (accounttype === "BANK") {
           $(".isBankAccount").removeClass("isNotBankAccount");
@@ -136,6 +137,16 @@ Template.wizard_bankaccounts.onRendered(function () {
         let category = $(event.target).closest("tr").find(".colExpenseCategory").attr("category") || "";
         $("#expenseCategory").val(category);
 
+        if (status == "In-Active") {
+          $("#view-in-active").html(
+            "<button class='btn btn-success btnActiveBankAccount vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make Active</button>"
+          );
+        } else {
+          $("#view-in-active").html(
+            "<button class='btn btn-danger btnDeleteBankAccount vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make In-Active</button>"
+          );
+        }
+
         $(this).closest("tr").attr("data-target", "#addNewAccountModal");
         $(this).closest("tr").attr("data-toggle", "modal");
       }
@@ -155,6 +166,9 @@ Template.wizard_bankaccounts.events({
     $(".isCreditAccount").addClass("isNotCreditAccount");
     $("#txaAccountDescription").val("");
     $("#edtBankName").val("");
+    $("#view-in-active").html(
+      "<button class='btn btn-danger btnDeleteBankAccount vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make In-Active</button>"
+    );
   },
   'change [name="showontransactioninput"]': function (event) {
     const id = parseInt($(event.target).val());
@@ -195,6 +209,130 @@ Template.wizard_bankaccounts.events({
       .catch(function (err) {
         location.reload(true);
       });
+  },
+  "click .btnDeleteBankAccount": () => {
+    let accountService = new AccountService();
+    playDeleteAudio();
+    setTimeout(function(){
+      swal({
+        title: "Delete Account",
+        text: "Are you sure you want to Delete Account?",
+        type: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+      }).then((result) => {
+          if (result.value) {
+              $(".fullScreenSpin").css("display", "inline-block");
+              let accountID = $("#edtAccountID").val();
+              if (accountID === "") {
+                  location.reload(true);
+              } else {
+                  let data = {
+                      type: "TAccount",
+                      fields: {
+                          ID: accountID,
+                          Active: false,
+                      },
+                  };
+
+                  accountService
+                      .saveAccount(data)
+                      .then(function(data) {
+                          sideBarService
+                              .getAllBankAccountsList()
+                              .then(function(dataReload) {
+                                  addVS1Data("TBankAccountsVS1List", JSON.stringify(dataReload))
+                                      .then(function(datareturn) {
+                                          location.reload(true);
+                                      })
+                                      .catch(function(err) {
+                                        $(".fullScreenSpin").css("display", "none");
+                                      });
+                              })
+                              .catch(function(err) {
+                                $(".fullScreenSpin").css("display", "none");
+                              });
+                      })
+                      .catch(function(err) {
+                          swal({
+                              title: "Oooops...",
+                              text: err,
+                              type: "error",
+                              showCancelButton: false,
+                              confirmButtonText: "Try Again",
+                          }).then((result) => {
+                              if (result.value) {
+                                  location.reload(true);
+                              } else if (result.dismiss === "cancel") {}
+                          });
+                          $(".fullScreenSpin").css("display", "none");
+                      });
+              }
+          }
+      });
+    }, delayTimeAfterSound);
+  },
+  "click .btnActiveBankAccount": () => {
+    let accountService = new AccountService();
+    playDeleteAudio();
+    setTimeout(function(){
+      swal({
+        title: "Active Account",
+        text: "Are you sure you want to Active Account?",
+        type: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+      }).then((result) => {
+          if (result.value) {
+              $(".fullScreenSpin").css("display", "inline-block");
+              let accountID = $("#edtAccountID").val();
+              if (accountID === "") {
+                  location.reload(true);
+              } else {
+                  let data = {
+                      type: "TAccount",
+                      fields: {
+                          ID: accountID,
+                          Active: true,
+                      },
+                  };
+
+                  accountService
+                      .saveAccount(data)
+                      .then(function(data) {
+                          sideBarService
+                              .getAllBankAccountsList()
+                              .then(function(dataReload) {
+                                  addVS1Data("TBankAccountsVS1List", JSON.stringify(dataReload))
+                                      .then(function(datareturn) {
+                                          location.reload(true);
+                                      })
+                                      .catch(function(err) {
+                                        $(".fullScreenSpin").css("display", "none");
+                                      });
+                              })
+                              .catch(function(err) {
+                                $(".fullScreenSpin").css("display", "none");
+                              });
+                      })
+                      .catch(function(err) {
+                          swal({
+                              title: "Oooops...",
+                              text: err,
+                              type: "error",
+                              showCancelButton: false,
+                              confirmButtonText: "Try Again",
+                          }).then((result) => {
+                              if (result.value) {
+                                  location.reload(true);
+                              } else if (result.dismiss === "cancel") {}
+                          });
+                          $(".fullScreenSpin").css("display", "none");
+                      });
+              }
+          }
+      });
+    }, delayTimeAfterSound);
   },
   "click .templateDownload": function () {
     let utilityService = new UtilityService();

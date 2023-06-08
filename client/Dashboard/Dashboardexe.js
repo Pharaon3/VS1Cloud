@@ -589,7 +589,6 @@ Template.dashboardexe.onRendered(function() {
             templateObject.setFieldVariance(currentAsset[0], currentAsset[1], "spnCurrentAssetVariance", "divCurrentAssetVariance");
             templateObject.setFieldVariance(termAsset[0], termAsset[1], "spnTermAssetVariance", "divTermAssetVariance");
         } catch (err) {
-          console.log(err);
         }
         LoadingOverlay.hide();
     }

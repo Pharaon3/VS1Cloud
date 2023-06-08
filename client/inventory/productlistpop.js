@@ -959,7 +959,7 @@ Template.productlistpop.events({
         navigator.userAgent
       )
     ) {
-      $("#scanBarcodeModalProduct").modal("toggle");
+      // $("#scanBarcodeModalProduct").modal("toggle");
     } else {
       swal({
         title: "Please Note:",

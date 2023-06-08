@@ -20,6 +20,7 @@ import { FlowRouter } from 'meteor/ostrio:flow-router-extra';
 
 let sideBarService = new SideBarService();
 let utilityService = new UtilityService();
+let salesService = new SalesBoardService();
 Template.invoicelist.onCreated(function () {
   const templateObject = Template.instance();
   templateObject.datatablerecords = new ReactiveVar([]);
@@ -28,6 +29,7 @@ Template.invoicelist.onCreated(function () {
   templateObject.displayfields = new ReactiveVar([]);
   templateObject.reset_data = new ReactiveVar([]);
   templateObject.convertedStatus = new ReactiveVar();
+  templateObject.temporaryfiles = new ReactiveVar([]);
 
   templateObject.getDataTableList = function(data){ //This function is used to get data
     //This is the only major job where you make sure your data are correct.
@@ -84,6 +86,18 @@ Template.invoicelist.onCreated(function () {
   { index: 11, label: "Status", class:"colStatus", active: true, display: true, width: "100" }
 ];
 templateObject.tableheaderrecords.set(headerStructure);
+
+getVS1Data('TInvoiceTemp').then(function(dataObject) {
+  if(dataObject.length == 0) {
+  } else {
+    let data = JSON.parse(dataObject[0].data);
+    let useData = data.tinvoicetemp;
+    if(useData.length > 0) {
+        templateObject.temporaryfiles.set(useData);
+      $(".btnRefresh").addClass("btnRefreshAlert");
+    }
+  }
+})
 
 });
 
@@ -717,8 +731,39 @@ Template.invoicelist.events({
     jQuery("#tblInvoicelist_wrapper .dt-buttons .btntabletocsv").click();
     $(".fullScreenSpin").css("display", "none");
   },
-  "click .btnRefresh": function () {
+  "click .btnRefresh": async function () {
     $(".fullScreenSpin").css("display", "inline-block");
+
+    let templateObject = Template.instance();
+    let tempfiles = templateObject.temporaryfiles.get()
+    async function sendPostRequest  () {
+      return new Promise((resolve, reject) => {
+        for(let i=0; i< tempfiles.length; i++) {
+          // return
+          salesService.saveInvoiceEx(tempfiles[i]).then(function() {
+            let newTemp = tempfiles.slice(i+1, tempfiles.length);
+            addVS1Data('TInvoiceTemp', JSON.stringify({tinvoicetemp: newTemp})).then(function() {
+              if(i == tempfiles.length -1) {
+                resolve()
+              }
+            })
+          }).catch(function(e) {
+            resolve();
+          })
+        }
+      })
+    }
+    if(tempfiles&&tempfiles.length) {
+      await sendPostRequest();
+    }
+    getVS1Data('TInvoiceTemp').then(function(dataObject) {
+      if(dataObject.length ==0) {
+        $('.btnRefresh').removeClass('btnRefreshAlert');
+      } else {
+      }
+    }).catch(function(e) {
+      $('.btnRefresh').removeClass('btnRefreshAlert');
+    })
     let currentDate = new Date();
     let hours = currentDate.getHours(); //returns 0-23
     let minutes = currentDate.getMinutes(); //returns 0-59
@@ -744,19 +789,19 @@ Template.invoicelist.events({
     let prevMonth11Date = moment().subtract(reportsloadMonths, "months").format("YYYY-MM-DD");
 
 
-    sideBarService.getSalesListData(prevMonth11Date, toDate, true, initialReportLoad, 0).then(function (dataSales) {
-        addVS1Data("TSalesList", JSON.stringify(dataSales)).then(function (datareturn) {}).catch(function (err) {});
-      }).catch(function (err) {});
+    // sideBarService.getSalesListData(prevMonth11Date, toDate, true, initialReportLoad, 0).then(function (dataSales) {
+    //     addVS1Data("TSalesList", JSON.stringify(dataSales)).then(function (datareturn) {}).catch(function (err) {});
+    //   }).catch(function (err) {});
 
 
-      sideBarService.getTPaymentList(prevMonth11Date,toDate,true,initialReportLoad,0,"").then(function (dataPaymentList) {
-         addVS1Data("TPaymentList",JSON.stringify(dataPaymentList)).then(function (datareturn) {
-            }).catch(function (err) {
+    //   sideBarService.getTPaymentList(prevMonth11Date,toDate,true,initialReportLoad,0,"").then(function (dataPaymentList) {
+    //      addVS1Data("TPaymentList",JSON.stringify(dataPaymentList)).then(function (datareturn) {
+    //         }).catch(function (err) {
 
-            });
-        }).catch(function (err) {
+    //         });
+    //     }).catch(function (err) {
 
-        });
+    //     });
 
     sideBarService.getAllTInvoiceListData(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (dataInvoice) {
         addVS1Data("TInvoiceList", JSON.stringify(dataInvoice)).then(function (datareturn) {

@@ -945,10 +945,10 @@
             </div>
         </div>
     </div>
-    {{#if productID}} {{> recentTransactionPopUp productID=productID}} {{/if}}
-    {{#if productID}} {{> onOrderPopUp productID=productID}} {{/if}}
-    {{#if productID}} {{> onSalesOrderPopUp productID=productID }} {{/if}}
-    
+    {{> recentTransactionPopUp productID=productID}}
+    {{> onOrderPopUp productID=productID}} 
+    {{> onSalesOrderPopUp productID=productID }} 
+
 
     <!-- Start Help Video Modal -->
     <div class="modal fade" role="dialog" tabindex="-1" id="helpModal">

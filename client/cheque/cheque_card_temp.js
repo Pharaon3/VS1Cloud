@@ -31,7 +31,7 @@ var template_list = [
 ];
 var noHasTotals = ["Customer Payment", "Customer Statement", "Supplier Payment", "Statement", "Delivery Docket", "Journal Entry", "Deposit"];
 
-function generateHtmlMailBody(ID, stringQuery) {
+function generateHtmlMailBody(ID) {
   let erpInvoiceId = ID;
   let mailFromName = localStorage.getItem("vs1companyName");
   let mailFrom = 
@@ -153,6 +153,18 @@ Template.chequecard_temp.onCreated(() => {
   templateObject.gridfields = new ReactiveVar();
   templateObject.tranasctionfooterfields = new ReactiveVar();
   templateObject.printOptions = new ReactiveVar();
+  templateObject.temporaryfiles = new ReactiveVar([]);
+
+  templateObject.printfields = new ReactiveVar();
+
+  let printfields =  {
+    "Account Name" : ["30", "left"],
+    "Description" : ["40", "left"],
+    "Tax" : ["15", "right"],
+    "Amount" : ["15", "right"]
+  }
+
+  templateObject.printfields.set(printfields)
 
   function formatDate (date) {
     return moment(date).format('DD/MM/YYYY');
@@ -169,7 +181,7 @@ Template.chequecard_temp.onCreated(() => {
   // Methods
 
   let transactionheaderfields = [
-    { label: 'Account', type: 'search', id: 'account', listModalId: 'accountListModalABC12', listModalTemp: 'accountlistpop', colName: 'colAccoutName', editModalId: 'vs1_dropdown_modal', editModalTemp: 'addaccountpop', editable: true, divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader" },
+    { label: 'Account', type: 'search', id: 'account', listModalId: 'accountListModalABC12', listModalTemp: 'accountlistpop', colName: 'colAccountName', editModalId: 'vs1_dropdown_modal', editModalTemp: 'addaccountpop', editable: true, divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader" },
     { label: 'Reference', type: 'default', id: 'edtRef', value: '', readonly: false, divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader" },
     { label: 'Cheque No.', type: 'default', id: 'edtChequeNo', value: '', readonly: false, divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader" },
     { label: "Date", type: "date", readonly: false, value: formatDate(new Date()), divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader", },
@@ -187,6 +199,19 @@ Template.chequecard_temp.onCreated(() => {
   ];
 
   templateObject.tranasctionfooterfields.set(transactionfooterfields);
+
+
+  getVS1Data('TChequeTemp').then(function(dataObject){
+    if(dataObject.length == 0) {
+      templateObject.temporaryfiles.set([]);
+    } else {
+      let data = JSON.parse(dataObject[0].data);
+      let useData = data.tchequetemp;
+      templateObject.temporaryfiles.set(useData)
+    }
+  }).catch(function(e){
+    templateObject.temporaryfiles.set([])
+  })
 
   templateObject.initialRecords = () => {
     $(".fullScreenSpin").css("display", "none");
@@ -6003,7 +6028,7 @@ Template.chequecard_temp.onRendered(function () {
               TaxRate: TaxRateGbp || 0,
             };
 
-            lineItemsTable.push(dataListTable);
+            // lineItemsTable.push(dataListTable);
             lineItems.push(lineItemObj);
           }
         } else {
@@ -6132,10 +6157,10 @@ Template.chequecard_temp.onRendered(function () {
     };
 
     $("#edtSupplierName").val(data.fields.SupplierName);
-    $("#sltChequeBankAccountName").val(data.fields.GLAccountName);
+    $(".transheader > #account_fromtransactionheader").val(data.fields.GLAccountName);
     templateObject.CleintName.set(data.fields.SupplierName);
-    $("#sltCurrency").val(data.fields.ForeignExchangeCode);
-    $("#sltStatus").val(data.fields.OrderStatus);
+    $(".transheader > .sltCurrency").val(data.fields.ForeignExchangeCode);
+    $(".transheader > #sltStatus_fromtransactionheader").val(data.fields.OrderStatus);
     //$("#shipvia").val(data.fields.Shipping);
 
     if (data.fields.Isreconciled) {
@@ -6160,19 +6185,19 @@ Template.chequecard_temp.onRendered(function () {
       }
     }
 
-    if (clientList) {
-      for (var i = 0; i < clientList.length; i++) {
-        if (
-          clientList[i].suppliername == data.fields.SupplierName
-        ) {
-          $("#edtSupplierEmail").val(clientList[i].supplieremail);
-          $("#edtSupplierEmail").attr(
-            "supplierid",
-            clientList[i].supplierid
-          );
-        }
-      }
-    }
+    // if (clientList) {
+    //   for (var i = 0; i < clientList.length; i++) {
+    //     if (
+    //       clientList[i].suppliername == data.fields.SupplierName
+    //     ) {
+    //       $("#edtSupplierEmail").val(clientList[i].supplieremail);
+    //       $("#edtSupplierEmail").attr(
+    //         "supplierid",
+    //         clientList[i].supplierid
+    //       );
+    //     }
+    //   }
+    // }
 
     templateObject.chequerecord.set(chequerecord);
 
@@ -6232,7 +6257,7 @@ Template.chequecard_temp.onRendered(function () {
         }
       );
     }
-
+    return {record: chequerecord, attachmentCount: templateObject.attachmentCount.get(), uploadedFiles: templateObject.uploadedFiles.get(), selectedCurrency: chequerecord.currency}
   }
 
 
@@ -6262,10 +6287,14 @@ Template.chequecard_temp.onRendered(function () {
           var lineID = this.id;
           let tdaccount = $("#" + lineID + " .lineAccountName").val();
           let tddmemo = $("#" + lineID + " .lineMemo").text();
-          let tdamount = $("#" + lineID + " .colAmountEx").val();
+          let tdamount = $("#" + lineID + " .colAmountEx").text();
           let tdtaxrate = $("#" + lineID + " .lineTaxRate").text();
           let tdtaxCode = $("#" + lineID + " .lineTaxCode").val() || loggedTaxCodePurchaseInc;
           let erpLineID = $("#" + lineID + " .lineAccountName").attr("lineid");
+          let TotalLineAmount =  $("#" + lineID + " .lineAmount").text();
+          Number(tdamount.replace(/[^0-9.-]+/g, "")) || 0
+          let taxTotal = $("#" + lineID + " .lineTaxAmount").text();
+          let chequetotal =  Number(TotalLineAmount.replace(/[^0-9.-]+/g, "")) + Number(taxTotal.replace(/[^0-9.-]+/g, ""))
           if (tdaccount != "") {
             lineItemObjForm = {
               type: "TChequeLine",
@@ -6273,11 +6302,13 @@ Template.chequecard_temp.onRendered(function () {
                 ID: parseInt(erpLineID) || 0,
                 AccountName: tdaccount || "",
                 ProductDescription: tddmemo || "",
-                LineCost: Number(tdamount.replace(/[^0-9.-]+/g, "")) || 0,
+                // LineCost: Number(tdamount.replace(/[^0-9.-]+/g, "")) || 0,
+                LineCost:chequetotal,
                 LineTaxCode: tdtaxCode || "",
                 CustomField1: $("#edtSaleCustField1").val() || "",
                 CustomField2: $("#edtSaleCustField2").val() || "",
                 CustomField3: $("#edtSaleCustField3").val() || "",
+                // TotalLineAmount: colAmountEx
               },
             };
             lineItemsForm.push(lineItemObjForm);
@@ -6343,7 +6374,7 @@ Template.chequecard_temp.onRendered(function () {
               RefNo: reference,
               SalesComments: pickingInfrmation,
               Attachments: uploadedItems,
-              OrderStatus: $("#sltStatus").val(),
+              OrderStatus: $(".transheader > #sltStatus_fromtransactionheader").val(),
               Chequetotal: Number(chequeTotal.replace(/[^0-9.-]+/g, "")) || 0,
             },
           };
@@ -6365,7 +6396,7 @@ Template.chequecard_temp.onRendered(function () {
               RefNo: reference,
               SalesComments: pickingInfrmation,
               Attachments: uploadedItems,
-              OrderStatus: $("#sltStatus").val(),
+              OrderStatus: $(".transheader > #sltStatus_fromtransactionheader").val(),
               Chequetotal: Number(chequeTotal.replace(/[^0-9.-]+/g, "")) || 0,
             },
           };
@@ -6379,8 +6410,14 @@ Template.chequecard_temp.onRendered(function () {
           event.preventDefault();
           return false;
         };
+        showSimpleMessageTransaction();
+        playSaveAudio();
 
-        purchaseService.saveChequeEx(objDetails).then(function (objDetails) {
+        let currentchequetemp = templateObject.temporaryfiles.get();
+        let newchequetemp= [...currentchequetemp, objDetails];
+        templateObject.temporaryfiles.set(newchequetemp);
+        // purchaseService.saveChequeEx(objDetails).then(function (objDetails) {
+          addVS1Data('TChequeTemp', JSON.stringify({tchequetemp: newchequetemp})).then(function(){
 
           if (localStorage.getItem("enteredURL") != null) {
             FlowRouter.go(localStorage.getItem("enteredURL"));
@@ -6398,329 +6435,13 @@ Template.chequecard_temp.onRendered(function () {
               .replace(/[\r\n]/g, "<br />")
           );
 
-          sideBarService.getAllChequeList(initialDataLoad, 0).then(function (data) {
-            addVS1Data('TCheque', JSON.stringify(data));
-          }).catch(function (err) {
-          });
+          // sideBarService.getAllChequeList(initialDataLoad, 0).then(function (data) {
+          //   addVS1Data('TCheque', JSON.stringify(data));
+          // }).catch(function (err) {
+          // });
 
-          // async function addAttachment() {
-          //   let attachment = [];
-          //   let templateObject = Template.instance();
-
-          //   let invoiceId = objDetails.fields.ID;
-          //   let encodedPdf = await generatePdfForMail(invoiceId);
-          //   let pdfObject = "";
-          //   var reader = new FileReader();
-          //   reader.readAsDataURL(encodedPdf);
-          //   reader.onloadend = function () {
-          //     var base64data = reader.result;
-          //     base64data = base64data.split(",")[1];
-          //     pdfObject = {
-          //       filename: "Cheque " + invoiceId + ".pdf",
-          //       content: base64data,
-          //       encoding: "base64",
-          //     };
-          //     attachment.push(pdfObject);
-              
-
-          //     if (
-          //       $(".chkEmailCopy").is(":checked") &&
-          //       $(".chkEmailRep").is(":checked")
-          //     ) {
-          //       Meteor.call(
-          //         "sendEmail",
-          //         {
-          //           from: "" + mailFromName + " <" + mailFrom + ">",
-          //           to: checkEmailData,
-          //           subject: mailSubject,
-          //           text: "",
-          //           html: htmlmailBody,
-          //           attachments: attachment,
-          //         },
-          //         function (error, result) {
-          //           if (error && error.error === "error") {
-          //           } else {
-          //           }
-          //         }
-          //       );
-
-          //       Meteor.call(
-          //         "sendEmail",
-          //         {
-          //           from: "" + mailFromName + " <" + mailFrom + ">",
-          //           to: mailFrom,
-          //           subject: mailSubject,
-          //           text: "",
-          //           html: htmlmailBody,
-          //           attachments: attachment,
-          //         },
-          //         function (error, result) {
-          //           if (error && error.error === "error") {
-
-          //             if (FlowRouter.current().queryParams.trans) {
-          //               FlowRouter.go('/customerscard?id=' + FlowRouter.current().queryParams.trans + '&transTab=active');
-          //             } else {
-          //               FlowRouter.go("/chequelist?success=true");
-          //             };
-          //           } else {
-          //             $("#html-2-pdfwrapper").css("display", "none");
-          //             swal({
-          //               title: "SUCCESS",
-          //               text:
-          //                 "Email Sent To Supplier: " +
-          //                 checkEmailData +
-          //                 " and User: " +
-          //                 mailFrom +
-          //                 "",
-          //               type: "success",
-          //               showCancelButton: false,
-          //               confirmButtonText: "OK",
-          //             }).then((result) => {
-          //               if (result.value) {
-          //                 if (FlowRouter.current().queryParams.trans) {
-          //                   FlowRouter.go('/customerscard?id=' + FlowRouter.current().queryParams.trans + '&transTab=active');
-          //                 } else {
-          //                   FlowRouter.go("/chequelist?success=true");
-          //                 };
-          //               } else if (result.dismiss === "cancel") {
-          //               }
-          //             });
-
-          //             $(".fullScreenSpin").css("display", "none");
-          //           }
-          //         }
-          //       );
-
-
-          //       let values = [];
-          //       let basedOnTypeStorages = Object.keys(localStorage);
-          //       basedOnTypeStorages = basedOnTypeStorages.filter((storage) => {
-          //         let employeeId = storage.split('_')[2];
-          //         // return storage.includes('BasedOnType_') && employeeId == localStorage.getItem('mySessionEmployeeLoggedID')
-          //         return storage.includes('BasedOnType_');
-          //       });
-          //       let i = basedOnTypeStorages.length;
-          //       if (i > 0) {
-          //         while (i--) {
-          //           values.push(localStorage.getItem(basedOnTypeStorages[i]));
-          //         }
-          //       }
-          //       values.forEach(value => {
-          //         let reportData = JSON.parse(value);
-          //         let temp = { ...reportData };
-
-          //         temp.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-          //         reportData.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-          //         temp.attachments = attachment;
-          //         if (temp.BasedOnType.includes("S")) {
-          //           if (temp.FormID == 1) {
-          //             let formIds = temp.FormIDs.split(',');
-          //             if (formIds.includes("18")) {
-          //               temp.FormID = 18;
-          //               Meteor.call('sendNormalEmail', temp);
-          //             }
-          //           } else {
-          //             if (temp.FormID == 18)
-          //               Meteor.call('sendNormalEmail', temp);
-          //           }
-          //         }
-          //       });
-          //     } else if ($(".chkEmailCopy").is(":checked")) {
-          //       Meteor.call(
-          //         "sendEmail",
-          //         {
-          //           from: "" + mailFromName + " <" + mailFrom + ">",
-          //           to: checkEmailData,
-          //           subject: mailSubject,
-          //           text: "",
-          //           html: htmlmailBody,
-          //           attachments: attachment,
-          //         },
-          //         function (error, result) {
-          //           if (error && error.error === "error") {
-          //             if (FlowRouter.current().queryParams.trans) {
-          //               FlowRouter.go('/customerscard?id=' + FlowRouter.current().queryParams.trans + '&transTab=active');
-          //             } else {
-          //               FlowRouter.go("/chequelist?success=true");
-          //             };
-          //           } else {
-          //             $("#html-2-pdfwrapper").css("display", "none");
-          //             swal({
-          //               title: "SUCCESS",
-          //               text: "Email Sent To Supplier: " + checkEmailData + " ",
-          //               type: "success",
-          //               showCancelButton: false,
-          //               confirmButtonText: "OK",
-          //             }).then((result) => {
-          //               if (result.value) {
-          //                 if (FlowRouter.current().queryParams.trans) {
-          //                   FlowRouter.go('/customerscard?id=' + FlowRouter.current().queryParams.trans + '&transTab=active');
-          //                 } else {
-          //                   FlowRouter.go("/chequelist?success=true");
-          //                 };
-          //               } else if (result.dismiss === "cancel") {
-          //               }
-          //             });
-
-          //             $(".fullScreenSpin").css("display", "none");
-          //           }
-          //         }
-          //       );
-          //       let values = [];
-          //       let basedOnTypeStorages = Object.keys(localStorage);
-          //       basedOnTypeStorages = basedOnTypeStorages.filter((storage) => {
-          //         let employeeId = storage.split('_')[2];
-          //         // return storage.includes('BasedOnType_') && employeeId == localStorage.getItem('mySessionEmployeeLoggedID')
-          //         return storage.includes('BasedOnType_');
-          //       });
-          //       let i = basedOnTypeStorages.length;
-          //       if (i > 0) {
-          //         while (i--) {
-          //           values.push(localStorage.getItem(basedOnTypeStorages[i]));
-          //         }
-          //       }
-          //       values.forEach(value => {
-          //         let reportData = JSON.parse(value);
-          //         let temp = { ...reportData };
-
-          //         temp.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-          //         reportData.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-          //         temp.attachments = attachment;
-          //         if (temp.BasedOnType.includes("S")) {
-          //           if (temp.FormID == 1) {
-          //             let formIds = temp.FormIDs.split(',');
-          //             if (formIds.includes("18")) {
-          //               temp.FormID = 18;
-          //               Meteor.call('sendNormalEmail', temp);
-          //             }
-          //           } else {
-          //             if (temp.FormID == 18)
-          //               Meteor.call('sendNormalEmail', temp);
-          //           }
-          //         }
-          //       });
-          //     } else if ($(".chkEmailRep").is(":checked")) {
-          //       Meteor.call(
-          //         "sendEmail",
-          //         {
-          //           from: "" + mailFromName + " <" + mailFrom + ">",
-          //           to: mailFrom,
-          //           subject: mailSubject,
-          //           text: "",
-          //           html: htmlmailBody,
-          //           attachments: attachment,
-          //         },
-          //         function (error, result) {
-          //           if (error && error.error === "error") {
-          //             if (FlowRouter.current().queryParams.trans) {
-          //               FlowRouter.go('/customerscard?id=' + FlowRouter.current().queryParams.trans + '&transTab=active');
-          //             } else {
-          //               FlowRouter.go("/chequelist?success=true");
-          //             };
-          //           } else {
-          //             $("#html-2-pdfwrapper").css("display", "none");
-          //             swal({
-          //               title: "SUCCESS",
-          //               text: "Email Sent To User: " + mailFrom + " ",
-          //               type: "success",
-          //               showCancelButton: false,
-          //               confirmButtonText: "OK",
-          //             }).then((result) => {
-          //               if (result.value) {
-          //                 if (FlowRouter.current().queryParams.trans) {
-          //                   FlowRouter.go('/customerscard?id=' + FlowRouter.current().queryParams.trans + '&transTab=active');
-          //                 } else {
-          //                   FlowRouter.go("/chequelist?success=true");
-          //                 };
-          //               } else if (result.dismiss === "cancel") {
-          //               }
-          //             });
-
-          //             $(".fullScreenSpin").css("display", "none");
-          //           }
-          //         }
-          //       );
-
-          //       let values = [];
-          //       let basedOnTypeStorages = Object.keys(localStorage);
-          //       basedOnTypeStorages = basedOnTypeStorages.filter((storage) => {
-          //         let employeeId = storage.split('_')[2];
-          //         // return storage.includes('BasedOnType_') && employeeId == localStorage.getItem('mySessionEmployeeLoggedID')
-          //         return storage.includes('BasedOnType_');
-          //       });
-          //       let i = basedOnTypeStorages.length;
-          //       if (i > 0) {
-          //         while (i--) {
-          //           values.push(localStorage.getItem(basedOnTypeStorages[i]));
-          //         }
-          //       }
-          //       values.forEach(value => {
-          //         let reportData = JSON.parse(value);
-          //         let temp = { ...reportData };
-
-          //         temp.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-          //         reportData.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-          //         temp.attachments = attachment;
-          //         if (temp.BasedOnType.includes("S")) {
-          //           if (temp.FormID == 1) {
-          //             let formIds = temp.FormIDs.split(',');
-          //             if (formIds.includes("18")) {
-          //               temp.FormID = 18;
-          //               Meteor.call('sendNormalEmail', temp);
-          //             }
-          //           } else {
-          //             if (temp.FormID == 18)
-          //               Meteor.call('sendNormalEmail', temp);
-          //           }
-          //         }
-          //       });
-          //     } else {
-
-          //       let values = [];
-          //       let basedOnTypeStorages = Object.keys(localStorage);
-          //       basedOnTypeStorages = basedOnTypeStorages.filter((storage) => {
-          //         let employeeId = storage.split('_')[2];
-          //         // return storage.includes('BasedOnType_') && employeeId == localStorage.getItem('mySessionEmployeeLoggedID')
-          //         return storage.includes('BasedOnType_');
-          //       });
-          //       let i = basedOnTypeStorages.length;
-          //       if (i > 0) {
-          //         while (i--) {
-          //           values.push(localStorage.getItem(basedOnTypeStorages[i]));
-          //         }
-          //       }
-          //       values.forEach(value => {
-          //         let reportData = JSON.parse(value);
-          //         let temp = { ...reportData };
-
-          //         temp.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-          //         reportData.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-          //         temp.attachments = attachment;
-          //         if (temp.BasedOnType.includes("S")) {
-          //           if (temp.FormID == 1) {
-          //             let formIds = temp.FormIDs.split(',');
-          //             if (formIds.includes("18")) {
-          //               temp.FormID = 18;
-          //               Meteor.call('sendNormalEmail', temp);
-          //             }
-          //           } else {
-          //             if (temp.FormID == 18)
-          //               Meteor.call('sendNormalEmail', temp);
-          //           }
-          //         }
-          //       });
-
-          //       if (FlowRouter.current().queryParams.trans) {
-          //         FlowRouter.go('/customerscard?id=' + FlowRouter.current().queryParams.trans + '&transTab=active');
-          //       } else {
-          //         FlowRouter.go("/chequelist?success=true");
-          //       }
-          //     }
-          //   };
-          // }
-          // addAttachment();
-          
-          addAttachment("Cheque", "Supplier", objDetails.fields.ID || '', htmlmailBody, 'chequelist', 18,  'html-2-pdfwrapper', '', true, 'blob')
+          var htmlmailBody = generateHtmlMailBody(objDetails.fields.ID || '') 
+          addAttachment("Cheque", "Supplier", objDetails.fields.ID || '', htmlmailBody, 'chequelist', 18,  'html-2-pdfwrapper', '', true)
 
           // function generatePdfForMail(invoiceId) {
           //   return new Promise((resolve, reject) => {
@@ -6848,6 +6569,19 @@ Template.chequecard_temp.onRendered(function () {
   
   }
 
+
+  templateObject.updateChequeTemp = async function(objDetails) {
+    return new Promise( (resolve, reject) => {
+      objDetails.fields.SupplierName = 'ABC-Updated';
+      objDetails.fields.SupplierId = '304';
+      let currentTemp = templateObject.temporaryfiles.get();
+      let newTemp = [...currentTemp, objDetails];
+      templateObject.temporaryfiles.set(newTemp);
+       addVS1Data('TChequeTemp', JSON.stringify({tchequetemp:newTemp})).then(function(){resolve()})
+    })
+  }
+  
+
 });
 
 Template.chequecard_temp.helpers({
@@ -6868,6 +6602,18 @@ Template.chequecard_temp.helpers({
 
   listapifunction: function () {
     return sideBarService.getAllChequeListData
+  },
+
+  saveapifunction: function () {
+    let purchaseService = new PurchaseBoardService();
+    return purchaseService.saveChequeEx
+  },
+
+  updateTransactionTemp:  function() {
+    let templateObject = Template.instance();
+    return async function(data) {
+      await templateObject.updateChequeTemp(data)
+    }
   },
 
   setTransData: () => {
@@ -6900,6 +6646,10 @@ Template.chequecard_temp.helpers({
 
   printOptions: () => {
     return Template.instance().printOptions.get()
+  },
+
+  printfields: ()=> {
+    return Template.instance().printfields.get();
   },
 
   footerFields: function () {
@@ -7626,7 +7376,6 @@ Template.chequecard_temp.events({
     );
   },
   // "blur .colAmountEx": function (event) {
-  //   console.log("amount blurred")
   //   let templateObject = Template.instance();
   //   let taxcodeList = templateObject.taxraterecords.get();
   //   let utilityService = new UtilityService();
@@ -7670,7 +7419,6 @@ Template.chequecard_temp.events({
   //     var amount = $tblrow.find(".colAmountEx").text() || "0";
   //     var taxcode = $tblrow.find(".lineTaxRate").val() || "";
   //     var taxrateamount = 0;
-  //     console.log("tax code list", taxcodeList)
   //     if (taxcodeList) {
   //       for (var i = 0; i < taxcodeList.length; i++) {
   //         if (taxcodeList[i].codename == taxcode) {
@@ -7678,7 +7426,6 @@ Template.chequecard_temp.events({
   //         }
   //       }
   //     }
-  //     console.log("tax rate amount", taxrateamount)
   //     var subTotal = parseFloat(amount.replace(/[^0-9.-]+/g, "")) || 0;
   //     var taxTotal =
   //       parseFloat(amount.replace(/[^0-9.-]+/g, "")) *
@@ -8270,133 +8017,133 @@ Template.chequecard_temp.events({
     var targetID = $(event.target).closest("tr").attr("id");
     $("#selectLineID").val(targetID);
   },
-  "click .lineTaxCode, keydown .lineTaxCode": function (event) {
-    var $earch = $(event.currentTarget);
-    var offset = $earch.offset();
-    $("#edtTaxID").val("");
-    $(".taxcodepopheader").text("New Tax Rate");
-    $("#edtTaxID").val("");
-    $("#edtTaxNamePop").val("");
-    $("#edtTaxRatePop").val("");
-    $("#edtTaxDescPop").val("");
-    $("#edtTaxNamePop").attr("readonly", false);
-    let purchaseService = new PurchaseBoardService();
-    var taxRateDataName = $(event.target).val() || "";
-    if (event.pageX > offset.left + $earch.width() - 10) {
-      // X button 16px wide?
-      $("#taxRateListModal").modal("toggle");
-      var targetID = $(event.target).closest("tr").attr("id");
-      $("#selectLineID").val(targetID);
-      setTimeout(function () {
-        $("#tblTaxRate_filter .form-control-sm").focus();
-        $("#tblTaxRate_filter .form-control-sm").val("");
-        $("#tblTaxRate_filter .form-control-sm").trigger("input");
+  // "click .lineTaxCode, keydown .lineTaxCode": function (event) {
+  //   var $earch = $(event.currentTarget);
+  //   var offset = $earch.offset();
+  //   $("#edtTaxID").val("");
+  //   $(".taxcodepopheader").text("New Tax Rate");
+  //   $("#edtTaxID").val("");
+  //   $("#edtTaxNamePop").val("");
+  //   $("#edtTaxRatePop").val("");
+  //   $("#edtTaxDescPop").val("");
+  //   $("#edtTaxNamePop").attr("readonly", false);
+  //   let purchaseService = new PurchaseBoardService();
+  //   var taxRateDataName = $(event.target).val() || "";
+  //   if (event.pageX > offset.left + $earch.width() - 10) {
+  //     // X button 16px wide?
+  //     $("#taxRateListModal").modal("toggle");
+  //     var targetID = $(event.target).closest("tr").attr("id");
+  //     $("#selectLineID").val(targetID);
+  //     setTimeout(function () {
+  //       $("#tblTaxRate_filter .form-control-sm").focus();
+  //       $("#tblTaxRate_filter .form-control-sm").val("");
+  //       $("#tblTaxRate_filter .form-control-sm").trigger("input");
 
-        var datatable = $("#tblTaxRate").DataTable();
-        datatable.draw();
-        $("#tblTaxRate_filter .form-control-sm").trigger("input");
-      }, 500);
-    } else {
-      if (taxRateDataName.replace(/\s/g, "") != "") {
-        getVS1Data("TTaxcodeVS1")
-          .then(function (dataObject) {
-            if (dataObject.length == 0) {
-              purchaseService
-                .getTaxCodesVS1()
-                .then(function (data) {
-                  let lineItems = [];
-                  let lineItemObj = {};
-                  for (let i = 0; i < data.ttaxcodevs1.length; i++) {
-                    if (data.ttaxcodevs1[i].CodeName === taxRateDataName) {
-                      $("#edtTaxNamePop").attr("readonly", true);
-                      let taxRate = (data.ttaxcodevs1[i].Rate * 100).toFixed(2);
-                      var taxRateID = data.ttaxcodevs1[i].Id || "";
-                      var taxRateName = data.ttaxcodevs1[i].CodeName || "";
-                      var taxRateDesc = data.ttaxcodevs1[i].Description || "";
-                      $("#edtTaxID").val(taxRateID);
-                      $("#edtTaxNamePop").val(taxRateName);
-                      $("#edtTaxRatePop").val(taxRate);
-                      $("#edtTaxDescPop").val(taxRateDesc);
-                      setTimeout(function () {
-                        $("#newTaxRateModal").modal("toggle");
-                      }, 100);
-                    }
-                  }
-                })
-                .catch(function (err) {
-                  // Bert.alert('<strong>' + err + '</strong>!', 'danger');
-                  $(".fullScreenSpin").css("display", "none");
-                  // Meteor._reload.reload();
-                });
-            } else {
-              let data = JSON.parse(dataObject[0].data);
-              let useData = data.ttaxcodevs1;
-              let lineItems = [];
-              let lineItemObj = {};
-              $(".taxcodepopheader").text("Edit Tax Rate");
-              for (let i = 0; i < useData.length; i++) {
-                if (useData[i].CodeName === taxRateDataName) {
-                  $("#edtTaxNamePop").attr("readonly", true);
-                  let taxRate = (useData[i].Rate * 100).toFixed(2);
-                  var taxRateID = useData[i].Id || "";
-                  var taxRateName = useData[i].CodeName || "";
-                  var taxRateDesc = useData[i].Description || "";
-                  $("#edtTaxID").val(taxRateID);
-                  $("#edtTaxNamePop").val(taxRateName);
-                  $("#edtTaxRatePop").val(taxRate);
-                  $("#edtTaxDescPop").val(taxRateDesc);
-                  //setTimeout(function() {
-                  $("#newTaxRateModal").modal("toggle");
-                  //}, 500);
-                }
-              }
-            }
-          })
-          .catch(function (err) {
-            purchaseService
-              .getTaxCodesVS1()
-              .then(function (data) {
-                let lineItems = [];
-                let lineItemObj = {};
-                for (let i = 0; i < data.ttaxcodevs1.length; i++) {
-                  if (data.ttaxcodevs1[i].CodeName === taxRateDataName) {
-                    $("#edtTaxNamePop").attr("readonly", true);
-                    let taxRate = (data.ttaxcodevs1[i].Rate * 100).toFixed(2);
-                    var taxRateID = data.ttaxcodevs1[i].Id || "";
-                    var taxRateName = data.ttaxcodevs1[i].CodeName || "";
-                    var taxRateDesc = data.ttaxcodevs1[i].Description || "";
-                    $("#edtTaxID").val(taxRateID);
-                    $("#edtTaxNamePop").val(taxRateName);
-                    $("#edtTaxRatePop").val(taxRate);
-                    $("#edtTaxDescPop").val(taxRateDesc);
-                    setTimeout(function () {
-                      $("#newTaxRateModal").modal("toggle");
-                    }, 100);
-                  }
-                }
-              })
-              .catch(function (err) {
-                // Bert.alert('<strong>' + err + '</strong>!', 'danger');
-                $(".fullScreenSpin").css("display", "none");
-                // Meteor._reload.reload();
-              });
-          });
-      } else {
-        $("#taxRateListModal").modal("toggle");
-        var targetID = $(event.target).closest("tr").attr("id");
-        $("#selectLineID").val(targetID);
-        setTimeout(function () {
-          $("#tblTaxRate_filter .form-control-sm").focus();
-          $("#tblTaxRate_filter .form-control-sm").val("");
-          $("#tblTaxRate_filter .form-control-sm").trigger("input");
+  //       var datatable = $("#tblTaxRate").DataTable();
+  //       datatable.draw();
+  //       $("#tblTaxRate_filter .form-control-sm").trigger("input");
+  //     }, 500);
+  //   } else {
+  //     if (taxRateDataName.replace(/\s/g, "") != "") {
+  //       getVS1Data("TTaxcodeVS1")
+  //         .then(function (dataObject) {
+  //           if (dataObject.length == 0) {
+  //             purchaseService
+  //               .getTaxCodesVS1()
+  //               .then(function (data) {
+  //                 let lineItems = [];
+  //                 let lineItemObj = {};
+  //                 for (let i = 0; i < data.ttaxcodevs1.length; i++) {
+  //                   if (data.ttaxcodevs1[i].CodeName === taxRateDataName) {
+  //                     $("#edtTaxNamePop").attr("readonly", true);
+  //                     let taxRate = (data.ttaxcodevs1[i].Rate * 100).toFixed(2);
+  //                     var taxRateID = data.ttaxcodevs1[i].Id || "";
+  //                     var taxRateName = data.ttaxcodevs1[i].CodeName || "";
+  //                     var taxRateDesc = data.ttaxcodevs1[i].Description || "";
+  //                     $("#edtTaxID").val(taxRateID);
+  //                     $("#edtTaxNamePop").val(taxRateName);
+  //                     $("#edtTaxRatePop").val(taxRate);
+  //                     $("#edtTaxDescPop").val(taxRateDesc);
+  //                     setTimeout(function () {
+  //                       $("#newTaxRateModal").modal("toggle");
+  //                     }, 100);
+  //                   }
+  //                 }
+  //               })
+  //               .catch(function (err) {
+  //                 // Bert.alert('<strong>' + err + '</strong>!', 'danger');
+  //                 $(".fullScreenSpin").css("display", "none");
+  //                 // Meteor._reload.reload();
+  //               });
+  //           } else {
+  //             let data = JSON.parse(dataObject[0].data);
+  //             let useData = data.ttaxcodevs1;
+  //             let lineItems = [];
+  //             let lineItemObj = {};
+  //             $(".taxcodepopheader").text("Edit Tax Rate");
+  //             for (let i = 0; i < useData.length; i++) {
+  //               if (useData[i].CodeName === taxRateDataName) {
+  //                 $("#edtTaxNamePop").attr("readonly", true);
+  //                 let taxRate = (useData[i].Rate * 100).toFixed(2);
+  //                 var taxRateID = useData[i].Id || "";
+  //                 var taxRateName = useData[i].CodeName || "";
+  //                 var taxRateDesc = useData[i].Description || "";
+  //                 $("#edtTaxID").val(taxRateID);
+  //                 $("#edtTaxNamePop").val(taxRateName);
+  //                 $("#edtTaxRatePop").val(taxRate);
+  //                 $("#edtTaxDescPop").val(taxRateDesc);
+  //                 //setTimeout(function() {
+  //                 $("#newTaxRateModal").modal("toggle");
+  //                 //}, 500);
+  //               }
+  //             }
+  //           }
+  //         })
+  //         .catch(function (err) {
+  //           purchaseService
+  //             .getTaxCodesVS1()
+  //             .then(function (data) {
+  //               let lineItems = [];
+  //               let lineItemObj = {};
+  //               for (let i = 0; i < data.ttaxcodevs1.length; i++) {
+  //                 if (data.ttaxcodevs1[i].CodeName === taxRateDataName) {
+  //                   $("#edtTaxNamePop").attr("readonly", true);
+  //                   let taxRate = (data.ttaxcodevs1[i].Rate * 100).toFixed(2);
+  //                   var taxRateID = data.ttaxcodevs1[i].Id || "";
+  //                   var taxRateName = data.ttaxcodevs1[i].CodeName || "";
+  //                   var taxRateDesc = data.ttaxcodevs1[i].Description || "";
+  //                   $("#edtTaxID").val(taxRateID);
+  //                   $("#edtTaxNamePop").val(taxRateName);
+  //                   $("#edtTaxRatePop").val(taxRate);
+  //                   $("#edtTaxDescPop").val(taxRateDesc);
+  //                   setTimeout(function () {
+  //                     $("#newTaxRateModal").modal("toggle");
+  //                   }, 100);
+  //                 }
+  //               }
+  //             })
+  //             .catch(function (err) {
+  //               // Bert.alert('<strong>' + err + '</strong>!', 'danger');
+  //               $(".fullScreenSpin").css("display", "none");
+  //               // Meteor._reload.reload();
+  //             });
+  //         });
+  //     } else {
+  //       $("#taxRateListModal").modal("toggle");
+  //       var targetID = $(event.target).closest("tr").attr("id");
+  //       $("#selectLineID").val(targetID);
+  //       setTimeout(function () {
+  //         $("#tblTaxRate_filter .form-control-sm").focus();
+  //         $("#tblTaxRate_filter .form-control-sm").val("");
+  //         $("#tblTaxRate_filter .form-control-sm").trigger("input");
 
-          var datatable = $("#tblTaxRate").DataTable();
-          datatable.draw();
-          $("#tblTaxRate_filter .form-control-sm").trigger("input");
-        }, 500);
-      }
-    }
-  },
+  //         var datatable = $("#tblTaxRate").DataTable();
+  //         datatable.draw();
+  //         $("#tblTaxRate_filter .form-control-sm").trigger("input");
+  //       }, 500);
+  //     }
+  //   }
+  // },
   'click #open_print_confirm': function (event) { },
   // "click .printConfirm": async function (event) {
   //   playPrintAudio();

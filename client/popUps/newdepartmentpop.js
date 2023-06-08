@@ -90,10 +90,10 @@ Template.newdepartmentpop.onRendered(async function() {
                 for (let i = 0; i < useData.length; i++) {
 
                     let dataObj = {
-                        empID: useData[i].fields.ID || ' ',
-                        employeename: useData[i].fields.EmployeeName || ' '
+                        empID: useData[i].ID || ' ',
+                        employeename: useData[i].EmployeeName || ' '
                     };
-                    if (useData[i].fields.EmployeeName.replace(/\s/g, '') != '') {
+                    if (useData[i].EmployeeName.replace(/\s/g, '') != '') {
                         employeeList.push(dataObj);
                     }
                 }

@@ -1,0 +1,26 @@
+[{
+    "Id": 1,
+    "chartType": "AverageCost",
+    "data": {
+        "Total Cost": 12000,
+        "Fuel Cost": 9300,
+        "Service Cost": 2700
+    },
+    "Active": true
+},
+{
+    "Id": 2,
+    "chartType": "DetailedCost",
+    "data": {
+        "Fuel Cost": 9300,
+        "Administrative Cost": 500,
+        "Depreciation": 500,
+        "Insurance": 500,
+        "Loan/Lease": 200,
+        "Maintenance": 500,
+        "Registration": 500,
+        "Tolls": 600
+    },
+    "Active": true
+}
+]

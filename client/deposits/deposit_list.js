@@ -10,6 +10,7 @@ import './deposit_list.html';
 import './frm_deposit.html';
 import { FlowRouter } from 'meteor/ostrio:flow-router-extra';
 import moment from "moment";
+import { PurchaseBoardService } from '../js/purchase-service';
 
 let utilityService = new UtilityService();
 let sideBarService = new SideBarService();
@@ -20,6 +21,8 @@ Template.depositlist.onCreated(function(){
     templateObject.custfields = new ReactiveVar([]);
     templateObject.displayfields = new ReactiveVar([]);
     templateObject.reset_data = new ReactiveVar([]);
+    templateObject.temporaryfiles = new ReactiveVar([]);
+
 
     templateObject.getDataTableList = function(data) {
         var dataList = [
@@ -48,6 +51,18 @@ Template.depositlist.onCreated(function(){
         { index: 8, label: "Status", class: "colStatus", active: true, display: true, width: "120" }
     ];
     templateObject.tableheaderrecords.set(headerStructure);
+    
+    getVS1Data('TDepositTemp').then(function(dataObject) {
+        if(dataObject.length == 0) {
+        } else {
+          let data = JSON.parse(dataObject[0].data);
+          let useData = data.tdeposittemp;
+          if(useData.length > 0) {
+              templateObject.temporaryfiles.set(useData);
+            $(".btnRefresh").addClass("btnRefreshAlert");
+          }
+        }
+      })
 });
 
 Template.depositlist.onRendered(function() {
@@ -60,9 +75,39 @@ Template.depositlist.onRendered(function() {
 });
 
 Template.depositlist.events({
-    'click .btnRefresh': function () {
+    'click .btnRefresh': async function () {
         $('.fullScreenSpin').css('display','inline-block');
         let templateObject = Template.instance();
+        let purchaseService = new PurchaseBoardService()
+        let tempfiles = templateObject.temporaryfiles.get()
+        async function sendPostRequest  () {
+        return new Promise((resolve, reject) => {
+            for(let i=0; i< tempfiles.length; i++) {
+            // return
+            purchaseService.saveBankDeposit(tempfiles[i]).then(function() {
+                let newTemp = tempfiles.slice(i+1, tempfiles.length);
+                addVS1Data('TDepositTemp', JSON.stringify({tdeposittemp: newTemp})).then(function() {
+                if(i == tempfiles.length -1) {
+                    resolve()
+                }
+                })
+            }).catch(function(e) {
+                resolve();
+            })
+            }
+        })
+        }
+        if(tempfiles&&tempfiles.length) {
+        await sendPostRequest();
+        }
+        getVS1Data('TDepositTemp').then(function(dataObject) {
+        if(dataObject.length ==0) {
+            $('.btnRefresh').removeClass('btnRefreshAlert');
+        } else {
+        }
+        }).catch(function(e) {
+        $('.btnRefresh').removeClass('btnRefreshAlert');
+        })
 
         var currentBeginDate = new Date();
         var begunDate = moment(currentBeginDate).format("DD/MM/YYYY");

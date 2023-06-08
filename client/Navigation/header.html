@@ -180,7 +180,11 @@
                                 class="fas fa-search"></i></button>
                     </div>
                     <a class="btn btn-primary scanBarcodeHeadTop" href="" id="scanBarcodeHeadTop" role="button" style="margin-left: 8px; height:34px;padding-top:4px;"><i class="fas fa-camera"></i></a>
-                    <button type="button" class="btn btn-primary" id="mobileBarcodeScan" data-toggle="modal" data-target="#scanBarcodeModalHeader" style="margin-left: 8px;height:34px; display: none;"><i class="fas fa-camera"></i></button>
+<!--                    <button type="button" class="btn btn-primary" id="mobileBarcodeScan" data-toggle="modal" data-target="#scanBarcodeModalHeader" style="margin-left: 8px;height:34px; display: none;"><i class="fas fa-camera"></i></button>-->
+                    {{> barcodebutton
+                        type="globalSearch"
+                        cust_id="mobileBarcodeScan"
+                    }}
                     <button type="button" class="btn btn-primary" id="btnSearchGuide" style="margin-left: 8px;height:34px;padding-top: 4px;"><i class="far fa-question-circle"></i></button>
                 </div>
             </form>
@@ -529,45 +533,46 @@
     {{> onsuccesswaterfall}}
    {{> vs1_global_search_modal}}
 
-    <div class="modal fade" role="dialog" tabindex="-1" id="scanBarcodeModalHeader">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Barcode Scanner</h4>
-                    <button type="button" class="close"  aria-label="Close"><span aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body">
-                    <style>
-                        #qr-reader-global>div:first-of-type {
-                            display: none !important;
-                        }
+    <div class="modal fade" role="dialog" tabindex="-1" id="scanBarcodeModal">
+        {{> barcodepopup}}
+<!--        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <h4 class="modal-title">Barcode Scanner</h4>-->
+<!--                    <button type="button" class="close"  aria-label="Close"><span aria-hidden="true">×</span></button>-->
+<!--                </div>-->
+<!--                <div class="modal-body">-->
+<!--                    <style>-->
+<!--                        #qr-reader-global>div:first-of-type {-->
+<!--                            display: none !important;-->
+<!--                        }-->
 
-                        #qr-reader-global__dashboard_section_swaplink {
-                            display: none !important;
-                        }
+<!--                        /*#qr-reader-global__dashboard_section_swaplink {*/-->
+<!--                        /*    display: none !important;*/-->
+<!--                        /*}*/-->
 
-                        #qr-reader-global__dashboard_section_csr>div>button:first-of-type {
-                            color: #fff !important;
-                            background-color: #00a3d3 !important;
-                            border-color: #00a3d3 !important;
-                            border: 1px solid transparent;
-                            display: inline-block !important;
-                            font-weight: 400 !important;
-                            text-align: center !important;
-                            vertical-align: middle !important;
-                            padding: .375rem .75rem !important;
-                            font-size: 1rem !important;
-                            line-height: 1.5 !important;
-                            border-radius: .35rem !important;
-                            transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-                        }
-                    </style>
-                    <!-- <div id="reader" style="width: 100%"></div> -->
-                    <div id="qr-reader-global" style="width:100%"></div>
-                </div>
-                <div class="modal-footer"><button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button></div>
-            </div>
-        </div>
+<!--                        #qr-reader-global__dashboard_section_csr>div>button:first-of-type {-->
+<!--                            color: #fff !important;-->
+<!--                            background-color: #00a3d3 !important;-->
+<!--                            border-color: #00a3d3 !important;-->
+<!--                            border: 1px solid transparent;-->
+<!--                            display: inline-block !important;-->
+<!--                            font-weight: 400 !important;-->
+<!--                            text-align: center !important;-->
+<!--                            vertical-align: middle !important;-->
+<!--                            padding: .375rem .75rem !important;-->
+<!--                            font-size: 1rem !important;-->
+<!--                            line-height: 1.5 !important;-->
+<!--                            border-radius: .35rem !important;-->
+<!--                            transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;-->
+<!--                        }-->
+<!--                    </style>-->
+<!--                    &lt;!&ndash; <div id="reader" style="width: 100%"></div> &ndash;&gt;-->
+<!--                    <div id="qr-reader-global" style="width:100%"></div>-->
+<!--                </div>-->
+<!--                <div class="modal-footer"><button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button></div>-->
+<!--            </div>-->
+<!--        </div>-->
     </div>
 
     <div class="modal fade" role="dialog" tabindex="-1" id="searchPOP">

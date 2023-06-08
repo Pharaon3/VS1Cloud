@@ -672,13 +672,11 @@ function formatTime(date) {
                             throw "width of the timeline is not set. As of Firefox 27, timeline().with(x) needs to be explicitly set in order to render";
                         }
                     } catch (err) {
-                        console.log(err);
                     }
                 } else if (!(width && gParentSize.width)) {
                     try {
                         width = gParentItem.attr("width");
                     } catch (err) {
-                        console.log(err);
                     }
                 }
                 // if both are set, do nothing
@@ -1094,7 +1092,6 @@ export function timelineHover(routeData) {
             tickSize: 30,
         });
     // .scroll(function (x, scale) {
-    //     console.log(x, scale);
     //     $("#scrolled_date")
     //         .text
     //         // scale.invert(x) + " to " + scale.invert(x + width)
@@ -1149,7 +1146,6 @@ function getTodayStops(dateFrom, dateTo, ignoreDate = false) {
     return new Promise((resolve, reject) => {
         getVS1Data('TInvoiceList').then(function (dataObject) {
 //        if (dataObject.length == 0) {
-            console.log("AAA");
             sideBarService.getAllTInvoiceListData(moment().format("YYYY-MM-DD"), moment().add(1, "d").format("YYYY-MM-DD"), false, 25, 0, null).then(function (data) {
                 resolve(data.tinvoicelist.map(item => ({
                     address:
@@ -1165,14 +1161,11 @@ function getTodayStops(dateFrom, dateTo, ignoreDate = false) {
                 })))
                 // await addVS1Data('TInvoiceList', JSON.stringify(data));
                 //
-                console.log("TTT ", data);
             }).catch(function (err) {
                 resolve([]);
-                console.log("TTT error", err);
             });
             // } else {
             //     let data = JSON.parse(dataObject[0].data);
-            //     console.log(data);
             // }
         }).catch(function (err) {
             resolve([])
@@ -1184,7 +1177,6 @@ function getDrivers() {
     return new Promise((resolve, reject) => {
         getVS1Data('TInvoiceList').then(function (dataObject) {
 //        if (dataObject.length == 0) {
-            console.log("AAA");
             sideBarService.getAllTEmployeeList(20, 0, false).then(data => {
                 resolve(data["temployeelist"].map(item => ({
                     position: {},
@@ -1204,7 +1196,6 @@ function getDrivers() {
             })
             // } else {
             //     let data = JSON.parse(dataObject[0].data);
-            //     console.log(data);
             // }
         }).catch(function (err) {
             resolve([])
@@ -1501,8 +1492,6 @@ function updateIndividual(marker) {
     if (marker.advancedMarkerView) {
         let markerView = advancedMarkerView;
         if (isStop) {
-            // console.log($(markerView));
-            // console.log($(markerView, ".pin-visit"));
             $(markerView.content)
                 .find(".pin-visit")
                 .css(
@@ -1800,8 +1789,6 @@ export default async function initMap() {
     });
     infoWindow = new google.maps.InfoWindow();
 
-    console.log(map, infoWindow);
-
     let addresses = [];
 
     /*************************************************** GEOCODING SERVICE [START] ***************************************************/
@@ -1827,7 +1814,6 @@ export default async function initMap() {
     (await getDriversWithAddress()).forEach(async (driverInfo, i) => {
         let geocodeInfo = await getLocation(driverInfo.startAddress);
         let location = geocodeInfo.geometry.location;
-//        console.log(google.maps);
         markers.push(
             updateIndividual({
                 id: markers.length,
@@ -2005,7 +1991,6 @@ export default async function initMap() {
                 markers[i].colorIndex = colorIndex;
                 colorIndex += 1;
             }
-        console.log(directionsRendererArray);
         isOptimized = true;
 
         updateMarkers();

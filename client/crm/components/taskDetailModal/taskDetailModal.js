@@ -428,7 +428,7 @@ Template.taskDetailModal.events({
     },
 
     "click .btnAddSubTask": function(event) {
-        $("#newTaskModal").modal("toggle");
+        $("#newTaskModal_001").modal("toggle");
     },
 
     "click .delete-task": function(e) {
@@ -465,7 +465,7 @@ Template.taskDetailModal.events({
                         }).catch(function(err) {
                             $(".fullScreenSpin").css("display", "none");
                         });
-                        $("#taskDetailModal").modal("hide");
+                        $("#taskDetailModal_001").modal("hide");
                         // $("#newProjectTasksModal").modal("hide");
                     });
                 } else if (result.dismiss === "cancel") {} else {}

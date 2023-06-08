@@ -294,6 +294,13 @@
                     user-select: none;
                 }
 
+                th.DeditEx {
+                    color: #00a3d3;
+                }
+
+                th.CreditEx {
+                    color: #00a3d3;
+                }
 
                 th.colUnitPriceEx {
                     color: #00a3d3;
@@ -370,7 +377,7 @@
                 }
             </style>
             {{#if displayfields}}
-            <table id="{{tablename}}" name="{{tablename}}" style="width:100% !important"
+            <table id="{{tablename}}" name="{{tablename}}"
                 class="dataTable transactionLines table table-striped table-bordered {{tablename}}">
                 <thead>
                     <tr class="dnd-moved">
@@ -396,6 +403,12 @@
                             {{#if equals displayfield.class 'UnitPriceEx'}} <i class="fas fa-random"></i>
                             {{else}}
                             {{#if equals displayfield.class 'UnitPriceInc'}} <i class="fas fa-random fa-trans"></i>
+                            {{else}}
+                            {{#if equals displayfield.custfieldlabel 'Credit (Ex)'}} <i class="fas fa-random"></i>
+                            {{else}}
+                            {{#if equals displayfield.custfieldlabel 'Debit (Ex)'}} <i class="fas fa-random"></i>
+                            {{/if}}
+                            {{/if}}
                             {{/if}}
                             {{/if}}
                             {{/if}}
@@ -428,7 +441,7 @@
                 <tbody>
                     {{#each item in recordLineItems}}
                     {{#unless equals customGrid true}}
-                    <tr class="dnd-moved" id={{item.lineID}}>
+                    <tr class="dnd-moved" id={{item.lineID}} volume={{item.volume}} volumeUnit={{item.volumeUnit}} weight={{item.weight}} weightUnit={{item.weightUnit}}>
                         {{#if displayfields.[0].display}}
                         <td contenteditable="false"
                             class="colProductName {{#if equals item.item ''}}boldtablealertsborder{{/if}} {{#if displayfields.[0].active}}{{else}}hiddenColumn{{/if}}">
@@ -442,13 +455,13 @@
                                 id='lineProductName'
                                 name=name
                                 modalId= 'productListModal'
-                                list_template_name='productlistpop'
+                                list_template_name='productlistpopfortransaction'
                                 modal_title='Product List'
                                 innerModal=true
                                 label = ''
                                 colNameForValue = 'colproductName'
                                 target_modal_id='newProductModal'
-                                target_template_id='productview'
+                                target_template_id='productviewfortransaction'
                                 custid=item.lineID
                                 is_editable=true
                                 noBorder=true
@@ -478,7 +491,7 @@
                                 class="es-input highlightSelect lineAccountName" type="search"
                                 value="{{item.accountname}}"></td> -->
                                 {{>vs1___dropdown
-                                    data=item.item
+                                    data=item.accountname
                                     type='search'
                                     id='lineAccountName'
                                     name=name
@@ -506,7 +519,7 @@
                             <!-- <input
                                 class="lineQty colQty highlightInput" type="number" value="{{item.quantity}}"> -->
                             {{>default_input
-                                classes="lineQty colQty hightlightInput" type="number" defaultValue=item.quantity
+                                classes="lineQty colQty highlightInput" type="number" defaultValue=item.quantity
                             }}
                         </td>
                         {{/if}}
@@ -550,6 +563,7 @@
                             <!-- <input
                                 class="es-input highlightSelect colUnits lineUOM" type="search"
                                 value="{{item.UnitOfMeasure}}"> -->
+                                
                                 {{> vs1___dropdown
                                     data=item.UnitOfMeasure
                                     type='search'
@@ -759,7 +773,7 @@
                     <tr class="dnd-moved" id={{item.lineID}}>
                         {{#each displayfield in displayfields}}
                             {{#if displayfield.display}}
-                                <td class="{{displayfield.parentClass}} {{#unless equals displayfield.active true}}hiddenColumn{{/unless}}" contenteditable="{{#if equals displayfield.type 'select'}}false{{else}}true{{/if}}">
+                                <td class="col{{displayfield.class}} {{#unless equals displayfield.active true}}hiddenColumn{{/unless}}" contenteditable="{{#if equals displayfield.type 'select'}}false{{else}}true{{/if}}">
                                    {{#if equals displayfield.type 'select'}}
                                     {{>vs1___dropdown
                                         type='search'
@@ -776,24 +790,61 @@
                                         custid=randomId
                                         noBorder=true
                                     }}
+                                    {{else if equals displayfield.type 'default'}}
+                                        {{> default_input classes=displayfield.inputclass}}
+                                    {{else if equals displayfield.type 'date'}}
+                                        {{> single_date_picker classes=displayfield.inputclass id=displayfield.id}}
+                                    {{else}}
                                    {{/if}} 
                                 </td>
                             {{/if}}
                         {{/each}}
+                        {{#if equals tablename 'tblWorkOrderLine'}}
+                            <td style="width:150px">{{>vs1_button
+                                color='primary'
+                                classes='btnShowBOM d-flex'
+                                htmlType='button'
+                                id="btnShowBOM"
+                                iconName='eye'
+                                title='Show BOM'}}</td>
+                        {{else}}
+                            <td style="text-align: center;"><span class="table-remove btnRemoveLine"><button type="button"
+                                class="btn btn-danger btn-rounded btn-sm my-0 "><i
+                                    class="fa fa-remove"></i></button></span></td>
+                        {{/if}}
                     </tr>
                     {{/unless}}
                     {{/each}}
                 </tbody>
                 {{#if customGrid}}
-                <tfoot>
-                    <tr>
-                        <td colspan="2" style="font-size: 20px; color: #696969; font-weight: 800;">Total</td>
-                        <td style="font-size: 20px; color: #696969; font-weight: 800; text-align: right!important; margin: 0;" id="depositTotalLine" name="depositTotalLine" >0</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </tfoot>
+                    {{#if equals tablename 'tblJournalEntryLine'}}
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" style="font-size: 20px; color: #696969; font-weight: 800;">Total</td>
+                                <td style="font-size: 20px; color: #696969; font-weight: 800; text-align: right!important; margin: 0;" class="colCreditEx" id="creditExTotal" name="creditTotal" >$0.00</td>
+                                <td style="font-size: 20px; color: #696969; font-weight: 800; text-align: right!important; margin: 0;" class='colCreditInc hiddenColumn' id="creditIncTotal" name="creditTotal" >$0.00</td>
+                                <td style="font-size: 20px; color: #696969; font-weight: 800; text-align: right!important; margin: 0;" class="colDebitEx" id="debitExTotal" name="debitTotal" >$0.00</td>
+                                <td style="font-size: 20px; color: #696969; font-weight: 800; text-align: right!important; margin: 0;" class="colDebitInc hiddenColumn" id="debitIncTotal" name="debitTotal" >$0.00</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    {{else if equals tablename 'tblWorkOrderLine'}}
+                        <tfoot>
+                            
+                        </tfoot>
+                    {{else}}
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" style="font-size: 20px; color: #696969; font-weight: 800;">Total</td>
+                                <td style="font-size: 20px; color: #696969; font-weight: 800; text-align: right!important; margin: 0;" id="depositTotalLine" name="depositTotalLine" >0</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    {{/if}}
                 {{/if}}
             </table>
             {{/if}}
@@ -870,13 +921,14 @@
             </div>
         </div>
     
-    
+        {{#unless equals tablename 'tblWorkOrderLine'}}
         <div class="row align-items-end mt-3" style="margin: 0">
             <div class="col-12 col-lg-8 col-xl-10" style="padding-right: 24px;">
                 <button class="btn btn-primary" type="button" id="addRow" >+
                     Add New Entry</button>
             </div>
         </div>
+        {{/unless}}
     </div>
 
 

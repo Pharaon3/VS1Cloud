@@ -1,8 +1,8 @@
 <template name="deliveryoverview">
   <style>
-    .dimmedChart > div {
+    /* .dimmedChart > div {
       background-color: #dddfeb !important;
-    }
+    } */
 
     .hideelement {
       display: none !important;
@@ -76,7 +76,8 @@
     </header>
     {{> editCardChartButtons}}
     <!-- Fix 2022/12/21 -->
-    {{> dashboardCardCharts tabGroupID="1" chartGroup="Delivery" currentTemplate="Delivery_Overview" isShowCharts=isShowCharts}}
+    {{> allCardsLists tabGroupID="10" chartGroup="Delivery" type="Delivery_Overview"}}
+    {{> allChartLists tabGroupID="10" chartGroup="Delivery" currentTemplate="Delivery_Overview"}}
   </div>
   <script>
     modalDraggable();

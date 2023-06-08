@@ -562,9 +562,17 @@ Template.datatablelist.onRendered(async function () {
                             columns: ':visible',
                             format: {
                               body: function ( data, row, column ) {
-                                  if(data.toString().includes("</span>")){
+                                  if(data.toString().includes('<span style="display:none;">true</span>')){
+                                      var res = 'True';
+                                      data = res;
+                                  }else if(data.toString().includes('<span style="display:none;">false</span>')){
+                                      var res = 'False';
+                                      data = res;
+                                  }else{
+                                    if(data.toString().includes("</span>")){
                                       var res = data.split("</span>");
                                       data = res[1];
+                                    }
                                   }
                                   return column === 1 ? data.toString().replace(/<.*?>/ig, ""): data;
                               }

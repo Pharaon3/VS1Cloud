@@ -36,6 +36,8 @@ Template.workorderlist.onCreated(function() {
     templateObject.isMobileDevices = new ReactiveVar(false);
     templateObject.checkId = new ReactiveVar([]);
 
+    templateObject.temporaryfiles= new ReactiveVar([]);
+
 
 
 
@@ -86,6 +88,17 @@ Template.workorderlist.onCreated(function() {
         { index: 10, label: 'Status', class: 'colStatus', active: true, display: true, width: "110" },  
     ];
     templateObject.tableheaderrecords.set(headerStructure)
+
+    getVS1Data('TWorkorderTemp').then(function(dataObject){
+        if(dataObject.length == 0) {
+        } else {
+            let data = JSON.parse(dataObject[0].data)
+            let useData = data.tworkordertemp
+            templateObject.temporaryfiles.set(useData)
+            $('.btnRefresh').addClass('btnRefreshAlert')
+        }
+    }).catch(function(e) {
+    })
 })
 
 Template.workorderlist.onRendered (function() {
@@ -285,9 +298,39 @@ Template.workorderlist.helpers ({
 
 Template.workorderlist.events({
 
-    'click .workorderList .btnRefresh': function(e) {
+    'click .workorderList .btnRefresh': async function(e) {
         let templateObject = Template.instance();
+        let manufacturingSeivice = new ManufacturingService();
         $('.fullScreenSpin').css('display', 'inline-block');
+        let tempfiles = templateObject.temporaryfiles.get()
+        async function sendPostRequest  () {
+          return new Promise((resolve, reject) => {
+            for(let i=0; i< tempfiles.length; i++) {
+              // return
+              manufacturingSeivice.saveWorkOrder(tempfiles[i]).then(function() {
+                let newTemp = tempfiles.slice(i+1, tempfiles.length);
+                addVS1Data('TWorkorderTemp', JSON.stringify({tworkordertemp: newTemp})).then(function() {
+                  if(i == tempfiles.length -1) {
+                    resolve()
+                  }
+                })
+              }).catch(function(e) {
+                resolve();
+              })
+            }
+          })
+        }
+        if(tempfiles&&tempfiles.length) {
+          await sendPostRequest();
+        }
+        getVS1Data('TWorkorderTemp').then(function(dataObject) {
+          if(dataObject.length ==0) {
+            $('.btnRefresh').removeClass('btnRefreshAlert');
+          } else {
+          }
+        }).catch(function(e) {
+          $('.btnRefresh').removeClass('btnRefreshAlert');
+        })
         setTimeout(function () {
             // templateObject.getWorkorderRecords();
             window.open('/workorderlist', '_self');

@@ -51,14 +51,15 @@
   balanceDue=purchaseorderrecord.balanceDue
   isPaid=purchaseorderrecord.ispaid
   data=purchaseorderrecord
-  gridTableId='tblPOLine'
+  gridTableId='tblPurchaseOrderLine'
   printTableId='purchase_print'
   printTemplateId = 'print_purchase_order'
   printWrapPrefix = 'invoice_wrapper'
   salesCloudPreferenceRec=salesCloudPreferenceRec
+  saveapifunction=saveapifunction
 
 
-  tablename="tblPOLine"
+  tablename="tblPurchaseOrderLine"
   isForeignEnabled=isForeignEnabled
   canShowBackOrder=true
   canShowUOM=true
@@ -70,12 +71,14 @@
 
   footerFields = footerFields
   AttachmentCount=attachmentCount
-  printName = 'Invoices'
+  printName = 'Purchase Orders'
   TransactionType='purchaseorders'
-  printOptions=printOptions
   saveTransaction=saveTransaction
-  custlisttype='ltSales'
-    deliveryDocketName='Delivery Docket'
+  custlisttype='ltOrderLines'
+  delivery=true
+  printfields=printfields
+
+  updateTransactionTemp = updateTransactionTemp
   }}
   <!-- Start PDF -->
   <!-- New A4 -->

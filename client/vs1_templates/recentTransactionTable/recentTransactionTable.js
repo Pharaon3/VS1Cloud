@@ -37,138 +37,67 @@ Template.recentTransactionTable.onCreated(() => {
 
         currentProductID = templateObject.productID.get();
         let transType = data.type;
+        function addRecentTransaction(dataList) {
+            let tempArr = new Array();
+            for(let i=0; i< dataList.length; i++) {
+                let recentTranObject = {
+                    date: dataList[i].TransactionDate != '' ? moment(dataList[i].TransactionDate).format("DD/MM/YYYY") : dataList[i].TransactionDate,
+                    type: dataList[i].TranstypeDesc,
+                    transactionno: dataList[i].TransactionNo,
+                    reference: dataList[i].TransactionNo,
+                    quantity: dataList[i].Qty,
+                    unitPrice: utilityService.modifynegativeCurrencyFormat(dataList[i].Price),
+                    total: utilityService.modifynegativeCurrencyFormat(dataList[i].TotalPrice)
+                };
+                if(transType == "all")
+                    tempArr.push(recentTranObject);
+                else if(recentTranObject.type == transType)
+                    tempArr.push(recentTranObject);
+                else if(transType === "On Order" && (recentTranObject.type == "Purchase Order" || recentTranObject.type == "Sales Order"))
+                    tempArr.push(recentTranObject);
+            }
+            return tempArr
+        }
         if(currentProductID){
             $('.fullScreenSpin').css('display', 'inline-block');
-            let recentTransList = new Array();
+            
+            getVS1Data("T_VS1_Report_Productmovement").then(function(dataObject){
+                if(dataObject.length == 0) {
+                    let recentTransList = new Array();
+                    productService.getProductRecentTransactionsAll(currentProductID).then(function(data) {
+                        recentTransList =  addRecentTransaction(data.t_vs1_report_productmovement)
+                        templateObject.recentTrasactions.set(recentTransList);
+                        $('.fullScreenSpin').css('display', 'none');
+                    });
+                } else {
+                    let recentTransList = new Array();
+                    let data = JSON.parse(dataObject[0].data);
+                    let useData = data.t_vs1_report_productmovement;
+                    useData =useData.filter(item=>{
+                       return item.ProductID == currentProductID
+                    })
 
-            productService.getProductRecentTransactionsAll(currentProductID).then(function(data) {
-                for (let i = 0; i < data.t_vs1_report_productmovement.length; i++) {
-                    let recentTranObject = {
-                        date: data.t_vs1_report_productmovement[i].TransactionDate != '' ? moment(data.t_vs1_report_productmovement[i].TransactionDate).format("DD/MM/YYYY") : data.t_vs1_report_productmovement[i].TransactionDate,
-                        type: data.t_vs1_report_productmovement[i].TranstypeDesc,
-                        transactionno: data.t_vs1_report_productmovement[i].TransactionNo,
-                        reference: data.t_vs1_report_productmovement[i].TransactionNo,
-                        quantity: data.t_vs1_report_productmovement[i].Qty,
-                        unitPrice: utilityService.modifynegativeCurrencyFormat(data.t_vs1_report_productmovement[i].Price),
-                        total: utilityService.modifynegativeCurrencyFormat(data.t_vs1_report_productmovement[i].TotalPrice)
-                    };
-                    if(transType == "all")
-                        recentTransList.push(recentTranObject);
-                    else if(recentTranObject.type == transType)
-                        recentTransList.push(recentTranObject);
-                    else if(transType === "On Order" && (recentTranObject.type == "Purchase Order" || recentTranObject.type == "Sales Order"))
-                        recentTransList.push(recentTranObject);
+                    recentTransList =  addRecentTransaction(useData)
+                    templateObject.recentTrasactions.set(recentTransList);
+
+                    if(recentTransList.length == 0) {
+                        productService.getProductRecentTransactionsAll(currentProductID).then(function(data) {
+                            recentTransList =  addRecentTransaction(data.t_vs1_report_productmovement)
+                            templateObject.recentTrasactions.set(recentTransList);
+                            $('.fullScreenSpin').css('display', 'none');
+                        });
+                    }
+                    $('.fullScreenSpin').css('display', 'none');
                 }
-                templateObject.recentTrasactions.set(recentTransList);
-                // $('#productrecentlist').DataTable({
-                //         "sDom": "<'row'><'row'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6'l>r>t<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>B",
-                //         // data : templateObject.recentTrasactions.get(),
-                //         select: true,
-                //         destroy: true,
-                //         colReorder: true,
-                //         // bStateSave: true,
-                //         // rowId: 0,
-                //         pageLength: initialDatatableLoad,
-                //         lengthMenu: [
-                //             [initialDatatableLoad, -1],
-                //             [initialDatatableLoad, "All"]
-                //         ],
-                //         info: true,
-                //         responsive: true,
-                //         "order": [[0, "desc"],[3, "desc"]],
-                //         action: function() {
-                //             $('#productrecentlist').DataTable().ajax.reload();
-                //         },
-                //         "fnDrawCallback": function(oSettings) {
-                //             let checkurlIgnoreDate = FlowRouter.current().queryParams.ignoredate;
-                //             //if(checkurlIgnoreDate == 'true'){
-
-                //             //}else{
-                //             $('.paginate_button.page-item').removeClass('disabled');
-                //             $('#tblPaymentOverview_ellipsis').addClass('disabled');
-
-                //             if (oSettings._iDisplayLength == -1) {
-                //                 if (oSettings.fnRecordsDisplay() > 150) {
-                //                     $('.paginate_button.page-item.previous').addClass('disabled');
-                //                     $('.paginate_button.page-item.next').addClass('disabled');
-                //                 }
-                //             } else {}
-                //             if (oSettings.fnRecordsDisplay() < initialDatatableLoad) {
-                //                 $('.paginate_button.page-item.next').addClass('disabled');
-                //             }
-                //             $('.paginate_button.next:not(.disabled)', this.api().table().container())
-                //                 .on('click', function() {
-                //                     $('.fullScreenSpin').css('display', 'inline-block');
-                //                     let dataLenght = oSettings._iDisplayLength;
-
-                //                     var dateFrom = new Date($("#dateFrom").datepicker("getDate"));
-                //                     var dateTo = new Date($("#dateTo").datepicker("getDate"));
-
-                //                     let formatDateFrom = dateFrom.getFullYear() + "-" + (dateFrom.getMonth() + 1) + "-" + dateFrom.getDate();
-                //                     let formatDateTo = dateTo.getFullYear() + "-" + (dateTo.getMonth() + 1) + "-" + dateTo.getDate();
-                //                     if(data.Params.IgnoreDates == true){
-                //                         sideBarService.getTPaymentList(formatDateFrom, formatDateTo, true, initialDatatableLoad, oSettings.fnRecordsDisplay(),viewdeleted).then(function(dataObjectnew) {
-                //                             getVS1Data('TPaymentList').then(function(dataObjectold) {
-                //                                 if (dataObjectold.length == 0) {} else {
-                //                                     let dataOld = JSON.parse(dataObjectold[0].data);
-                //                                     var thirdaryData = $.merge($.merge([], dataObjectnew.tpaymentlist), dataOld.tpaymentlist);
-                //                                     let objCombineData = {
-                //                                         Params: dataOld.Params,
-                //                                         tpaymentlist: thirdaryData
-                //                                     }
-
-                //                                     addVS1Data('TPaymentList', JSON.stringify(objCombineData)).then(function(datareturn) {
-                //                                         templateObject.resetData(objCombineData);
-                //                                         $('.fullScreenSpin').css('display', 'none');
-                //                                     }).catch(function(err) {
-                //                                         $('.fullScreenSpin').css('display', 'none');
-                //                                     });
-
-                //                                 }
-                //                             }).catch(function(err) {});
-
-                //                         }).catch(function(err) {
-                //                             $('.fullScreenSpin').css('display', 'none');
-                //                         });
-                //                     } else {
-                //                         sideBarService.getTPaymentList(formatDateFrom, formatDateTo, false, initialDatatableLoad, oSettings.fnRecordsDisplay(),viewdeleted).then(function(dataObjectnew) {
-                //                             getVS1Data('TPaymentList').then(function(dataObjectold) {
-                //                                 if (dataObjectold.length == 0) {} else {
-                //                                     let dataOld = JSON.parse(dataObjectold[0].data);
-                //                                     var thirdaryData = $.merge($.merge([], dataObjectnew.tpaymentlist), dataOld.tpaymentlist);
-                //                                     let objCombineData = {
-                //                                         Params: dataOld.Params,
-                //                                         tpaymentlist: thirdaryData
-                //                                     }
-
-                //                                     addVS1Data('TPaymentList', JSON.stringify(objCombineData)).then(function(datareturn) {
-                //                                         templateObject.resetData(objCombineData);
-                //                                         $('.fullScreenSpin').css('display', 'none');
-                //                                     }).catch(function(err) {
-                //                                         $('.fullScreenSpin').css('display', 'none');
-                //                                     });
-
-                //                                 }
-                //                             }).catch(function(err) {});
-
-                //                         }).catch(function(err) {
-                //                             $('.fullScreenSpin').css('display', 'none');
-                //                         });
-
-                //                     }
-
-                //                 });
-
-                //             //}
-                //             setTimeout(function() {
-                //                 MakeNegative();
-                //             }, 100);
-                //         },
-
-                //     }).on('page', function() {}).on('column-reorder', function() {});
-                //     $('div.dataTables_filter input').addClass('form-control form-control-sm');
-                $('.fullScreenSpin').css('display', 'none');
-            });
+            }).catch(function(err) {
+                let recentTransList = new Array();
+                productService.getProductRecentTransactionsAll(currentProductID).then(function(data) {
+                    recentTransList =  addRecentTransaction(data.t_vs1_report_productmovement)
+                    templateObject.recentTrasactions.set(recentTransList);
+                    $('.fullScreenSpin').css('display', 'none');
+                });
+            })
+            
         }
 
     });

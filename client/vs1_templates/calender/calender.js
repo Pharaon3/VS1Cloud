@@ -8107,7 +8107,6 @@ Template.calender.events({
                             appointmentService.saveAppointment(objectData1).then(function(data1) {
                                 $('.fc-refresh-button').addClass('btnRefreshAlert');
                             }).catch(function(err) {
-                                console.log(err)
                             });
                         }).catch(function(err) {
                             swal({

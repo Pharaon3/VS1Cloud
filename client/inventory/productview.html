@@ -845,18 +845,22 @@
                                         {{/if}}
                                     </div>
                                     {{#if creatingNewTopic }}
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <hr class="reporthr" style="border-width: 3px" />
+                                        </div>
+                                    </div>
                                     <div class="row delivery_unit w-100 mr-0 ml-0">
-                                        <div class="col-6 col-md-3 coldelivery" id="coldelivery">
+                                        <div class="col-6 col-md-2 coldelivery" id="coldelivery" style="padding-left: 0;">
                                             <div class="form-group">
                                                 <label>Weight</label>
                                                 <input type="text" class="form-control highlightInput" id="delivery_weight"
-                                                    name="delivery_weight" value="" />
+                                                    name="delivery_weight" value="1"/>
                                             </div>
                                         </div>
-                                        <div class="col-6 col-md-3 coldelivery" id="coldelivery">
+                                        <div class="col-6 col-md-2 coldelivery" id="coldelivery">
                                             <div class="form-group">
                                                 {{>vs1___dropdown
-                                                data=record.loginDefault
                                                 type='search'
                                                 id='sltWeightUnit'
                                                 name='sltWeightUnit'
@@ -868,20 +872,20 @@
                                                 colNameForValue = 'colOptionsName'
                                                 is_editable=true
                                                 noBorder=false
+                                                data="KG"
                                                 }}
                                             </div>
                                         </div>
-                                        <div class="col-6 col-md-3 coldelivery" id="coldelivery">
+                                        <div class="col-6 col-md-2 coldelivery" id="coldelivery">
                                             <div class="form-group">
                                                 <label>Volume</label>
                                                 <input type="text" class="form-control highlightInput" id="delivery_volume"
-                                                    name="delivery_volume" value="" />
+                                                    name="delivery_volume" value="1"/>
                                             </div>
                                         </div>
-                                        <div class="col-6 col-md-3 coldelivery" id="coldelivery">
+                                        <div class="col-6 col-md-2 coldelivery" id="coldelivery">
                                             <div class="form-group">
                                                 {{>vs1___dropdown
-                                                data=record.loginDefault
                                                 type='search'
                                                 id='sltVolumeUnit'
                                                 name='sltVolumeUnit'
@@ -893,6 +897,7 @@
                                                 colNameForValue = 'colOptionsName'
                                                 is_editable=true
                                                 noBorder=false
+                                                data="CF"
                                                 }}
                                             </div>
                                         </div>
@@ -1622,7 +1627,7 @@
     </div>
 
     <div class="modal fade" role="dialog" tabindex="-1" id="newTermsModal">
-        {{> newtermspop}}
+        {{> newtermspop name=''}}
     </div>
 
     <div class="modal fade" role="dialog" tabindex="-1" id="newTaxRateModal">{{> newtaxratepop}}</div>
@@ -1733,7 +1738,7 @@
             }
         }
     </style>
-    <div class="modal fade" role="dialog" tabindex="-1" id="accountListModal">{{> accountlistpop}}</div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="accountListModal">{{> accountlistpop name=''}}</div>
 
     {{#if showBomModal}}
     <div class="modal fade" role="dialog" tabindex="-1" id="BOMSetupModal">
@@ -1932,11 +1937,11 @@
         {{> newdepartmentpop}}
     </div>
     <div class="modal fade" role="dialog" tabindex="-1" id="UOMListModal">
-        {{> uomlistpop}}
+        {{> uomlistpop }}
     </div>
 
     <div class="modal fade" id="newUomModal" tabindex="-1" role="dialog" aria-hidden="true">
-        {{> adduompop}}
+        {{> adduompop name=''}}
     </div>
 
     {{> customfieldDroppop}}

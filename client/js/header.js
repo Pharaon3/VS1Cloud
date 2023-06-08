@@ -1565,13 +1565,13 @@ Template.header.onRendered(function () {
     }
 
 
-    var html5QrcodeScanner = new Html5QrcodeScanner(
-        "qr-reader-global", {
-        fps: 10,
-        qrbox: 250,
-        rememberLastUsedCamera: true
-    });
-    html5QrcodeScanner.render(onScanSuccess);
+    // var html5QrcodeScanner = new Html5QrcodeScanner(
+    //     "qr-reader-global", {
+    //     fps: 10,
+    //     qrbox: 250,
+    //     rememberLastUsedCamera: true
+    // });
+    // html5QrcodeScanner.render(onScanSuccess);
 
 
     if (sidePanelToggle) {

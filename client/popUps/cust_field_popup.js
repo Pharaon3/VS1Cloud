@@ -28,10 +28,6 @@ Template.custfieldpopup.onCreated(() => {
   templateObject.dropdowns1 = new ReactiveVar([]);
   templateObject.dropdowns2 = new ReactiveVar([]);
   templateObject.dropdowns3 = new ReactiveVar([]);
-
-  
-  
-
 });
 
 Template.custfieldpopup.onRendered(() => {
@@ -41,26 +37,6 @@ Template.custfieldpopup.onRendered(() => {
 
   templateObject.getSelectedDropdownOptions = async function(listType, fieldIndex) {
     return new Promise((resolve, reject)=> {
-      // getVS1Data('TCustomFieldDropdownOptions').then(function(dataObject) {
-      //   if(dataObject.length == 0) {
-      //     resolve([])
-      //   } else {
-      //     let data = JSON.parse(dataObject[0].data);
-      //     let useData = data.tcustomfielddropdownoptions
-      //     let index = useData.findIndex(item => {
-      //       return item.listType == listType && item.custFieldIndex == fieldIndex
-      //     })
-
-      //     if(index == -1) {
-      //       resolve([])
-      //     } else {
-      //       let options = useData[index].options;
-      //       resolve(options);
-      //     }
-      //   }
-      // }).catch(function(e) {
-      //   resolve([])
-      // })
       if(fieldIndex == 1) {
           resolve(templateObject.dropdowns1.get())
       } else if(fieldIndex == 2) {
@@ -531,7 +507,8 @@ Template.custfieldpopup.events({
                   IsCombo: fieldData[i].isCombo,
                   DataType: dataType,
                   Dropdown: '',
-                  ID: fieldData[i].id
+                  ID: fieldData[i].id,
+                  KeyValue: name
                 }
               }
               if(fieldData[i].id && fieldData[i] != "") {}

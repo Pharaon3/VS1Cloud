@@ -163,6 +163,21 @@ Template.frmpotemp.onCreated(() => {
 
     templateObject.tranasctionfooterfields = new ReactiveVar();
     templateObject.printOptions = new ReactiveVar();
+    templateObject.temporaryfiles = new ReactiveVar();
+
+    templateObject.printfields = new ReactiveVar();
+
+    let printfields =  {
+        "Product Name": ["25", "left"],
+        "Description": ["30", "left"],
+        "Qty": ["7", "right"],
+        "Unit Price": ["15", "right"],
+        "Tax": ["7", "right"],
+        "Amount": ["15", "right"],
+    }
+
+    templateObject.printfields.set(printfields)
+
 
     let options = [{ title: 'Purchase Order', number: 1, nameFieldID: 'Purchase_orders_1' }, { title: 'Purchase_Orders', number: 2, nameFieldID: 'Purchase_Orders_2' }, { title: 'Purchase_Orders', number: 3, nameFieldID: 'Purchase_Orders_3' },
     { title: 'Purchase  Order Back Orders', number: 1, nameFieldID: 'Purchase_Order Back Orders_1' }, { title: 'Purchase Order Back Orders', number: 2, nameFieldID: 'Purchase_Order Back Orders_2' }, { title: 'Purchase Order Back Orders', number: 3, nameFieldID: 'Purchase Order Back Orders_3' },
@@ -181,7 +196,7 @@ Template.frmpotemp.onCreated(() => {
     }
 
     let transactionheaderfields = [
-        { label: "Sales Date", type: "date", readonly: false, value: formatDate(new Date()), divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader", },
+        { label: "PO Date", type: "date", readonly: false, value: formatDate(new Date()), divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader", },
         { label: "Invoice Number", type: 'default', id: 'ponumber', value: '', readonly: false, divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader" },
         { label: 'Via', type: 'search', id: 'sltShipVia', listModalId: 'shipVia_modal', listModalTemp: 'shipviapop', colName: 'colShipName', editModalId: 'newShipVia_modal', editModalTemp: 'newshipvia', editable: true, divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader" },
         { label: 'Terms', type: 'search', id: 'sltTerms', listModalId: 'termsList_modal', listModalTemp: 'termlistpop', colName: 'colName', editModalId: 'newTerms_modal', editModalTemp: 'newtermspop', editable: true, divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader" },
@@ -197,345 +212,6 @@ Template.frmpotemp.onCreated(() => {
         { label: "Copy PO", class: 'btnTransaction copyPO', id: 'btnCopyInvoice', bsColor: 'primary' }
     ]
     templateObject.headerbuttons.set(transactionheaderbuttons)
-    // templateObject.generatePdfForMail = async (invoiceId) => {
-    //     let file = "Purchase Order-" + invoiceId + ".pdf"
-    //     return new Promise((resolve, reject) => {
-    //         const source = document.getElementById('html-2-pdfwrapper');
-    //         const opt = {
-    //             margin: 0,
-    //             filename: file,
-    //             image: {
-    //                 type: 'jpeg',
-    //                 quality: 0.98
-    //             },
-    //             html2canvas: {
-    //                 scale: 2
-    //             },
-    //             jsPDF: {
-    //                 unit: 'in',
-    //                 format: 'a4',
-    //                 orientation: 'portrait'
-    //             }
-    //         };
-    //         resolve(html2pdf().set(opt).from(source).toPdf().output('datauristring'));
-    //     });
-    // }
-    // Send Email functions
-    // templateObject.addAttachment = async (objDetails) => {
-    //     let attachment = [];
-    //     let invoiceId = objDetails.fields.ID;
-    //     let encodedPdf = await templateObject.generatePdfForMail(invoiceId);
-    //     let base64data = encodedPdf.split(',')[1];
-    //     let pdfObject = {
-    //         filename: 'Quote-' + invoiceId + '.pdf',
-    //         content: base64data,
-    //         encoding: 'base64'
-    //     };
-    //     attachment.push(pdfObject);
-    //     let erpInvoiceId = objDetails.fields.ID;
-
-    //     let mailFromName = localStorage.getItem('vs1companyName');
-    //     let mailFrom = localStorage.getItem('VS1OrgEmail') || localStorage.getItem('VS1AdminUserName');
-    //     let customerEmailName = $('#edtSupplierName').val();
-    //     let checkEmailData = $('#edtSupplierEmail').val();
-
-    //     let mailSubject = 'Purchase Order ' + erpInvoiceId + ' from ' + mailFromName + ' for ' + customerEmailName;
-
-    //     var htmlmailBody = generateHtmlMailBody(erpInvoiceId);
-
-    //     if (($('.chkEmailCopy').is(':checked')) && ($('.chkEmailRep').is(':checked'))) {
-    //         Meteor.call('sendEmail', {
-    //             from: "" + mailFromName + " <" + mailFrom + ">",
-    //             to: checkEmailData,
-    //             subject: mailSubject,
-    //             text: '',
-    //             html: htmlmailBody,
-    //             attachments: attachment
-    //         }, function (error, result) {
-    //             if (error && error.error === "error") {
-    //                 if (isBORedirect == true) {
-    //                     // FlowRouter.go('/purchaseorderlistBO?success=true');
-    //                 } else {
-    //                     // if(isBORedirect == true){
-    //                     //     FlowRouter.go('/purchaseorderlistBO?success=true');
-    //                     // }else{
-    //                     //     FlowRouter.go('/purchaseorderlist?success=true');
-    //                     // };
-    //                 };
-
-
-    //             } else {
-
-    //             }
-    //         });
-
-    //         Meteor.call('sendEmail', {
-    //             from: "" + mailFromName + " <" + mailFrom + ">",
-    //             to: mailFrom,
-    //             subject: mailSubject,
-    //             text: '',
-    //             html: htmlmailBody,
-    //             attachments: attachment
-    //         }, function (error, result) {
-    //             if (error && error.error === "error") {
-    //                 if (isBORedirect == true) {
-    //                     // FlowRouter.go('/purchaseorderlistBO?success=true');
-    //                 } else {
-    //                     // FlowRouter.go('/purchaseorderlist?success=true');
-    //                 };
-    //             } else {
-    //                 $('#html-2-pdfwrapper').css('display', 'none');
-    //                 swal({
-    //                     title: 'SUCCESS',
-    //                     text: "Email Sent To Supplier: " + checkEmailData + " and User: " + mailFrom + "",
-    //                     type: 'success',
-    //                     showCancelButton: false,
-    //                     confirmButtonText: 'OK'
-    //                 }).then((result) => {
-    //                     if (result.value) {
-    //                         if (FlowRouter.current().queryParams.trans) {
-    //                             // FlowRouter.go('/customerscard?id='+FlowRouter.current().queryParams.trans+'&transTab=active');
-    //                         } else {
-    //                             if (isBORedirect == true) {
-    //                                 // FlowRouter.go('/purchaseorderlistBO?success=true');
-    //                             } else {
-    //                                 // FlowRouter.go('/purchaseorderlist?success=true');
-    //                             };
-    //                         };
-    //                     } else if (result.dismiss === 'cancel') {
-
-    //                     }
-    //                 });
-
-    //                 $('.fullScreenSpin').css('display', 'none');
-    //             }
-    //         });
-
-    //         let values = [];
-    //         let basedOnTypeStorages = Object.keys(localStorage);
-    //         basedOnTypeStorages = basedOnTypeStorages.filter((storage) => {
-    //             let employeeId = storage.split('_')[2];
-    //             return storage.includes('BasedOnType_')
-    //             // return storage.includes('BasedOnType_') && employeeId == localStorage.getItem('mySessionEmployeeLoggedID')
-    //         });
-    //         let i = basedOnTypeStorages.length;
-    //         if (i > 0) {
-    //             while (i--) {
-    //                 values.push(localStorage.getItem(basedOnTypeStorages[i]));
-    //             }
-    //         }
-    //         values.forEach(value => {
-    //             let reportData = JSON.parse(value);
-    //             reportData.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-    //             reportData.attachments = attachment;
-    //             if (reportData.BasedOnType.includes("S")) {
-    //                 if (reportData.FormID == 1) {
-    //                     let formIds = reportData.FormIDs.split(',');
-    //                     if (formIds.includes("69")) {
-    //                         reportData.FormID = 69;
-    //                         Meteor.call('sendNormalEmail', reportData);
-    //                     }
-    //                 } else {
-    //                     if (reportData.FormID == 69)
-    //                         Meteor.call('sendNormalEmail', reportData);
-    //                 }
-    //             }
-    //         });
-
-    //     } else if (($('.chkEmailCopy').is(':checked'))) {
-    //         Meteor.call('sendEmail', {
-    //             from: "" + mailFromName + " <" + mailFrom + ">",
-    //             to: checkEmailData,
-    //             subject: mailSubject,
-    //             text: '',
-    //             html: htmlmailBody,
-    //             attachments: attachment
-    //         }, function (error, result) {
-    //             if (error && error.error === "error") {
-    //                 // if(isBORedirect == true){
-    //                 //     // FlowRouter.go('/purchaseorderlistBO?success=true');
-    //                 // }else{
-    //                 //     // FlowRouter.go('/purchaseorderlist?success=true');
-    //                 // };
-
-    //             } else {
-    //                 $('#html-2-pdfwrapper').css('display', 'none');
-    //                 swal({
-    //                     title: 'SUCCESS',
-    //                     text: "Email Sent To Supplier: " + checkEmailData + " ",
-    //                     type: 'success',
-    //                     showCancelButton: false,
-    //                     confirmButtonText: 'OK'
-    //                 }).then((result) => {
-    //                     if (result.value) {
-    //                         if (FlowRouter.current().queryParams.trans) {
-    //                             // FlowRouter.go('/customerscard?id='+FlowRouter.current().queryParams.trans+'&transTab=active');
-    //                         } else {
-    //                             // if(isBORedirect == true){
-    //                             //     FlowRouter.go('/purchaseorderlistBO?success=true');
-    //                             // }else{
-    //                             //     FlowRouter.go('/purchaseorderlist?success=true');
-    //                             // };
-    //                         };
-    //                     } else if (result.dismiss === 'cancel') {
-
-    //                     }
-    //                 });
-
-    //                 $('.fullScreenSpin').css('display', 'none');
-    //             }
-    //         });
-
-    //         let values = [];
-    //         let basedOnTypeStorages = Object.keys(localStorage);
-    //         basedOnTypeStorages = basedOnTypeStorages.filter((storage) => {
-    //             let employeeId = storage.split('_')[2];
-    //             return storage.includes('BasedOnType_')
-    //             // return storage.includes('BasedOnType_') && employeeId == localStorage.getItem('mySessionEmployeeLoggedID')
-    //         });
-    //         let i = basedOnTypeStorages.length;
-    //         if (i > 0) {
-    //             while (i--) {
-    //                 values.push(localStorage.getItem(basedOnTypeStorages[i]));
-    //             }
-    //         }
-    //         values.forEach(value => {
-    //             let reportData = JSON.parse(value);
-    //             reportData.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-    //             reportData.attachments = attachment;
-    //             if (reportData.BasedOnType.includes("S")) {
-    //                 if (reportData.FormID == 1) {
-    //                     let formIds = reportData.FormIDs.split(',');
-    //                     if (formIds.includes("69")) {
-    //                         reportData.FormID = 69;
-    //                         Meteor.call('sendNormalEmail', reportData);
-    //                     }
-    //                 } else {
-    //                     if (reportData.FormID == 69)
-    //                         Meteor.call('sendNormalEmail', reportData);
-    //                 }
-    //             }
-    //         });
-
-    //     } else if (($('.chkEmailRep').is(':checked'))) {
-    //         Meteor.call('sendEmail', {
-    //             from: "" + mailFromName + " <" + mailFrom + ">",
-    //             to: mailFrom,
-    //             subject: mailSubject,
-    //             text: '',
-    //             html: htmlmailBody,
-    //             attachments: attachment
-    //         }, function (error, result) {
-    //             if (error && error.error === "error") {
-    //                 if (isBORedirect == true) {
-    //                     // FlowRouter.go('/purchaseorderlistBO?success=true');
-    //                 } else {
-    //                     // FlowRouter.go('/purchaseorderlist?success=true');
-    //                 };
-    //             } else {
-    //                 $('#html-2-pdfwrapper').css('display', 'none');
-    //                 swal({
-    //                     title: 'SUCCESS',
-    //                     text: "Email Sent To User: " + mailFrom + " ",
-    //                     type: 'success',
-    //                     showCancelButton: false,
-    //                     confirmButtonText: 'OK'
-    //                 }).then((result) => {
-    //                     if (result.value) {
-    //                         if (FlowRouter.current().queryParams.trans) {
-    //                             // FlowRouter.go('/customerscard?id='+FlowRouter.current().queryParams.trans+'&transTab=active');
-    //                         } else {
-    //                             // if(isBORedirect == true){
-    //                             //     FlowRouter.go('/purchaseorderlistBO?success=true');
-    //                             // }else{
-    //                             //     FlowRouter.go('/purchaseorderlist?success=true');
-    //                             // };
-    //                         };
-    //                     } else if (result.dismiss === 'cancel') {
-
-    //                     }
-    //                 });
-
-    //                 $('.fullScreenSpin').css('display', 'none');
-    //             }
-    //         });
-
-    //         let values = [];
-    //         let basedOnTypeStorages = Object.keys(localStorage);
-    //         basedOnTypeStorages = basedOnTypeStorages.filter((storage) => {
-    //             let employeeId = storage.split('_')[2];
-    //             return storage.includes('BasedOnType_')
-    //             // return storage.includes('BasedOnType_') && employeeId == localStorage.getItem('mySessionEmployeeLoggedID')
-    //         });
-    //         let i = basedOnTypeStorages.length;
-    //         if (i > 0) {
-    //             while (i--) {
-    //                 values.push(localStorage.getItem(basedOnTypeStorages[i]));
-    //             }
-    //         }
-    //         values.forEach(value => {
-    //             let reportData = JSON.parse(value);
-    //             reportData.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-    //             reportData.attachments = attachment;
-    //             if (reportData.BasedOnType.includes("S")) {
-    //                 if (reportData.FormID == 1) {
-    //                     let formIds = reportData.FormIDs.split(',');
-    //                     if (formIds.includes("69")) {
-    //                         reportData.FormID = 69;
-    //                         Meteor.call('sendNormalEmail', reportData);
-    //                     }
-    //                 } else {
-    //                     if (reportData.FormID == 69)
-    //                         Meteor.call('sendNormalEmail', reportData);
-    //                 }
-    //             }
-    //         });
-
-    //     } else {
-
-
-    //         let values = [];
-    //         let basedOnTypeStorages = Object.keys(localStorage);
-    //         basedOnTypeStorages = basedOnTypeStorages.filter((storage) => {
-    //             let employeeId = storage.split('_')[2];
-    //             return storage.includes('BasedOnType_')
-    //             // return storage.includes('BasedOnType_') && employeeId == localStorage.getItem('mySessionEmployeeLoggedID')
-    //         });
-    //         let i = basedOnTypeStorages.length;
-    //         if (i > 0) {
-    //             while (i--) {
-    //                 values.push(localStorage.getItem(basedOnTypeStorages[i]));
-    //             }
-    //         }
-    //         values.forEach(value => {
-    //             let reportData = JSON.parse(value);
-    //             reportData.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-    //             reportData.attachments = attachment;
-    //             if (reportData.BasedOnType.includes("S")) {
-    //                 if (reportData.FormID == 1) {
-    //                     let formIds = reportData.FormIDs.split(',');
-    //                     if (formIds.includes("69")) {
-    //                         reportData.FormID = 69;
-    //                         Meteor.call('sendNormalEmail', reportData);
-    //                     }
-    //                 } else {
-    //                     if (reportData.FormID == 69)
-    //                         Meteor.call('sendNormalEmail', reportData);
-    //                 }
-    //             }
-    //         });
-
-    //         if (FlowRouter.current().queryParams.trans) {
-    //             // FlowRouter.go('/customerscard?id='+FlowRouter.current().queryParams.trans+'&transTab=active');
-    //         } else {
-    //             // if(isBORedirect == true){
-    //             //     FlowRouter.go('/purchaseorderlistBO?success=true');
-    //             // }else{
-    //             //     FlowRouter.go('/purchaseorderlist?success=true');
-    //             // };
-    //         };
-    //     };
-    // }
 
     let transactionfooterfields = [
         { label: 'Comments', id: "txaComment", name: "txaComment", row: 6 },
@@ -543,6 +219,18 @@ Template.frmpotemp.onCreated(() => {
     ];
 
     templateObject.tranasctionfooterfields.set(transactionfooterfields);
+
+    getVS1Data('TPurchaseOrderTemp').then(function(dataObject){
+        if(dataObject.length ==0) {
+            templateObject.temporaryfiles.set([])
+        } else {
+            let data = JSON.parse(dataObject[0].data)
+            let useData = data.tpurchaseordertemp;
+            templateObject.temporaryfiles.set(useData);
+        }
+    }).catch(function(e) {
+        templateObject.temporaryfiles.set([])
+    })
 
 
     templateObject.initialRecords = function () {
@@ -574,7 +262,12 @@ Template.frmpotemp.onCreated(() => {
             costTypeID: 0,
             fixedAssetName: '',
             costTypeName: '',
+            weight: 1,
+            weightUnit: 'KG',
+            volume: 1,
+            volumeUnit:'CF'
         };
+        
         if (url.indexOf('?workorderid=') > 0) {
             let object = localStorage.getItem('newPOParamItem') ? JSON.parse(localStorage.getItem('newPOParamItem')) : []
             if (object.length > 0) {
@@ -600,7 +293,10 @@ Template.frmpotemp.onCreated(() => {
                     costTypeID: 0,
                     fixedAssetName: '',
                     costTypeName: '',
-
+                    weight: 1,
+                    weightUnit: 'KG',
+                    volume: 1,
+                    volumeUnit:'CF'
                 };
             }
         }
@@ -646,6 +342,10 @@ Template.frmpotemp.onCreated(() => {
             ispaid: false,
             isPartialPaid: false,
             workorderid: FlowRouter.current().queryParams.workorderid || '',
+            showingDelivery: false,
+            showingFx: false,
+            showingSN: false,
+            isRepeated: false
         };
 
         if (FlowRouter.current().queryParams.supplierid) {
@@ -654,7 +354,7 @@ Template.frmpotemp.onCreated(() => {
             $('#edtSupplierName').val('');
         }
         setTimeout(function () {
-            $('#sltDept').val(defaultDept);
+            $('#sltDept_fromtransactionheader').val(defaultDept);
             // templateObject.getLastPOData();
         }, 200);
         templateObject.purchaseorderrecord.set(purchaseorderrecord);
@@ -666,7 +366,7 @@ Template.frmpotemp.onCreated(() => {
     // templateObject.sendEmailWithAttachment = async () => {
     //     let isBORedirect = await templateObject.isbackorderredirect.get() || false;
     //     let suppliername = $('#edtSupplierName');
-    //     let termname = $('#sltTerms').val() || '';
+    //     let termname = $('#sltTerms_fromtransactionheader').val() || '';
     //     if (termname === '') {
     //         swal('Terms has not been selected!', '', 'warning');
     //         event.preventDefault();
@@ -717,7 +417,7 @@ Template.frmpotemp.onCreated(() => {
     //                         LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
     //                         CustomerJob: tdCustomerJob || '',
     //                         LineTaxCode: tdtaxCode || '',
-    //                         LineClassName: $('#sltDept').val() || defaultDept,
+    //                         LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept,
     //                         CustomField1: tdAssetID,
     //                         CustomField2: tdCostTypeID,
     //                         CustomField3: tdAssetName,
@@ -736,7 +436,7 @@ Template.frmpotemp.onCreated(() => {
     //                             LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
     //                             CustomerJob: tdCustomerJob || '',
     //                             LineTaxCode: tdtaxCode || '',
-    //                             LineClassName: $('#sltDept').val() || defaultDept,
+    //                             LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept,
     //                             CustomField1: tdAssetID,
     //                             CustomField2: tdCostTypeID,
     //                             CustomField3: tdAssetName,
@@ -754,7 +454,7 @@ Template.frmpotemp.onCreated(() => {
     //                             LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
     //                             CustomerJob: tdCustomerJob || '',
     //                             LineTaxCode: tdtaxCode || '',
-    //                             LineClassName: $('#sltDept').val() || defaultDept,
+    //                             LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept,
     //                             CustomField1: tdAssetID,
     //                             CustomField2: tdCostTypeID,
     //                             CustomField3: tdAssetName,
@@ -849,7 +549,7 @@ Template.frmpotemp.onCreated(() => {
     //     let poNumber = $('#ponumber').val();
     //     let reference = $('#edtRef').val();
 
-    //     let departement = $('#shipvia').val();
+    //     let departement = $('#sltShipVia_fromtransactionheader').val();
     //     let shippingAddress = $('#txaShipingInfo').val();
     //     let comments = $('#txaComment').val();
     //     let pickingInfrmation = $('#txapickmemo').val();
@@ -860,7 +560,7 @@ Template.frmpotemp.onCreated(() => {
     //     var getso_id = url.split('?id=');
     //     var currentPurchaseOrder = getso_id[getso_id.length - 1];
 
-    //     var currencyCode = $("#sltCurrency").val() || CountryAbbr;
+    //     var currencyCode = $(".transheader >.sltCurrency").val() || CountryAbbr;
     //     let ForeignExchangeRate = $('#exchange_rate').val() || 0;
     //     let foreignCurrencyFields = {}
     //     if (FxGlobalFunctions.isCurrencyEnabled()) {
@@ -870,14 +570,14 @@ Template.frmpotemp.onCreated(() => {
     //         }
     //     }
     //     var objDetails = '';
-    //     if ($('#sltDept').val() === '') {
+    //     if ($('#sltDept_fromtransactionheader').val() === '') {
     //         swal({
     //             title: "Department has not been selected!",
     //             text: '',
     //             type: 'warning',
     //         }).then((result) => {
     //             if (result.value) {
-    //                 $('#sltDept').focus();
+    //                 $('#sltDept_fromtransactionheader').focus();
     //             } else if (result.dismiss == 'cancel') {
 
     //             }
@@ -1184,7 +884,7 @@ Template.frmpotemp.onRendered(async () => {
     //         }
     //         newPOId = (latestPOId + 1);
     //         setTimeout(function () {
-    //             $('#sltDept').val(lastDepartment);
+    //             $('#sltDept_fromtransactionheader').val(lastDepartment);
     //             if (FlowRouter.current().queryParams.id) {
 
     //             } else {
@@ -1192,7 +892,7 @@ Template.frmpotemp.onRendered(async () => {
     //             };
     //         }, 50);
     //     }).catch(function (err) {
-    //         $('#sltDept').val(lastDepartment);
+    //         $('#sltDept_fromtransactionheader').val(lastDepartment);
     //     });
     // };
 
@@ -1245,7 +945,7 @@ Template.frmpotemp.onRendered(async () => {
     //     let customer = $('#edtCustomerName').val();
     //     let name = $('#firstname').val();
     //     let surname = $('#lastname').val();
-    //     let dept = $('#sltDept').val();
+    //     let dept = $('#sltDept_fromtransactionheader').val();
     //     let fx = $('.sltCurrency').val();
     //     var comment = $('#txaComment').val();
     //     var parking_instruction = $('#txapickmemo').val();
@@ -1563,7 +1263,7 @@ Template.frmpotemp.onRendered(async () => {
     //     let customer = $('#edtCustomerName').val();
     //     let name = $('#firstname').val();
     //     let surname = $('#lastname').val();
-    //     let dept = $('#sltDept').val();
+    //     let dept = $('#sltDept_fromtransactionheader').val();
     //     let fx = $('.sltCurrency').val();
     //     var comment = $('#txaComment').val();
     //     var parking_instruction = $('#txapickmemo').val();
@@ -2631,7 +2331,7 @@ Template.frmpotemp.onRendered(async () => {
     //     $('#pdfSupplierAddress').html(postalAddress);
     //     $('.pdfSupplierAddress').text(postalAddress);
     //     $('#txaShipingInfo').val(postalAddress);
-    //     $('#sltTerms').val(data.fields.TermsName || purchaseDefaultTerms);
+    //     $('#sltTerms_fromtransactionheader').val(data.fields.TermsName || purchaseDefaultTerms);
     //     setSupplierInfo();
     // }
 
@@ -2823,10 +2523,10 @@ Template.frmpotemp.onRendered(async () => {
     //                         $('.sltCurrency').val(data.fields.ForeignExchangeCode);
     //                         //$('#exchange_rate').val(data.fields.ForeignExchangeRate);
     //                         $('#exchange_rate').val(templateObject.getCurrencyRate(data.fields.ForeignExchangeCode, 0));
-    //                         $('#sltTerms').val(data.fields.TermsName);
-    //                         $('#sltDept').val(getDepartmentVal);
+    //                         $('#sltTerms_fromtransactionheader').val(data.fields.TermsName);
+    //                         $('#sltDept_fromtransactionheader').val(getDepartmentVal);
     //                         $('#sltStatus').val(data.fields.OrderStatus);
-    //                         $('#shipvia').val(data.fields.Shipping);
+    //                         $('#sltShipVia_fromtransactionheader').val(data.fields.Shipping);
     //                         FxGlobalFunctions.handleChangedCurrency($('.sltCurrency').val(), defaultCurrencyCode);
 
     //                         templateObject.attachmentCount.set(0);
@@ -3077,11 +2777,11 @@ Template.frmpotemp.onRendered(async () => {
     //                             //$('#exchange_rate').val(useData[d].fields.ForeignExchangeRate);
     //                             let currencyRate = templateObject.getCurrencyRate(useData[d].fields.ForeignExchangeCode, 0)
     //                             $('#exchange_rate').val(currencyRate);
-    //                             $('#sltTerms').val(useData[d].fields.TermsName);
-    //                             $('#sltDept').val(getDepartmentVal);
+    //                             $('#sltTerms_fromtransactionheader').val(useData[d].fields.TermsName);
+    //                             $('#sltDept_fromtransactionheader').val(getDepartmentVal);
 
     //                             $('#sltStatus').val(useData[d].fields.OrderStatus);
-    //                             $('#shipvia').val(useData[d].fields.Shipping);
+    //                             $('#sltShipVia_fromtransactionheader').val(useData[d].fields.Shipping);
     //                             FxGlobalFunctions.handleChangedCurrency($('.sltCurrency').val(), defaultCurrencyCode);
 
     //                             templateObject.attachmentCount.set(0);
@@ -3347,10 +3047,10 @@ Template.frmpotemp.onRendered(async () => {
     //                             $('.sltCurrency').val(data.fields.ForeignExchangeCode);
     //                             //$('#exchange_rate').val(data.fields.ForeignExchangeRate);
     //                         $('#exchange_rate').val(templateObject.getCurrencyRate(data.fields.ForeignExchangeCode, 0));
-    //                             $('#sltTerms').val(data.fields.TermsName);
-    //                             $('#sltDept').val(getDepartmentVal);
+    //                             $('#sltTerms_fromtransactionheader').val(data.fields.TermsName);
+    //                             $('#sltDept_fromtransactionheader').val(getDepartmentVal);
     //                             $('#sltStatus').val(data.fields.OrderStatus);
-    //                             $('#shipvia').val(data.fields.Shipping);
+    //                             $('#sltShipVia_fromtransactionheader').val(data.fields.Shipping);
     //                             FxGlobalFunctions.handleChangedCurrency($('.sltCurrency').val(), defaultCurrencyCode);
 
     //                             templateObject.attachmentCount.set(0);
@@ -3612,10 +3312,10 @@ Template.frmpotemp.onRendered(async () => {
     //                     $('.sltCurrency').val(data.fields.ForeignExchangeCode);
     //                     //$('#exchange_rate').val(data.fields.ForeignExchangeRate);
     //                         $('#exchange_rate').val(templateObject.getCurrencyRate(data.fields.ForeignExchangeCode, 0));
-    //                     $('#sltTerms').val(data.fields.TermsName);
-    //                     $('#sltDept').val(getDepartmentVal);
+    //                     $('#sltTerms_fromtransactionheader').val(data.fields.TermsName);
+    //                     $('#sltDept_fromtransactionheader').val(getDepartmentVal);
     //                     $('#sltStatus').val(data.fields.OrderStatus);
-    //                     $('#shipvia').val(data.fields.Shipping);
+    //                     $('#sltShipVia_fromtransactionheader').val(data.fields.Shipping);
     //                     FxGlobalFunctions.handleChangedCurrency($('.sltCurrency').val(), defaultCurrencyCode);
 
     //                     templateObject.attachmentCount.set(0);
@@ -3831,10 +3531,10 @@ Template.frmpotemp.onRendered(async () => {
     //             $('.sltCurrency').val(data.fields.ForeignExchangeCode);
     //             //$('#exchange_rate').val(data.fields.ForeignExchangeRate);
     //             $('#exchange_rate').val(templateObject.getCurrencyRate(data.fields.ForeignExchangeCode, 0));
-    //             $('#sltTerms').val(data.fields.TermsName);
-    //             $('#sltDept').val(getDepartmentVal);
+    //             $('#sltTerms_fromtransactionheader').val(data.fields.TermsName);
+    //             $('#sltDept_fromtransactionheader').val(getDepartmentVal);
     //             $('#sltStatus').val(data.fields.OrderStatus);
-    //             $('#shipvia').val(data.fields.Shipping);
+    //             $('#sltShipVia_fromtransactionheader').val(data.fields.Shipping);
     //             FxGlobalFunctions.handleChangedCurrency($('.sltCurrency').val(), defaultCurrencyCode);
 
     //             templateObject.attachmentCount.set(0);
@@ -3984,7 +3684,7 @@ Template.frmpotemp.onRendered(async () => {
     //         $('#edtSupplierName').val('');
     //     }
     //     setTimeout(function() {
-    //         $('#sltDept').val(defaultDept);
+    //         $('#sltDept_fromtransactionheader').val(defaultDept);
     //         templateObject.getLastPOData();
     //     }, 200);
     //     templateObject.purchaseorderrecord.set(purchaseorderrecord);
@@ -4006,6 +3706,7 @@ Template.frmpotemp.onRendered(async () => {
         let totalBalance = utilityService.modifynegativeCurrencyFormat(data.fields.TotalBalance);
         let totalPaidAmount = utilityService.modifynegativeCurrencyFormat(data.fields.TotalPaid);
         let workorderid = data.fields.CustField3 || '';
+
         if (data.fields.Lines != null) {
             if (data.fields.Lines.length) {
                 for (let i = 0; i < data.fields.Lines.length; i++) {
@@ -4057,7 +3758,11 @@ Template.frmpotemp.onRendered(async () => {
                         costTypeName: data.fields.Lines[i].fields.CustomField4 || '',
                         serialnumbers: serialno,
                         lotnumbers: lotno,
-                        expirydates: expirydate
+                        expirydates: expirydate,
+                        weight: data.fields.Lines[i].fields.CustomField7 || 1,
+                        weightUnit: data.fields.Lines[i].fields.CustomField8 || 'KG',
+                        volume: data.fields.Lines[i].fields.CustomField9 || 1,
+                        volumeUnit: data.fields.Lines[i].fields.CustomField10|| 'CF'
                     };
 
                     lineItemsTable.push(dataListTable);
@@ -4106,7 +3811,11 @@ Template.frmpotemp.onRendered(async () => {
                     costTypeName: data.fields.Lines[i].fields.CustomField4 || '',
                     serialnumbers: serialno,
                     lotnumbers: lotno,
-                    expirydates: expirydate
+                    expirydates: expirydate,
+                    weight: data.fields.Lines[i].fields.CustomField7 || 1,
+                    weightUnit: data.fields.Lines[i].fields.CustomField8 || 'KG',
+                    volume: data.fields.Lines[i].fields.CustomField9 || 1,
+                    volumeUnit: data.fields.Lines[i].fields.CustomField10|| 'CF'
                 };
                 lineItems.push(lineItemObj);
             }
@@ -4160,7 +3869,11 @@ Template.frmpotemp.onRendered(async () => {
             isPartialPaid: isPartialPaid,
             department: data.fields.Lines[0].fields.LineClassName || defaultDept,
             workorderid: workorderid,
-            CustomerID: data.fields.SupplierId
+            CustomerID: data.fields.SupplierId,
+            showingDelivery: data.fields.CustField9 == "true"?true: false,
+            showingFx: data.fields.CustField10 == "true"?true: false,
+            showingSN: data.fields.CustField8 == 'true'?true:false,
+            isRepeated: data.fields.RepeatedFrom
         };
 
         let getDepartmentVal = data.fields.Lines[0].fields.LineClassName || defaultDept;
@@ -4169,10 +3882,10 @@ Template.frmpotemp.onRendered(async () => {
         $('.sltCurrency').val(data.fields.ForeignExchangeCode);
         $('#exchange_rate').val(data.fields.ForeignExchangeRate);
         // $('#exchange_rate').val(templateObject.getCurrencyRate(data.fields.ForeignExchangeCode, 0));
-        $('#sltTerms').val(data.fields.TermsName);
-        $('#sltDept').val(getDepartmentVal);
-        $('#sltStatus').val(data.fields.OrderStatus);
-        $('#shipvia').val(data.fields.Shipping);
+        $('#sltTerms_fromtransactionheader').val(data.fields.TermsName);
+        $('#sltDept_fromtransactionheader').val(getDepartmentVal);
+        $('#sltStatus_fromtransactionheader').val(data.fields.OrderStatus);
+        $('#sltShipVia_fromtransactionheader').val(data.fields.Shipping);
         FxGlobalFunctions.handleChangedCurrency($('.sltCurrency').val(), defaultCurrencyCode);
 
         templateObject.attachmentCount.set(0);
@@ -4224,54 +3937,54 @@ Template.frmpotemp.onRendered(async () => {
     }
     
 
-    templateObject.getShpVias = function () {
-        getVS1Data('TShippingMethod').then(function (dataObject) {
-            if (dataObject.length == 0) {
-                purchaseService.getShpVia().then(function (data) {
-                    for (let i in data.tshippingmethod) {
+    // templateObject.getShpVias = function () {
+    //     getVS1Data('TShippingMethod').then(function (dataObject) {
+    //         if (dataObject.length == 0) {
+    //             purchaseService.getShpVia().then(function (data) {
+    //                 for (let i in data.tshippingmethod) {
 
-                        let viarecordObj = {
-                            shippingmethod: data.tshippingmethod[i].ShippingMethod || ' ',
-                        };
+    //                     let viarecordObj = {
+    //                         shippingmethod: data.tshippingmethod[i].ShippingMethod || ' ',
+    //                     };
 
-                        viarecords.push(viarecordObj);
-                        templateObject.viarecords.set(viarecords);
+    //                     viarecords.push(viarecordObj);
+    //                     templateObject.viarecords.set(viarecords);
 
-                    }
-                });
-            } else {
-                let data = JSON.parse(dataObject[0].data);
-                let useData = data.tshippingmethod;
-                for (let i in useData) {
+    //                 }
+    //             });
+    //         } else {
+    //             let data = JSON.parse(dataObject[0].data);
+    //             let useData = data.tshippingmethod;
+    //             for (let i in useData) {
 
-                    let viarecordObj = {
-                        shippingmethod: useData[i].ShippingMethod || ' ',
-                    };
+    //                 let viarecordObj = {
+    //                     shippingmethod: useData[i].ShippingMethod || ' ',
+    //                 };
 
-                    viarecords.push(viarecordObj);
-                    templateObject.viarecords.set(viarecords);
+    //                 viarecords.push(viarecordObj);
+    //                 templateObject.viarecords.set(viarecords);
 
-                }
+    //             }
 
-            }
-        }).catch(function (err) {
-            purchaseService.getShpVia().then(function (data) {
-                for (let i in data.tshippingmethod) {
+    //         }
+    //     }).catch(function (err) {
+    //         purchaseService.getShpVia().then(function (data) {
+    //             for (let i in data.tshippingmethod) {
 
-                    let viarecordObj = {
-                        shippingmethod: data.tshippingmethod[i].ShippingMethod || ' ',
-                    };
+    //                 let viarecordObj = {
+    //                     shippingmethod: data.tshippingmethod[i].ShippingMethod || ' ',
+    //                 };
 
-                    viarecords.push(viarecordObj);
-                    templateObject.viarecords.set(viarecords);
+    //                 viarecords.push(viarecordObj);
+    //                 templateObject.viarecords.set(viarecords);
 
-                }
-            });
-        });
+    //             }
+    //         });
+    //     });
 
 
-    };
-    templateObject.getShpVias();
+    // };
+    // templateObject.getShpVias();
 
     // templateObject.getDepartments = function () {
     //     getVS1Data('TDeptClass').then(function (dataObject) {
@@ -4387,10 +4100,10 @@ Template.frmpotemp.onRendered(async () => {
     $(document).ready(function () {
         $('#edtSupplierName').editableSelect();
         $('.sltCurrency').editableSelect();
-        $('#sltTerms').editableSelect();
-        $('#sltDept').editableSelect();
-        $('#sltStatus').editableSelect();
-        $('#shipvia').editableSelect();
+        $('#sltTerms_fromtransactionheader').editableSelect();
+        $('#sltDept_fromtransactionheader').editableSelect();
+        $('#sltStatus_fromtransactionheader').editableSelect();
+        $('#sltShipVia_fromtransactionheader').editableSelect();
         $('#fixedAssetLine').editableSelect();
         $('#costTypeLine').editableSelect();
 
@@ -4463,7 +4176,7 @@ Template.frmpotemp.onRendered(async () => {
     });
 
     // $(document).on("click", "#tblShipViaPopList tbody tr", function(e) {
-    //     $('#shipvia').val($(this).find(".colShipName ").text());
+    //     $('#sltShipVia_fromtransactionheader').val($(this).find(".colShipName ").text());
     //     // $('#shipViaModal').modal('toggle');
 
     //     $('#tblShipViaPopList_filter .form-control-sm').val('');
@@ -4486,11 +4199,11 @@ Template.frmpotemp.onRendered(async () => {
 
 
     // $(document).on("click", "#departmentList tbody tr", function(e) {
-    //     $('#sltDept').val($(this).find(".colDeptName").text());
+    //     $('#sltDept_fromtransactionheader').val($(this).find(".colDeptName").text());
     //     $('#departmentModal').modal('toggle');
     // });
     // $(document).on("click", "#termsList tbody tr", function(e) {
-    //     $('#sltTerms').val($(this).find(".colName").text());
+    //     $('#sltTerms_fromtransactionheader').val($(this).find(".colName").text());
     //     $('#termsListModal').modal('toggle');
     // });
     // $(document).on("click", "#tblStatusPopList tbody tr", function(e) {
@@ -4787,7 +4500,7 @@ Template.frmpotemp.onRendered(async () => {
     // });
 
     $(document).ready(function () {
-        // $('#shipvia').editableSelect()
+        // $('#sltShipVia_fromtransactionheader').editableSelect()
         //     .on('click.editable-select', function(e, li) {
         //         var $earch = $(this);
         //         var offset = $earch.offset();
@@ -4875,7 +4588,7 @@ Template.frmpotemp.onRendered(async () => {
         //         }
         //     });
 
-        // $('#sltTerms').editableSelect()
+        // $('#sltTerms_fromtransactionheader').editableSelect()
         //     .on('click.editable-select', function(e, li) {
         //         var $earch = $(this);
         //         var offset = $earch.offset();
@@ -5010,7 +4723,7 @@ Template.frmpotemp.onRendered(async () => {
         //         }
         //     });
 
-        // $('#sltDept').editableSelect()
+        // $('#sltDept_fromtransactionheader').editableSelect()
         //     .on('click.editable-select', function (e, li) {
         //         var $earch = $(this);
         //         var offset = $earch.offset();
@@ -5245,7 +4958,7 @@ Template.frmpotemp.onRendered(async () => {
     //                         $('#sedtCountry').val(popSupplierCountry);
     //                         $('#txaNotes').val(popSuppliernotes);
     //                         $('#sltPreferedPayment').val(popSupplierpreferedpayment);
-    //                         $('#sltTerms').val(popSupplierterms);
+    //                         $('#sltTerms_fromtransactionheader').val(popSupplierterms);
     //                         $('#suppAccountNo').val(popSupplieraccountnumber);
     //                         $('#edtCustomeField1').val(popSuppliercustfield1);
     //                         $('#edtCustomeField2').val(popSuppliercustfield2);
@@ -5386,7 +5099,7 @@ Template.frmpotemp.onRendered(async () => {
     //                             $('#sedtCountry').val(popSupplierCountry);
     //                             $('#txaNotes').val(popSuppliernotes);
     //                             $('#sltPreferedPayment').val(popSupplierpreferedpayment);
-    //                             $('#sltTerms').val(popSupplierterms);
+    //                             $('#sltTerms_fromtransactionheader').val(popSupplierterms);
     //                             $('#suppAccountNo').val(popSupplieraccountnumber);
     //                             $('#edtCustomeField1').val(popSuppliercustfield1);
     //                             $('#edtCustomeField2').val(popSuppliercustfield2);
@@ -5520,7 +5233,7 @@ Template.frmpotemp.onRendered(async () => {
     //                             $('#sedtCountry').val(popSupplierCountry);
     //                             $('#txaNotes').val(popSuppliernotes);
     //                             $('#sltPreferedPayment').val(popSupplierpreferedpayment);
-    //                             $('#sltTerms').val(popSupplierterms);
+    //                             $('#sltTerms_fromtransactionheader').val(popSupplierterms);
     //                             $('#suppAccountNo').val(popSupplieraccountnumber);
     //                             $('#edtCustomeField1').val(popSuppliercustfield1);
     //                             $('#edtCustomeField2').val(popSuppliercustfield2);
@@ -5657,7 +5370,7 @@ Template.frmpotemp.onRendered(async () => {
     //                     $('#sedtCountry').val(popSupplierCountry);
     //                     $('#txaNotes').val(popSuppliernotes);
     //                     $('#sltPreferedPayment').val(popSupplierpreferedpayment);
-    //                     $('#sltTerms').val(popSupplierterms);
+    //                     $('#sltTerms_fromtransactionheader').val(popSupplierterms);
     //                     $('#suppAccountNo').val(popSupplieraccountnumber);
     //                     $('#edtCustomeField1').val(popSuppliercustfield1);
     //                     $('#edtCustomeField2').val(popSuppliercustfield2);
@@ -5830,7 +5543,7 @@ Template.frmpotemp.onRendered(async () => {
     //                         $('#sedtCountry').val(popSupplierCountry);
     //                         $('#txaNotes').val(popSuppliernotes);
     //                         $('#sltPreferedPayment').val(popSupplierpreferedpayment);
-    //                         $('#sltTerms').val(popSupplierterms);
+    //                         $('#sltTerms_fromtransactionheader').val(popSupplierterms);
     //                         $('#suppAccountNo').val(popSupplieraccountnumber);
     //                         $('#edtCustomeField1').val(popSuppliercustfield1);
     //                         $('#edtCustomeField2').val(popSuppliercustfield2);
@@ -5971,7 +5684,7 @@ Template.frmpotemp.onRendered(async () => {
     //                             $('#sedtCountry').val(popSupplierCountry);
     //                             $('#txaNotes').val(popSuppliernotes);
     //                             $('#sltPreferedPayment').val(popSupplierpreferedpayment);
-    //                             $('#sltTerms').val(popSupplierterms);
+    //                             $('#sltTerms_fromtransactionheader').val(popSupplierterms);
     //                             $('#suppAccountNo').val(popSupplieraccountnumber);
     //                             $('#edtCustomeField1').val(popSuppliercustfield1);
     //                             $('#edtCustomeField2').val(popSuppliercustfield2);
@@ -6105,7 +5818,7 @@ Template.frmpotemp.onRendered(async () => {
     //                             $('#sedtCountry').val(popSupplierCountry);
     //                             $('#txaNotes').val(popSuppliernotes);
     //                             $('#sltPreferedPayment').val(popSupplierpreferedpayment);
-    //                             $('#sltTerms').val(popSupplierterms);
+    //                             $('#sltTerms_fromtransactionheader').val(popSupplierterms);
     //                             $('#suppAccountNo').val(popSupplieraccountnumber);
     //                             $('#edtCustomeField1').val(popSuppliercustfield1);
     //                             $('#edtCustomeField2').val(popSuppliercustfield2);
@@ -6242,7 +5955,7 @@ Template.frmpotemp.onRendered(async () => {
     //                     $('#sedtCountry').val(popSupplierCountry);
     //                     $('#txaNotes').val(popSuppliernotes);
     //                     $('#sltPreferedPayment').val(popSupplierpreferedpayment);
-    //                     $('#sltTerms').val(popSupplierterms);
+    //                     $('#sltTerms_fromtransactionheader').val(popSupplierterms);
     //                     $('#suppAccountNo').val(popSupplieraccountnumber);
     //                     $('#edtCustomeField1').val(popSuppliercustfield1);
     //                     $('#edtCustomeField2').val(popSuppliercustfield2);
@@ -6344,7 +6057,7 @@ Template.frmpotemp.onRendered(async () => {
     //     // $('#pdfSupplierAddress').html(postalAddress);
     //     // $('.pdfSupplierAddress').text(postalAddress);
     //     $('#txaShipingInfo').val(postalAddress);
-    //     // $('#sltTerms').val(tableSupplier.find(".colSupplierTermName").text() || purchaseDefaultTerms);
+    //     // $('#sltTerms_fromtransactionheader').val(tableSupplier.find(".colSupplierTermName").text() || purchaseDefaultTerms);
     //     setSupplierInfo();
     // });
     // function setSupplierInfo(){
@@ -7389,24 +7102,23 @@ Template.frmpotemp.onRendered(function () {
 
     templateObject.savePurchaseOrderData = function (data) {
         playSaveAudio();
-        let templateObjectect = Template.instance();
         let purchaseService = new PurchaseBoardService();
         let uploadedItems = templateObject.uploadedFiles.get();
         setTimeout(async function () {
             saveCurrencyHistory();
-            let isBORedirect = await templateObjectect.isbackorderredirect.get() || false;
+            let isBORedirect = await templateObject.isbackorderredirect.get() || false;
             let suppliername = $('#edtSupplierName');
 
-            let termname = $('#sltTerms').val() || '';
+            let termname = $('.transheader > #sltTerms_fromtransactionheader').val() || '';
             if (termname === '') {
                 swal('Terms has not been selected!', '', 'warning');
-                event.preventDefault();
+                // event.preventDefault();
                 return false;
             }
 
             if (suppliername.val() === '') {
                 swal('Supplier has not been selected!', '', 'warning');
-                e.preventDefault();
+                // e.preventDefault();
             } else {
 
                 $('.fullScreenSpin').css('display', 'inline-block');
@@ -7435,6 +7147,11 @@ Template.frmpotemp.onRendered(function () {
                     let tdAssetName = $('#' + lineID + " .colFixedAsset").attr('assetname');
                     let tdCostTypeName = $('#' + lineID + " .colFixedAsset").attr('costtypename');
 
+                    let weight = $("#tblPurchaseOrderLine #" + lineID).attr('weight')
+                    let weightUnit = $("#tblPurchaseOrderLine #" + lineID).attr('weightUnit')
+                    let volume = $("#tblPurchaseOrderLine #" + lineID).attr('volume')
+                    let volumeUnit = $("#tblPurchaseOrderLine #" + lineID).attr('volumeUnit')
+
                     if (tdproduct != "") {
                         if ($('input[name="chkCreatePOCredit"]').is(":checked")) {
                             lineItemObjForm = {
@@ -7447,11 +7164,15 @@ Template.frmpotemp.onRendered(function () {
                                     LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                     CustomerJob: tdCustomerJob || '',
                                     LineTaxCode: tdtaxCode || '',
-                                    LineClassName: $('#sltDept').val() || defaultDept,
+                                    LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept,
                                     CustomField1: tdAssetID,
                                     CustomField2: tdCostTypeID,
                                     CustomField3: tdAssetName,
-                                    CustomField4: tdCostTypeName
+                                    CustomField4: tdCostTypeName,
+                                    CustomField7: weight,
+                                    CustomField8: weightUnit,
+                                    CustomField9: volume,
+                                    CustomField10: volumeUnit
                                 }
                             };
                         } else {
@@ -7466,11 +7187,15 @@ Template.frmpotemp.onRendered(function () {
                                         LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                         CustomerJob: tdCustomerJob || '',
                                         LineTaxCode: tdtaxCode || '',
-                                        LineClassName: $('#sltDept').val() || defaultDept,
+                                        LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept,
                                         CustomField1: tdAssetID,
                                         CustomField2: tdCostTypeID,
                                         CustomField3: tdAssetName,
-                                        CustomField4: tdCostTypeName
+                                        CustomField4: tdCostTypeName,
+                                        CustomField7: weight,
+                                        CustomField8: weightUnit,
+                                        CustomField9: volume,
+                                        CustomField10: volumeUnit
                                     }
                                 };
                             } else {
@@ -7484,11 +7209,15 @@ Template.frmpotemp.onRendered(function () {
                                         LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                         CustomerJob: tdCustomerJob || '',
                                         LineTaxCode: tdtaxCode || '',
-                                        LineClassName: $('#sltDept').val() || defaultDept,
+                                        LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept,
                                         CustomField1: tdAssetID,
                                         CustomField2: tdCostTypeID,
                                         CustomField3: tdAssetName,
-                                        CustomField4: tdCostTypeName
+                                        CustomField4: tdCostTypeName,
+                                        CustomField7: weight,
+                                        CustomField8: weightUnit,
+                                        CustomField9: volume,
+                                        CustomField10: volumeUnit
                                     }
                                 };
 
@@ -7555,6 +7284,7 @@ Template.frmpotemp.onRendered(function () {
                         splashLineArray.push(lineItemObjForm);
                     }
                 });
+
                 let getchkcustomField1 = true;
                 let getchkcustomField2 = true;
                 let getcustomField1 = $('.customField1Text').html();
@@ -7579,7 +7309,7 @@ Template.frmpotemp.onRendered(function () {
                 let poNumber = $('#ponumber').val();
                 let reference = $('#edtRef').val();
 
-                let departement = $('#shipvia').val();
+                let departement = $('#sltShipVia_fromtransactionheader').val();
                 let shippingAddress = $('#txaShipingInfo').val();
                 let comments = $('#txaComment').val();
                 let pickingInfrmation = $('#txapickmemo').val();
@@ -7592,9 +7322,12 @@ Template.frmpotemp.onRendered(function () {
                 var getso_id = url.split('?id=');
                 var currentPurchaseOrder = getso_id[getso_id.length - 1];
 
-                var currencyCode = $("#sltCurrency").val() || CountryAbbr;
+                var currencyCode = $(".transheader > .sltCurrency").val() || CountryAbbr;
                 let ForeignExchangeRate = $('#exchange_rate').val() || 0;
-                let foreignCurrencyFields = {}
+                let foreignCurrencyFields = {};
+                var showingFx = $("#toggleShowFx").prop('checked') == true? 'true': 'false';
+                var showingDelivery = $('#toggleShowDelivery').prop('checked') ==true? 'true': 'false';
+                var showingSN = $('#toggleShowSN').prop('checked') ==true? 'true': 'false';
                 if (FxGlobalFunctions.isCurrencyEnabled()) {
                     foreignCurrencyFields = {
                         ForeignExchangeCode: currencyCode,
@@ -7602,20 +7335,20 @@ Template.frmpotemp.onRendered(function () {
                     }
                 }
                 var objDetails = '';
-                if ($('#sltDept').val() === '') {
+                if ($('#sltDept_fromtransactionheader').val() === '') {
                     swal({
                         title: "Department has not been selected!",
                         text: '',
                         type: 'warning',
                     }).then((result) => {
                         if (result.value) {
-                            $('#sltDept').focus();
+                            $('#sltDept_fromtransactionheader').focus();
                         } else if (result.dismiss == 'cancel') {
 
                         }
                     });
                     $('.fullScreenSpin').css('display', 'none');
-                    event.preventDefault();
+                    // event.preventDefault();
                     return false;
                 }
                 // tempcode. missed to add customfields here.
@@ -7642,7 +7375,10 @@ Template.frmpotemp.onRendered(function () {
                                 Comments: comments,
                                 SalesComments: pickingInfrmation,
                                 Attachments: uploadedItems,
-                                OrderStatus: $('#sltStatus').val()
+                                OrderStatus: $('#sltStatus_fromtransactionheader').val(),
+                                CustField10: showingFx,
+                                CustField9: showingDelivery,
+                                CustField8: showingSN
                             }
                         };
                     } else {
@@ -7666,7 +7402,10 @@ Template.frmpotemp.onRendered(function () {
                                 Comments: comments,
                                 SalesComments: pickingInfrmation,
                                 Attachments: uploadedItems,
-                                OrderStatus: $('#sltStatus').val()
+                                OrderStatus: $('#sltStatus_fromtransactionheader').val(),
+                                CustField10: showingFx,
+                                CustField9: showingDelivery,
+                                CustField8: showingSN
                             }
                         };
                     }
@@ -7692,7 +7431,10 @@ Template.frmpotemp.onRendered(function () {
 
                             SalesComments: pickingInfrmation,
                             Attachments: uploadedItems,
-                            OrderStatus: $('#sltStatus').val()
+                            OrderStatus: $('#sltStatus_fromtransactionheader').val(),
+                            CustField10: showingFx,
+                            CustField9: showingDelivery,
+                            CustField8: showingSN
                         }
                     };
 
@@ -7706,15 +7448,22 @@ Template.frmpotemp.onRendered(function () {
                 } else {
                     swal('Product name has not been selected!', '', 'warning');
                     $('.fullScreenSpin').css('display', 'none');
-                    event.preventDefault();
+                    // event.preventDefault();
                     return false;
                 };
+                showSimpleMessageTransaction();
+                playSaveAudio();
+                
+                let currentpotemp = templateObject.temporaryfiles.get();
+                let newpotemp = [...currentpotemp, objDetails];
+                templateObject.temporaryfiles.set(newpotemp);
+                addVS1Data('TPurchaseOrderTemp', JSON.stringify({tpurchaseordertemp: newpotemp})).then(async function(){
 
-                await purchaseService.savePurchaseOrderEx(objDetails).then(async function (objDetails) {
-                    sideBarService.getAllSerialNumber().then(function (data) {
-                        addVS1Data('TSerialNumberListCurrentReport', JSON.stringify(data));
-                    }).catch(function (err) {
-                    });
+                // await purchaseService.savePurchaseOrderEx(objDetails).then(async function (objDetails) {
+                    // sideBarService.getAllSerialNumber().then(function (data) {
+                    //     addVS1Data('TSerialNumberListCurrentReport', JSON.stringify(data));
+                    // }).catch(function (err) {
+                    // });
 
                     if (localStorage.getItem("enteredURL") != null) {
                         FlowRouter.go(localStorage.getItem("enteredURL"));
@@ -7724,7 +7473,7 @@ Template.frmpotemp.onRendered(function () {
 
                     var supplierID = $('#edtSupplierEmail').attr('supplierid');
 
-                    $('#html-2-pdfwrapper').css('display', 'block');
+                    // $('#html-2-pdfwrapper').css('display', 'block');
                     $('.pdfCustomerName').html($('#edtSupplierEmail').val());
                     $('.pdfCustomerAddress').html($('#txabillingAddress').val() != '' ? $('#txabillingAddress').val() != ''.replace(/[\r\n]/g, "<br />") : '');
                     var ponumber = $('#ponumber').val() || '.';
@@ -7743,8 +7492,8 @@ Template.frmpotemp.onRendered(function () {
                         })
                     }
                     async function updateWO() {
-                        if (templateObjectect.purchaseorderrecord.get().workorderid != '') {
-                            let workorderid = templateObjectect.purchaseorderrecord.get().workorderid;
+                        if (templateObject.purchaseorderrecord.get().workorderid != '') {
+                            let workorderid = templateObject.purchaseorderrecord.get().workorderid;
                             let workorders = await getAllWorkorders();
                             let index = workorders.findIndex((order, index) => {
                                 return order.fields.ID == workorderid
@@ -8204,7 +7953,7 @@ Template.frmpotemp.onRendered(function () {
                         }
                     } else {
                         $('.fullScreenSpin').css('display', 'none');
-                        isBORedirect = templateObjectect.isbackorderredirect.get() || false;
+                        isBORedirect = templateObject.isbackorderredirect.get() || false;
                         if (isBORedirect == true) {
                             FlowRouter.go('/purchaseorderlistBO?success=true');
                         } else {
@@ -8235,6 +7984,15 @@ Template.frmpotemp.onRendered(function () {
 
         }, delayTimeAfterSound);
     }
+
+    templateObject.updatePOTemp = async function(objDetails) {
+        return new Promise( (resolve, reject) => {
+          let currentTemp = templateObject.temporaryfiles.get();
+          let newTemp = [...currentTemp, objDetails];
+          templateObject.temporaryfiles.set(newTemp);
+           addVS1Data('TPurchaseOrderTemp', JSON.stringify({tpurchaseordertemp:newTemp})).then(function(){resolve()})
+        })
+      }
 });
 Template.frmpotemp.helpers({
     oneExAPIName: function () {
@@ -8253,6 +8011,11 @@ Template.frmpotemp.helpers({
 
     listapifunction: function () {
         return sideBarService.getAllTPurchaseOrderListData
+    },
+
+    saveapifunction: function() {
+        let purchaseService = new PurchaseBoardService();
+        return purchaseService.savePurchaseOrderEx
     },
 
     setTransData: () => {
@@ -8275,9 +8038,9 @@ Template.frmpotemp.helpers({
         return Template.instance().tranasctionfooterfields.get()
     },
 
-    printOptions: () => {
-        return Template.instance().printOptions.get()
-    },
+    // printOptions: () => {
+    //     return Template.instance().printOptions.get()
+    // },
 
     saveTransaction: function () {
         let templateObject = Template.instance();
@@ -8286,24 +8049,36 @@ Template.frmpotemp.helpers({
         }
     },
 
-    getTemplateList: function () {
-        return template_list;
+    updateTransactionTemp:  function() {
+        let templateObject = Template.instance();
+        return async function(data) {
+          await templateObject.updatePOTemp(data)
+        }
+      },
+
+
+    printfields: ()=>{
+        return Template.instance().printfields.get();
     },
 
-    getTemplateNumber: function () {
-        let template_numbers = ["1", "2", "3"];
-        return template_numbers;
-    },
+    // getTemplateList: function () {
+    //     return template_list;
+    // },
+
+    // getTemplateNumber: function () {
+    //     let template_numbers = ["1", "2", "3"];
+    //     return template_numbers;
+    // },
     isBatchSerialNoTracking: () => {
         return localStorage.getItem('CloudShowSerial') || false;
     },
-    purchaseorderrecord: () => {
-        return Template.instance().purchaseorderrecord.get();
-    },
+    // purchaseorderrecord: () => {
+    //     return Template.instance().purchaseorderrecord.get();
+    // },
 
-    supplierRecord: () => {
-        return Template.instance().supplierRecord.get();
-    },
+    // supplierRecord: () => {
+    //     return Template.instance().supplierRecord.get();
+    // },
 
     // deptrecords: () => {
     //     return Template.instance().deptrecords.get().sort(function (a, b) {
@@ -8315,36 +8090,36 @@ Template.frmpotemp.helpers({
     //         return (a.department.toUpperCase() > b.department.toUpperCase()) ? 1 : -1;
     //     });
     // },
-    viarecords: () => {
-        return Template.instance().viarecords.get().sort(function (a, b) {
-            if (a.shippingmethod == 'NA') {
-                return 1;
-            } else if (b.shippingmethod == 'NA') {
-                return -1;
-            }
-            return (a.shippingmethod.toUpperCase() > b.shippingmethod.toUpperCase()) ? 1 : -1;
-        });
-    },
-    termrecords: () => {
-        return Template.instance().termrecords.get().sort(function (a, b) {
-            if (a.termsname == 'NA') {
-                return 1;
-            } else if (b.termsname == 'NA') {
-                return -1;
-            }
-            return (a.termsname.toUpperCase() > b.termsname.toUpperCase()) ? 1 : -1;
-        });
-    },
-    clientrecords: () => {
-        return Template.instance().clientrecords.get().sort(function (a, b) {
-            if (a.suppliername == 'NA') {
-                return 1;
-            } else if (b.suppliername == 'NA') {
-                return -1;
-            }
-            return (a.suppliername.toUpperCase() > b.suppliername.toUpperCase()) ? 1 : -1;
-        });
-    },
+    // viarecords: () => {
+    //     return Template.instance().viarecords.get().sort(function (a, b) {
+    //         if (a.shippingmethod == 'NA') {
+    //             return 1;
+    //         } else if (b.shippingmethod == 'NA') {
+    //             return -1;
+    //         }
+    //         return (a.shippingmethod.toUpperCase() > b.shippingmethod.toUpperCase()) ? 1 : -1;
+    //     });
+    // },
+    // termrecords: () => {
+    //     return Template.instance().termrecords.get().sort(function (a, b) {
+    //         if (a.termsname == 'NA') {
+    //             return 1;
+    //         } else if (b.termsname == 'NA') {
+    //             return -1;
+    //         }
+    //         return (a.termsname.toUpperCase() > b.termsname.toUpperCase()) ? 1 : -1;
+    //     });
+    // },
+    // clientrecords: () => {
+    //     return Template.instance().clientrecords.get().sort(function (a, b) {
+    //         if (a.suppliername == 'NA') {
+    //             return 1;
+    //         } else if (b.suppliername == 'NA') {
+    //             return -1;
+    //         }
+    //         return (a.suppliername.toUpperCase() > b.suppliername.toUpperCase()) ? 1 : -1;
+    //     });
+    // },
     purchaseCloudPreferenceRec: () => {
         return CloudPreference.findOne({
             userid: localStorage.getItem('mycloudLogonID'),
@@ -8538,7 +8313,7 @@ Template.frmpotemp.events({
     //         $("#frequencyModal").modal('toggle');
     //     }
     // },
-    // 'click #sltTerms': function(event) {
+    // 'click #sltTerms_fromtransactionheader': function(event) {
     //     $('#termsListModal').modal('toggle');
     // },
     'click .payNow': async function () {
@@ -8585,7 +8360,7 @@ Template.frmpotemp.events({
                 let customerEmail = $('#edtSupplierEmail').val();
                 let currencyname = (CountryAbbr).toLowerCase();
                 let stringQuery = "?";
-                let dept = $('#sltDept').val();
+                let dept = $('#sltDept_fromtransactionheader').val();
                 for (let l = 0; l < lineItems.length; l++) {
                     stringQuery = stringQuery + "product" + l + "=" + lineItems[l].description + "&price" + l + "=" + lineItems[l].unitPrice + "&qty" + l + "=" + lineItems[l].quantity + "&";
                 }
@@ -8606,10 +8381,10 @@ Template.frmpotemp.events({
             });
         }
     },
-    // 'click #sltCurrency': function(event) {
+    // 'click .transheader >.sltCurrency': function(event) {
     //     $('#currencyModal').modal('show');
     // },
-    // 'click #sltDept': function(event) {
+    // 'click #sltDept_fromtransactionheader': function(event) {
     //     $('#departmentModal').modal('toggle');
     // },
     // 'click #sltStatus': function(event) {
@@ -8627,8 +8402,8 @@ Template.frmpotemp.events({
         $('#edtSupplierName').select();
         $('#edtSupplierName').editableSelect();
     },
-    'change #sltStatus': function () {
-        let status = $('#sltStatus').find(":selected").val();
+    'change #sltStatus_fromtransactionheader': function () {
+        let status = $('#sltStatus_fromtransactionheader').find(":selected").val();
         if (status == "newstatus") {
             $('#statusModal').modal();
         }
@@ -10678,7 +10453,7 @@ Template.frmpotemp.events({
     //         let isBORedirect = await templateObjectect.isbackorderredirect.get() || false;
     //         let suppliername = $('#edtSupplierName');
 
-    //         let termname = $('#sltTerms').val() || '';
+    //         let termname = $('#sltTerms_fromtransactionheader').val() || '';
     //         if (termname === '') {
     //             swal('Terms has not been selected!', '', 'warning');
     //             event.preventDefault();
@@ -10728,7 +10503,7 @@ Template.frmpotemp.events({
     //                                 LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
     //                                 CustomerJob: tdCustomerJob || '',
     //                                 LineTaxCode: tdtaxCode || '',
-    //                                 LineClassName: $('#sltDept').val() || defaultDept,
+    //                                 LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept,
     //                                 CustomField1: tdAssetID,
     //                                 CustomField2: tdCostTypeID,
     //                                 CustomField3: tdAssetName,
@@ -10747,7 +10522,7 @@ Template.frmpotemp.events({
     //                                     LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
     //                                     CustomerJob: tdCustomerJob || '',
     //                                     LineTaxCode: tdtaxCode || '',
-    //                                     LineClassName: $('#sltDept').val() || defaultDept,
+    //                                     LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept,
     //                                     CustomField1: tdAssetID,
     //                                     CustomField2: tdCostTypeID,
     //                                     CustomField3: tdAssetName,
@@ -10765,7 +10540,7 @@ Template.frmpotemp.events({
     //                                     LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
     //                                     CustomerJob: tdCustomerJob || '',
     //                                     LineTaxCode: tdtaxCode || '',
-    //                                     LineClassName: $('#sltDept').val() || defaultDept,
+    //                                     LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept,
     //                                     CustomField1: tdAssetID,
     //                                     CustomField2: tdCostTypeID,
     //                                     CustomField3: tdAssetName,
@@ -10860,7 +10635,7 @@ Template.frmpotemp.events({
     //             let poNumber = $('#ponumber').val();
     //             let reference = $('#edtRef').val();
 
-    //             let departement = $('#shipvia').val();
+    //             let departement = $('#sltShipVia_fromtransactionheader').val();
     //             let shippingAddress = $('#txaShipingInfo').val();
     //             let comments = $('#txaComment').val();
     //             let pickingInfrmation = $('#txapickmemo').val();
@@ -10873,7 +10648,7 @@ Template.frmpotemp.events({
     //             var getso_id = url.split('?id=');
     //             var currentPurchaseOrder = getso_id[getso_id.length - 1];
 
-    //             var currencyCode = $("#sltCurrency").val() || CountryAbbr;
+    //             var currencyCode = $(".transheader >.sltCurrency").val() || CountryAbbr;
     //             let ForeignExchangeRate = $('#exchange_rate').val() || 0;
     //             let foreignCurrencyFields = {}
     //             if (FxGlobalFunctions.isCurrencyEnabled()) {
@@ -10883,14 +10658,14 @@ Template.frmpotemp.events({
     //                 }
     //             }
     //             var objDetails = '';
-    //             if ($('#sltDept').val() === '') {
+    //             if ($('#sltDept_fromtransactionheader').val() === '') {
     //                 swal({
     //                     title: "Department has not been selected!",
     //                     text: '',
     //                     type: 'warning',
     //                 }).then((result) => {
     //                     if (result.value) {
-    //                         $('#sltDept').focus();
+    //                         $('#sltDept_fromtransactionheader').focus();
     //                     } else if (result.dismiss == 'cancel') {
 
     //                     }
@@ -12027,7 +11802,7 @@ Template.frmpotemp.events({
         let templateObject = Template.instance();
         let suppliername = $('#edtSupplierName');
         let purchaseService = new PurchaseBoardService();
-        let termname = $('#sltTerms').val() || '';
+        let termname = $('#sltTerms_fromtransactionheader').val() || '';
         if (termname === '') {
             swal('Terms has not been selected!', '', 'warning');
             event.preventDefault();
@@ -12069,7 +11844,7 @@ Template.frmpotemp.events({
                                 LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                 CustomerJob: tdCustomerJob || '',
                                 LineTaxCode: tdtaxCode || '',
-                                LineClassName: $('#sltDept').val() || defaultDept
+                                LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                             }
                         };
                     } else {
@@ -12083,7 +11858,7 @@ Template.frmpotemp.events({
                                 LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                 CustomerJob: tdCustomerJob || '',
                                 LineTaxCode: tdtaxCode || '',
-                                LineClassName: $('#sltDept').val() || defaultDept
+                                LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                             }
                         };
 
@@ -12117,7 +11892,7 @@ Template.frmpotemp.events({
             let poNumber = $('#ponumber').val();
             let reference = $('#edtRef').val();
 
-            let departement = $('#shipvia').val();
+            let departement = $('#sltShipVia_fromtransactionheader').val();
             let shippingAddress = $('#txaShipingInfo').val();
             let comments = $('#txaComment').val();
             let pickingInfrmation = $('#txapickmemo').val();
@@ -12128,7 +11903,7 @@ Template.frmpotemp.events({
             var getso_id = url.split('?id=');
             var currentPurchaseOrder = getso_id[getso_id.length - 1];
             let uploadedItems = templateObject.uploadedFiles.get();
-            var currencyCode = $("#sltCurrency").val() || CountryAbbr;
+            var currencyCode = $(".transheader >.sltCurrency").val() || CountryAbbr;
             var objDetails = '';
             if (getso_id[1]) {
                 currentPurchaseOrder = parseInt(currentPurchaseOrder);
@@ -12154,7 +11929,7 @@ Template.frmpotemp.events({
 
                         SalesComments: pickingInfrmation,
                         Attachments: uploadedItems,
-                        OrderStatus: $('#sltStatus').val()
+                        OrderStatus: $('#sltStatus_fromtransactionheader').val()
                     }
                 };
             } else {
@@ -12177,7 +11952,7 @@ Template.frmpotemp.events({
                         Comments: comments,
                         SalesComments: pickingInfrmation,
                         Attachments: uploadedItems,
-                        OrderStatus: $('#sltStatus').val()
+                        OrderStatus: $('#sltStatus_fromtransactionheader').val()
                     }
                 };
             }
@@ -12404,7 +12179,7 @@ Template.frmpotemp.events({
         //         let templateObject = Template.instance();
         //         let suppliername = $('#edtSupplierName');
         //         let purchaseService = new PurchaseBoardService();
-        //         let termname = $('#sltTerms').val() || '';
+        //         let termname = $('#sltTerms_fromtransactionheader').val() || '';
         //         if (termname === '') {
         //             swal('Terms has not been selected!', '', 'warning');
         //             event.preventDefault();
@@ -12446,7 +12221,7 @@ Template.frmpotemp.events({
         //                                 LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
         //                                 CustomerJob: tdCustomerJob || '',
         //                                 LineTaxCode: tdtaxCode || '',
-        //                                 LineClassName: $('#sltDept').val() || defaultDept
+        //                                 LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
         //                             }
         //                         };
         //                     } else {
@@ -12460,7 +12235,7 @@ Template.frmpotemp.events({
         //                                 LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
         //                                 CustomerJob: tdCustomerJob || '',
         //                                 LineTaxCode: tdtaxCode || '',
-        //                                 LineClassName: $('#sltDept').val() || defaultDept
+        //                                 LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
         //                             }
         //                         };
 
@@ -12495,7 +12270,7 @@ Template.frmpotemp.events({
         //             let poNumber = $('#ponumber').val();
         //             let reference = $('#edtRef').val();
 
-        //             let departement = $('#shipvia').val();
+        //             let departement = $('#sltShipVia_fromtransactionheader').val();
         //             let shippingAddress = $('#txaShipingInfo').val();
         //             let comments = $('#txaComment').val();
         //             let pickingInfrmation = $('#txapickmemo').val();
@@ -12506,7 +12281,7 @@ Template.frmpotemp.events({
         //             var getso_id = url.split('?id=');
         //             var currentPurchaseOrder = getso_id[getso_id.length - 1];
 
-        //             var currencyCode = $("#sltCurrency").val() || CountryAbbr;
+        //             var currencyCode = $(".transheader >.sltCurrency").val() || CountryAbbr;
         //             var objDetails = '';
         //             if (getso_id[1]) {
         //                 currentPurchaseOrder = parseInt(currentPurchaseOrder);
@@ -12774,7 +12549,7 @@ Template.frmpotemp.events({
         //     let templateObject = Template.instance();
         //     let suppliername = $('#edtSupplierName');
         //     let purchaseService = new PurchaseBoardService();
-        //     let termname = $('#sltTerms').val() || '';
+        //     let termname = $('#sltTerms_fromtransactionheader').val() || '';
         //     if (termname === '') {
         //         swal('Terms has not been selected!', '', 'warning');
         //         event.preventDefault();
@@ -12815,7 +12590,7 @@ Template.frmpotemp.events({
         //                             LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
         //                             CustomerJob: tdCustomerJob || '',
         //                             LineTaxCode: tdtaxCode || '',
-        //                             LineClassName: $('#sltDept').val() || defaultDept
+        //                             LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
         //                         }
         //                     };
         //                 } else {
@@ -12830,7 +12605,7 @@ Template.frmpotemp.events({
         //                                 LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
         //                                 CustomerJob: tdCustomerJob || '',
         //                                 LineTaxCode: tdtaxCode || '',
-        //                                 LineClassName: $('#sltDept').val() || defaultDept
+        //                                 LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
         //                             }
         //                         };
         //                     } else {
@@ -12844,7 +12619,7 @@ Template.frmpotemp.events({
         //                                 LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
         //                                 CustomerJob: tdCustomerJob || '',
         //                                 LineTaxCode: tdtaxCode || '',
-        //                                 LineClassName: $('#sltDept').val() || defaultDept
+        //                                 LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
         //                             }
         //                         };
 
@@ -12879,7 +12654,7 @@ Template.frmpotemp.events({
         //         let poNumber = $('#ponumber').val();
         //         let reference = $('#edtRef').val();
 
-        //         let departement = $('#shipvia').val();
+        //         let departement = $('#sltShipVia_fromtransactionheader').val();
         //         let shippingAddress = $('#txaShipingInfo').val();
         //         let comments = $('#txaComment').val();
         //         let pickingInfrmation = $('#txapickmemo').val();
@@ -12892,7 +12667,7 @@ Template.frmpotemp.events({
         //         var getso_id = url.split('?id=');
         //         var currentPurchaseOrder = getso_id[getso_id.length - 1];
 
-        //         var currencyCode = $("#sltCurrency").val() || CountryAbbr;
+        //         var currencyCode = $(".transheader >.sltCurrency").val() || CountryAbbr;
         //         var objDetails = '';
         //         if (getso_id[1]) {
         //             currentPurchaseOrder = parseInt(currentPurchaseOrder);
@@ -13542,7 +13317,7 @@ Template.frmpotemp.events({
         let tpobtnpayment = Template.instance();
         let purchaseService = new PurchaseBoardService();
         $('.fullScreenSpin').css('display', 'inline-block');
-        let termname = $('#sltTerms').val() || '';
+        let termname = $('#sltTerms_fromtransactionheader').val() || '';
         if (termname === '') {
             swal('Terms has not been selected!', '', 'warning');
             event.preventDefault();
@@ -13607,7 +13382,7 @@ Template.frmpotemp.events({
                                             LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                             CustomerJob: tdCustomerJob || '',
                                             LineTaxCode: tdtaxCode || '',
-                                            LineClassName: $('#sltDept').val() || defaultDept
+                                            LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                                         }
                                     };
                                 } else {
@@ -13622,7 +13397,7 @@ Template.frmpotemp.events({
                                                 LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                                 CustomerJob: tdCustomerJob || '',
                                                 LineTaxCode: tdtaxCode || '',
-                                                LineClassName: $('#sltDept').val() || defaultDept
+                                                LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                                             }
                                         };
                                     } else {
@@ -13636,7 +13411,7 @@ Template.frmpotemp.events({
                                                 LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                                 CustomerJob: tdCustomerJob || '',
                                                 LineTaxCode: tdtaxCode || '',
-                                                LineClassName: $('#sltDept').val() || defaultDept
+                                                LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                                             }
                                         };
 
@@ -13671,7 +13446,7 @@ Template.frmpotemp.events({
                         let poNumber = $('#ponumber').val();
                         let reference = $('#edtRef').val();
 
-                        let departement = $('#shipvia').val();
+                        let departement = $('#sltShipVia_fromtransactionheader').val();
                         let shippingAddress = $('#txaShipingInfo').val();
                         let comments = $('#txaComment').val();
                         let pickingInfrmation = $('#txapickmemo').val();
@@ -13685,7 +13460,7 @@ Template.frmpotemp.events({
                         var getso_id = url.split('?id=');
                         var currentPurchaseOrder = getso_id[getso_id.length - 1];
                         let uploadedItems = tpobtnpayment.uploadedFiles.get();
-                        var currencyCode = $("#sltCurrency").val() || CountryAbbr;
+                        var currencyCode = $(".transheader >.sltCurrency").val() || CountryAbbr;
                         var objDetails = '';
                         if (getso_id[1]) {
                             currentPurchaseOrder = parseInt(currentPurchaseOrder);
@@ -13710,7 +13485,7 @@ Template.frmpotemp.events({
                                         Comments: comments,
                                         SalesComments: pickingInfrmation,
                                         Attachments: uploadedItems,
-                                        OrderStatus: $('#sltStatus').val()
+                                        OrderStatus: $('#sltStatus_fromtransactionheader').val()
                                     }
                                 };
                             } else {
@@ -13734,7 +13509,7 @@ Template.frmpotemp.events({
                                         Comments: comments,
                                         SalesComments: pickingInfrmation,
                                         Attachments: uploadedItems,
-                                        OrderStatus: $('#sltStatus').val()
+                                        OrderStatus: $('#sltStatus_fromtransactionheader').val()
                                     }
                                 };
                             }
@@ -13760,7 +13535,7 @@ Template.frmpotemp.events({
 
                                     SalesComments: pickingInfrmation,
                                     Attachments: uploadedItems,
-                                    OrderStatus: $('#sltStatus').val()
+                                    OrderStatus: $('#sltStatus_fromtransactionheader').val()
                                 }
                             };
                         }
@@ -13877,7 +13652,7 @@ Template.frmpotemp.events({
 
                             let suppliername = $('#edtSupplierName');
                             let purchaseService = new PurchaseBoardService();
-                            let termname = $('#sltTerms').val() || '';
+                            let termname = $('#sltTerms_fromtransactionheader').val() || '';
                             if (termname === '') {
                                 swal('Terms has not been selected!', '', 'warning');
                                 event.preventDefault();
@@ -13919,7 +13694,7 @@ Template.frmpotemp.events({
                                                     LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                                     CustomerJob: tdCustomerJob || '',
                                                     LineTaxCode: tdtaxCode || '',
-                                                    LineClassName: $('#sltDept').val() || defaultDept
+                                                    LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                                                 }
                                             };
                                         } else {
@@ -13934,7 +13709,7 @@ Template.frmpotemp.events({
                                                         LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                                         CustomerJob: tdCustomerJob || '',
                                                         LineTaxCode: tdtaxCode || '',
-                                                        LineClassName: $('#sltDept').val() || defaultDept
+                                                        LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                                                     }
                                                 };
                                             } else {
@@ -13948,7 +13723,7 @@ Template.frmpotemp.events({
                                                         LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                                         CustomerJob: tdCustomerJob || '',
                                                         LineTaxCode: tdtaxCode || '',
-                                                        LineClassName: $('#sltDept').val() || defaultDept
+                                                        LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                                                     }
                                                 };
 
@@ -13983,7 +13758,7 @@ Template.frmpotemp.events({
                                 let poNumber = $('#ponumber').val();
                                 let reference = $('#edtRef').val();
 
-                                let departement = $('#shipvia').val();
+                                let departement = $('#sltShipVia_fromtransactionheader').val();
                                 let shippingAddress = $('#txaShipingInfo').val();
                                 let comments = $('#txaComment').val();
                                 let pickingInfrmation = $('#txapickmemo').val();
@@ -13997,7 +13772,7 @@ Template.frmpotemp.events({
                                 var getso_id = url.split('?id=');
                                 var currentPurchaseOrder = getso_id[getso_id.length - 1];
                                 let uploadedItems = tpobtnpayment.uploadedFiles.get();
-                                var currencyCode = $("#sltCurrency").val() || CountryAbbr;
+                                var currencyCode = $(".transheader >.sltCurrency").val() || CountryAbbr;
                                 var objDetails = '';
                                 if (getso_id[1]) {
                                     currentPurchaseOrder = parseInt(currentPurchaseOrder);
@@ -14022,7 +13797,7 @@ Template.frmpotemp.events({
                                                 Comments: comments,
                                                 SalesComments: pickingInfrmation,
                                                 Attachments: uploadedItems,
-                                                OrderStatus: $('#sltStatus').val()
+                                                OrderStatus: $('#sltStatus_fromtransactionheader').val()
                                             }
                                         };
                                     } else {
@@ -14046,7 +13821,7 @@ Template.frmpotemp.events({
                                                 Comments: comments,
                                                 SalesComments: pickingInfrmation,
                                                 Attachments: uploadedItems,
-                                                OrderStatus: $('#sltStatus').val()
+                                                OrderStatus: $('#sltStatus_fromtransactionheader').val()
                                             }
                                         };
                                     }
@@ -14072,7 +13847,7 @@ Template.frmpotemp.events({
 
                                             SalesComments: pickingInfrmation,
                                             Attachments: uploadedItems,
-                                            OrderStatus: $('#sltStatus').val()
+                                            OrderStatus: $('#sltStatus_fromtransactionheader').val()
                                         }
                                     };
                                 }
@@ -14196,7 +13971,7 @@ Template.frmpotemp.events({
 
                     let suppliername = $('#edtSupplierName');
                     let purchaseService = new PurchaseBoardService();
-                    let termname = $('#sltTerms').val() || '';
+                    let termname = $('#sltTerms_fromtransactionheader').val() || '';
                     if (termname === '') {
                         swal('Terms has not been selected!', '', 'warning');
                         event.preventDefault();
@@ -14238,7 +14013,7 @@ Template.frmpotemp.events({
                                             LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                             CustomerJob: tdCustomerJob || '',
                                             LineTaxCode: tdtaxCode || '',
-                                            LineClassName: $('#sltDept').val() || defaultDept
+                                            LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                                         }
                                     };
                                 } else {
@@ -14253,7 +14028,7 @@ Template.frmpotemp.events({
                                                 LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                                 CustomerJob: tdCustomerJob || '',
                                                 LineTaxCode: tdtaxCode || '',
-                                                LineClassName: $('#sltDept').val() || defaultDept
+                                                LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                                             }
                                         };
                                     } else {
@@ -14267,7 +14042,7 @@ Template.frmpotemp.events({
                                                 LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                                 CustomerJob: tdCustomerJob || '',
                                                 LineTaxCode: tdtaxCode || '',
-                                                LineClassName: $('#sltDept').val() || defaultDept
+                                                LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                                             }
                                         };
 
@@ -14302,7 +14077,7 @@ Template.frmpotemp.events({
                         let poNumber = $('#ponumber').val();
                         let reference = $('#edtRef').val();
 
-                        let departement = $('#shipvia').val();
+                        let departement = $('#sltShipVia_fromtransactionheader').val();
                         let shippingAddress = $('#txaShipingInfo').val();
                         let comments = $('#txaComment').val();
                         let pickingInfrmation = $('#txapickmemo').val();
@@ -14316,7 +14091,7 @@ Template.frmpotemp.events({
                         var getso_id = url.split('?id=');
                         var currentPurchaseOrder = getso_id[getso_id.length - 1];
                         let uploadedItems = tpobtnpayment.uploadedFiles.get();
-                        var currencyCode = $("#sltCurrency").val() || CountryAbbr;
+                        var currencyCode = $(".transheader >.sltCurrency").val() || CountryAbbr;
                         var objDetails = '';
                         if (getso_id[1]) {
                             currentPurchaseOrder = parseInt(currentPurchaseOrder);
@@ -14341,7 +14116,7 @@ Template.frmpotemp.events({
                                         Comments: comments,
                                         SalesComments: pickingInfrmation,
                                         Attachments: uploadedItems,
-                                        OrderStatus: $('#sltStatus').val()
+                                        OrderStatus: $('#sltStatus_fromtransactionheader').val()
                                     }
                                 };
                             } else {
@@ -14365,7 +14140,7 @@ Template.frmpotemp.events({
                                         Comments: comments,
                                         SalesComments: pickingInfrmation,
                                         Attachments: uploadedItems,
-                                        OrderStatus: $('#sltStatus').val()
+                                        OrderStatus: $('#sltStatus_fromtransactionheader').val()
                                     }
                                 };
                             }
@@ -14391,7 +14166,7 @@ Template.frmpotemp.events({
 
                                     SalesComments: pickingInfrmation,
                                     Attachments: uploadedItems,
-                                    OrderStatus: $('#sltStatus').val()
+                                    OrderStatus: $('#sltStatus_fromtransactionheader').val()
                                 }
                             };
                         }
@@ -14513,7 +14288,7 @@ Template.frmpotemp.events({
 
                 let suppliername = $('#edtSupplierName');
                 let purchaseService = new PurchaseBoardService();
-                let termname = $('#sltTerms').val() || '';
+                let termname = $('#sltTerms_fromtransactionheader').val() || '';
                 if (termname === '') {
                     swal('Terms has not been selected!', '', 'warning');
                     event.preventDefault();
@@ -14555,7 +14330,7 @@ Template.frmpotemp.events({
                                         LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                         CustomerJob: tdCustomerJob || '',
                                         LineTaxCode: tdtaxCode || '',
-                                        LineClassName: $('#sltDept').val() || defaultDept
+                                        LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                                     }
                                 };
                             } else {
@@ -14570,7 +14345,7 @@ Template.frmpotemp.events({
                                             LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                             CustomerJob: tdCustomerJob || '',
                                             LineTaxCode: tdtaxCode || '',
-                                            LineClassName: $('#sltDept').val() || defaultDept
+                                            LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                                         }
                                     };
                                 } else {
@@ -14584,7 +14359,7 @@ Template.frmpotemp.events({
                                             LineCost: Number(tdunitprice.replace(/[^0-9.-]+/g, "")) || 0,
                                             CustomerJob: tdCustomerJob || '',
                                             LineTaxCode: tdtaxCode || '',
-                                            LineClassName: $('#sltDept').val() || defaultDept
+                                            LineClassName: $('#sltDept_fromtransactionheader').val() || defaultDept
                                         }
                                     };
 
@@ -14619,7 +14394,7 @@ Template.frmpotemp.events({
                     let poNumber = $('#ponumber').val();
                     let reference = $('#edtRef').val();
 
-                    let departement = $('#shipvia').val();
+                    let departement = $('#sltShipVia_fromtransactionheader').val();
                     let shippingAddress = $('#txaShipingInfo').val();
                     let comments = $('#txaComment').val();
                     let pickingInfrmation = $('#txapickmemo').val();
@@ -14633,7 +14408,7 @@ Template.frmpotemp.events({
                     var getso_id = url.split('?id=');
                     var currentPurchaseOrder = getso_id[getso_id.length - 1];
                     let uploadedItems = tpobtnpayment.uploadedFiles.get();
-                    var currencyCode = $("#sltCurrency").val() || CountryAbbr;
+                    var currencyCode = $(".transheader >.sltCurrency").val() || CountryAbbr;
                     var objDetails = '';
                     if (getso_id[1]) {
                         currentPurchaseOrder = parseInt(currentPurchaseOrder);
@@ -14658,7 +14433,7 @@ Template.frmpotemp.events({
                                     Comments: comments,
                                     SalesComments: pickingInfrmation,
                                     Attachments: uploadedItems,
-                                    OrderStatus: $('#sltStatus').val()
+                                    OrderStatus: $('#sltStatus_fromtransactionheader').val()
                                 }
                             };
                         } else {
@@ -14682,7 +14457,7 @@ Template.frmpotemp.events({
                                     Comments: comments,
                                     SalesComments: pickingInfrmation,
                                     Attachments: uploadedItems,
-                                    OrderStatus: $('#sltStatus').val()
+                                    OrderStatus: $('#sltStatus_fromtransactionheader').val()
                                 }
                             };
                         }
@@ -14708,7 +14483,7 @@ Template.frmpotemp.events({
 
                                 SalesComments: pickingInfrmation,
                                 Attachments: uploadedItems,
-                                OrderStatus: $('#sltStatus').val()
+                                OrderStatus: $('#sltStatus_fromtransactionheader').val()
                             }
                         };
                     }
@@ -15236,8 +15011,8 @@ Template.frmpotemp.events({
     //     $("#clickedControl").val("three");
     // },
 
-    // 'change #sltCurrency': (e, ui) => {
-    //     if ($("#sltCurrency").val() && $("#sltCurrency").val() != defaultCurrencyCode) {
+    // 'change .transheader >.sltCurrency': (e, ui) => {
+    //     if ($(".transheader >.sltCurrency").val() && $(".transheader >.sltCurrency").val() != defaultCurrencyCode) {
     //         $(".foreign-currency-js").css("display", "block");
     //         ui.isForeignEnabled.set(true);
     //         FxGlobalFunctions.toggleVisbilityOfValuesToConvert(true);

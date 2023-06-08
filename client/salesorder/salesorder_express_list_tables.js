@@ -20,6 +20,20 @@ Template.salesorderslist.onCreated(function(){
     templateObject.displayfields = new ReactiveVar([]);
     templateObject.reset_data = new ReactiveVar([]);
     templateObject.convertedStatus = new ReactiveVar();
+    templateObject.temporaryfiles = new ReactiveVar([]);
+
+    getVS1Data('TSalesOrderTemp').then(function(dataObject) {
+      if(dataObject.length == 0) {
+      } else {
+        let data = JSON.parse(dataObject[0].data);
+        let useData = data.tsalesordertemp;
+        if(useData.length > 0) {
+            templateObject.temporaryfiles.set(useData);
+          $(".btnRefresh").addClass("btnRefreshAlert");
+        }
+      }
+    })
+
 
     templateObject.getDataTableList = function(data){
       let totalAmountEx = utilityService.modifynegativeCurrencyFormat(data.TotalAmount)|| 0.00;
@@ -1539,8 +1553,41 @@ Template.salesorderslist.events({
   //     $('.fullScreenSpin').css('display','none');
   //   }, delayTimeAfterSound);
   // },
-  'click .btnRefresh': function () {
+  'click .btnRefresh': async function () {
       $('.fullScreenSpin').css('display','inline-block');
+
+      let templateObject = Template.instance();
+      let salesService = new SalesBoardService()
+      let tempfiles = templateObject.temporaryfiles.get()
+      async function sendPostRequest  () {
+        return new Promise((resolve, reject) => {
+          for(let i=0; i< tempfiles.length; i++) {
+            // return
+            salesService.saveSalesOrderEx(tempfiles[i]).then(function() {
+              let newTemp = tempfiles.slice(i+1, tempfiles.length);
+              addVS1Data('TSalesOrderTemp', JSON.stringify({tsalesordertemp: newTemp})).then(function() {
+                if(i == tempfiles.length -1) {
+                  resolve()
+                }
+              })
+            }).catch(function(e) {
+              resolve();
+            })
+          }
+        })
+      }
+      if(tempfiles&&tempfiles.length) {
+        await sendPostRequest();
+      }
+      getVS1Data('TSalesOrderTemp').then(function(dataObject) {
+        if(dataObject.length ==0) {
+          $('.btnRefresh').removeClass('btnRefreshAlert');
+        } else {
+        }
+      }).catch(function(e) {
+        $('.btnRefresh').removeClass('btnRefreshAlert');
+      })
+
       var currentBeginDate = new Date();
      var begunDate = moment(currentBeginDate).format("DD/MM/YYYY");
      let fromDateMonth = (currentBeginDate.getMonth() + 1);
@@ -1556,7 +1603,6 @@ Template.salesorderslist.events({
      }
      var toDate = currentBeginDate.getFullYear()+ "-" +(fromDateMonth) + "-"+(fromDateDay);
      let prevMonth11Date = (moment().subtract(reportsloadMonths, 'months')).format("YYYY-MM-DD");
-      let templateObject = Template.instance();
 
       sideBarService.getAllSalesOrderList(initialDataLoad,0).then(function(data) {
           addVS1Data('TSalesOrderEx',JSON.stringify(data)).then(function (datareturn) {

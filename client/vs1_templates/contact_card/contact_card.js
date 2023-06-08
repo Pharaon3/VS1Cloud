@@ -1838,7 +1838,7 @@ Template.contact_card.onRendered(function () {
         $(".editTaskDetailName").val($("#tblCustomerCrmListWithDate tbody .dnd-moved .colTaskName").html());
         $(".editTaskDetailDescription").val($("#tblCustomerCrmListWithDate tbody .dnd-moved .colTaskDesc").html());
         $("#taskmodalDuedate").val($("#tblCustomerCrmListWithDate tbody .dnd-moved #completeDate").val());
-        $("#taskDetailModal").modal("toggle");
+        $("#taskDetailModal_contact_card").modal("toggle");
     });
 
     $(document).on("change", ".editTaskDetailName, .editTaskDetailDescription, #taskmodalDuedate", function (e) {
@@ -3401,7 +3401,7 @@ Template.contact_card.events({
                     $("#chkPriorityAdd2").prop("checked", false);
                     $("#chkPriorityAdd3").prop("checked", false);
 
-                    $("#newTaskModal").modal("hide");
+                    $("#newTaskModal_contact_card").modal("hide");
                     if (subTaskID) {
                         crmService.getTaskDetail(subTaskID).then(function (data) {
                             $(".fullScreenSpin").css("display", "none");
@@ -4237,7 +4237,7 @@ function openEditTaskModals(id, type) {
                         "task_modal_priority_" + selected_record.priority
                     );
 
-                    $("#taskDetailModal").modal("toggle");
+                    $("#taskDetailModal_contact_card").modal("toggle");
 
                     $(".crmDatepicker").datepicker({
                         showOn: "button",

@@ -367,6 +367,8 @@ import './popUps/cust_field_popup.js';
 import './popUps/adddeliverypop.js';
 import './popUps/custfielddroppop.js';
 import './vs1_templates/transaction_temp/transaction_header/components/cust_fields.html';
+import './inventory/productlistpopfortransaction.js';
+import './inventory/productviewfortransaction.js';
 /* Temp files */
 import './purchase/new_po_temp.js';
 import './credit/new_credit_temp.js';
@@ -376,6 +378,10 @@ import './bills/new_bill_temp.js';
 import './salesorder/new_salesorder_temp.js';
 import './refunds/new_refund_temp.js'; 
 import './quote/new_quote_temp.js';
+
+import './manufacture/new_workorder_temp.js';
+import './journalEntry/frm_journalentry_temp.js'
+
 /* Jeyhun */
 
 /* DevTop/Dev Pioneer */
@@ -626,6 +632,7 @@ import './expenseclaim/expenseclaims.html';
 import './packages/currency/editcurrencypop.js';
 import '../public/js/tree.jquery.js';
 import '../public/js/summernote.min.js';
+import './reports/balancesheet/bsEditLayoutScreenModal.js';
 /* Stefan */
 
 /* Arthlo */
@@ -722,7 +729,6 @@ import './settings/tax-rates-setting/taxratelistpopwithswitch.js';
 /* Pablo Begin */ 
 import './overviews/deliveryoverview.js';
 import './driver/drivervehiclelist.js';
-import './driver/depotlist.js';
 import './driver/addDriverVehicle.js';
 import './fixedassets/vehiclelist.js';
 import './fixedassets/components/assetcostlist/assetcostlist.js';
@@ -731,6 +737,10 @@ import './driver/drivervehiclelistpop/drivervehiclelistpop.js';
 import './vs1charts/deliverychart/averagecostchart.js';
 import './vs1charts/allCardsLists/deliveryoverviewcards/deliveryoverviewcards.js';
 import './vs1charts/allCardsLists/deliveryoverviewcards/costcard.js';
+import './driver/depotlist.js';
+import './driver/adddepot.js';
+import './contacts/licenselistpop/licenselistpop.js';
+import './contacts/licenselistpop/permitlistpop.js';
 /* Pablo End */
 
 /* Samet */
@@ -747,6 +757,11 @@ import './inventory/inventorypopups/RecentTransactionPopUp.js';
 /* Denys */
 import './delivery/optimize_map.js';
 /* Denys */
+
+/* Luoie */
+import './vs1_templates/barcode/barcodebutton.js';
+import './vs1_templates/barcode/barcodepopup.html';
+/* Luoie */
 
 //import { FlowRouter } from 'meteor/kadira:flow-router';
 import { BlazeLayout } from 'meteor/kadira:blaze-layout';

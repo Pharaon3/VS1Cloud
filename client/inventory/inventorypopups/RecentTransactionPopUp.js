@@ -26,8 +26,6 @@ Template.recentTransactionPopUp.onCreated(function () {
 
 
   templateObject.getDataTableList = function(data) {
-    if(!data.TranstypeDesc)
-    return [];
     var dataList = [
         data.Id,
         data.TransactionDate != ""
@@ -86,13 +84,13 @@ Template.recentTransactionPopUp.helpers({
   salesCloudPreferenceRec: () => {
     return CloudPreference.findOne({
       userid: localStorage.getItem("mycloudLogonID"),
-      PrefName: "productrecentlist",
+      PrefName: "productrecentlist1",
     });
   },
   productsCloudPreferenceRec: () => {
     return CloudPreference.findOne({
       userid: localStorage.getItem("mycloudLogonID"),
-      PrefName: "productrecentlist",
+      PrefName: "productrecentlist1",
     });
   },
   recentTrasactions: () => {
@@ -146,8 +144,8 @@ Template.recentTransactionPopUp.helpers({
   },
 
   service: ()=>{
-    let sideBarService = new SideBarService();
-    return sideBarService;
+    let productService = new ProductService();
+    return productService;
 
   },
 
@@ -168,7 +166,7 @@ Template.recentTransactionPopUp.helpers({
   },
 
   apiParams: function() {
-    return ['limitCount', 'limitFrom', 'deleteFilter'];
+    return ['limitCount', 'limitFrom', 'productID','deleteFilter'];
   },
 //   tablename: () => {
 //     let templateObject = Template.instance();

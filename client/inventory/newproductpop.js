@@ -3275,65 +3275,151 @@ Template.newproductpop.events({
       );
     }
   },
-  "click .btnDeleteInv": function (event) {
+  "click .btnDeleteProd": function () {
     playDeleteAudio();
-    let templateObject = Template.instance();
     let productService = new ProductService();
     setTimeout(function(){
+      swal({
+        title: "Delete Product",
+        text: "Do you want to delete this Product?",
+        type: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+      }).then((result) => {
+        if (result.value) {
+          $(".fullScreenSpin").css("display", "inline-block");
 
-    swal({
-      title: "Delete Product",
-      text: "Do you want to delete this Product?",
-      type: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes",
-      cancelButtonText: "No",
-    }).then((result) => {
-      if (result.value) {
-        $(".fullScreenSpin").css("display", "inline-block");
+          var getprod_id = $("#selectProductID").val();
+          var currentProduct = getprod_id;
+          var objDetails = "";
+          if (getprod_id != "") {
+            currentProduct = parseInt(currentProduct);
+            var objDetails = {
+              type: "TProduct",
+              fields: {
+                ID: currentProduct,
+                Active: false,
+                PublishOnVS1: false,
+              },
+            };
 
-        var getprod_id = $("#selectProductID").val();
-        var currentProduct = getprod_id;
-        var objDetails = "";
-        if (getprod_id != "") {
-          currentProduct = parseInt(currentProduct);
-          var objDetails = {
-            type: "TProduct",
-            fields: {
-              ID: currentProduct,
-              Active: "True",
-              PublishOnVS1: false,
-            },
-          };
-
-          productService
-            .saveProduct(objDetails)
-            .then(function (objDetails) {
-              location.reload();
-            })
-            .catch(function (err) {
-              swal({
-                title: "Oooops...",
-                text: err,
-                type: "error",
-                showCancelButton: false,
-                confirmButtonText: "Try Again",
-              }).then((result) => {
-                if (result.value) {
-                  Meteor._reload.reload();
-                } else if (result.dismiss === "cancel") {
-                }
+            productService
+              .saveProduct(objDetails)
+              .then(function (data) {
+                sideBarService
+                  .getProductListVS1(initialBaseDataLoad, 0)
+                  .then(function (dataProdList) {
+                    addVS1Data("TProductQtyList", JSON.stringify(dataProdList))
+                      .then(function (datareturn) {
+                        location.reload(true);
+                      })
+                      .catch(function (err) {
+                        $(".fullScreenSpin").css("display", "none");
+                      });
+                  })
+                  .catch(function (err) {
+                    $(".fullScreenSpin").css("display", "none");
+                  });
+              })
+              .catch(function (err) {
+                swal({
+                  title: "Oooops...",
+                  text: err,
+                  type: "error",
+                  showCancelButton: false,
+                  confirmButtonText: "Try Again",
+                }).then((result) => {
+                  if (result.value) {
+                    location.reload(true);
+                  } else if (result.dismiss === "cancel") {
+                    $(".fullScreenSpin").css("display", "none");
+                  }
+                });
               });
-            });
+          } else {
+            location.reload(true);
+          }
+        } else if (result.dismiss === "cancel") {
+          $(".fullScreenSpin").css("display", "none");
         } else {
-          location.reload();
+          $(".fullScreenSpin").css("display", "none");
         }
-      } else if (result.dismiss === "cancel") {
-        window.open("/inventorylist", "_self");
-      } else {
-      }
-    });
-  }, delayTimeAfterSound);
+      });
+    }, delayTimeAfterSound);
+  },
+  "click .btnActiveProd": function () {
+    playDeleteAudio();
+    let productService = new ProductService();
+    setTimeout(function(){
+      swal({
+        title: "Active Product",
+        text: "Do you want to active this Product?",
+        type: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+      }).then((result) => {
+        if (result.value) {
+          $(".fullScreenSpin").css("display", "inline-block");
+
+          var getprod_id = $("#selectProductID").val();
+          var currentProduct = getprod_id;
+          var objDetails = "";
+          if (getprod_id != "") {
+            currentProduct = parseInt(currentProduct);
+            var objDetails = {
+              type: "TProduct",
+              fields: {
+                ID: currentProduct,
+                Active: true,
+                PublishOnVS1: true,
+              },
+            };
+
+            productService
+              .saveProduct(objDetails)
+              .then(function (data) {
+                sideBarService
+                  .getProductListVS1(initialBaseDataLoad, 0)
+                  .then(function (dataProdList) {
+                    addVS1Data("TProductQtyList", JSON.stringify(dataProdList))
+                      .then(function (datareturn) {
+                        location.reload(true);
+                      })
+                      .catch(function (err) {
+                        $(".fullScreenSpin").css("display", "none");
+                      });
+                  })
+                  .catch(function (err) {
+                    $(".fullScreenSpin").css("display", "none");
+                  });
+              })
+              .catch(function (err) {
+                swal({
+                  title: "Oooops...",
+                  text: err,
+                  type: "error",
+                  showCancelButton: false,
+                  confirmButtonText: "Try Again",
+                }).then((result) => {
+                  if (result.value) {
+                    location.reload(true);
+                  } else if (result.dismiss === "cancel") {
+                    $(".fullScreenSpin").css("display", "none");
+                  }
+                });
+              });
+          } else {
+            location.reload(true);
+          }
+        } else if (result.dismiss === "cancel") {
+          $(".fullScreenSpin").css("display", "none");
+        } else {
+          $(".fullScreenSpin").css("display", "none");
+        }
+      });
+    }, delayTimeAfterSound);
   },
   "click .btnUpgradeToEssentials": function (event) {
     window.open("/companyappsettings", "_self");

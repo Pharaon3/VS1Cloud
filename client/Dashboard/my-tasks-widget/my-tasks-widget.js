@@ -658,7 +658,7 @@ Template.myTasksWidget.events({
         openEditTaskModal(task_id, taskName, description, contact, projectname, duedate);
     },
     "click .btnAddSubTask": function (event) {
-        $("#newTaskModal").modal("toggle");
+        $("#newTaskModal_001").modal("toggle");
     },
     // update task rename task
     "click .btnSaveEditTask": function (e) {
@@ -828,7 +828,7 @@ Template.myTasksWidget.events({
                     //   templateObject.getAllTaskList();
                     //   templateObject.getTProjectList();
                     // }, 500);
-                    $("#newTaskModal").modal("hide");
+                    $("#newTaskModal_001").modal("hide");
                     // $("#newProjectTasksModal").modal("hide");
                     if (subTaskID) {
                         crmService.getTaskDetail(subTaskID).then(function (data) {
@@ -935,13 +935,13 @@ function openEditTaskModal(id, taskName, description, contact, projectName, dued
     $("#taskmodalDuedate").val(duedate);
 
 
-    $("#taskDetailModal").modal("toggle");
+    $("#taskDetailModal_001").modal("toggle");
 
     // setTimeout(() => {
     //     $(".openEditTaskModal").find("[data-id='" + id + "']").trigger("click");
 
 
-    //     $('#taskDetailModal').on('hidden.bs.modal', function (e) {
+    //     $('#taskDetailModal_001').on('hidden.bs.modal', function (e) {
     //         history.back(1);
     //     });
     // }, 2000);
@@ -1318,7 +1318,7 @@ function openEditTaskModal(id, taskName, description, contact, projectName, dued
     //         $(".taskModalActionFlagDropdown").addClass(
     //             "task_modal_priority_" + selected_record.priority
     //         );
-    //         $("#taskDetailModal").modal("toggle");
+    //         $("#taskDetailModal_001").modal("toggle");
 
     //         $(".crmDatepicker").datepicker({
     //             showOn: "button",

@@ -470,7 +470,7 @@
                                                                 data=item.productname
                                                                 type='search'
                                                                 classes = 'lineProductName'
-                                                                id= (generateLineProductSelectId (item.productid) (item.productcost))
+                                                                id= (concat 'lineProductName' item.lineID)
                                                                 name='product-list'
                                                                 modalId= (concat "productServicePopModal" item.lineID)
                                                                 list_template_name='productlistpop'
@@ -479,11 +479,16 @@
                                                                 colNameForValue = 'colproductName'
                                                                 is_editable=true
                                                                 noBorder=true
-                                                                custid=(concat "dropdown_products" item.lineID)
+                                                                custid=(concat 'pro' item.lineID)
                                                         }}
                                                     </td>
                                                     <td contenteditable="false" class="colBarcodeScanner" style="border-left: 0px;">
-                                                        <button type="button" class="btn btn-sm btn-success" id="tdBarcodeScannerMobile" data-toggle="modal" data-target="#scanBarcodeModal"><i class="fas fa-camera"></i></button>
+<!--                                                        <button type="button" class="btn btn-sm btn-success" id="tdBarcodeScannerMobile" data-toggle="modal" data-target="#scanBarcodeModal"><i class="fas fa-camera"></i></button>-->
+                                                        {{> barcodebutton
+                                                            type="transaction"
+                                                            cust_id=item.lineID
+                                                            targetClass="lineProductBarCode"
+                                                        }}
                                                     </td>
                                                     <td contenteditable="true" class="lineProductBarCode colProductBarCode">{{item.productbarcode}}</td>
                                                     <td contenteditable="true" class="lineDescription colDescription">{{item.description}}</td>
@@ -501,7 +506,7 @@
                                                                 colNameForValue = 'colDeptClassName'
                                                                 is_editable=true
                                                                 noBorder=true
-                                                                custid=(concat "dropdown_depart" item.lineID)
+                                                                custid=item.lineID
                                                         }}
                                                     </td>
                                                     {{#if equals productcost true}}
@@ -546,7 +551,13 @@
                                     <div class="d-xl-flex justify-content-xl-center">
                                         <div align="left" style="width:100%;">
                                             <button class="btn btn-primary" type="button" id="addRow" style="margin: 12px;">+ Add New Entry</button>
-                                            <button class="btn btn-success scanNewRowMobile" type="button" id="scanNewRowMobile" data-toggle="modal" data-target="#scanBarcodeModal" style="margin: 12px;">+ Scan New Entry</button>
+<!--                                            <button class="btn btn-success scanNewRowMobile" type="button" id="scanNewRowMobile" data-toggle="modal" data-target="#scanBarcodeModal" style="margin: 12px;">+ Scan New Entry</button>-->
+                                            {{> barcodebutton
+                                                cust_id="scanNewRowMobile"
+                                                type="newTransaction"
+                                                targetClass="lineProductBarCode"
+                                                targetTable="tblStockAdjustmentLine"
+                                            }}
                                             <!--<button class="btn btn-primary" type="button" id="" style="margin: 16px;">Clear All Lines</button>-->
                                         </div>
                                     </div>
@@ -729,62 +740,7 @@
     <!-- End Help Video Modal -->
 
     <div class="modal fade" role="dialog" tabindex="-1" id="scanBarcodeModal">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Barcode Scanner</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row mb-2">
-                        <div class="col-12">
-                            <div class="input-group">
-                                <input class="form-control" id="scanBarcodeModalInput" name="scanBarcodeModalInput" type="text" placeholder="Enter the barcode">
-                                <style>
-                                    .btnWhite {
-                                        color: #fff !importnat;
-                                    }
-                                </style>
-                                <div class="input-group-append">
-                                    <a class="btn btn-success btnWhite save_new" id="newsnbtn" role="button" style="border-top-right-radius: 0.35rem; border-bottom-right-radius: 0.35rem;"><i class="fas fa-search"
-                                            style="color: #fff !important;"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <style>
-                        #qr-reader>div:first-of-type {
-                            display: none !important;
-                        }
-
-                        #qr-reader__dashboard_section_swaplink {
-                            display: none !important;
-                        }
-
-                        #qr-reader__dashboard_section_csr>div>button:first-of-type {
-                            color: #fff !important;
-                            background-color: #00a3d3 !important;
-                            border-color: #00a3d3 !important;
-                            border: 1px solid transparent;
-                            display: inline-block !important;
-                            font-weight: 400 !important;
-                            text-align: center !important;
-                            vertical-align: middle !important;
-                            padding: .375rem .75rem !important;
-                            font-size: 1rem !important;
-                            line-height: 1.5 !important;
-                            border-radius: .35rem !important;
-                            transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-                        }
-                    </style>
-                    <!-- <div id="reader" style="width: 100%"></div> -->
-                    <div class="scanBarcodeModalHidden" id="scanBarcodeModalHidden">
-                        <div id="qr-reader" style="width:100%"></div>
-                    </div>
-                </div>
-                <div class="modal-footer"><button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button></div>
-            </div>
-        </div>
+        {{> barcodepopup}}
     </div>
     <script>
         modalDraggable();

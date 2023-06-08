@@ -99,7 +99,7 @@ export default class ChartHandler {
           // ChartHeight: ChartHandler.calculateHeight(chart),
         },
       })
-    })  
+    })
 
     // for (const _chart of chartList) {
     let chartJSON = {
@@ -159,7 +159,7 @@ export default class ChartHandler {
     const dashboardApis = new DashboardApi();
 
     const dashboardPreferencesEndpoint = dashboardApis.collection.findByName(
-      dashboardApis.collectionNames.vs1charts
+      dashboardApis.collectionNames.Tvs1dashboardpreferences
     );
 
     dashboardPreferencesEndpoint.url.searchParams.append(
@@ -167,10 +167,10 @@ export default class ChartHandler {
       "'Detail'"
     );
 
-    // dashboardPreferencesEndpoint.url.searchParams.append(
-    //   "select",
-    //   `[employeeID]=${employeeId}`
-    // );
+    dashboardPreferencesEndpoint.url.searchParams.append(
+      "select",
+      `[employeeID]=${employeeId}`
+    );
 
     const dashboardPreferencesEndpointResponse = await dashboardPreferencesEndpoint.fetch(); // here i should get from database all charts to be displayed
     let dashboardPreferencesEndpointJsonResponse = {};
@@ -178,7 +178,7 @@ export default class ChartHandler {
       dashboardPreferencesEndpointJsonResponse = await dashboardPreferencesEndpointResponse.json();
     }
 
-    await addVS1Data('Tvs1charts', JSON.stringify(dashboardPreferencesEndpointJsonResponse))
+    await addVS1Data('Tvs1dashboardpreferences', JSON.stringify(dashboardPreferencesEndpointJsonResponse))
     return true
   }
 

@@ -3178,6 +3178,7 @@ Template.accountsoverview.helpers({
     },
 
     apiParams: function() {
-        return ["limitCount", "limitFrom", "deleteFilter", "typeFilter", "useReceiptClaim"];
+        return ["limitCount", "limitFrom", "deleteFilter", "typeFilter", ""];
+        //return ["limitCount", "limitFrom", "deleteFilter", "typeFilter", "useReceiptClaim"];
     },
 });

@@ -82,4 +82,30 @@ export class FixedAssetService extends BaseService {
     };
     return this.getList(this.ERPObjects.TCostTypes, options);
   }
+
+  getAssetCostReportList(limitCount, limitFrom, deleteFilter) {
+    return new Promise(function(resolve, reject) {
+      const defaultDashboardOptions = require("./assetCostReportList.json");
+      if (!deleteFilter) {
+        let active_dashboardOptions = [];
+        for (let i = 0; i < defaultDashboardOptions.length; i++) {
+          if (defaultDashboardOptions[i].Active) {
+            active_dashboardOptions.push(defaultDashboardOptions[i]);
+          }
+        }
+        resolve({"tcostreport" : active_dashboardOptions,
+        Params: {
+          Search: "Active = true"
+        }
+      });
+      } else {
+        resolve({
+          "tcostreport" : defaultDashboardOptions,
+          Params: {
+            Search: ""
+          }
+        });
+      }
+    });
+  }
 }

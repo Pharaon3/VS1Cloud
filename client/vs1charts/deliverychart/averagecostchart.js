@@ -1,5 +1,5 @@
 import "../../lib/global/indexdbstorage.js";
-import { CRMService } from "../../crm/crm-service.js";
+import { DeliveryService } from "../../overviews/delivery-service.js";
 
 import { Template } from 'meteor/templating';
 import './averagecostchart.html';
@@ -187,17 +187,20 @@ Template.averagecostchart.onRendered(() => {
   };
 
   templateObject.getDataFromAPI = function() {
-    let crmService = new CRMService();
-    let fromDate = moment($("#dateFrom").val(), "DD/MM/YYYY").format("YYYY-MM-DD");
-    let toDate = moment($("#dateTo").val(), "DD/MM/YYYY").format("YYYY-MM-DD");
-    crmService.getAllLeadCharts(fromDate, toDate).then(function (data) {
-      addVS1Data("Taveragecostchart", JSON.stringify(data));
+    let deliveryService = new DeliveryService();
+    deliveryService.getOperatingCostReport().then(function (data) {
+      addVS1Data("Tdeliverychart", JSON.stringify(data));
       templateObject.setLeadChartData(data);
+    }).catch(function (err) {
+      deliveryService.getOperatingCostReport1().then(function (data) {
+        addVS1Data("Tdeliverychart", JSON.stringify(data));
+        templateObject.setLeadChartData(data);
+      });
     });
   }
 
   templateObject.getLeadBarChartData = function () {
-    getVS1Data("Taveragecostchart").then(function (dataObject) {
+    getVS1Data("Tdeliverychart").then(function (dataObject) {
       if (dataObject.length) {
         let data = JSON.parse(dataObject[0].data);
         templateObject.setLeadChartData(data);
@@ -212,55 +215,14 @@ Template.averagecostchart.onRendered(() => {
   templateObject.setLeadChartData = async function (data) {
     let bar_records = [];
     let pie_records = [];
-    // if (data.tprospect.length) {
-
-    //   let accountData = data.tprospect;
-    //   for (let i = 0; i < accountData.length; i++) {
-    //     let recordObj = {};
-    //     recordObj.Id = data.tprospect[i].Id;
-    //     CreationDate = data.tprospect[i].CreationDate ? data.tprospect[i].CreationDate.substr(0, 10) : "";
-
-    //     recordObj.CreationDateSort = CreationDate ? CreationDate : "-";
-    //     recordObj.CreationDate = CreationDate ? getModdayOfCurrentWeek(CreationDate) + "~" : "-";
-    //     bar_records.push(recordObj);
-
-    //     let pieRecordObj = {};
-    //     pieRecordObj.Id = data.tprospect[i].Id;
-    //     pieRecordObj.SourceName = data.tprospect[i].SourceName ? data.tprospect[i].SourceName : "-";
-    //     pie_records.push(pieRecordObj);
-    //   }
-
-    //   bar_records = _.sortBy(bar_records, 'CreationDateSort');
-    //   bar_records = await _.groupBy(bar_records, 'CreationDate');
-
-    //   pie_records = _.sortBy(pie_records, 'SourceName');
-    //   pie_records = await _.groupBy(pie_records, 'SourceName');
-
-    // } else {
-    //   let recordObj = {};
-    //   recordObj.Id = '';
-    //   recordObj.CreationDate = '-';
-
-    //   let pieRecordObj = {};
-    //   pieRecordObj.Id = '';
-    //   pieRecordObj.SourceName = '-';
-
-    //   await bar_records.push(recordObj);
-    //   await pie_records.push(pieRecordObj);
-    // }
-
-    pie_records = {
-      "Total Cost": 37333.11,
-      "Fuel Cost": 9352.14,
-      "Service Cost": 1124.34
-    }
-    bar_records = {
-      "Total Cost": 37333.11,
-      "Fuel Cost": 9352.14,
-      "Service Cost": 1124.34
-    }
+    const averageData = data.tdeliverychart[0].data;
+    pie_records = averageData;
+    bar_records = averageData;
      drawBarChart(bar_records);
      drawPieChart(pie_records);
+     $(".totalCost").text("$" + averageData["Total Cost"]);
+     $(".fuelCost").text("$" + averageData["Fuel Cost"]);
+     $(".serviceCost").text("$" + averageData["Service Cost"]);
   };
 
   templateObject.drawChart = function() {

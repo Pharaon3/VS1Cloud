@@ -12,6 +12,7 @@ import './credit_list.html';
 import { FlowRouter } from 'meteor/ostrio:flow-router-extra';
 
 let sideBarService = new SideBarService();
+let purchaseService = new PurchaseBoardService();
 let utilityService = new UtilityService();
 Template.creditlist.onCreated(function(){
     const templateObject = Template.instance();
@@ -20,6 +21,7 @@ Template.creditlist.onCreated(function(){
     templateObject.custfields = new ReactiveVar([]);
     templateObject.displayfields = new ReactiveVar([]);
     templateObject.reset_data = new ReactiveVar([]);
+    templateObject.temporaryfiles = new ReactiveVar([]);
 
     templateObject.getDataTableList = function(data) {
         let totalAmountEx = utilityService.modifynegativeCurrencyFormat(data.TotalAmount)|| 0.00;
@@ -65,6 +67,18 @@ Template.creditlist.onCreated(function(){
         { index: 10, label: "Status", class: "colStatus", active: true, display: true, width: "120" },
     ];
     templateObject.tableheaderrecords.set(headerStructure);
+
+    getVS1Data('TCreditTemp').then(function(dataObject) {
+        if(dataObject.length == 0) {
+        } else {
+          let data = JSON.parse(dataObject[0].data);
+          let useData = data.tcredittemp;
+          if(useData.length > 0) {
+              templateObject.temporaryfiles.set(useData);
+            $(".btnRefresh").addClass("btnRefreshAlert");
+          }
+        }
+    })
 });
 
 Template.creditlist.onRendered(function() {
@@ -88,99 +102,172 @@ Template.creditlist.events({
     'click #btnNewCredit':function(event){
         FlowRouter.go('/creditcard');
     },
-    'click .btnRefresh': function () {
-        $('.fullScreenSpin').css('display','inline-block');
+    'click .btnRefresh': async function () {
+        $(".fullScreenSpin").css("display", "inline-block");
+
+        let templateObject = Template.instance();
+        let tempfiles = templateObject.temporaryfiles.get()
+        async function sendPostRequest  () {
+        return new Promise((resolve, reject) => {
+            for(let i=0; i< tempfiles.length; i++) {
+            // return
+            purchaseService.saveCredit(tempfiles[i]).then(function() {
+                let newTemp = tempfiles.slice(i+1, tempfiles.length);
+                addVS1Data('TCreditTemp', JSON.stringify({tcredittemp: newTemp})).then(function() {
+                if(i == tempfiles.length -1) {
+                    resolve()
+                }
+                })
+            }).catch(function(e) {
+                resolve();
+            })
+            }
+        })
+        }
+        if(tempfiles&&tempfiles.length) {
+        await sendPostRequest();
+        }
+        getVS1Data('TCreditTemp').then(function(dataObject) {
+        if(dataObject.length ==0) {
+            $('.btnRefresh').removeClass('btnRefreshAlert');
+        } else {
+        }
+        }).catch(function(e) {
+        $('.btnRefresh').removeClass('btnRefreshAlert');
+        })
         let currentDate = new Date();
         let hours = currentDate.getHours(); //returns 0-23
         let minutes = currentDate.getMinutes(); //returns 0-59
         let seconds = currentDate.getSeconds(); //returns 0-59
-        let month = (currentDate.getMonth()+1);
+        let month = currentDate.getMonth() + 1;
         let days = currentDate.getDate();
-
-        if((currentDate.getMonth()+1) < 10){
-            month = "0" + (currentDate.getMonth()+1);
-        }
-
-        if(currentDate.getDate() < 10){
-            days = "0" + currentDate.getDate();
-        }
-        let currenctTodayDate = currentDate.getFullYear() + "-" + month + "-" + days + " "+ hours+ ":"+ minutes+ ":"+ seconds;
-        let templateObject = Template.instance();
 
         var currentBeginDate = new Date();
         var begunDate = moment(currentBeginDate).format("DD/MM/YYYY");
-        let fromDateMonth = (currentBeginDate.getMonth() + 1);
+        let fromDateMonth = currentBeginDate.getMonth() + 1;
         let fromDateDay = currentBeginDate.getDate();
-        if((currentBeginDate.getMonth()+1) < 10){
-            fromDateMonth = "0" + (currentBeginDate.getMonth()+1);
-        }else{
-            fromDateMonth = (currentBeginDate.getMonth()+1);
+        if (currentBeginDate.getMonth() + 1 < 10) {
+        fromDateMonth = "0" + (currentBeginDate.getMonth() + 1);
+        } else {
+        fromDateMonth = currentBeginDate.getMonth() + 1;
         }
 
-        if(currentBeginDate.getDate() < 10){
-            fromDateDay = "0" + currentBeginDate.getDate();
+        if (currentBeginDate.getDate() < 10) {
+        fromDateDay = "0" + currentBeginDate.getDate();
         }
-        var toDate = currentBeginDate.getFullYear()+ "-" +(fromDateMonth) + "-"+(fromDateDay);
-        let prevMonth11Date = (moment().subtract(reportsloadMonths, 'months')).format("YYYY-MM-DD");
+        var toDate =
+        currentBeginDate.getFullYear() + "-" + fromDateMonth + "-" + fromDateDay;
+        let prevMonth11Date = moment().subtract(reportsloadMonths, "months").format("YYYY-MM-DD");
 
-        sideBarService.getTCreditListData(prevMonth11Date,toDate, true,initialReportLoad,0).then(function(dataCredit) {
-            addVS1Data('TCreditList',JSON.stringify(dataCredit)).then(function (datareturn) {
-                sideBarService.getAllCreditList(initialDataLoad,0).then(function(data) {
-                    addVS1Data('TCredit',JSON.stringify(data)).then(function (datareturn) {
-                        sideBarService.getAllPurchaseOrderListAll(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (data) {
-                            addVS1Data("TbillReport", JSON.stringify(data)).then(function (datareturn) {
-                                sideBarService.getAllPurchasesList(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (dataPList) {
-                                    addVS1Data("TPurchasesList", JSON.stringify(dataPList)).then(function (datareturnPlist) {
-                                        window.open('/creditlist','_self');
-                                    }).catch(function (err) {
-                                        window.open('/creditlist','_self');
-                                    });
-                                }).catch(function (err) {
-                                    window.open('/creditlist','_self');
-                                });
-                            }).catch(function (err) {
-                                sideBarService.getAllPurchasesList(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (dataPList) {
-                                    addVS1Data("TPurchasesList", JSON.stringify(dataPList)).then(function (datareturnPlist) {
-                                        window.open('/creditlist','_self');
-                                    }).catch(function (err) {
-                                        window.open('/creditlist','_self');
-                                    });
-                                }).catch(function (err) {
-                                    window.open('/creditlist','_self');
-                                });
-                            });
-                        }).catch(function (err) {
-                            sideBarService.getAllPurchasesList(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (dataPList) {
-                                addVS1Data("TPurchasesList", JSON.stringify(dataPList)).then(function (datareturnPlist) {
-                                    window.open('/creditlist','_self');
-                                }).catch(function (err) {
-                                    window.open('/creditlist','_self');
-                                });
-                            }).catch(function (err) {
-                                window.open('/creditlist','_self');
-                            });
-                        });
+
+        sideBarService.getTCreditListData(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (dataCredit) {
+            addVS1Data("TCreditList", JSON.stringify(dataCredit)).then(function (datareturn) {
+                sideBarService.getAllCreditList(initialDataLoad, 0).then(function (dataCredit) {
+                    addVS1Data("TCreditEx", JSON.stringify(dataCredit)).then(function (datareturn) {
+                        window.open("/creditlist", "_self");
                     }).catch(function (err) {
-                        window.open('/creditlist','_self');
+                        window.open("/creditlist", "_self");
                     });
-                }).catch(function(err) {
-                    window.open('/creditlist','_self');
-                });
+                    }).catch(function (err) {
+                    window.open("/creditlist", "_self");
+                    });
             }).catch(function (err) {
-                sideBarService.getAllCreditList(initialDataLoad,0).then(function(data) {
-                    addVS1Data('TCredit',JSON.stringify(data)).then(function (datareturn) {
-                        window.open('/creditlist','_self');
-                    }).catch(function (err) {
-                        window.open('/creditlist','_self');
-                    });
-                }).catch(function(err) {
-                    window.open('/creditlist','_self');
-                });
+                window.open("/creditlist", "_self");
             });
-        }).catch(function(err) {
-            window.open('/creditlist','_self');
+        }).catch(function (err) {
+            window.open("/creditlist", "_self");
         });
+    //     $('.fullScreenSpin').css('display','inline-block');
+    //     let currentDate = new Date();
+    //     let hours = currentDate.getHours(); //returns 0-23
+    //     let minutes = currentDate.getMinutes(); //returns 0-59
+    //     let seconds = currentDate.getSeconds(); //returns 0-59
+    //     let month = (currentDate.getMonth()+1);
+    //     let days = currentDate.getDate();
 
+    //     if((currentDate.getMonth()+1) < 10){
+    //         month = "0" + (currentDate.getMonth()+1);
+    //     }
+
+    //     if(currentDate.getDate() < 10){
+    //         days = "0" + currentDate.getDate();
+    //     }
+    //     let currenctTodayDate = currentDate.getFullYear() + "-" + month + "-" + days + " "+ hours+ ":"+ minutes+ ":"+ seconds;
+    //     let templateObject = Template.instance();
+
+    //     var currentBeginDate = new Date();
+    //     var begunDate = moment(currentBeginDate).format("DD/MM/YYYY");
+    //     let fromDateMonth = (currentBeginDate.getMonth() + 1);
+    //     let fromDateDay = currentBeginDate.getDate();
+    //     if((currentBeginDate.getMonth()+1) < 10){
+    //         fromDateMonth = "0" + (currentBeginDate.getMonth()+1);
+    //     }else{
+    //         fromDateMonth = (currentBeginDate.getMonth()+1);
+    //     }
+
+    //     if(currentBeginDate.getDate() < 10){
+    //         fromDateDay = "0" + currentBeginDate.getDate();
+    //     }
+    //     var toDate = currentBeginDate.getFullYear()+ "-" +(fromDateMonth) + "-"+(fromDateDay);
+    //     let prevMonth11Date = (moment().subtract(reportsloadMonths, 'months')).format("YYYY-MM-DD");
+
+    //     sideBarService.getTCreditListData(prevMonth11Date,toDate, true,initialReportLoad,0).then(function(dataCredit) {
+    //         addVS1Data('TCreditList',JSON.stringify(dataCredit)).then(function (datareturn) {
+    //             sideBarService.getAllCreditList(initialDataLoad,0).then(function(data) {
+    //                 addVS1Data('TCredit',JSON.stringify(data)).then(function (datareturn) {
+    //                     sideBarService.getAllPurchaseOrderListAll(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (data) {
+    //                         addVS1Data("TbillReport", JSON.stringify(data)).then(function (datareturn) {
+    //                             sideBarService.getAllPurchasesList(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (dataPList) {
+    //                                 addVS1Data("TPurchasesList", JSON.stringify(dataPList)).then(function (datareturnPlist) {
+    //                                     window.open('/creditlist','_self');
+    //                                 }).catch(function (err) {
+    //                                     window.open('/creditlist','_self');
+    //                                 });
+    //                             }).catch(function (err) {
+    //                                 window.open('/creditlist','_self');
+    //                             });
+    //                         }).catch(function (err) {
+    //                             sideBarService.getAllPurchasesList(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (dataPList) {
+    //                                 addVS1Data("TPurchasesList", JSON.stringify(dataPList)).then(function (datareturnPlist) {
+    //                                     window.open('/creditlist','_self');
+    //                                 }).catch(function (err) {
+    //                                     window.open('/creditlist','_self');
+    //                                 });
+    //                             }).catch(function (err) {
+    //                                 window.open('/creditlist','_self');
+    //                             });
+    //                         });
+    //                     }).catch(function (err) {
+    //                         sideBarService.getAllPurchasesList(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (dataPList) {
+    //                             addVS1Data("TPurchasesList", JSON.stringify(dataPList)).then(function (datareturnPlist) {
+    //                                 window.open('/creditlist','_self');
+    //                             }).catch(function (err) {
+    //                                 window.open('/creditlist','_self');
+    //                             });
+    //                         }).catch(function (err) {
+    //                             window.open('/creditlist','_self');
+    //                         });
+    //                     });
+    //                 }).catch(function (err) {
+    //                     window.open('/creditlist','_self');
+    //                 });
+    //             }).catch(function(err) {
+    //                 window.open('/creditlist','_self');
+    //             });
+    //         }).catch(function (err) {
+    //             sideBarService.getAllCreditList(initialDataLoad,0).then(function(data) {
+    //                 addVS1Data('TCredit',JSON.stringify(data)).then(function (datareturn) {
+    //                     window.open('/creditlist','_self');
+    //                 }).catch(function (err) {
+    //                     window.open('/creditlist','_self');
+    //                 });
+    //             }).catch(function(err) {
+    //                 window.open('/creditlist','_self');
+    //             });
+    //         });
+    //     }).catch(function(err) {
+    //         window.open('/creditlist','_self');
+    //     });
 
     },
 });

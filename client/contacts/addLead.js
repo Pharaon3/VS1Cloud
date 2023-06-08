@@ -1498,7 +1498,7 @@ Template.leadscard.onRendered(function() {
         $(".editTaskDetailName").val($("#tblLeadCrmListWithDate tbody .dnd-moved .colTaskName").html());
         $(".editTaskDetailDescription").val($("#tblLeadCrmListWithDate tbody .dnd-moved .colTaskDesc").html());
         $("#taskmodalDuedate").val($("#tblLeadCrmListWithDate tbody .dnd-moved #completeDate").val());
-        $("#taskDetailModal").modal("toggle");
+        $("#taskDetailModal_lead").modal("toggle");
     });
 
     $(document).on("change", ".editTaskDetailName, .editTaskDetailDescription, #taskmodalDuedate", function(e) {
@@ -2289,7 +2289,7 @@ Template.leadscard.events({
                     //   templateObject.getAllTaskList();
                     //   templateObject.getTProjectList();
                     // }, 500);
-                    $("#newTaskModal").modal("hide");
+                    $("#newTaskModal_lead").modal("hide");
                     // $("#newProjectTasksModal").modal("hide");
                     if (subTaskID) {
                         crmService.getTaskDetail(subTaskID).then(function(data) {
@@ -3036,7 +3036,7 @@ function openEditTaskModals(id, type) {
                         "task_modal_priority_" + selected_record.priority
                     );
 
-                    $("#taskDetailModal").modal("toggle");
+                    $("#taskDetailModal_lead").modal("toggle");
 
                     $(".crmDatepicker").datepicker({
                         showOn: "button",

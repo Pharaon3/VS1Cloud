@@ -1,4 +1,4 @@
-import {ContactService} from "../contacts/contact-service";
+import {DepotService} from "./depot-service";
 import {ReactiveVar} from 'meteor/reactive-var';
 import {UtilityService} from "../utility-service";
 import XLSX from 'xlsx';
@@ -35,18 +35,16 @@ Template.depotlist.onCreated(function () {
         let chkBox = '<div class="custom-control custom-switch chkBox pointer text-center">' +
         '<input name="pointer" class="custom-control-input chkBox notevent pointer" type="checkbox" id="' + data.EmployeeID + '" name="' + data.EmployeeID + '">' +
         '<label class="custom-control-label chkBox pointer" for="' + data.EmployeeID + '"></label></div>';
-        if(!data.isDriver){
-            var dataList = [
-                chkBox,
-                data.Address || "",
-                data.Town || "",
-                data.PostalCode || "",
-                data.State || "",
-                data.Country || "",
-                linestatus,
-            ];
-            return dataList;
-        }
+        var dataList = [
+            chkBox,
+            data.Address || "",
+            data.Town || "",
+            data.PostalCode || "",
+            data.State || "",
+            data.Country || "",
+            linestatus,
+        ];
+        return dataList;
     }
 
     let checkBoxHeader = `<div class="custom-control custom-switch colChkBoxAll chkBoxAll text-center pointer">
@@ -56,11 +54,11 @@ Template.depotlist.onCreated(function () {
 
     let headerStruct = [
         {index: 0, label: 'checkBoxHeader', class: 'colCheckBox', active: true, display: true, width: "20"},
-        {index: 1, label: 'Address', class: 'colAddress', active: false, display: true, width: "10"},
+        {index: 1, label: 'Address', class: 'colAddress', active: false, display: true, width: "200"},
         {index: 2, label: 'Town / City', class: 'colTown', active: true, display: true, width: "200"},
         {index: 3, label: 'Postal / Zip Code', class: 'colPostalCode', active: true, display: true, width: "100"},
         {index: 4, label: 'State', class: 'colState', active: true, display: true, width: "100"},
-        {index: 5, label: 'Country', class: 'colCountry', active: true, display: true, width: "20"},
+        {index: 5, label: 'Country', class: 'colCountry', active: true, display: true, width: "100"},
         {index: 9, label: 'Status', class: 'colStatus', active: true, display: true, width: "120"},
     ];
     templateObject.tableheaderrecords.set(headerStruct);
@@ -68,7 +66,7 @@ Template.depotlist.onCreated(function () {
 
 Template.depotlist.onRendered(function () {
     let templateObject = Template.instance();
-    let contactService = new ContactService();
+    let depotService = new DepotService();
     const customerList = [];
     let salesOrderTable;
     const splashArray = [];
@@ -111,6 +109,9 @@ Template.depotlist.onRendered(function () {
 });
 
 Template.depotlist.events({
+    "click #btnNewDepot": function (event) {
+        FlowRouter.go('/newdepot');
+    },
     "click .colEmployeeCard": (e, ui) => {
         const id = $(e.currentTarget).attr('id');
         if (id) {
@@ -158,7 +159,6 @@ Template.depotlist.events({
           });
           selectedData.push(rowData);
         });
-        console.log("selectedData", selectedData);
     },
     'click .exportbtn': function () {
         $('.fullScreenSpin').css('display', 'inline-block');
@@ -271,7 +271,7 @@ Template.depotlist.events({
     'click .btnImport': function () {
         $('.fullScreenSpin').css('display', 'inline-block');
         let templateObject = Template.instance();
-        let contactService = new ContactService();
+        let depotService = new DepotService();
         let objDetails;
         var saledateTime = new Date();
         //let empStartDate = new Date().format("YYYY-MM-DD");
@@ -319,7 +319,7 @@ Template.depotlist.events({
                             };
                             if (results.data[i + 1][1]) {
                                 if (results.data[i + 1][1] !== "") {
-                                    contactService.saveEmployee(objDetails).then(function (data) {
+                                    depotService.saveEmployee(objDetails).then(function (data) {
                                         ///$('.fullScreenSpin').css('display','none');
                                         //Meteor._reload.reload();
                                     }).catch(function (err) {
@@ -394,8 +394,8 @@ Template.depotlist.helpers({
     employees: () => Template.instance().employees.get(),
 
     apiFunction: function () {
-        let sideBarService = new SideBarService();
-        return sideBarService.getAllTEmployeeList;
+        let depotService = new DepotService();
+        return depotService.getAllDepot1;
     },
 
     searchAPI: function () {

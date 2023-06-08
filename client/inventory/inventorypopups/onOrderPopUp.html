@@ -3,7 +3,10 @@
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4><span class="productNameOnOrder"></span> - On Order</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <label class="productNameOnOrder" style="display: none;">{{productID}}</label>
+                    <h4 id="transTitle1">
+                        </h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <div class="row recenttrasaction">
@@ -24,7 +27,7 @@
                             {{>datatablelist
                                 tablename="productrecentlist3"
                                 apiName= apiFunction
-                                indexeddbname = 'T_VS1_Report_Productmovement'
+                                indexeddbname = 'T_VS1_Report_Productmovement_OnOrder'
                                 tableheaderrecords = tableheaderrecords
                                 exportfilename = 'Product Recent List'
                                 istransaction = true
@@ -35,7 +38,7 @@
                                 exIndexDBName = 't_vs1_report_productmovement'
                                 exdatahandler = exDataHandler
                                 searchAPI = searchAPI
-                                typefilter = typefilter
+                                orderby = '[[ 3, "desc" ]]'
                         }}
                             <!-- {{/if}} -->
                         </div>

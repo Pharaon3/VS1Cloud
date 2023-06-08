@@ -1,0 +1,11 @@
+<template name="barcodebutton">
+    {{#if equals type "transaction"}}
+        <button type="button" class="btn btn-sm btn-success scanBarcodeImage" id={{cust_id}}><i class="fas fa-camera"></i></button>
+    {{/if}}
+    {{#if equals type "newTransaction"}}
+        <button type="button" class="btn btn-success scanNewRowMobile" id={{cust_id}} style="margin: 12px;">+ Scan New Entry</button>
+    {{/if}}
+    {{#if equals type "globalSearch"}}
+        <button type="button" class="btn btn-primary globalBarcodeSearch" id={{cust_id}} style="margin-left: 8px;height:34px; display: none;"><i class="fas fa-camera"></i></button>
+    {{/if}}
+</template>

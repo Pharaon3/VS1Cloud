@@ -12,6 +12,11 @@ Template.addfixedassetlinepop.onRendered(function() {
 
 })
 
-Template.addfixedassetlinepop.events({})
+Template.addfixedassetlinepop.events({
+    'click .btnAssetSave': function(event) {
+        let fixedAsset = $("#fixedAssetLine").val();
+        let costType = $("#costType").val();
+    },
+})
 
 Template.addfixedassetlinepop.helpers({})

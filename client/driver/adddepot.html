@@ -1,0 +1,190 @@
+<template name="adddepot">
+    <div class="container-fluid">
+        <div class="fullScreenSpin" style="display:none;">
+            <div class="spinner"></div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-4">
+                <h3 class="text-dark mb-4">New Depot</h3>
+            </div>
+            <div class="col-12 col-md-4">{{> loggedcompanyoverview}}</div>
+        </div>
+        <div class="row justify-content-center mb-3">
+            <div class="col-12 col-md-6">
+                <div class="card shadow mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <style>
+                                .hidden{
+                                    display: none;
+                                }
+                            </style>
+                            <div class="col-12">
+                                <h4 id="depotTitleHeader">Depot 1</h4>
+                                <input class="form-control hidden" type="text" id="depotTitleInput" name="depotTitleInput" value="Depot 1">
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    <input class="form-control" type="text" id="edtAddress" name="edtAddress">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Town / City</label>
+                                    <input class="form-control" type="text" id="edtCity" name="edtCity">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Postal / ZIP Code</label>
+                                    <input class="form-control" type="text" id="edtPostCode" name="edtPostCode">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>State / Region</label>
+                                    <input class="form-control" type="text" name="edtState" id="edtState">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Country</label>
+                                    <select class="form-control" id="edtCountry" name="edtCountry">
+                                        <option value="" selected="selected"></option>
+                                        {{#each item in countryList}}
+                                        <option value="{{item}}">{{item}}</option>
+                                        {{/each}}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-success float-left" type="button" id="saveCompanyInfo"
+                                name="saveCompanyInfo" style="margin-right: 8px;"><i class="fa fa-save"
+                                    style="margin-right: 8px;"></i>Save</button>
+                            <button class="btn btn-secondary float-right btnBack" type="button"><i
+                                    class="fa fa-close" style="margin-right: 8px;"></i>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="myModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Upload logo</h4><button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row no-gutters d-xl-flex flex-row justify-content-xl-start align-items-xl-start">
+                        <p class="maximums">The maximum file size is 1MB. For best results, upload the largest logo you
+                            have, at
+                            least 140 pixels on its shortest side.</p>
+
+                    </div>
+                    <hr>
+
+                    <div class="row no-gutters d-xl-flex flex-column justify-content-xl-start align-items-xl-start">
+                        <p style="margin-bottom: 0px;font-weight: bold;">Choose a file to upload</p>
+                        <p style="margin-left: 16px;margin-bottom: 0px;margin-top: 4px;">Save your updated template and
+                            you're ready to go.</p>
+
+                        <div class="divTable" id="file-display">
+                        </div>
+                        <label for="FileName" class="browseBtn"></label>
+                        <label for="exampleFormControlFile1" class="Choose_file">No file selected</label>
+                        <input type="file" name="fileInput" id="fileInput" style="display:none;" accept="image/*">
+                        <!-- <div class="check">
+<label class="checkbox_div"> <input class="form-check-input" type="checkbox" checked> Use on my invoices and other documents I send to clients</label>
+</div> -->
+                        <style>
+                            #row1 {
+                                display: flex;
+                                flex-direction: row;
+                                justify-content: space-around;
+                            }
+
+                            #column1 {
+                                display: flex;
+                            }
+
+
+                            #column2 {
+                                display: flex;
+                                flex-direction: column;
+                                margin: 16px;
+                                padding: .375rem .75rem;
+                            }
+                        </style>
+                        <div id="row1">
+                            <div id="column1"></div><button class="btn btn-primary btnUploadFile new_attachment_btn"
+                                type="button" style="margin: 12px;"><i class="fa fa-cloud-upload"
+                                    style="margin-right: 5px;"></i>Browse</button>
+                            <div class="file-name" id="column2"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-primary btnImport" data-dismiss="modal" type="button"
+                        id="uploadImg" disabled><i class="fas fa-file-import"
+                            style="margin-right: 5px;"></i>Upload</button>
+                    <button class="btn btn-secondary" data-dismiss="modal" type="button"><i class="fa fa-close"
+                            style="margin-right: 5px;"></i>Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Start Help Video Modal -->
+    <div class="modal fade" role="dialog" tabindex="-1" id="helpModal">
+        <div class="modal-dialog" role="document" style="max-width: 670px!important;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title-header">Organization Settings</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <!-- <iframe width="640" height="360" src="https://player.vimeo.com/video/99892791" frameborder="0" allowfullscreen=""></iframe> -->
+                    <!-- <iframe width="640" height="360" src="https://www.youtube.com/embed/BzxoYOp42fg" frameborder="0" allowfullscreen=""></iframe> -->
+                    <video preload="none" id="myVideo" width="640" height="360" controls="" name="media"
+                        style="border: solid 5px #999999f0; height: auto; outline: none;">
+                        <source src="https://erphelpes.com/vs1videos/organizationdetails.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Help Video Modal -->
+    <!-- Start Modal Product -->
+    <div class="modal fade" role="dialog" tabindex="-1" id="employeeListModal">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Employee List</h4><button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <!-- {{> refreshbutton}} -->
+                    {{> popemployeelist}}
+
+                </div>
+                <div class="modal-footer"><button class="btn btn-light" data-dismiss="modal"
+                        type="button">Close</button>
+                    <button class="btn btn-primary btnProdSelect" type="button"
+                        style="background-color: #00A3D3; border-color: #00A3D3;">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal Product -->
+    <!-- ModalSupplier -->
+    <div class="modal fade supplierListModal" role="dialog" tabindex="-1" id="supplierListModal">
+        {{> supplierlistpop}}
+    </div>
+    <!-- End Modal Supplier -->
+    <script>
+        modalDraggable();
+    </script>
+</template>

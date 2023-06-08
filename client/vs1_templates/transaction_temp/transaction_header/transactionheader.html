@@ -130,10 +130,10 @@
                         {{/each}}
 
                             {{#if currency}}
-                                {{#if equals Category 'purchase'}}
-                                {{> CurrencyWidget rate="sell" trans="true" intransaction=true}}
+                                {{#if equals Category 'sale'}}
+                                {{> CurrencyWidget rate="sell" trans="true" intransaction=true onlyCurrencyField=onlyCurrencyField}}
                                 {{else}}
-                                {{> CurrencyWidget rate="buy" row="true" intransaction=true}}
+                                {{> CurrencyWidget rate="buy" row="true" intransaction=true onlyCurrencyField=onlyCurrencyField}}
                                 {{/if}}
                             {{/if}}
                         {{> cust_fields

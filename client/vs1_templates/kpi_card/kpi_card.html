@@ -31,9 +31,10 @@
                 {{> editCardChartOptions}}                              
                 <a href="javascript:void(0);" class="cardSettingBtn editCardBtn"><i class="fas fa-cog"></i></a>
             </div>
-            <div class="card-body {{actionClass}}" style="cursor: pointer;">
+            <div class="card-body {{actionClass}} {{extraPadding}} chart-canvas" style="cursor: pointer;">
                 {{> Template.contentBlock}}
             </div>
+            <img class="chart-img d-none w-100 h-100" src="img/charts/{{imgName}}.png"/>
         </div>
     </div>
 
@@ -122,6 +123,10 @@
         }
         .dimmedChart .cardShowBtn{
             display: inline-flex !important;
+        }
+        .kpi-card .card-body.extraPadding {
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
         }
     </style>
 </template>

@@ -511,6 +511,7 @@ export class ChartService extends BaseService {
     $(".on-editor-change-mode").removeClass("showelement");
     $(".on-editor-change-mode").addClass("hideelement");
     $(".dimmedChart").removeClass("dimmedChart");
+    $(".actionButtonsTop").addClass("hideelement");
   }
 
   async saveCharts() {

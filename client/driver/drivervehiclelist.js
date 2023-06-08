@@ -20,8 +20,6 @@ Template.drivervehiclelist.onCreated(function () {
     templateObject.displayfields = new ReactiveVar([]);
     templateObject.reset_data = new ReactiveVar([]);
     templateObject.setupFinished = new ReactiveVar();
-
-
     templateObject.employees = new ReactiveVar([]);
 
 
@@ -61,7 +59,7 @@ Template.drivervehiclelist.onCreated(function () {
         </div>`;
 
     let headerStruct = [
-        {index: 0, label: 'checkBoxHeader', class: 'colCheckBox', active: true, display: true, width: "20"},
+        {index: 0, label: 'checkBoxHeader', class: 'colCheckBox', active: true, display: false, width: "20"},
         {index: 1, label: 'Emp', class: 'colEmployeeNo', active: false, display: true, width: "10"},
         {index: 2, label: 'Contact Name', class: 'colEmployeeName', active: true, display: true, width: "200"},
         {index: 3, label: 'First Name', class: 'colFirstName', active: true, display: true, width: "100"},
@@ -79,6 +77,9 @@ Template.drivervehiclelist.onCreated(function () {
 });
 
 Template.drivervehiclelist.onRendered(function () {
+    var currentLoc = FlowRouter.current().route.path;
+	if(currentLoc == "/drivervehiclelistcard") $("#newDriverModal").modal('toggle');
+    $(".fullScreenSpin").css("display", "inline-block");
     let templateObject = Template.instance();
     let contactService = new ContactService();
     const customerList = [];
@@ -86,7 +87,12 @@ Template.drivervehiclelist.onRendered(function () {
     const splashArray = [];
     const dataTableList = [];
     const tableHeaderList = [];
-    $('div.sorting').removeClass('sorting');
+
+    setTimeout(() => {
+        this.$('.sorting:first').removeClass('sorting');
+        this.$('.sorting_desc:first').removeClass('sorting_desc');
+    }, 500);
+
     if (FlowRouter.current().queryParams.success) {
         $('.btnRefresh').addClass('btnRefreshAlert');
     }
@@ -119,10 +125,17 @@ Template.drivervehiclelist.onRendered(function () {
     $('#tblDriverlist tbody').on( 'click', 'td.colCheckBox', function (event) {
         event.stopImmediatePropagation();
     });
+    
     checkSetupFinished();
 });
 
 Template.drivervehiclelist.events({
+    "click .colChkBoxAll": function () {
+        setTimeout(() => {
+            this.$('.sorting:first').removeClass('sorting');
+            this.$('.sorting_desc:first').removeClass('sorting_desc');
+        }, 500);
+    },
     "click .colEmployeeCard": (e, ui) => {
         const id = $(e.currentTarget).attr('id');
         if (id) {
@@ -150,27 +163,17 @@ Template.drivervehiclelist.events({
             }
         })
     },
-    'click .btnSelectAll': function () {
-        if ($('input[type="checkbox"]').hasClass('allChecked')) {
-            $('input[type="checkbox"]').prop('checked', false);
-            $('table').css('background', '#fff');
-        } else {
-            $('input[type="checkbox"]').prop('checked', true);
-            $('table').css('background', '#e5f2d9');
-        }
-        $('input[type="checkbox"]').toggleClass('allChecked');
-    },
     'click .btnLoadMap': function (e) {
         e.preventDefault();
         var selectedData = [];
-        $('input[type=checkbox]:checked').each(function() {
+        $('#tblDriverlist input[type=checkbox]:checked').each(function() {
           var rowData = [];
           $(this).closest('tr').find('td').each(function() {
             rowData.push($(this).text());
           });
           selectedData.push(rowData);
         });
-        console.log("selectedData", selectedData);
+        addVS1Data("TSelectDriverList", JSON.stringify(selectedData)).then(function () {});
     },
     'click .exportbtn': function () {
         $('.fullScreenSpin').css('display', 'inline-block');
@@ -366,7 +369,18 @@ Template.drivervehiclelist.events({
     },
     
     "click #btnNewDriverVehicle": function () {
-        FlowRouter.go("/drivervehiclelistcard");
+        $("#newDriverModal").modal('toggle');
+    },
+    
+    'click .btnEmployee': function (event) {
+        event.preventDefault();
+        $("#newDriverModal").modal('hide');
+        FlowRouter.go("/employeescard");
+    },
+    'click .btnSupplier': function (event) {
+        event.preventDefault();
+        $("#newDriverModal").modal('hide');
+        FlowRouter.go("/supplierscard");
     },
 
 

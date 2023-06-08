@@ -40,13 +40,20 @@ Template.purchasesaleschart.onRendered(()=>{
     let ignoreDate = true;
 
     templateObject.getAgedReceivableReportCard = async function () {
-        let data = [];
-        if( !localStorage.getItem('VS1AgedReceivableSummary_Card') ){
-            data = await reportService.getAgedReceivableDetailsSummaryData(dateFrom, dateTo, ignoreDate,contactID);
-            localStorage.setItem('VS1AgedReceivableSummary_Card', JSON.stringify(data) || '');
+        let data = await getVS1Data('VS1AgedReceivableSummary_Card');
+        if (data.length == 0) {
+            data = await reportService.getAgedReceivableDetailsSummaryData(dateFrom=dateFrom, dateTo=dateTo, ignoreDate=ignoreDate, contactID=contactID);;
+            addVS1Data('VS1AgedReceivableSummary_Card', JSON.stringify(data));
         }else{
-            data = JSON.parse(localStorage.getItem('VS1AgedReceivableSummary_Card'));
-        }
+            data = JSON.parse(data[0].data);
+        };
+        // let data = [];
+        // if( !localStorage.getItem('VS1AgedReceivableSummary_Card') ){
+        //     data = await reportService.getAgedReceivableDetailsSummaryData(dateFrom=dateFrom, dateTo=dateTo, ignoreDate=ignoreDate, contactID=contactID);
+        //     localStorage.setItem('VS1AgedReceivableSummary_Card', JSON.stringify(data) || '');
+        // }else{
+        //     data = JSON.parse(localStorage.getItem('VS1AgedReceivableSummary_Card'));
+        // }
         let amountdueTotal = 0;
         let currentTotal = 0;
         let itemsAwaitingPaymentcount = [];

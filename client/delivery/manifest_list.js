@@ -242,27 +242,17 @@ Template.manifestlist.events({
       $(".btnRefreshInvoiceList").trigger("click");
     }
   },
-  'click .btnSelectAll': function () {
-    if ($('input[type="checkbox"]').hasClass('allChecked')) {
-        $('input[type="checkbox"]').prop('checked', false);
-        $('table').css('background', '#fff');
-    } else {
-        $('input[type="checkbox"]').prop('checked', true);
-        $('table').css('background', '#e5f2d9');
-    }
-    $('input[type="checkbox"]').toggleClass('allChecked');
-  },
   'click .btnLoadMap': function (e) {
     e.preventDefault();
     var selectedData = [];
-    $('input[type=checkbox]:checked').each(function() {
+    $('#tblManifestlist input[type=checkbox]:checked').each(function() {
       var rowData = [];
       $(this).closest('tr').find('td').each(function() {
         rowData.push($(this).text());
       });
       selectedData.push(rowData);
     });
-    console.log("selectedData", selectedData);
+    addVS1Data("TSelectManifestList", JSON.stringify(selectedData)).then(function () {});
   },
   "click .btnRefreshInvoiceList": function (event, ui) {
     ui.initPage(true);
@@ -1184,7 +1174,7 @@ Template.manifestlist.helpers({
   exDataHandler: function() {
     let templateObject = Template.instance();
     return function(data) {
-      let dataReturn = templateObject.getExData(data);
+      let dataReturn = templateObject.getDataTableList(data);
       return dataReturn
     }
   }

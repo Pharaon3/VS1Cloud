@@ -115,6 +115,20 @@ Template.journalentrycard_temp.onCreated(() => {
     templateObject.headerbuttons = new ReactiveVar([]);
 
     templateObject.printOptions = new ReactiveVar();
+    templateObject.gridfields = new ReactiveVar();
+    templateObject.printfields = new ReactiveVar();
+
+    let printfields = {
+        "Account_Name" : ["30", "left"],
+                    "Description" : ["40", "left"],
+                    "Credit_Ex" : ["15", "right"],
+                    "Debit_Ex" : ["15", "right"]
+    }
+
+    templateObject.printfields.set(printfields)
+
+
+    templateObject.temporaryfiles = new ReactiveVar([])
 
     let options = [{ title: 'Purchase Order', number: 1, nameFieldID: 'Purchase_orders_1' }, { title: 'Purchase_Orders', number: 2, nameFieldID: 'Purchase_Orders_2' }, { title: 'Purchase_Orders', number: 3, nameFieldID: 'Purchase_Orders_3' },
     { title: 'Purchase  Order Back Orders', number: 1, nameFieldID: 'Purchase_Order Back Orders_1' }, { title: 'Purchase Order Back Orders', number: 2, nameFieldID: 'Purchase_Order Back Orders_2' }, { title: 'Purchase Order Back Orders', number: 3, nameFieldID: 'Purchase Order Back Orders_3' },
@@ -140,11 +154,117 @@ Template.journalentrycard_temp.onCreated(() => {
     templateObject.headerfields.set(transactionheaderfields);
 
     let transactionheaderbuttons = [
-        { label: "Pay Now", class: 'btnTransaction payNow', id: 'btnPayNow', bsColor: 'success', icon: 'dollar-sign' },
-        { label: "Payment", class: 'btnTransaction btnMakePayment', id: 'btnPayment', bsColor: 'primary' },
-        { label: "Copy PO", class: 'btnTransaction copyPO', id: 'btnCopyInvoice', bsColor: 'primary' }
+        
+        { label: "Copy Journary", class: 'btnTransaction copyJournary', id: 'btnCopyJournary', bsColor: 'primary' }
     ]
     templateObject.headerbuttons.set(transactionheaderbuttons);
+
+    let transactiongridfields = [
+        { index: 0,  custfieldlabel: "Account Name", class:'colAccount', label: "Account Name",  type: "select", id:"sltFromAccount", listtemplatename: 'accountlistpop', modalId: 'fromaccountlistmodal', targettemplate:'addAccountModal', targetId: 'edtfromaccountmodal', editable: true,  inputclass: "sltAccountName lineAccountName", colName:'colAccountName',  width: "300",       active: true,   display: true },
+        { index: 1,  custfieldlabel: "Memo", class:'colMemo', label: "Memo", id:"edtlineMemo", width: "",  active: true,   display: true },
+        { index: 2,  custfieldlabel: "Tax Code", class:'colTax', label: "Tax Code", type: "select", inputclass: "colAmount lineAmount", id:'lineTaxCode', listtemplatename: 'taxratelistpop', modalId: 'taxratemodal',  colName:'colName',  width: "110", active: true, display: true },
+        { index: 3,  custfieldlabel: "Credit (Ex)", type:'default', class: "CreditEx", inputclass: "lineCreditEx lineCreditExChange", width: "110",  active: true,   display: true },
+        { index: 4,  custfieldlabel: "Credit (Inc)", type:'default', class: "CreditInc", inputclass:"lineCreditInc lineCreditIncChange", width: "110",  active: false,   display: true },
+        { index: 5,  custfieldlabel: "Debit (Ex)", type: 'default',   class: "DebitEx", inputclass:"lineDebitEx lineDebitExChange",  width: "110", active: true, display: true },
+        { index: 6,  custfieldlabel: "Debit (Inc)", type: 'default',   class: "DebitInc", inputclass: "lineDebitInc lineDebitIncChange",  width: "110", active: false, display: true },
+        { index: 7,  custfieldlabel: "Department", class:'colDepartment', label: "Department",  type: "select", id:"lineDepartment", listtemplatename: 'departmentModal', modalId: 'departmentlistmodal', targettemplate:'newdepartmentpop', targetId: 'newDepartment_modal', editable: true,  inputclass: "lineDepartment", colName:'colDeptClassName',  width: "200",       active: true,   display: true },
+        { index: 8,  custfieldlabel: "Custom/Job", class:'colCustomJob', label: "Custom/Job",  type: "select", id:"sltCompany", listtemplatename: 'customerlistpop', modalId: 'customerlistmodal', targettemplate:'addcustomerpop', targetId: 'edtcustomermodal', editable: true,  inputclass: "lineCompany lineCustomerName", colName:'colCompany',  width: "200",       active: true,   display: true },
+    ]
+
+    templateObject.gridfields.set(transactiongridfields)
+
+
+    getVS1Data('TJournalEntryTemp').then(function(dataObject){
+        if(dataObject.length > 0) {
+            let data = JSON.parse(dataObject[0].data);
+            let useData = data.tjournalentrytemp;
+            templateObject.temporaryfiles.set(useData)
+        } else {
+            templateObject.temporaryfiles.set([])
+        }
+    }).catch(function(e) {
+        templateObject.temporaryfiles.set([])
+    })
+
+    
+    templateObject.initialRecords = (data) => {
+
+        $('.fullScreenSpin').css('display', 'none');
+
+        // setTimeout(function () {
+        //     templateObject.getAllJournalIds();
+        // }, 500);
+        let lineItems = [];
+        let lineItemsTable = [];
+        let lineItemObj = {};
+
+        lineItemObj = {
+            lineID: Random.id(),
+            item: '',
+            accountname: '',
+            accountno: '',
+            memo: '',
+            creditex: '',
+            debitex: '',
+            taxCode: ''
+        };
+        lineItems.push(lineItemObj);
+
+        var currentDate = new Date();
+        var begunDate = moment(currentDate).format("DD/MM/YYYY");
+        let record = {
+            id: '',
+            lid: 'New Journal Entry',
+            accountname: '',
+            memo: '',
+            department: defaultDept,
+            entryno: '',
+            transdate: begunDate,
+            LineItems: lineItems,
+            isReconciled: false
+
+        };
+        setTimeout(function () {
+            $('#sltDepartment').val(defaultDept);
+        }, 200);
+        templateObject.record.set(record);
+        if (templateObject.record.get()) {
+            Meteor.call('readPrefMethod', localStorage.getItem('mycloudLogonID'), 'tblJournalEntryLine', function (error, result) {
+                if (error) {
+
+                } else {
+                    if (result) {
+                        for (let i = 0; i < result.customFields.length; i++) {
+                            let customcolumn = result.customFields;
+                            let columData = customcolumn[i].label;
+                            let columHeaderUpdate = customcolumn[i].thclass;
+                            let hiddenColumn = customcolumn[i].hidden;
+                            let columnClass = columHeaderUpdate.substring(columHeaderUpdate.indexOf(".") + 1);
+                            let columnWidth = customcolumn[i].width;
+
+                            $("" + columHeaderUpdate + "").html(columData);
+                            if (columnWidth != 0) {
+                                $("" + columHeaderUpdate + "").css('width', columnWidth + '%');
+                            }
+                            if (hiddenColumn == true) {
+                                $("." + columnClass + "").addClass('hiddenColumn');
+                                $("." + columnClass + "").removeClass('showColumn');
+                                $(".chk" + columnClass + "").removeAttr('checked');
+                            } else if (hiddenColumn == false) {
+                                $("." + columnClass + "").removeClass('hiddenColumn');
+                                $("." + columnClass + "").addClass('showColumn');
+                                $(".chk" + columnClass + "").attr('checked', 'checked');
+                            }
+
+                        }
+                    }
+
+                }
+            });
+        }
+
+        return record;
+    }
 
     templateObject.getDataTableList = function (data) {
         let balance = utilityService.modifynegativeCurrencyFormat(data.Balance) || 0.00;
@@ -336,23 +456,23 @@ Template.journalentrycard_temp.onRendered(() => {
     const newJournalId = '';
     const taxCodesList = [];
 
-    templateObject.getAllJournalIds = function () {
-        purchaseService.getJournalIds().then(function (data) {
-            let latestPOId;
-            if (data.tjournalentry.length) {
-                let lastElement = data.tjournalentry[data.tjournalentry.length - 1];
-                latestPOId = (lastElement.Id);
-            } else {
-                latestPOId = 0;
-            }
-            newJournalId = (latestPOId + 1);
-            $('#edtEnrtyNo').val(newJournalId);
+    // templateObject.getAllJournalIds = function () {
+    //     purchaseService.getJournalIds().then(function (data) {
+    //         let latestPOId;
+    //         if (data.tjournalentry.length) {
+    //             let lastElement = data.tjournalentry[data.tjournalentry.length - 1];
+    //             latestPOId = (lastElement.Id);
+    //         } else {
+    //             latestPOId = 0;
+    //         }
+    //         newJournalId = (latestPOId + 1);
+    //         $('#edtEnrtyNo').val(newJournalId);
 
-        }).catch(function (err) {
-            newJournalId = 0;
-            $('#edtEnrtyNo').val(newJournalId);
-        });
-    };
+    //     }).catch(function (err) {
+    //         newJournalId = 0;
+    //         $('#edtEnrtyNo').val(newJournalId);
+    //     });
+    // };
 
 
 
@@ -448,6 +568,14 @@ Template.journalentrycard_temp.onRendered(() => {
     setTimeout(function () {
         templateObject.getDepartments();
     }, 500);
+
+    if (FlowRouter.current().queryParams.id) {
+
+    } else {
+        setTimeout(function() {
+            $('#tblJournalEntryLine >tbody >tr:first').find('.sltFromAccount').trigger("click");
+        }, 2000);
+    }
     // var url = FlowRouter.current().path;
     // if (url.indexOf('?id=') > 0) {
     //     var getso_id = url.split('?id=');
@@ -1878,6 +2006,7 @@ Template.journalentrycard_temp.onRendered(() => {
 
 Template.journalentrycard_temp.onRendered(function () {
     let tempObj = Template.instance();
+    let templateObject = Template.instance();
     let utilityService = new UtilityService();
     let productService = new ProductService();
     let accountService = new AccountService();
@@ -2225,7 +2354,8 @@ Template.journalentrycard_temp.onRendered(function () {
                         debitinc: debitAmountInc || 0,
                         TaxTotal: totalTax || 0,
                         taxCode: data.fields.Lines[i].fields.TaxCode || '',
-
+                        clientname: data.fields.Lines[i].fields.ClientName || '',
+                        department: data.fields.Lines[i].fields.DeptName || '',
                     };
 
 
@@ -2302,95 +2432,226 @@ Template.journalentrycard_temp.onRendered(function () {
                 }
             });
         }
-        setTimeout(function () {
 
-        }, 1000);
-
-    }
-
-    templateObject.initialRecords = (data) => {
-
-        $('.fullScreenSpin').css('display', 'none');
-
-        setTimeout(function () {
-            templateObject.getAllJournalIds();
-        }, 500);
-        let lineItems = [];
-        let lineItemsTable = [];
-        let lineItemObj = {};
-
-        for (let i = 0; i < 2; i++) {
-            lineItemObj = {
-                lineID: Random.id(),
-                item: '',
-                accountname: '',
-                accountno: '',
-                memo: '',
-                creditex: '',
-                debitex: '',
-                taxCode: ''
-            };
-            lineItems.push(lineItemObj);
-        }
-        var currentDate = new Date();
-        var begunDate = moment(currentDate).format("DD/MM/YYYY");
-        let record = {
-            id: '',
-            lid: 'New Journal Entry',
-            accountname: '',
-            memo: '',
-            department: defaultDept,
-            entryno: '',
-            transdate: begunDate,
-            LineItems: lineItems,
-            isReconciled: false
-
-        };
-        setTimeout(function () {
-            $('#sltDepartment').val(defaultDept);
-        }, 200);
-        templateObject.record.set(record);
-        if (templateObject.record.get()) {
-            Meteor.call('readPrefMethod', localStorage.getItem('mycloudLogonID'), 'tblJournalEntryLine', function (error, result) {
-                if (error) {
-
-                } else {
-                    if (result) {
-                        for (let i = 0; i < result.customFields.length; i++) {
-                            let customcolumn = result.customFields;
-                            let columData = customcolumn[i].label;
-                            let columHeaderUpdate = customcolumn[i].thclass;
-                            let hiddenColumn = customcolumn[i].hidden;
-                            let columnClass = columHeaderUpdate.substring(columHeaderUpdate.indexOf(".") + 1);
-                            let columnWidth = customcolumn[i].width;
-
-                            $("" + columHeaderUpdate + "").html(columData);
-                            if (columnWidth != 0) {
-                                $("" + columHeaderUpdate + "").css('width', columnWidth + '%');
-                            }
-                            if (hiddenColumn == true) {
-                                $("." + columnClass + "").addClass('hiddenColumn');
-                                $("." + columnClass + "").removeClass('showColumn');
-                                $(".chk" + columnClass + "").removeAttr('checked');
-                            } else if (hiddenColumn == false) {
-                                $("." + columnClass + "").removeClass('hiddenColumn');
-                                $("." + columnClass + "").addClass('showColumn');
-                                $(".chk" + columnClass + "").attr('checked', 'checked');
-                            }
-
-                        }
-                    }
+        setTimeout(function() {
+            if(record.LineItems){
+                let lineitems = record.LineItems;
+                for(let i=0; i< lineitems.length; i++) {
+                    let row = $('#tblJournalEntryLine tbody tr')[i];
+                    $(row).find('.sltFromAccount').val(lineItems[i].accountname);
+                    $(row).find('.colMemo').text(lineItems[i].memo);
+                    $(row).find('.lineCreditEx').val(lineItems[i].creditex);
+                    $(row).find('.lineCreditInc').val(lineItems[i].creditinc);
+                    $(row).find('.lineDebitEx').val(lineItems[i].debitex);
+                    $(row).find('.lineDebitInc').val(lineItems[i].debitinc);
+                    $(row).find('.colMemo').text(lineItems[i].memo);
+                    $(row).find('.sltCompany').val(lineItems[i].clientname);
+                    $(row).find('.lineDepartment').val(lineItems[i].department);
+                    $(row).find('.lineTaxCode').val(lineItems[i].taxCode);
 
                 }
-            });
-        }
+
+            }
+        }, 2000)
+
+
+        return {record: record, attachmentCount: templateObject.attachmentCount.get(), uploadedFiles: templateObject.uploadedFiles.get()}
 
     }
 
     templateObject.saveJournalEntryData = (data) => {
+        playSaveAudio();
+        let purchaseService = new PurchaseBoardService();
+        let uploadedItems = templateObject.uploadedFiles.get();
+        setTimeout(function () {
+            
+            let headMemo = $('#tdaxMemo').val();
 
+
+            $('.fullScreenSpin').css('display', 'inline-block');
+            var splashLineArray = new Array();
+            let lineItemsForm = [];
+            let lineItemObjForm = {};
+            let tdtaxCode = "";
+
+
+
+            var transdateTime = new Date($("#dtSODate").datepicker("getDate"));
+            let transDate = transdateTime.getFullYear() + "-" + (transdateTime.getMonth() + 1) + "-" + transdateTime.getDate();
+            let entryNo = $('#edtEnrtyNo').val();
+
+            var url = FlowRouter.current().path;
+            var getso_id = url.split('?id=');
+            var currentBill = getso_id[getso_id.length - 1];
+
+            var objDetails = '';
+            if (getso_id[1]) {
+                $('#tblJournalEntryLine > tbody > tr').each(function () {
+                    var lineID = this.id;
+                    let tdaccount = $('#' + lineID + " .sltFromAccount").val();
+                    let tddmemo = $('#' + lineID + " .colMemo").text();
+                    let tdcreditex = $('#' + lineID + " .lineCreditEx").val();
+                    let tddebitex = $('#' + lineID + " .lineDebitEx").val();
+                    let erpLineID = $('#' + lineID + " .lineAccountName").attr('lineid');
+                    let department = $('#'+ lineID +' .lineDepartment').val();
+                    let customername = $('#'+ lineID + ' .sltCompany').val()
+                    tdtaxCode = $('#' + lineID + " .lineTaxCode").val() || loggedTaxCodePurchaseInc;
+
+
+                    if (tdaccount != "") {
+
+                        lineItemObjForm = {
+                            type: "TJournalEntryLines",
+                            fields: {
+                                ID: parseInt(erpLineID) || 0,
+                                AccountName: tdaccount || '',
+
+                                Memo: tddmemo || headMemo,
+                                TaxCode: tdtaxCode || '',
+                                CreditAmountEx: parseFloat(tdcreditex.replace(/[^0-9.-]+/g, "")) || 0,
+
+                                DebitAmountEx: parseFloat(tddebitex.replace(/[^0-9.-]+/g, "")) || 0,
+
+                                DeptName: department || defaultDept,
+                                ClientName: customername,
+                                EmployeeName: localStorage.getItem('mySessionEmployee')
+                            }
+                        };
+                        lineItemsForm.push(lineItemObjForm);
+                        splashLineArray.push(lineItemObjForm);
+                    }
+                });
+                currentBill = parseInt(currentBill);
+                objDetails = {
+                    type: "TJournalEntry",
+                    fields: {
+                        ID: currentBill,
+                        TransactionNo: entryNo,
+                        Lines: splashLineArray,
+                        TransactionDate: transDate,
+                        Memo: headMemo
+                    }
+                };
+            } else {
+                $('#tblJournalEntryLine > tbody > tr').each(function () {
+                    var lineID = this.id;
+                    let tdaccount = $('#' + lineID + " .sltFromAccount").val();
+                    let tdaccountNo = $('#' + lineID + " .lineAccountNo").text();
+                    let tddmemo = $('#' + lineID + " .lineMemo").text();
+                    let tdcreditex = $('#' + lineID + " .lineCreditInc").val();
+                    let tddebitex = $('#' + lineID + " .lineDebitInc").val();
+                    let erpLineID = $('#' + lineID + " .lineAccountName").attr('lineid');
+                    let department = $('#'+ lineID +' .lineDepartment').val();
+                    let customername = $('#' + lineID + ' .sltCompany').val();
+                    tdtaxCode = $('#' + lineID + " .lineTaxCode").val() || loggedTaxCodePurchaseInc;
+
+
+                    if (tdaccount != "") {
+
+                        lineItemObjForm = {
+                            type: "TJournalEntryLines",
+                            fields: {
+                                ID: parseInt(erpLineID) || 0,
+                                AccountName: tdaccount || '',
+
+                                Memo: tddmemo || headMemo,
+                                TaxCode: tdtaxCode || '',
+                                CreditAmountEx: parseFloat(tdcreditex.replace(/[^0-9.-]+/g, "")) || 0,
+
+                                DebitAmountEx: parseFloat(tddebitex.replace(/[^0-9.-]+/g, "")) || 0,
+
+                                DeptName: department || defaultDept,
+
+                                ClientName: customername,
+                                EmployeeName: localStorage.getItem('mySessionEmployee')
+                            }
+                        };
+                        lineItemsForm.push(lineItemObjForm);
+                        splashLineArray.push(lineItemObjForm);
+                    }
+                });
+                objDetails = {
+                    type: "TJournalEntry",
+                    fields: {
+
+                        TransactionNo: entryNo,
+                        Lines: splashLineArray,
+                        TransactionDate: transDate,
+                        Memo: headMemo
+
+                    }
+                };
+            }
+            if (splashLineArray.length > 0) {
+
+            } else {
+                swal('Account name has not been selected!', '', 'warning');
+                $('.fullScreenSpin').css('display', 'none');
+                event.preventDefault();
+                return false;
+            }
+            showSimpleMessageTransaction();
+            playSaveAudio();
+
+            let currentInvoicetemp = templateObject.temporaryfiles.get();
+            let newInvoicetemp= [...currentInvoicetemp, objDetails];
+            templateObject.temporaryfiles.set(newInvoicetemp);
+            addVS1Data('TJournalEntryTemp', JSON.stringify({tjournalentrytemp: newInvoicetemp})).then(function(){
+            // purchaseService.saveJournalEnrtry(objDetails).then(function (objDetails) {
+                if (localStorage.getItem("enteredURL") != null) {
+                    FlowRouter.go(localStorage.getItem("enteredURL"));
+                    localStorage.removeItem("enteredURL");
+                    return;
+                }
+                FlowRouter.go('/journalentrylist?success=true');
+                $('.modal-backdrop').css('display', 'none');
+            }).catch(function (err) {
+                if (err === 'Error: "Unable to lock object: "') {
+                    swal({
+                        title: 'This Journal Entry has already been reconciled.',
+                        text: 'Please delete the Bank Reconciliation in order to edit/delete this Journal Entry',
+                        type: 'error',
+                        showCancelButton: false,
+                        confirmButtonText: 'Try Again'
+                    }).then((result) => {
+                        if (result.value) {
+                            FlowRouter.go('/journalentrylist');
+
+                        } else if (result.dismiss === 'cancel') {
+
+                        }
+                    });
+                } else {
+                    swal({
+                        title: 'Oooops...',
+                        text: err,
+                        type: 'error',
+                        showCancelButton: false,
+                        confirmButtonText: 'Try Again'
+                    }).then((result) => {
+                        if (result.value) { if (err === checkResponseError) { window.open('/', '_self'); } }
+                        else if (result.dismiss === 'cancel') {
+
+                        }
+                    });
+                }
+
+                $('.fullScreenSpin').css('display', 'none');
+            });
+            
+        }, delayTimeAfterSound);
     }
 
+
+
+    templateObject.updateJournalEntryTemp = async function(objDetails) {
+        return new Promise( (resolve, reject) => {
+          let currentTemp = templateObject.temporaryfiles.get();
+          let newTemp = [...currentTemp, objDetails];
+          templateObject.temporaryfiles.set(newTemp);
+           addVS1Data('TJournalEntryTemp', JSON.stringify({tjournalentrytemp:newTemp})).then(function(){resolve()})
+        })
+      }
 });
 Template.journalentrycard_temp.helpers({
     datatablerecords: () => {
@@ -2430,6 +2691,9 @@ Template.journalentrycard_temp.helpers({
             return dataReturn
         }
     },
+    gridfields: () => {
+        return Template.instance().gridfields.get();
+    },
     apiParams: function () {
         return ['limitCount', 'limitFrom', 'deleteFilter'];
     },
@@ -2455,6 +2719,11 @@ Template.journalentrycard_temp.helpers({
                     }
                 });
         }, 1000);
+    },
+
+    saveapifunction: function() {
+        let purchaseService = new PurchaseBoardService();
+        return purchaseService.saveJournalEnrtry
     },
 
     getTemplateList: function () {
@@ -2694,12 +2963,23 @@ Template.journalentrycard_temp.helpers({
         return Template.instance().printOptions.get()
     },
 
+    printfields: ()=> {
+        return Template.instance().printfields.get();
+    },
+
     saveTransaction: function () {
         let templateObject = Template.instance();
         return function (data) {
             templateObject.saveJournalEntryData(data)
         }
     },
+
+    updateTransactionTemp: function() {
+        let templateObject = Template.instance();
+        return async function(data) {
+        await templateObject.updateJournalEntryTemp(data)
+        }
+    }
 
 
 });
@@ -3291,33 +3571,49 @@ Template.journalentrycard_temp.events({
         $('#edtSupplierName').select();
         $('#edtSupplierName').editableSelect();
     },
-    'click .th.colCreditExCheck': function (event) {
-        $('.colCreditExCheck').addClass('hiddenColumn');
-        $('.colCreditExCheck').removeClass('showColumn');
+    'click .th.colCreditEx': function (event) {
+        $('.th.colCreditEx').addClass('hiddenColumn');
+        $('.th.colCreditEx').removeClass('showColumn');
+        $('.colCreditEx').addClass('hiddenColumn');
+        $('.colCreditEx').removeClass('showColumn');
 
-        $('.colCreditIncCheck').addClass('showColumn');
-        $('.colCreditIncCheck').removeClass('hiddenColumn');
+        $('.th.colCreditInc').addClass('showColumn');
+        $('.th.colCreditInc').removeClass('hiddenColumn');
+        $('.colCreditInc').addClass('showColumn');
+        $('.colCreditInc').removeClass('hiddenColumn');
     },
-    'click .th.colCreditIncCheck': function (event) {
-        $('.colCreditIncCheck').addClass('hiddenColumn');
-        $('.colCreditIncCheck').removeClass('showColumn');
+    'click .th.colCreditInc': function (event) {
+        $('.th.colCreditInc').addClass('hiddenColumn');
+        $('.th.colCreditInc').removeClass('showColumn');
+        $('.colCreditInc').addClass('hiddenColumn');
+        $('.colCreditInc').removeClass('showColumn');
 
-        $('.colCreditExCheck').addClass('showColumn');
-        $('.colCreditExCheck').removeClass('hiddenColumn');
+        $('.th.colCreditEx').addClass('showColumn');
+        $('.th.colCreditEx').removeClass('hiddenColumn');
+        $('.colCreditEx').addClass('showColumn');
+        $('.colCreditEx').removeClass('hiddenColumn');
     },
-    'click .th.colDebitExCheck': function (event) {
-        $('.colDebitExCheck').addClass('hiddenColumn');
-        $('.colDebitExCheck').removeClass('showColumn');
+    'click .th.colDebitEx': function (event) {
+        $('.th.colDebitEx').addClass('hiddenColumn');
+        $('.th.colDebitEx').removeClass('showColumn');
+        $('.colDebitEx').addClass('hiddenColumn');
+        $('.colDebitEx').removeClass('showColumn');
 
-        $('.colDebitIncCheck').addClass('showColumn');
-        $('.colDebitIncCheck').removeClass('hiddenColumn');
+        $('.th.colDebitInc').addClass('showColumn');
+        $('.th.colDebitInc').removeClass('hiddenColumn');
+        $('.colDebitInc').addClass('showColumn');
+        $('.colDebitInc').removeClass('hiddenColumn');
     },
-    'click .th.colDebitIncCheck': function (event) {
-        $('.colDebitIncCheck').addClass('hiddenColumn');
-        $('.colDebitIncCheck').removeClass('showColumn');
-
-        $('.colDebitExCheck').addClass('showColumn');
-        $('.colDebitExCheck').removeClass('hiddenColumn');
+    'click .th.colDebitInc': function (event) {
+        $('.th.colDebitInc').addClass('hiddenColumn');
+        $('.th.colDebitInc').removeClass('showColumn');
+        $('.colDebitInc').addClass('hiddenColumn');
+        $('.colDebitInc').removeClass('showColumn');
+        
+        $('.th.colDebitEx').addClass('showColumn');
+        $('.th.colDebitEx').removeClass('hiddenColumn');
+        $('.colDebitEx').addClass('showColumn');
+        $('.colDebitEx').removeClass('hiddenColumn');
     },
     'blur .lineCreditExChange': function (event) {
 
@@ -3395,6 +3691,10 @@ Template.journalentrycard_temp.events({
             };
 
         });
+        $('#creditExTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotal));
+        $('#creditIncTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotalInc));
+        $('#debitExTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotal));
+        $('#debitIncTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotalInc));
         templateObject.totalCredit.set(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotal));
         templateObject.totalDebit.set(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotal));
 
@@ -3412,18 +3712,19 @@ Template.journalentrycard_temp.events({
 
             $(event.target).val(Currency + '' + inputDebitEx.toLocaleString(undefined, { minimumFractionDigits: 2 }) || Currency + '0');
         }
+        
         let templateObject = Template.instance();
         let taxcodeList = templateObject.taxraterecords.get();
         let utilityService = new UtilityService();
 
-        let inputCredit = parseFloat($('.lineDebitEx').val()) || 0;
-        if (!isNaN($('.lineDebitEx').val())) {
-            $(event.target).val(Currency + '' + inputCredit.toLocaleString(undefined, { minimumFractionDigits: 2 }) || Currency + '0');
-        } else {
-            let inputCredit = Number($(event.target).val().replace(/[^0-9.-]+/g, ""));
+        // let inputCredit = parseFloat($('.lineDebitEx').val()) || 0;
+        // if (!isNaN($('.lineDebitEx').val())) {
+        //     $(event.target).val(Currency + '' + inputCredit.toLocaleString(undefined, { minimumFractionDigits: 2 }) || Currency + '0');
+        // } else {
+        //     let inputCredit = Number($(event.target).val().replace(/[^0-9.-]+/g, ""));
 
-            $(event.target).val(Currency + '' + inputCredit.toLocaleString(undefined, { minimumFractionDigits: 2 }) || Currency + '0');
-        }
+        //     $(event.target).val(Currency + '' + inputCredit.toLocaleString(undefined, { minimumFractionDigits: 2 }) || Currency + '0');
+        // }
 
         let $tblrows = $("#tblJournalEntryLine tbody tr");
         var targetID = $(event.target).closest('tr').attr('id');
@@ -3476,6 +3777,11 @@ Template.journalentrycard_temp.events({
             }
 
         });
+
+        $('#creditExTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotal));
+        $('#creditIncTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotalInc));
+        $('#debitExTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotal));
+        $('#debitIncTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotalInc));
         templateObject.totalCredit.set(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotal));
         templateObject.totalDebit.set(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotal));
 
@@ -3487,15 +3793,11 @@ Template.journalentrycard_temp.events({
 
         if (!isNaN($(event.target).val())) {
             let inputCreditEx = parseFloat($(event.target).val());
-            $(event.target).val(Currency + '' + inputCreditEx.toLocaleString(undefined, {
-                minimumFractionDigits: 2
-            }));
+            $(event.target).val(Currency + '' + inputCreditEx.toLocaleString(undefined, {inimumFractionDigits: 2}));
         } else {
             let inputCreditEx = Number($(event.target).val().replace(/[^0-9.-]+/g, ""));
 
-            $(event.target).val(Currency + '' + inputCreditEx.toLocaleString(undefined, {
-                minimumFractionDigits: 2
-            }) || Currency + '0');
+            $(event.target).val(Currency + '' + inputCreditEx.toLocaleString(undefined, {minimumFractionDigits: 2}) || Currency + '0');
         }
         let templateObject = Template.instance();
         let taxcodeList = templateObject.taxraterecords.get();
@@ -3503,15 +3805,11 @@ Template.journalentrycard_temp.events({
 
         let inputCredit = parseFloat($(event.target).val()) || 0;
         if (!isNaN($(event.target).val())) {
-            $(event.target).val(Currency + '' + inputCredit.toLocaleString(undefined, {
-                minimumFractionDigits: 2
-            }) || Currency + '0');
+            $(event.target).val(Currency + '' + inputCredit.toLocaleString(undefined, {minimumFractionDigits: 2}) || Currency + '0');
         } else {
             let inputCredit = Number($(event.target).val().replace(/[^0-9.-]+/g, ""));
 
-            $(event.target).val(Currency + '' + inputCredit.toLocaleString(undefined, {
-                minimumFractionDigits: 2
-            }) || Currency + '0');
+            $(event.target).val(Currency + '' + inputCredit.toLocaleString(undefined, {minimumFractionDigits: 2}) || Currency + '0');
         }
 
         let $tblrows = $("#tblJournalEntryLine tbody tr");
@@ -3569,6 +3867,11 @@ Template.journalentrycard_temp.events({
             };
 
         });
+
+        $('#creditExTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotal));
+        $('#creditIncTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotalInc));
+        $('#debitExTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotal));
+        $('#debitIncTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotalInc));
         templateObject.totalCredit.set(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotal));
         templateObject.totalDebit.set(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotal));
 
@@ -3655,6 +3958,11 @@ Template.journalentrycard_temp.events({
             }
 
         });
+
+        $('#creditExTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotal));
+        $('#creditIncTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotalInc));
+        $('#debitExTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotal));
+        $('#debitIncTotal').text(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotalInc));
         templateObject.totalCredit.set(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotal));
         templateObject.totalDebit.set(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotal));
 
@@ -3765,202 +4073,202 @@ Template.journalentrycard_temp.events({
             else $("#footerDeleteModal1").modal("toggle");
         }
     },
-    'click .btnDeleteFollowingJournals': async function (event) {
-        playDeleteAudio();
-        var currentDate = new Date();
-        let purchaseService = new PurchaseBoardService();
-        let templateObject = Template.instance();
-        setTimeout(async function () {
+    // 'click .btnDeleteFollowingJournals': async function (event) {
+    //     playDeleteAudio();
+    //     var currentDate = new Date();
+    //     let purchaseService = new PurchaseBoardService();
+    //     let templateObject = Template.instance();
+    //     setTimeout(async function () {
 
-            swal({
-                title: 'You are deleting ' + $("#following_cnt").val() + ' Journal Entry',
-                text: "Do you wish to delete this transaction and all others associated with it moving forward?",
-                type: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Yes',
-                cancelButtonText: 'No'
-            }).then(async (result) => {
-                if (result.value) {
-                    var url = FlowRouter.current().path;
-                    var getso_id = url.split('?id=');
-                    var currentInvoice = getso_id[getso_id.length - 1];
-                    var objDetails = '';
-                    if (getso_id[1]) {
-                        $('.deleteloadingbar').css('width', ('0%')).attr('aria-valuenow', 0);
-                        $("#deleteLineModal").modal('hide');
-                        $("#deleteprogressbar").css('display', 'block');
-                        $("#deleteprogressbar").modal('show');
-                        currentInvoice = parseInt(currentInvoice);
-                        var journalData = await purchaseService.getOneJournalEnrtyData(currentInvoice);
-                        var transactionDate = journalData.fields.TransactionDate;
-                        var fromDate = transactionDate.substring(0, 10);
-                        var toDate = currentDate.getFullYear() + '-' + ("0" + (currentDate.getMonth() + 1)).slice(-2) + '-' + ("0" + (currentDate.getDate())).slice(-2);
-                        var followingJournals = await sideBarService.getTJournalEntryListData(
-                            fromDate,
-                            toDate,
-                            false,
-                            initialReportLoad,
-                            0
-                        );
-                        var journalList = followingJournals.tjournalentrylist;
-                        var j = 0;
-                        for (var i = 0; i < journalList.length; i++) {
-                            var objDetails = {
-                                type: "TJournalEntry",
-                                fields: {
-                                    ID: journalList[i].GJID,
-                                    Deleted: true
-                                }
-                            };
-                            j++;
-                            document.getElementsByClassName("deleteprogressBarInner")[0].innerHTML = j + '';
-                            $('.deleteloadingbar').css('width', ((100 / journalList.length * j)) + '%').attr('aria-valuenow', ((100 / journalList.length * j)));
-                            var result = await purchaseService.saveJournalEnrtry(objDetails);
-                        }
-                    }
-                    $("#deletecheckmarkwrapper").removeClass('hide');
-                    $('.modal-backdrop').css('display', 'none');
-                    $("#deleteprogressbar").modal('hide');
-                    $("#btn_data").click();
-                }
-            });
-        }, delayTimeAfterSound);
-    },
-    'click .btnDeleteJournal': function (event) {
-        playDeleteAudio();
-        let templateObject = Template.instance();
-        let purchaseService = new PurchaseBoardService();
-        setTimeout(function () {
-            $('.fullScreenSpin').css('display', 'inline-block');
+    //         swal({
+    //             title: 'You are deleting ' + $("#following_cnt").val() + ' Journal Entry',
+    //             text: "Do you wish to delete this transaction and all others associated with it moving forward?",
+    //             type: 'question',
+    //             showCancelButton: true,
+    //             confirmButtonText: 'Yes',
+    //             cancelButtonText: 'No'
+    //         }).then(async (result) => {
+    //             if (result.value) {
+    //                 var url = FlowRouter.current().path;
+    //                 var getso_id = url.split('?id=');
+    //                 var currentInvoice = getso_id[getso_id.length - 1];
+    //                 var objDetails = '';
+    //                 if (getso_id[1]) {
+    //                     $('.deleteloadingbar').css('width', ('0%')).attr('aria-valuenow', 0);
+    //                     $("#deleteLineModal").modal('hide');
+    //                     $("#deleteprogressbar").css('display', 'block');
+    //                     $("#deleteprogressbar").modal('show');
+    //                     currentInvoice = parseInt(currentInvoice);
+    //                     var journalData = await purchaseService.getOneJournalEnrtyData(currentInvoice);
+    //                     var transactionDate = journalData.fields.TransactionDate;
+    //                     var fromDate = transactionDate.substring(0, 10);
+    //                     var toDate = currentDate.getFullYear() + '-' + ("0" + (currentDate.getMonth() + 1)).slice(-2) + '-' + ("0" + (currentDate.getDate())).slice(-2);
+    //                     var followingJournals = await sideBarService.getTJournalEntryListData(
+    //                         fromDate,
+    //                         toDate,
+    //                         false,
+    //                         initialReportLoad,
+    //                         0
+    //                     );
+    //                     var journalList = followingJournals.tjournalentrylist;
+    //                     var j = 0;
+    //                     for (var i = 0; i < journalList.length; i++) {
+    //                         var objDetails = {
+    //                             type: "TJournalEntry",
+    //                             fields: {
+    //                                 ID: journalList[i].GJID,
+    //                                 Deleted: true
+    //                             }
+    //                         };
+    //                         j++;
+    //                         document.getElementsByClassName("deleteprogressBarInner")[0].innerHTML = j + '';
+    //                         $('.deleteloadingbar').css('width', ((100 / journalList.length * j)) + '%').attr('aria-valuenow', ((100 / journalList.length * j)));
+    //                         var result = await purchaseService.saveJournalEnrtry(objDetails);
+    //                     }
+    //                 }
+    //                 $("#deletecheckmarkwrapper").removeClass('hide');
+    //                 $('.modal-backdrop').css('display', 'none');
+    //                 $("#deleteprogressbar").modal('hide');
+    //                 $("#btn_data").click();
+    //             }
+    //         });
+    //     }, delayTimeAfterSound);
+    // },
+    // 'click .btnDeleteJournal': function (event) {
+    //     playDeleteAudio();
+    //     let templateObject = Template.instance();
+    //     let purchaseService = new PurchaseBoardService();
+    //     setTimeout(function () {
+    //         $('.fullScreenSpin').css('display', 'inline-block');
 
-            var url = FlowRouter.current().path;
-            var getso_id = url.split('?id=');
-            var currentInvoice = getso_id[getso_id.length - 1];
-            var objDetails = '';
-            if (getso_id[1]) {
-                currentInvoice = parseInt(currentInvoice);
-                var objDetails = {
-                    type: "TJournalEntry",
-                    fields: {
-                        ID: currentInvoice,
-                        Deleted: true
-                    }
-                };
+    //         var url = FlowRouter.current().path;
+    //         var getso_id = url.split('?id=');
+    //         var currentInvoice = getso_id[getso_id.length - 1];
+    //         var objDetails = '';
+    //         if (getso_id[1]) {
+    //             currentInvoice = parseInt(currentInvoice);
+    //             var objDetails = {
+    //                 type: "TJournalEntry",
+    //                 fields: {
+    //                     ID: currentInvoice,
+    //                     Deleted: true
+    //                 }
+    //             };
 
-                purchaseService.saveJournalEnrtry(objDetails).then(function (objDetails) {
-                    FlowRouter.go('/journalentrylist?success=true');
-                    $('.modal-backdrop').css('display', 'none');
-                }).catch(function (err) {
-                    if (err === 'Error: "Unable to lock object: "') {
-                        swal({
-                            title: 'This Journal Entry has already been reconciled.',
-                            text: 'Please delete the Bank Reconciliation in order to edit/delete this Journal Entry',
-                            type: 'error',
-                            showCancelButton: false,
-                            confirmButtonText: 'Try Again'
-                        }).then((result) => {
-                            if (result.value) {
-                                FlowRouter.go('/journalentrylist');
-                            } else if (result.dismiss === 'cancel') {
+    //             purchaseService.saveJournalEnrtry(objDetails).then(function (objDetails) {
+    //                 FlowRouter.go('/journalentrylist?success=true');
+    //                 $('.modal-backdrop').css('display', 'none');
+    //             }).catch(function (err) {
+    //                 if (err === 'Error: "Unable to lock object: "') {
+    //                     swal({
+    //                         title: 'This Journal Entry has already been reconciled.',
+    //                         text: 'Please delete the Bank Reconciliation in order to edit/delete this Journal Entry',
+    //                         type: 'error',
+    //                         showCancelButton: false,
+    //                         confirmButtonText: 'Try Again'
+    //                     }).then((result) => {
+    //                         if (result.value) {
+    //                             FlowRouter.go('/journalentrylist');
+    //                         } else if (result.dismiss === 'cancel') {
 
-                            }
-                        });
-                    } else {
-                        swal({
-                            title: 'Oooops...',
-                            text: err,
-                            type: 'error',
-                            showCancelButton: false,
-                            confirmButtonText: 'Try Again'
-                        }).then((result) => {
-                            if (result.value) { if (err === checkResponseError) { window.open('/', '_self'); } }
-                            else if (result.dismiss === 'cancel') {
+    //                         }
+    //                     });
+    //                 } else {
+    //                     swal({
+    //                         title: 'Oooops...',
+    //                         text: err,
+    //                         type: 'error',
+    //                         showCancelButton: false,
+    //                         confirmButtonText: 'Try Again'
+    //                     }).then((result) => {
+    //                         if (result.value) { if (err === checkResponseError) { window.open('/', '_self'); } }
+    //                         else if (result.dismiss === 'cancel') {
 
-                            }
-                        });
-                    }
+    //                         }
+    //                     });
+    //                 }
 
-                    $('.fullScreenSpin').css('display', 'none');
-                });
-            } else {
-                window.open('/billlist', '_self');
-            }
-            $('#deleteLineModal').modal('toggle');
-            $('.modal-backdrop').css('display', 'none');
-        }, delayTimeAfterSound);
-    },
-    'click .btnDelete': async function (event) {
-        playDeleteAudio();
-        let templateObject = Template.instance();
-        let purchaseService = new PurchaseBoardService();
-        setTimeout(function () {
+    //                 $('.fullScreenSpin').css('display', 'none');
+    //             });
+    //         } else {
+    //             window.open('/billlist', '_self');
+    //         }
+    //         $('#deleteLineModal').modal('toggle');
+    //         $('.modal-backdrop').css('display', 'none');
+    //     }, delayTimeAfterSound);
+    // },
+    // 'click .btnDelete': async function (event) {
+    //     playDeleteAudio();
+    //     let templateObject = Template.instance();
+    //     let purchaseService = new PurchaseBoardService();
+    //     setTimeout(function () {
 
-            swal({
-                title: 'Delete Journal Entry',
-                text: "Are you sure you want to Delete this Journal Entry?",
-                type: 'info',
-                showCancelButton: true,
-                confirmButtonText: 'Yes'
-            }).then((result) => {
-                if (result.value) {
-                    $('.fullScreenSpin').css('display', 'inline-block');
-                    var url = FlowRouter.current().path;
-                    var getso_id = url.split('?id=');
-                    var currentInvoice = getso_id[getso_id.length - 1];
-                    var objDetails = '';
-                    if (getso_id[1]) {
-                        currentInvoice = parseInt(currentInvoice);
-                        var objDetails = {
-                            type: "TJournalEntry",
-                            fields: {
-                                ID: currentInvoice,
-                                Deleted: true
-                            }
-                        };
+    //         swal({
+    //             title: 'Delete Journal Entry',
+    //             text: "Are you sure you want to Delete this Journal Entry?",
+    //             type: 'info',
+    //             showCancelButton: true,
+    //             confirmButtonText: 'Yes'
+    //         }).then((result) => {
+    //             if (result.value) {
+    //                 $('.fullScreenSpin').css('display', 'inline-block');
+    //                 var url = FlowRouter.current().path;
+    //                 var getso_id = url.split('?id=');
+    //                 var currentInvoice = getso_id[getso_id.length - 1];
+    //                 var objDetails = '';
+    //                 if (getso_id[1]) {
+    //                     currentInvoice = parseInt(currentInvoice);
+    //                     var objDetails = {
+    //                         type: "TJournalEntry",
+    //                         fields: {
+    //                             ID: currentInvoice,
+    //                             Deleted: true
+    //                         }
+    //                     };
 
-                        purchaseService.saveJournalEnrtry(objDetails).then(function (objDetails) {
-                            FlowRouter.go('/journalentrylist?success=true');
-                            $('.modal-backdrop').css('display', 'none');
-                        }).catch(function (err) {
-                            if (err === 'Error: "Unable to lock object: "') {
-                                swal({
-                                    title: 'This Journal Entry has already been reconciled.',
-                                    text: 'Please delete the Bank Reconciliation in order to edit/delete this Journal Entry',
-                                    type: 'error',
-                                    showCancelButton: false,
-                                    confirmButtonText: 'Try Again'
-                                }).then((result) => {
-                                    if (result.value) {
-                                        FlowRouter.go('/journalentrylist');
-                                    } else if (result.dismiss === 'cancel') {
+    //                     purchaseService.saveJournalEnrtry(objDetails).then(function (objDetails) {
+    //                         FlowRouter.go('/journalentrylist?success=true');
+    //                         $('.modal-backdrop').css('display', 'none');
+    //                     }).catch(function (err) {
+    //                         if (err === 'Error: "Unable to lock object: "') {
+    //                             swal({
+    //                                 title: 'This Journal Entry has already been reconciled.',
+    //                                 text: 'Please delete the Bank Reconciliation in order to edit/delete this Journal Entry',
+    //                                 type: 'error',
+    //                                 showCancelButton: false,
+    //                                 confirmButtonText: 'Try Again'
+    //                             }).then((result) => {
+    //                                 if (result.value) {
+    //                                     FlowRouter.go('/journalentrylist');
+    //                                 } else if (result.dismiss === 'cancel') {
 
-                                    }
-                                });
-                            } else {
-                                swal({
-                                    title: 'Oooops...',
-                                    text: err,
-                                    type: 'error',
-                                    showCancelButton: false,
-                                    confirmButtonText: 'Try Again'
-                                }).then((result) => {
-                                    if (result.value) { if (err === checkResponseError) { window.open('/', '_self'); } }
-                                    else if (result.dismiss === 'cancel') {
+    //                                 }
+    //                             });
+    //                         } else {
+    //                             swal({
+    //                                 title: 'Oooops...',
+    //                                 text: err,
+    //                                 type: 'error',
+    //                                 showCancelButton: false,
+    //                                 confirmButtonText: 'Try Again'
+    //                             }).then((result) => {
+    //                                 if (result.value) { if (err === checkResponseError) { window.open('/', '_self'); } }
+    //                                 else if (result.dismiss === 'cancel') {
 
-                                    }
-                                });
-                            }
-                            $('.fullScreenSpin').css('display', 'none');
-                        });
-                    } else {
-                        FlowRouter.go('/journalentrylist?success=true');
-                        $('.modal-backdrop').css('display', 'none');
-                    }
-                } else { }
+    //                                 }
+    //                             });
+    //                         }
+    //                         $('.fullScreenSpin').css('display', 'none');
+    //                     });
+    //                 } else {
+    //                     FlowRouter.go('/journalentrylist?success=true');
+    //                     $('.modal-backdrop').css('display', 'none');
+    //                 }
+    //             } else { }
 
-            });
-        }, delayTimeAfterSound);
-    },
+    //         });
+    //     }, delayTimeAfterSound);
+    // },
     'click .btnDeleteLine': function (event) {
         playDeleteAudio();
         let templateObject = Template.instance();
@@ -4026,631 +4334,631 @@ Template.journalentrycard_temp.events({
             $('#myModal4').modal('toggle');
         }, delayTimeAfterSound);
     },
-    'click .btnSave': function (event) {
-        playSaveAudio();
-        let templateObject = Template.instance();
-        let purchaseService = new PurchaseBoardService();
-        let uploadedItems = templateObject.uploadedFiles.get();
-        setTimeout(function () {
-
-            let department = $('#sltDepartment').val();
-            let headMemo = $('#tdaxMemo').val();
-
-            if (department === '') {
-                swal({
-                    title: "Department has not been selected!",
-                    text: '',
-                    type: 'warning',
-                }).then((result) => {
-                    if (result.value) {
-                        $('#sltDepartment').focus();
-                    } else if (result.dismiss == 'cancel') {
-
-                    }
-                });
-                e.preventDefault();
-            } else {
-
-                $('.fullScreenSpin').css('display', 'inline-block');
-                var splashLineArray = new Array();
-                let lineItemsForm = [];
-                let lineItemObjForm = {};
-                let tdtaxCode = "";
-
-
-
-                var transdateTime = new Date($("#dtTransDate").datepicker("getDate"));
-                let transDate = transdateTime.getFullYear() + "-" + (transdateTime.getMonth() + 1) + "-" + transdateTime.getDate();
-                let entryNo = $('#edtEnrtyNo').val();
-
-                var url = FlowRouter.current().path;
-                var getso_id = url.split('?id=');
-                var currentBill = getso_id[getso_id.length - 1];
-
-                var objDetails = '';
-                if (getso_id[1]) {
-                    $('#tblJournalEntryLine > tbody > tr').each(function () {
-                        var lineID = this.id;
-                        let tdaccount = $('#' + lineID + " .lineAccountName").val();
-                        let tdaccountNo = $('#' + lineID + " .lineAccountNo").text();
-                        let tddmemo = $('#' + lineID + " .lineMemo").text();
-                        let tdcreditex = $('#' + lineID + " .lineCreditInc").val();
-                        let tddebitex = $('#' + lineID + " .lineDebitInc").val();
-                        let erpLineID = $('#' + lineID + " .lineAccountName").attr('lineid');
-
-                        tdtaxCode = $('#' + lineID + " .lineTaxCode").val() || loggedTaxCodePurchaseInc;
-
-
-                        if (tdaccount != "") {
-
-                            lineItemObjForm = {
-                                type: "TJournalEntryLines",
-                                fields: {
-                                    ID: parseInt(erpLineID) || 0,
-                                    AccountName: tdaccount || '',
-
-                                    Memo: tddmemo || headMemo,
-                                    TaxCode: tdtaxCode || '',
-                                    CreditAmountInc: parseFloat(tdcreditex.replace(/[^0-9.-]+/g, "")) || 0,
-
-                                    DebitAmountInc: parseFloat(tddebitex.replace(/[^0-9.-]+/g, "")) || 0,
-
-                                    DeptName: department || defaultDept,
-
-                                    EmployeeName: localStorage.getItem('mySessionEmployee')
-                                }
-                            };
-                            lineItemsForm.push(lineItemObjForm);
-                            splashLineArray.push(lineItemObjForm);
-                        }
-                    });
-                    currentBill = parseInt(currentBill);
-                    objDetails = {
-                        type: "TJournalEntry",
-                        fields: {
-                            ID: currentBill,
-                            TransactionNo: entryNo,
-                            Lines: splashLineArray,
-                            TransactionDate: transDate,
-                            Memo: headMemo
-                        }
-                    };
-                } else {
-                    $('#tblJournalEntryLine > tbody > tr').each(function () {
-                        var lineID = this.id;
-                        let tdaccount = $('#' + lineID + " .lineAccountName").val();
-                        let tdaccountNo = $('#' + lineID + " .lineAccountNo").text();
-                        let tddmemo = $('#' + lineID + " .lineMemo").text();
-                        let tdcreditex = $('#' + lineID + " .lineCreditInc").val();
-                        let tddebitex = $('#' + lineID + " .lineDebitInc").val();
-                        let erpLineID = $('#' + lineID + " .lineAccountName").attr('lineid');
-
-                        tdtaxCode = $('#' + lineID + " .lineTaxCode").val() || loggedTaxCodePurchaseInc;
-
+    // 'click .btnSave': function (event) {
+    //     playSaveAudio();
+    //     let templateObject = Template.instance();
+    //     let purchaseService = new PurchaseBoardService();
+    //     let uploadedItems = templateObject.uploadedFiles.get();
+    //     setTimeout(function () {
+
+    //         let department = $('#sltDepartment').val();
+    //         let headMemo = $('#tdaxMemo').val();
+
+    //         if (department === '') {
+    //             swal({
+    //                 title: "Department has not been selected!",
+    //                 text: '',
+    //                 type: 'warning',
+    //             }).then((result) => {
+    //                 if (result.value) {
+    //                     $('#sltDepartment').focus();
+    //                 } else if (result.dismiss == 'cancel') {
+
+    //                 }
+    //             });
+    //             e.preventDefault();
+    //         } else {
+
+    //             $('.fullScreenSpin').css('display', 'inline-block');
+    //             var splashLineArray = new Array();
+    //             let lineItemsForm = [];
+    //             let lineItemObjForm = {};
+    //             let tdtaxCode = "";
+
+
+
+    //             var transdateTime = new Date($("#dtTransDate").datepicker("getDate"));
+    //             let transDate = transdateTime.getFullYear() + "-" + (transdateTime.getMonth() + 1) + "-" + transdateTime.getDate();
+    //             let entryNo = $('#edtEnrtyNo').val();
+
+    //             var url = FlowRouter.current().path;
+    //             var getso_id = url.split('?id=');
+    //             var currentBill = getso_id[getso_id.length - 1];
+
+    //             var objDetails = '';
+    //             if (getso_id[1]) {
+    //                 $('#tblJournalEntryLine > tbody > tr').each(function () {
+    //                     var lineID = this.id;
+    //                     let tdaccount = $('#' + lineID + " .lineAccountName").val();
+    //                     let tdaccountNo = $('#' + lineID + " .lineAccountNo").text();
+    //                     let tddmemo = $('#' + lineID + " .lineMemo").text();
+    //                     let tdcreditex = $('#' + lineID + " .lineCreditInc").val();
+    //                     let tddebitex = $('#' + lineID + " .lineDebitInc").val();
+    //                     let erpLineID = $('#' + lineID + " .lineAccountName").attr('lineid');
+
+    //                     tdtaxCode = $('#' + lineID + " .lineTaxCode").val() || loggedTaxCodePurchaseInc;
+
+
+    //                     if (tdaccount != "") {
+
+    //                         lineItemObjForm = {
+    //                             type: "TJournalEntryLines",
+    //                             fields: {
+    //                                 ID: parseInt(erpLineID) || 0,
+    //                                 AccountName: tdaccount || '',
+
+    //                                 Memo: tddmemo || headMemo,
+    //                                 TaxCode: tdtaxCode || '',
+    //                                 CreditAmountInc: parseFloat(tdcreditex.replace(/[^0-9.-]+/g, "")) || 0,
+
+    //                                 DebitAmountInc: parseFloat(tddebitex.replace(/[^0-9.-]+/g, "")) || 0,
+
+    //                                 DeptName: department || defaultDept,
+
+    //                                 EmployeeName: localStorage.getItem('mySessionEmployee')
+    //                             }
+    //                         };
+    //                         lineItemsForm.push(lineItemObjForm);
+    //                         splashLineArray.push(lineItemObjForm);
+    //                     }
+    //                 });
+    //                 currentBill = parseInt(currentBill);
+    //                 objDetails = {
+    //                     type: "TJournalEntry",
+    //                     fields: {
+    //                         ID: currentBill,
+    //                         TransactionNo: entryNo,
+    //                         Lines: splashLineArray,
+    //                         TransactionDate: transDate,
+    //                         Memo: headMemo
+    //                     }
+    //                 };
+    //             } else {
+    //                 $('#tblJournalEntryLine > tbody > tr').each(function () {
+    //                     var lineID = this.id;
+    //                     let tdaccount = $('#' + lineID + " .lineAccountName").val();
+    //                     let tdaccountNo = $('#' + lineID + " .lineAccountNo").text();
+    //                     let tddmemo = $('#' + lineID + " .lineMemo").text();
+    //                     let tdcreditex = $('#' + lineID + " .lineCreditInc").val();
+    //                     let tddebitex = $('#' + lineID + " .lineDebitInc").val();
+    //                     let erpLineID = $('#' + lineID + " .lineAccountName").attr('lineid');
+
+    //                     tdtaxCode = $('#' + lineID + " .lineTaxCode").val() || loggedTaxCodePurchaseInc;
+
 
-                        if (tdaccount != "") {
-
-                            lineItemObjForm = {
-                                type: "TJournalEntryLines",
-                                fields: {
-                                    ID: parseInt(erpLineID) || 0,
-                                    AccountName: tdaccount || '',
-
-                                    Memo: tddmemo || headMemo,
-                                    TaxCode: tdtaxCode || '',
-                                    CreditAmountInc: parseFloat(tdcreditex.replace(/[^0-9.-]+/g, "")) || 0,
-
-                                    DebitAmountInc: parseFloat(tddebitex.replace(/[^0-9.-]+/g, "")) || 0,
-
-                                    DeptName: department || defaultDept,
-
-                                    ClientName: '',
-                                    EmployeeName: localStorage.getItem('mySessionEmployee')
-                                }
-                            };
-                            lineItemsForm.push(lineItemObjForm);
-                            splashLineArray.push(lineItemObjForm);
-                        }
-                    });
-                    objDetails = {
-                        type: "TJournalEntry",
-                        fields: {
-
-                            TransactionNo: entryNo,
-                            Lines: splashLineArray,
-                            TransactionDate: transDate,
-                            Memo: headMemo
-
-                        }
-                    };
-                }
-                if (splashLineArray.length > 0) {
-
-                } else {
-                    swal('Account name has not been selected!', '', 'warning');
-                    $('.fullScreenSpin').css('display', 'none');
-                    event.preventDefault();
-                    return false;
-                }
-                purchaseService.saveJournalEnrtry(objDetails).then(function (objDetails) {
-                    if (localStorage.getItem("enteredURL") != null) {
-                        FlowRouter.go(localStorage.getItem("enteredURL"));
-                        localStorage.removeItem("enteredURL");
-                        return;
-                    }
-                    FlowRouter.go('/journalentrylist?success=true');
-                    $('.modal-backdrop').css('display', 'none');
-                }).catch(function (err) {
-                    if (err === 'Error: "Unable to lock object: "') {
-                        swal({
-                            title: 'This Journal Entry has already been reconciled.',
-                            text: 'Please delete the Bank Reconciliation in order to edit/delete this Journal Entry',
-                            type: 'error',
-                            showCancelButton: false,
-                            confirmButtonText: 'Try Again'
-                        }).then((result) => {
-                            if (result.value) {
-                                FlowRouter.go('/journalentrylist');
-
-                            } else if (result.dismiss === 'cancel') {
-
-                            }
-                        });
-                    } else {
-                        swal({
-                            title: 'Oooops...',
-                            text: err,
-                            type: 'error',
-                            showCancelButton: false,
-                            confirmButtonText: 'Try Again'
-                        }).then((result) => {
-                            if (result.value) { if (err === checkResponseError) { window.open('/', '_self'); } }
-                            else if (result.dismiss === 'cancel') {
-
-                            }
-                        });
-                    }
-
-                    $('.fullScreenSpin').css('display', 'none');
-                });
-            }
-        }, delayTimeAfterSound);
-    },
-    'click .chkcolAccountName': function (event) {
-        if ($(event.target).is(':checked')) {
-            $('.colAccountName').css('display', 'table-cell');
-            $('.colAccountName').css('padding', '.75rem');
-            $('.colAccountName').css('vertical-align', 'top');
-        } else {
-            $('.colAccountName').css('display', 'none');
-        }
-    },
-    'click .chkcolAccountNo': function (event) {
-        if ($(event.target).is(':checked')) {
-            $('.colAccountNo').css('display', 'table-cell');
-            $('.colAccountNo').css('padding', '.75rem');
-            $('.colAccountNo').css('vertical-align', 'top');
-        } else {
-            $('.colAccountNo').css('display', 'none');
-        }
-    },
-    'click .chkcolMemo': function (event) {
-        if ($(event.target).is(':checked')) {
-            $('.colMemo').css('display', 'table-cell');
-            $('.colMemo').css('padding', '.75rem');
-            $('.colMemo').css('vertical-align', 'top');
-        } else {
-            $('.colMemo').css('display', 'none');
-        }
-    },
-    'click .chkcolFixedAsset': function (event) {
-        if ($(event.target).is(':checked')) {
-            $('.colFixedAsset').css('display', 'table-cell');
-            $('.colFixedAsset').css('padding', '.75rem');
-            $('.colFixedAsset').css('vertical-align', 'top');
-        } else {
-            $('.colFixedAsset').css('display', 'none');
-        }
-    },
-    'click .chkcolDepartment': function (event) {
-        if ($(event.target).is(':checked')) {
-            $('.colDepartment').css('display', 'table-cell');
-            $('.colDepartment').css('padding', '.75rem');
-            $('.colDepartment').css('vertical-align', 'top');
-        } else {
-            $('.colDepartment').css('display', 'none');
-        }
-    },
-    'click .chkcolCustomerJob': function (event) {
-        if ($(event.target).is(':checked')) {
-            $('.colCustomerJob').css('display', 'table-cell');
-            $('.colCustomerJob').css('padding', '.75rem');
-            $('.colCustomerJob').css('vertical-align', 'top');
-        } else {
-            $('.colCustomerJob').css('display', 'none');
-        }
-    },
-    'click .chkcolCreditEx': function (event) {
-        if ($(event.target).is(':checked')) {
-            $('.colCreditEx').css('display', 'table-cell');
-            $('.colCreditEx').css('padding', '.75rem');
-            $('.colCreditEx').css('vertical-align', 'top');
-        } else {
-            $('.colCreditEx').css('display', 'none');
-        }
-    },
-    'click .chkcolDebitEx': function (event) {
-        if ($(event.target).is(':checked')) {
-            $('.colDebitEx').css('display', 'table-cell');
-            $('.colDebitEx').css('padding', '.75rem');
-            $('.colDebitEx').css('vertical-align', 'top');
-        } else {
-            $('.colDebitEx').css('display', 'none');
-        }
-    },
-    'change .rngRangeAccountName': function (event) {
-
-        let range = $(event.target).val();
-        $(".spWidthAccountName").html(range + 'px');
-        $('.colAccountName').css('width', range + 'px');
-
-    },
-    'change .rngRangeAccountNo': function (event) {
-
-        let range = $(event.target).val();
-        $(".spWidthAccountNo").html(range + 'px');
-        $('.colAccountNo').css('width', range + 'px');
-
-    },
-    'change .rngRangeMemo': function (event) {
-
-        let range = $(event.target).val();
-        $(".spWidthMemo").html(range + 'px');
-        $('.colMemo').css('width', range + 'px');
-
-    },
-    'change .rngRangeFixedAsset': function (event) {
-        let range = $(event.target).val();
-        $('.colFixedAsset').css('width', range + 'px');
-    },
-    'change .rngRangeDepartment': function (event) {
-        let range = $(event.target).val();
-        $('.colDepartment').css('width', range + 'px');
-    },
-    'change .rngRangeCustomerJob': function (event) {
-        let range = $(event.target).val();
-        $('.colCustomerJob').css('width', range + 'px');
-    },
-    'change .rngRangeCreditEx': function (event) {
-
-        let range = $(event.target).val();
-        $(".spWidthCreditEx").html(range + 'px');
-        $('.colCreditEx').css('width', range + 'px');
-
-    },
-    'change .rngRangeDebitEx': function (event) {
-
-        let range = $(event.target).val();
-        $(".spWidthDebitEx").html(range + 'px');
-        $('.colDebitEx').css('width', range + 'px');
-
-    },
-    'blur .divcolumn': function (event) {
-        let columData = $(event.target).html();
-        let columHeaderUpdate = $(event.target).attr("valueupdate");
-        $("" + columHeaderUpdate + "").html(columData);
-
-    },
-    'click .btnSaveGridSettings': function (event) {
-        playSaveAudio();
-        setTimeout(function () {
-            let lineItems = [];
-
-            $('#myModal2 .columnSettings').each(function (index) {
-                var $tblrow = $(this);
-                var colTitle = $tblrow.find(".divcolumn").text() || '';
-                var colWidth = $tblrow.find(".custom-range").val() || 0;
-                var colthClass = $tblrow.find(".divcolumn").attr("valueupdate") || '';
-                var colHidden = false;
-                if ($tblrow.find(".custom-control-input").is(':checked')) {
-                    colHidden = false;
-                } else {
-                    colHidden = true;
-                }
-                let lineItemObj = {
-                    index: index,
-                    label: colTitle,
-                    hidden: colHidden,
-                    width: colWidth,
-                    thclass: colthClass
-                }
-
-                lineItems.push(lineItemObj);
-            });
-
-            localStorage.setItem('frm_journalentry_settings', JSON.stringify(lineItems));
-
-            var getcurrentCloudDetails = CloudUser.findOne({
-                _id: localStorage.getItem('mycloudLogonID'),
-                clouddatabaseID: localStorage.getItem('mycloudLogonDBID')
-            });
-            if (getcurrentCloudDetails) {
-                if (getcurrentCloudDetails._id.length > 0) {
-                    var clientID = getcurrentCloudDetails._id;
-                    var clientUsername = getcurrentCloudDetails.cloudUsername;
-                    var clientEmail = getcurrentCloudDetails.cloudEmail;
-                    var checkPrefDetails = CloudPreference.findOne({
-                        userid: clientID,
-                        PrefName: 'tblJournalEntryLine'
-                    });
-                    if (checkPrefDetails) {
-                        CloudPreference.update({
-                            _id: checkPrefDetails._id
-                        }, {
-                            $set: {
-                                userid: clientID,
-                                username: clientUsername,
-                                useremail: clientEmail,
-                                PrefGroup: 'purchaseform',
-                                PrefName: 'tblJournalEntryLine',
-                                published: true,
-                                customFields: lineItems,
-                                updatedAt: new Date()
-                            }
-                        }, function (err, idTag) {
-                            if (err) {
-                                $('#myModal2').modal('toggle');
-
-                            } else {
-                                $('#myModal2').modal('toggle');
-
-
-                            }
-                        });
-
-                    } else {
-                        CloudPreference.insert({
-                            userid: clientID,
-                            username: clientUsername,
-                            useremail: clientEmail,
-                            PrefGroup: 'purchaseform',
-                            PrefName: 'tblJournalEntryLine',
-                            published: true,
-                            customFields: lineItems,
-                            createdAt: new Date()
-                        }, function (err, idTag) {
-                            if (err) {
-                                $('#myModal2').modal('toggle');
-
-                            } else {
-                                $('#myModal2').modal('toggle');
-
-
-                            }
-                        });
-
-                    }
-                }
-            }
-            $('#myModal2').modal('toggle');
-        }, delayTimeAfterSound);
-    },
-    'click .btnResetGridSettings': function (event) {
-        var getcurrentCloudDetails = CloudUser.findOne({
-            _id: localStorage.getItem('mycloudLogonID'),
-            clouddatabaseID: localStorage.getItem('mycloudLogonDBID')
-        });
-        if (getcurrentCloudDetails) {
-            if (getcurrentCloudDetails._id.length > 0) {
-                var clientID = getcurrentCloudDetails._id;
-                var clientUsername = getcurrentCloudDetails.cloudUsername;
-                var clientEmail = getcurrentCloudDetails.cloudEmail;
-                var checkPrefDetails = CloudPreference.findOne({
-                    userid: clientID,
-                    PrefName: 'tblJournalEntryLine'
-                });
-                if (checkPrefDetails) {
-                    CloudPreference.remove({
-                        _id: checkPrefDetails._id
-                    }, function (err, idTag) {
-                        if (err) {
-
-                        } else {
-                            Meteor._reload.reload();
-                        }
-                    });
-
-                }
-            }
-        }
-    },
-    'click .btnResetSettings': function (event) {
-        var getcurrentCloudDetails = CloudUser.findOne({
-            _id: localStorage.getItem('mycloudLogonID'),
-            clouddatabaseID: localStorage.getItem('mycloudLogonDBID')
-        });
-        if (getcurrentCloudDetails) {
-            if (getcurrentCloudDetails._id.length > 0) {
-                var clientID = getcurrentCloudDetails._id;
-                var clientUsername = getcurrentCloudDetails.cloudUsername;
-                var clientEmail = getcurrentCloudDetails.cloudEmail;
-                var checkPrefDetails = CloudPreference.findOne({
-                    userid: clientID,
-                    PrefName: 'journalentrycard'
-                });
-                if (checkPrefDetails) {
-                    CloudPreference.remove({
-                        _id: checkPrefDetails._id
-                    }, function (err, idTag) {
-                        if (err) {
-
-                        } else {
-                            Meteor._reload.reload();
-                        }
-                    });
-
-                }
-            }
-        }
-    },
-    'click .new_attachment_btn': function (event) {
-        $('#attachment-upload').trigger('click');
-
-    },
-    'change #attachment-upload': function (e) {
-        let templateObj = Template.instance();
-        let saveToTAttachment = false;
-        let lineIDForAttachment = false;
-        let uploadedFilesArray = templateObj.uploadedFiles.get();
-
-        let myFiles = $('#attachment-upload')[0].files;
-        let uploadData = utilityService.attachmentUpload(uploadedFilesArray, myFiles, saveToTAttachment, lineIDForAttachment);
-        templateObj.uploadedFiles.set(uploadData.uploadedFilesArray);
-        templateObj.attachmentCount.set(uploadData.totalAttachments);
-    },
-    'click .img_new_attachment_btn': function (event) {
-        $('#img-attachment-upload').trigger('click');
-
-    },
-    'change #img-attachment-upload': function (e) {
-        let templateObj = Template.instance();
-        let saveToTAttachment = false;
-        let lineIDForAttachment = false;
-        let uploadedFilesArray = templateObj.uploadedFiles.get();
-
-        let myFiles = $('#img-attachment-upload')[0].files;
-        let uploadData = utilityService.attachmentUpload(uploadedFilesArray, myFiles, saveToTAttachment, lineIDForAttachment);
-        templateObj.uploadedFiles.set(uploadData.uploadedFilesArray);
-        templateObj.attachmentCount.set(uploadData.totalAttachments);
-    },
-    'click .remove-attachment': function (event, ui) {
-        let tempObj = Template.instance();
-        let attachmentID = parseInt(event.target.id.split('remove-attachment-')[1]);
-        if (tempObj.$("#confirm-action-" + attachmentID).length) {
-            tempObj.$("#confirm-action-" + attachmentID).remove();
-        } else {
-            let actionElement = '<div class="confirm-action" id="confirm-action-' + attachmentID + '"><a class="confirm-delete-attachment btn btn-default" id="delete-attachment-' + attachmentID + '">' +
-                'Delete</a><button class="save-to-library btn btn-default">Remove & save to File Library</button></div>';
-            tempObj.$('#attachment-name-' + attachmentID).append(actionElement);
-        }
-        tempObj.$("#new-attachment2-tooltip").show();
-
-    },
-    'click .file-name': function (event) {
-        let attachmentID = parseInt(event.currentTarget.parentNode.id.split('attachment-name-')[1]);
-        let templateObj = Template.instance();
-        let uploadedFiles = templateObj.uploadedFiles.get();
-        $('#myModalAttachment').modal('hide');
-        let previewFile = {};
-        let input = uploadedFiles[attachmentID].fields.Description;
-        previewFile.link = 'data:' + input + ';base64,' + uploadedFiles[attachmentID].fields.Attachment;
-        previewFile.name = uploadedFiles[attachmentID].fields.AttachmentName;
-        let type = uploadedFiles[attachmentID].fields.Description;
-        if (type === 'application/pdf') {
-            previewFile.class = 'pdf-class';
-        } else if (type === 'application/msword' || type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-            previewFile.class = 'docx-class';
-        } else if (type === 'application/vnd.ms-excel' || type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-            previewFile.class = 'excel-class';
-        } else if (type === 'application/vnd.ms-powerpoint' || type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
-            previewFile.class = 'ppt-class';
-        } else if (type === 'application/vnd.oasis.opendocument.formula' || type === 'text/csv' || type === 'text/plain' || type === 'text/rtf') {
-            previewFile.class = 'txt-class';
-        } else if (type === 'application/zip' || type === 'application/rar' || type === 'application/x-zip-compressed' || type === 'application/x-zip,application/x-7z-compressed') {
-            previewFile.class = 'zip-class';
-        } else {
-            previewFile.class = 'default-class';
-        }
-
-        if (type.split('/')[0] === 'image') {
-            previewFile.image = true
-        } else {
-            previewFile.image = false
-        }
-        templateObj.uploadedFile.set(previewFile);
-
-        $('#files_view').modal('show');
-
-        return;
-    },
-    'click .confirm-delete-attachment': function (event, ui) {
-        let tempObj = Template.instance();
-        tempObj.$("#new-attachment2-tooltip").show();
-        let attachmentID = parseInt(event.target.id.split('delete-attachment-')[1]);
-        let uploadedArray = tempObj.uploadedFiles.get();
-        let attachmentCount = tempObj.attachmentCount.get();
-        $('#attachment-upload').val('');
-        uploadedArray.splice(attachmentID, 1);
-        tempObj.uploadedFiles.set(uploadedArray);
-        attachmentCount--;
-        if (attachmentCount === 0) {
-            let elementToAdd = '<div class="col inboxcol1"><img src="/icons/nofiles_icon.jpg" class=""></div> <div class="col inboxcol2"> <div>Upload  files or add files from the file library</div> <p style="color: #ababab;">Only users with access to your company can view these files</p></div>';
-            $('#file-display').html(elementToAdd);
-        }
-        tempObj.attachmentCount.set(attachmentCount);
-        if (uploadedArray.length > 0) {
-            let utilityService = new UtilityService();
-            utilityService.showUploadedAttachment(uploadedArray);
-        } else {
-            $(".attchment-tooltip").show();
-        }
-    },
-    'click .save-to-library': function (event, ui) {
-        $('.confirm-delete-attachment').trigger('click');
-    },
-    'click #btn_Attachment': function () {
-        let templateInstance = Template.instance();
-        let uploadedFileArray = templateInstance.uploadedFiles.get();
-        if (uploadedFileArray.length > 0) {
-            let utilityService = new UtilityService();
-            utilityService.showUploadedAttachment(uploadedFileArray);
-        } else {
-            $(".attchment-tooltip").show();
-        }
-    },
-    'click .btnBack': function (event) {
-        playCancelAudio();
-        event.preventDefault();
-        setTimeout(function () {
-            history.back(1);
-        }, delayTimeAfterSound);
-    },
-
-    'change #sltCurrency': (e, ui) => {
-        if ($("#sltCurrency").val() && $("#sltCurrency").val() != defaultCurrencyCode) {
-            $(".foreign-currency-js").css("display", "block");
-            ui.isForeignEnabled.set(true);
-        } else {
-            $(".foreign-currency-js").css("display", "none");
-            ui.isForeignEnabled.set(false);
-        }
-    },
-
-    'change .exchange-rate-js': (e, ui) => {
-
-
-        setTimeout(() => {
-            const toConvert = document.querySelectorAll('.convert-to-foreign:not(.hiddenColumn)');
-            const rate = $("#exchange_rate").val();
-
-
-            toConvert.forEach((element) => {
-                const mainClass = element.classList[0];
-                const mainValueElement = document.querySelector(`#tblJournalEntryLine td.${mainClass}:not(.convert-to-foreign):not(.hiddenColumn)`);
-                // const footerValueElement = document.querySelector(`#tblJournalEntryLine tfoot td.${mainClass}:not(.convert-to-foreign):not(.hiddenColumn)`);
-
-                let value = mainValueElement.childElementCount > 0 ?
-                    $(mainValueElement).find('input').val() :
-                    mainValueElement.innerText;
-
-                $(element).attr("value", convertToForeignAmount(value, rate, false));
-                value = convertToForeignAmount(value, rate, getCurrentCurrencySymbol());
-                $(element).text(value);
-
-            })
-        }, 500);
-
-    }
+    //                     if (tdaccount != "") {
+
+    //                         lineItemObjForm = {
+    //                             type: "TJournalEntryLines",
+    //                             fields: {
+    //                                 ID: parseInt(erpLineID) || 0,
+    //                                 AccountName: tdaccount || '',
+
+    //                                 Memo: tddmemo || headMemo,
+    //                                 TaxCode: tdtaxCode || '',
+    //                                 CreditAmountInc: parseFloat(tdcreditex.replace(/[^0-9.-]+/g, "")) || 0,
+
+    //                                 DebitAmountInc: parseFloat(tddebitex.replace(/[^0-9.-]+/g, "")) || 0,
+
+    //                                 DeptName: department || defaultDept,
+
+    //                                 ClientName: '',
+    //                                 EmployeeName: localStorage.getItem('mySessionEmployee')
+    //                             }
+    //                         };
+    //                         lineItemsForm.push(lineItemObjForm);
+    //                         splashLineArray.push(lineItemObjForm);
+    //                     }
+    //                 });
+    //                 objDetails = {
+    //                     type: "TJournalEntry",
+    //                     fields: {
+
+    //                         TransactionNo: entryNo,
+    //                         Lines: splashLineArray,
+    //                         TransactionDate: transDate,
+    //                         Memo: headMemo
+
+    //                     }
+    //                 };
+    //             }
+    //             if (splashLineArray.length > 0) {
+
+    //             } else {
+    //                 swal('Account name has not been selected!', '', 'warning');
+    //                 $('.fullScreenSpin').css('display', 'none');
+    //                 event.preventDefault();
+    //                 return false;
+    //             }
+    //             purchaseService.saveJournalEnrtry(objDetails).then(function (objDetails) {
+    //                 if (localStorage.getItem("enteredURL") != null) {
+    //                     FlowRouter.go(localStorage.getItem("enteredURL"));
+    //                     localStorage.removeItem("enteredURL");
+    //                     return;
+    //                 }
+    //                 FlowRouter.go('/journalentrylist?success=true');
+    //                 $('.modal-backdrop').css('display', 'none');
+    //             }).catch(function (err) {
+    //                 if (err === 'Error: "Unable to lock object: "') {
+    //                     swal({
+    //                         title: 'This Journal Entry has already been reconciled.',
+    //                         text: 'Please delete the Bank Reconciliation in order to edit/delete this Journal Entry',
+    //                         type: 'error',
+    //                         showCancelButton: false,
+    //                         confirmButtonText: 'Try Again'
+    //                     }).then((result) => {
+    //                         if (result.value) {
+    //                             FlowRouter.go('/journalentrylist');
+
+    //                         } else if (result.dismiss === 'cancel') {
+
+    //                         }
+    //                     });
+    //                 } else {
+    //                     swal({
+    //                         title: 'Oooops...',
+    //                         text: err,
+    //                         type: 'error',
+    //                         showCancelButton: false,
+    //                         confirmButtonText: 'Try Again'
+    //                     }).then((result) => {
+    //                         if (result.value) { if (err === checkResponseError) { window.open('/', '_self'); } }
+    //                         else if (result.dismiss === 'cancel') {
+
+    //                         }
+    //                     });
+    //                 }
+
+    //                 $('.fullScreenSpin').css('display', 'none');
+    //             });
+    //         }
+    //     }, delayTimeAfterSound);
+    // },
+    // 'click .chkcolAccountName': function (event) {
+    //     if ($(event.target).is(':checked')) {
+    //         $('.colAccountName').css('display', 'table-cell');
+    //         $('.colAccountName').css('padding', '.75rem');
+    //         $('.colAccountName').css('vertical-align', 'top');
+    //     } else {
+    //         $('.colAccountName').css('display', 'none');
+    //     }
+    // },
+    // 'click .chkcolAccountNo': function (event) {
+    //     if ($(event.target).is(':checked')) {
+    //         $('.colAccountNo').css('display', 'table-cell');
+    //         $('.colAccountNo').css('padding', '.75rem');
+    //         $('.colAccountNo').css('vertical-align', 'top');
+    //     } else {
+    //         $('.colAccountNo').css('display', 'none');
+    //     }
+    // },
+    // 'click .chkcolMemo': function (event) {
+    //     if ($(event.target).is(':checked')) {
+    //         $('.colMemo').css('display', 'table-cell');
+    //         $('.colMemo').css('padding', '.75rem');
+    //         $('.colMemo').css('vertical-align', 'top');
+    //     } else {
+    //         $('.colMemo').css('display', 'none');
+    //     }
+    // },
+    // 'click .chkcolFixedAsset': function (event) {
+    //     if ($(event.target).is(':checked')) {
+    //         $('.colFixedAsset').css('display', 'table-cell');
+    //         $('.colFixedAsset').css('padding', '.75rem');
+    //         $('.colFixedAsset').css('vertical-align', 'top');
+    //     } else {
+    //         $('.colFixedAsset').css('display', 'none');
+    //     }
+    // },
+    // 'click .chkcolDepartment': function (event) {
+    //     if ($(event.target).is(':checked')) {
+    //         $('.colDepartment').css('display', 'table-cell');
+    //         $('.colDepartment').css('padding', '.75rem');
+    //         $('.colDepartment').css('vertical-align', 'top');
+    //     } else {
+    //         $('.colDepartment').css('display', 'none');
+    //     }
+    // },
+    // 'click .chkcolCustomerJob': function (event) {
+    //     if ($(event.target).is(':checked')) {
+    //         $('.colCustomerJob').css('display', 'table-cell');
+    //         $('.colCustomerJob').css('padding', '.75rem');
+    //         $('.colCustomerJob').css('vertical-align', 'top');
+    //     } else {
+    //         $('.colCustomerJob').css('display', 'none');
+    //     }
+    // },
+    // 'click .chkcolCreditEx': function (event) {
+    //     if ($(event.target).is(':checked')) {
+    //         $('.colCreditEx').parent().css('display', 'table-cell');
+    //         $('.colCreditEx').parent().css('padding', '.75rem');
+    //         $('.colCreditEx').parent().css('vertical-align', 'top');
+    //     } else {
+    //         $('.colCreditEx').parent().css('display', 'none');
+    //     }
+    // },
+    // 'click .chkcolDebitEx': function (event) {
+    //     if ($(event.target).is(':checked')) {
+    //         $('.colDebitEx').parent().css('display', 'table-cell');
+    //         $('.colDebitEx').parent().css('padding', '.75rem');
+    //         $('.colDebitEx').parent().css('vertical-align', 'top');
+    //     } else {
+    //         $('.colDebitEx').parent().css('display', 'none');
+    //     }
+    // },
+    // 'change .rngRangeAccountName': function (event) {
+
+    //     let range = $(event.target).val();
+    //     $(".spWidthAccountName").html(range + 'px');
+    //     $('.colAccountName').css('width', range + 'px');
+
+    // },
+    // 'change .rngRangeAccountNo': function (event) {
+
+    //     let range = $(event.target).val();
+    //     $(".spWidthAccountNo").html(range + 'px');
+    //     $('.colAccountNo').css('width', range + 'px');
+
+    // },
+    // 'change .rngRangeMemo': function (event) {
+
+    //     let range = $(event.target).val();
+    //     $(".spWidthMemo").html(range + 'px');
+    //     $('.colMemo').css('width', range + 'px');
+
+    // },
+    // 'change .rngRangeFixedAsset': function (event) {
+    //     let range = $(event.target).val();
+    //     $('.colFixedAsset').css('width', range + 'px');
+    // },
+    // 'change .rngRangeDepartment': function (event) {
+    //     let range = $(event.target).val();
+    //     $('.colDepartment').css('width', range + 'px');
+    // },
+    // 'change .rngRangeCustomerJob': function (event) {
+    //     let range = $(event.target).val();
+    //     $('.colCustomerJob').css('width', range + 'px');
+    // },
+    // 'change .rngRangeCreditEx': function (event) {
+
+    //     let range = $(event.target).val();
+    //     $(".spWidthCreditEx").html(range + 'px');
+    //     $('.colCreditEx').css('width', range + 'px');
+
+    // },
+    // 'change .rngRangeDebitEx': function (event) {
+
+    //     let range = $(event.target).val();
+    //     $(".spWidthDebitEx").html(range + 'px');
+    //     $('.colDebitEx').css('width', range + 'px');
+
+    // },
+    // 'blur .divcolumn': function (event) {
+    //     let columData = $(event.target).html();
+    //     let columHeaderUpdate = $(event.target).attr("valueupdate");
+    //     $("" + columHeaderUpdate + "").html(columData);
+
+    // },
+    // 'click .btnSaveGridSettings': function (event) {
+    //     playSaveAudio();
+    //     setTimeout(function () {
+    //         let lineItems = [];
+
+    //         $('#myModal2 .columnSettings').each(function (index) {
+    //             var $tblrow = $(this);
+    //             var colTitle = $tblrow.find(".divcolumn").text() || '';
+    //             var colWidth = $tblrow.find(".custom-range").val() || 0;
+    //             var colthClass = $tblrow.find(".divcolumn").attr("valueupdate") || '';
+    //             var colHidden = false;
+    //             if ($tblrow.find(".custom-control-input").is(':checked')) {
+    //                 colHidden = false;
+    //             } else {
+    //                 colHidden = true;
+    //             }
+    //             let lineItemObj = {
+    //                 index: index,
+    //                 label: colTitle,
+    //                 hidden: colHidden,
+    //                 width: colWidth,
+    //                 thclass: colthClass
+    //             }
+
+    //             lineItems.push(lineItemObj);
+    //         });
+
+    //         localStorage.setItem('frm_journalentry_settings', JSON.stringify(lineItems));
+
+    //         var getcurrentCloudDetails = CloudUser.findOne({
+    //             _id: localStorage.getItem('mycloudLogonID'),
+    //             clouddatabaseID: localStorage.getItem('mycloudLogonDBID')
+    //         });
+    //         if (getcurrentCloudDetails) {
+    //             if (getcurrentCloudDetails._id.length > 0) {
+    //                 var clientID = getcurrentCloudDetails._id;
+    //                 var clientUsername = getcurrentCloudDetails.cloudUsername;
+    //                 var clientEmail = getcurrentCloudDetails.cloudEmail;
+    //                 var checkPrefDetails = CloudPreference.findOne({
+    //                     userid: clientID,
+    //                     PrefName: 'tblJournalEntryLine'
+    //                 });
+    //                 if (checkPrefDetails) {
+    //                     CloudPreference.update({
+    //                         _id: checkPrefDetails._id
+    //                     }, {
+    //                         $set: {
+    //                             userid: clientID,
+    //                             username: clientUsername,
+    //                             useremail: clientEmail,
+    //                             PrefGroup: 'purchaseform',
+    //                             PrefName: 'tblJournalEntryLine',
+    //                             published: true,
+    //                             customFields: lineItems,
+    //                             updatedAt: new Date()
+    //                         }
+    //                     }, function (err, idTag) {
+    //                         if (err) {
+    //                             $('#myModal2').modal('toggle');
+
+    //                         } else {
+    //                             $('#myModal2').modal('toggle');
+
+
+    //                         }
+    //                     });
+
+    //                 } else {
+    //                     CloudPreference.insert({
+    //                         userid: clientID,
+    //                         username: clientUsername,
+    //                         useremail: clientEmail,
+    //                         PrefGroup: 'purchaseform',
+    //                         PrefName: 'tblJournalEntryLine',
+    //                         published: true,
+    //                         customFields: lineItems,
+    //                         createdAt: new Date()
+    //                     }, function (err, idTag) {
+    //                         if (err) {
+    //                             $('#myModal2').modal('toggle');
+
+    //                         } else {
+    //                             $('#myModal2').modal('toggle');
+
+
+    //                         }
+    //                     });
+
+    //                 }
+    //             }
+    //         }
+    //         $('#myModal2').modal('toggle');
+    //     }, delayTimeAfterSound);
+    // },
+    // 'click .btnResetGridSettings': function (event) {
+    //     var getcurrentCloudDetails = CloudUser.findOne({
+    //         _id: localStorage.getItem('mycloudLogonID'),
+    //         clouddatabaseID: localStorage.getItem('mycloudLogonDBID')
+    //     });
+    //     if (getcurrentCloudDetails) {
+    //         if (getcurrentCloudDetails._id.length > 0) {
+    //             var clientID = getcurrentCloudDetails._id;
+    //             var clientUsername = getcurrentCloudDetails.cloudUsername;
+    //             var clientEmail = getcurrentCloudDetails.cloudEmail;
+    //             var checkPrefDetails = CloudPreference.findOne({
+    //                 userid: clientID,
+    //                 PrefName: 'tblJournalEntryLine'
+    //             });
+    //             if (checkPrefDetails) {
+    //                 CloudPreference.remove({
+    //                     _id: checkPrefDetails._id
+    //                 }, function (err, idTag) {
+    //                     if (err) {
+
+    //                     } else {
+    //                         Meteor._reload.reload();
+    //                     }
+    //                 });
+
+    //             }
+    //         }
+    //     }
+    // },
+    // 'click .btnResetSettings': function (event) {
+    //     var getcurrentCloudDetails = CloudUser.findOne({
+    //         _id: localStorage.getItem('mycloudLogonID'),
+    //         clouddatabaseID: localStorage.getItem('mycloudLogonDBID')
+    //     });
+    //     if (getcurrentCloudDetails) {
+    //         if (getcurrentCloudDetails._id.length > 0) {
+    //             var clientID = getcurrentCloudDetails._id;
+    //             var clientUsername = getcurrentCloudDetails.cloudUsername;
+    //             var clientEmail = getcurrentCloudDetails.cloudEmail;
+    //             var checkPrefDetails = CloudPreference.findOne({
+    //                 userid: clientID,
+    //                 PrefName: 'journalentrycard'
+    //             });
+    //             if (checkPrefDetails) {
+    //                 CloudPreference.remove({
+    //                     _id: checkPrefDetails._id
+    //                 }, function (err, idTag) {
+    //                     if (err) {
+
+    //                     } else {
+    //                         Meteor._reload.reload();
+    //                     }
+    //                 });
+
+    //             }
+    //         }
+    //     }
+    // },
+    // 'click .new_attachment_btn': function (event) {
+    //     $('#attachment-upload').trigger('click');
+
+    // },
+    // 'change #attachment-upload': function (e) {
+    //     let templateObj = Template.instance();
+    //     let saveToTAttachment = false;
+    //     let lineIDForAttachment = false;
+    //     let uploadedFilesArray = templateObj.uploadedFiles.get();
+
+    //     let myFiles = $('#attachment-upload')[0].files;
+    //     let uploadData = utilityService.attachmentUpload(uploadedFilesArray, myFiles, saveToTAttachment, lineIDForAttachment);
+    //     templateObj.uploadedFiles.set(uploadData.uploadedFilesArray);
+    //     templateObj.attachmentCount.set(uploadData.totalAttachments);
+    // },
+    // 'click .img_new_attachment_btn': function (event) {
+    //     $('#img-attachment-upload').trigger('click');
+
+    // },
+    // 'change #img-attachment-upload': function (e) {
+    //     let templateObj = Template.instance();
+    //     let saveToTAttachment = false;
+    //     let lineIDForAttachment = false;
+    //     let uploadedFilesArray = templateObj.uploadedFiles.get();
+
+    //     let myFiles = $('#img-attachment-upload')[0].files;
+    //     let uploadData = utilityService.attachmentUpload(uploadedFilesArray, myFiles, saveToTAttachment, lineIDForAttachment);
+    //     templateObj.uploadedFiles.set(uploadData.uploadedFilesArray);
+    //     templateObj.attachmentCount.set(uploadData.totalAttachments);
+    // },
+    // 'click .remove-attachment': function (event, ui) {
+    //     let tempObj = Template.instance();
+    //     let attachmentID = parseInt(event.target.id.split('remove-attachment-')[1]);
+    //     if (tempObj.$("#confirm-action-" + attachmentID).length) {
+    //         tempObj.$("#confirm-action-" + attachmentID).remove();
+    //     } else {
+    //         let actionElement = '<div class="confirm-action" id="confirm-action-' + attachmentID + '"><a class="confirm-delete-attachment btn btn-default" id="delete-attachment-' + attachmentID + '">' +
+    //             'Delete</a><button class="save-to-library btn btn-default">Remove & save to File Library</button></div>';
+    //         tempObj.$('#attachment-name-' + attachmentID).append(actionElement);
+    //     }
+    //     tempObj.$("#new-attachment2-tooltip").show();
+
+    // },
+    // 'click .file-name': function (event) {
+    //     let attachmentID = parseInt(event.currentTarget.parentNode.id.split('attachment-name-')[1]);
+    //     let templateObj = Template.instance();
+    //     let uploadedFiles = templateObj.uploadedFiles.get();
+    //     $('#myModalAttachment').modal('hide');
+    //     let previewFile = {};
+    //     let input = uploadedFiles[attachmentID].fields.Description;
+    //     previewFile.link = 'data:' + input + ';base64,' + uploadedFiles[attachmentID].fields.Attachment;
+    //     previewFile.name = uploadedFiles[attachmentID].fields.AttachmentName;
+    //     let type = uploadedFiles[attachmentID].fields.Description;
+    //     if (type === 'application/pdf') {
+    //         previewFile.class = 'pdf-class';
+    //     } else if (type === 'application/msword' || type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    //         previewFile.class = 'docx-class';
+    //     } else if (type === 'application/vnd.ms-excel' || type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+    //         previewFile.class = 'excel-class';
+    //     } else if (type === 'application/vnd.ms-powerpoint' || type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+    //         previewFile.class = 'ppt-class';
+    //     } else if (type === 'application/vnd.oasis.opendocument.formula' || type === 'text/csv' || type === 'text/plain' || type === 'text/rtf') {
+    //         previewFile.class = 'txt-class';
+    //     } else if (type === 'application/zip' || type === 'application/rar' || type === 'application/x-zip-compressed' || type === 'application/x-zip,application/x-7z-compressed') {
+    //         previewFile.class = 'zip-class';
+    //     } else {
+    //         previewFile.class = 'default-class';
+    //     }
+
+    //     if (type.split('/')[0] === 'image') {
+    //         previewFile.image = true
+    //     } else {
+    //         previewFile.image = false
+    //     }
+    //     templateObj.uploadedFile.set(previewFile);
+
+    //     $('#files_view').modal('show');
+
+    //     return;
+    // },
+    // 'click .confirm-delete-attachment': function (event, ui) {
+    //     let tempObj = Template.instance();
+    //     tempObj.$("#new-attachment2-tooltip").show();
+    //     let attachmentID = parseInt(event.target.id.split('delete-attachment-')[1]);
+    //     let uploadedArray = tempObj.uploadedFiles.get();
+    //     let attachmentCount = tempObj.attachmentCount.get();
+    //     $('#attachment-upload').val('');
+    //     uploadedArray.splice(attachmentID, 1);
+    //     tempObj.uploadedFiles.set(uploadedArray);
+    //     attachmentCount--;
+    //     if (attachmentCount === 0) {
+    //         let elementToAdd = '<div class="col inboxcol1"><img src="/icons/nofiles_icon.jpg" class=""></div> <div class="col inboxcol2"> <div>Upload  files or add files from the file library</div> <p style="color: #ababab;">Only users with access to your company can view these files</p></div>';
+    //         $('#file-display').html(elementToAdd);
+    //     }
+    //     tempObj.attachmentCount.set(attachmentCount);
+    //     if (uploadedArray.length > 0) {
+    //         let utilityService = new UtilityService();
+    //         utilityService.showUploadedAttachment(uploadedArray);
+    //     } else {
+    //         $(".attchment-tooltip").show();
+    //     }
+    // },
+    // 'click .save-to-library': function (event, ui) {
+    //     $('.confirm-delete-attachment').trigger('click');
+    // },
+    // 'click #btn_Attachment': function () {
+    //     let templateInstance = Template.instance();
+    //     let uploadedFileArray = templateInstance.uploadedFiles.get();
+    //     if (uploadedFileArray.length > 0) {
+    //         let utilityService = new UtilityService();
+    //         utilityService.showUploadedAttachment(uploadedFileArray);
+    //     } else {
+    //         $(".attchment-tooltip").show();
+    //     }
+    // },
+    // 'click .btnBack': function (event) {
+    //     playCancelAudio();
+    //     event.preventDefault();
+    //     setTimeout(function () {
+    //         history.back(1);
+    //     }, delayTimeAfterSound);
+    // },
+
+    // 'change #sltCurrency': (e, ui) => {
+    //     if ($("#sltCurrency").val() && $("#sltCurrency").val() != defaultCurrencyCode) {
+    //         $(".foreign-currency-js").css("display", "block");
+    //         ui.isForeignEnabled.set(true);
+    //     } else {
+    //         $(".foreign-currency-js").css("display", "none");
+    //         ui.isForeignEnabled.set(false);
+    //     }
+    // },
+
+    // 'change .exchange-rate-js': (e, ui) => {
+
+
+    //     setTimeout(() => {
+    //         const toConvert = document.querySelectorAll('.convert-to-foreign:not(.hiddenColumn)');
+    //         const rate = $("#exchange_rate").val();
+
+
+    //         toConvert.forEach((element) => {
+    //             const mainClass = element.classList[0];
+    //             const mainValueElement = document.querySelector(`#tblJournalEntryLine td.${mainClass}:not(.convert-to-foreign):not(.hiddenColumn)`);
+    //             // const footerValueElement = document.querySelector(`#tblJournalEntryLine tfoot td.${mainClass}:not(.convert-to-foreign):not(.hiddenColumn)`);
+
+    //             let value = mainValueElement.childElementCount > 0 ?
+    //                 $(mainValueElement).find('input').val() :
+    //                 mainValueElement.innerText;
+
+    //             $(element).attr("value", convertToForeignAmount(value, rate, false));
+    //             value = convertToForeignAmount(value, rate, getCurrentCurrencySymbol());
+    //             $(element).text(value);
+
+    //         })
+    //     }, 500);
+
+    // }
 
 });
 

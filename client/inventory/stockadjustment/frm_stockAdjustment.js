@@ -1506,69 +1506,102 @@ Template.stockadjustmentcard.onRendered(() => {
             $('#employeeList').modal('show');
         });
         $('#addRow').on('click', function () {
-            var rowData = $('#tblStockAdjustmentLine tbody>tr:last').clone(true);
-            var rowData1 = $('.stock_print tbody>tr:last').clone(true);
+            // var rowData = $('#tblStockAdjustmentLine tbody>tr:last').clone(true);
+            // var rowData1 = $('.stock_print tbody>tr:last').clone(true);
+            // let tokenid = Random.id();
+            // $(".lineProductName", rowData).val("");
+            // $(".lineProductBarCode", rowData).text("");
+            // $(".lineDescription", rowData).text("");
+            // $(".lineInStockQty", rowData).text("");
+            // $(".lineFinalQty", rowData).val("");
+            // $(".lineAdjustQty", rowData).val("");
+            // // $(".lineAmt", rowData).text("");
+            // rowData.attr('id', tokenid);
+            // $("#tblStockAdjustmentLine tbody").append(rowData);
+            //
+            // //Print table
+            // $(".lineProductNamePrint", rowData1).text("");
+            // $(".lineProductBarCodePrint", rowData1).text("");
+            // $(".lineDescriptionPrint", rowData1).text("");
+            // $(".lineInStockQtyPrint", rowData1).text("");
+            // $(".lineFinalQtyPrint", rowData1).text("");
+            // $(".lineAdjustQtyPrint", rowData1).text("");
+            // $(".colSerialNo", rowData).removeAttr("data-lotnumbers");
+            // $(".colSerialNo", rowData).removeAttr("data-expirydates");
+            // $(".colSerialNo", rowData).removeAttr("data-serialnumbers");
+            // // $(".lineAmt", rowData).text("");
+            // rowData1.attr('id', tokenid);
+            // $(".stock_print tbody").append(rowData1);
             let tokenid = Random.id();
-            $(".lineProductName", rowData).val("");
-            $(".lineProductBarCode", rowData).text("");
-            $(".lineDescription", rowData).text("");
-            $(".lineInStockQty", rowData).text("");
-            $(".lineFinalQty", rowData).val("");
-            $(".lineAdjustQty", rowData).val("");
-            // $(".lineAmt", rowData).text("");
-            rowData.attr('id', tokenid);
-            $("#tblStockAdjustmentLine tbody").append(rowData);
-
-            //Print table
-            $(".lineProductNamePrint", rowData1).text("");
-            $(".lineProductBarCodePrint", rowData1).text("");
-            $(".lineDescriptionPrint", rowData1).text("");
-            $(".lineInStockQtyPrint", rowData1).text("");
-            $(".lineFinalQtyPrint", rowData1).text("");
-            $(".lineAdjustQtyPrint", rowData1).text("");
-            $(".colSerialNo", rowData).removeAttr("data-lotnumbers");
-            $(".colSerialNo", rowData).removeAttr("data-expirydates");
-            $(".colSerialNo", rowData).removeAttr("data-serialnumbers");
-            // $(".lineAmt", rowData).text("");
-            rowData1.attr('id', tokenid);
-            $(".stock_print tbody").append(rowData1);
-
+            let newLineData = {
+                "lineID": tokenid,
+                "productname": "",
+                "productbarcode": "",
+                "productcost": 0,
+                "description": "",
+                "department": "",
+                "qtyinstock": 0,
+                "finalqty": 0,
+                "adjustqty": 0,
+                "availableqty": 0,
+                "batchnumber": "",
+                "expirydate": "",
+                "serialnumber": ""
+            };
+            let recordData = templateObject.record.get();
+            recordData.LineItems.push(newLineData);
+            templateObject.record.set(recordData);
             setTimeout(function () {
                 $('#' + tokenid + " .lineProductName").trigger('click');
             }, 200);
         });
 
-        $('#scanNewRowMobile').on('click', function () {
-            var rowData = $('#tblStockAdjustmentLine tbody>tr:last').clone(true);
-            var rowData1 = $('.stock_print tbody>tr:last').clone(true);
+        $('.scanNewRowMobile').on('click', function () {
+            // var rowData = $('#tblStockAdjustmentLine tbody>tr:last').clone(true);
+            // var rowData1 = $('.stock_print tbody>tr:last').clone(true);
+            // let tokenid = Random.id();
+            // $(".lineProductName", rowData).val("");
+            // $(".lineProductBarCode", rowData).text("");
+            // $(".lineDescription", rowData).text("");
+            // $(".lineInStockQty", rowData).text("");
+            // $(".lineFinalQty", rowData).val("");
+            // $(".lineAdjustQty", rowData).val("");
+            // // $(".lineAmt", rowData).text("");
+            // rowData.attr('id', tokenid);
+            // $(".lineAdjustQty", rowData).val("");
+            // $(".scanBarcodeImage", rowData).attr('id', tokenid);
+            // $("#tblStockAdjustmentLine tbody").append(rowData);
+            //
+            // //Print table
+            // $(".lineProductNamePrint", rowData1).text("");
+            // $(".lineProductBarCodePrint", rowData1).text("");
+            // $(".lineDescriptionPrint", rowData1).text("");
+            // $(".lineInStockQtyPrint", rowData1).text("");
+            // $(".lineFinalQtyPrint", rowData1).text("");
+            // $(".lineAdjustQtyPrint", rowData1).text("");
+            // // $(".lineAmt", rowData).text("");
+            // rowData1.attr('id', tokenid);
+            // $(".stock_print tbody").append(rowData1);
             let tokenid = Random.id();
-            $(".lineProductName", rowData).val("");
-            $(".lineProductBarCode", rowData).text("");
-            $(".lineDescription", rowData).text("");
-            $(".lineInStockQty", rowData).text("");
-            $(".lineFinalQty", rowData).val("");
-            $(".lineAdjustQty", rowData).val("");
-            // $(".lineAmt", rowData).text("");
-            rowData.attr('id', tokenid);
-            $("#tblStockAdjustmentLine tbody").append(rowData);
-
-            //Print table
-            $(".lineProductNamePrint", rowData1).text("");
-            $(".lineProductBarCodePrint", rowData1).text("");
-            $(".lineDescriptionPrint", rowData1).text("");
-            $(".lineInStockQtyPrint", rowData1).text("");
-            $(".lineFinalQtyPrint", rowData1).text("");
-            $(".lineAdjustQtyPrint", rowData1).text("");
-            // $(".lineAmt", rowData).text("");
-            rowData1.attr('id', tokenid);
-            $(".stock_print tbody").append(rowData1);
-
-            // setTimeout(function () {
-            //     $('#' + tokenid + " .lineProductName").trigger('click');
-            // }, 200);
+            let newLineData = {
+                "lineID": tokenid,
+                "productname": "",
+                "productbarcode": "",
+                "productcost": 0,
+                "description": "",
+                "department": "",
+                "qtyinstock": 0,
+                "finalqty": 0,
+                "adjustqty": 0,
+                "availableqty": 0,
+                "batchnumber": "",
+                "expirydate": "",
+                "serialnumber": ""
+            };
+            let recordData = templateObject.record.get();
+            recordData.LineItems.push(newLineData);
+            templateObject.record.set(recordData);
         });
-
-
     });
 
     var isMobile = false;

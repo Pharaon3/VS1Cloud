@@ -285,8 +285,6 @@ export const nextPermutation = (arr, n) => {
             return arr;
         }
     }
-    console.log(firstPivotPos, "firstPivotPos");
-    console.log(secondPivotPos, "secondPivotPos");
     let swap = arr[secondPivotPos];
     arr[secondPivotPos] = arr[firstPivotPos];
     arr[firstPivotPos] = swap;
@@ -295,7 +293,5 @@ export const nextPermutation = (arr, n) => {
     arr2.sort(function (a, b) {
         return a - b;
     });
-    console.log(arr2);
-    console.log(arr1);
     return [...arr1, ...arr2];
 };

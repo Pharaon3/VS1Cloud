@@ -294,16 +294,6 @@ Template.termsettings.events({
     templateObject.includeEOM.set(false);
     templateObject.includeEOMPlus.set(false);
   },
-  "click .btnActiveTerms": function () {
-    $("#view-in-active").html(
-      "<button class='btn btn-danger btnDeleteTerms vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make In-Active</button>"
-    );
-  },
-  "click .btnDeleteTerms": function () {
-    $("#view-in-active").html(
-      "<button class='btn btn-success btnActiveTerms vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make Active</button>"
-    );
-  },
   "click .btnBack": function (event) {
     playCancelAudio();
     event.preventDefault();

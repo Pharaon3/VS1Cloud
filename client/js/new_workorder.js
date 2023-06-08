@@ -1300,7 +1300,7 @@ Template.new_workorder.onRendered(async function(){
                 let trackedTime = tempOrder.fields.TrackedTime;
                 // if(status == 'paused') {
                     pausedTimes.push(new Date());
-                 if(status == 'QAStopped') {
+                if(status == 'QAStopped') {
                     let stoppedTime = new Date();
                     tempOrder.fields.StoppedTime = stoppedTime;
                     record.stoppedTime = stoppedTime
@@ -1408,7 +1408,7 @@ Template.new_workorder.events({
                             })
                         })
                     }
-                    let taxRate = await getTaxRate()
+                    let taxRate = await getTaxRate() 
                     let lineItemObjForm = {
                         type: "TPurchaseOrderLine",
                         fields: {
@@ -1446,9 +1446,16 @@ Template.new_workorder.events({
                     })
 
                 }else if(result.dismiss == 'cancel') {
+                    let record = templateObject.workorderrecord.get();
+                    let productData = await getProductData(record.productname);
+                    let bomData = templateObject.bomProducts.get();
+                    let bomName = productData.ProductName;
+                    let rawMaterialsName;
+                    let SupplierNameforService; 
+                    let processServiceName; 
                     swal({
                         title: 'Warning',
-                        text: 'For the required raws and materials, if there is not enough for building in stock, will create purchase order automatically',
+                        text: 'To Build this ' + bomName + ', we need to order  "Qty Raw Materials Name" and we need to send a Purchase Order to "Supplier Name for Service" for the "Process Service Name". These will be created now using the last Used Supplier for that Raw Material or Service.',
                         type: 'warning',
                         showCancelButton: false,
                         confirmButtonText: 'Continue',
@@ -2283,8 +2290,8 @@ Template.new_workorder.events({
                 mainOrderSaved = false;
             }
             saveMainBOMStructure();
-
         }, delayTimeAfterSound);
+
     async function saveMainBOMStructure() {
         let mainProductName = $('#edtMainProductName').val();
         let mainProcessName = $('#edtProcess').val();

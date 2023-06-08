@@ -102,7 +102,6 @@ Template.serialnumberlist.onRendered(function() {
     shareFunctionByName.initTable(localStorage.getItem("ERPDefaultDepartment"), "tblDepartmentCheckbox");
 
     // templateObject.getAllSerialNumberData();
-    tableResize();
 });
 
 Template.serialnumberlist.events({
@@ -341,32 +340,32 @@ Template.serialnumberlist.helpers({
     custfields: () => {
         return Template.instance().custfields.get();
       },
-  
+
       // custom fields displaysettings
       displayfields: () => {
         return Template.instance().displayfields.get();
       },
-  
+
       convertedStatus: () => {
         return Template.instance().convertedStatus.get()
       },
-  
+
       apiFunction:function() { // do not use arrow function
         return stockTransferService.getAllSerialNumber
       },
-  
+
       searchAPI: function() {
         return stockTransferService.getSerialNumberListByDeptID
       },
-  
+
       apiParams: function() {
         return ['dateFrom', 'dateTo', 'ignoredate', 'limitCount', 'limitFrom', 'deleteFilter'];
       },
-  
+
       service: ()=>{
         return stockTransferService;
       },
-  
+
       datahandler: function () {
         let templateObject = Template.instance();
         return function(data) {

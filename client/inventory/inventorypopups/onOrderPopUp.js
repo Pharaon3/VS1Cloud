@@ -25,8 +25,6 @@ Template.onOrderPopUp.onCreated(function () {
 
 
   templateObject.getDataTableList = function(data) {
-    if(data.TranstypeDesc!=="Invoice")
-    return []
     var dataList = [
         data.Id,
         data.TransactionDate != ""
@@ -135,7 +133,7 @@ Template.onOrderPopUp.helpers({
 
   apiFunction:function() {
     let productService = new ProductService();
-    return productService.getProductRecentTransactionsAll
+    return productService.getProductRecentTransactionsOnOrder
   },
 
   searchAPI: function() {
@@ -144,8 +142,8 @@ Template.onOrderPopUp.helpers({
   },
 
   service: ()=>{
-    let sideBarService = new SideBarService();
-    return sideBarService;
+    let productService = new ProductService();
+    return productService;
 
   },
 

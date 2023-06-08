@@ -19,6 +19,7 @@ Template.chequelist.onCreated(function() {
     const templateObject = Template.instance();
     templateObject.datatablerecords = new ReactiveVar([]);
     templateObject.tableheaderrecords = new ReactiveVar([]);
+    templateObject.temporaryfiles = new ReactiveVar([]);
 
     templateObject.getDataTableList = function(data) {
         let totalAmountEx;
@@ -97,6 +98,20 @@ Template.chequelist.onCreated(function() {
         { index: 17, label: "Status", class: "colStatus", active: true, display: true, width: "120" },
     ];
     templateObject.tableheaderrecords.set(headerStructure);
+
+
+    getVS1Data('TChequeTemp').then(function(dataObject) {
+        if(dataObject.length == 0) {
+        } else {
+          let data = JSON.parse(dataObject[0].data);
+          let useData = data.tchequetemp;
+          if(useData.length > 0) {
+              templateObject.temporaryfiles.set(useData);
+            $(".btnRefresh").addClass("btnRefreshAlert");
+          }
+        }
+      })
+      
 });
 
 Template.chequelist.onRendered(function() {
@@ -234,8 +249,39 @@ Template.chequelist.events({
             $(".btnRefresh").trigger("click");
         }
     },
-    'click .btnRefresh': function() {
+    'click .btnRefresh': async function() {
         $('.fullScreenSpin').css('display', 'inline-block');
+        let templateObject = Template.instance();
+        let purchaseService = new PurchaseBoardService();
+        let tempfiles = templateObject.temporaryfiles.get();
+        async function sendPostRequest  () {
+            return new Promise((resolve, reject) => {
+              for(let i=0; i< tempfiles.length; i++) {
+                // return
+                purchaseService.saveChequeEx(tempfiles[i]).then(function() {
+                  let newTemp = tempfiles.slice(i+1, tempfiles.length);
+                  addVS1Data('TChequeTemp', JSON.stringify({tchequetemp: newTemp})).then(function() {
+                    if(i == tempfiles.length -1) {
+                      resolve()
+                    }
+                  })
+                }).catch(function(e) {
+                  resolve();
+                })
+              }
+            })
+        }
+        if(tempfiles&&tempfiles.length) {
+            await sendPostRequest();
+        }
+        getVS1Data('TChequeTemp').then(function(dataObject) {
+        if(dataObject.length ==0) {
+            $('.btnRefresh').removeClass('btnRefreshAlert');
+        } else {
+        }
+        }).catch(function(e) {
+        $('.btnRefresh').removeClass('btnRefreshAlert');
+        })
         const currentBeginDate = new Date();
         const begunDate = moment(currentBeginDate).format("DD/MM/YYYY");
         let fromDateMonth = (currentBeginDate.getMonth() + 1);

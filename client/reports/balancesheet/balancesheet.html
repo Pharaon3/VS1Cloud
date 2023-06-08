@@ -67,5 +67,18 @@
             displaysettings=displaysettings
             subGroup=false
             dateFrom='1899-01-01'
+            editLayout=true
+            editLayoutHref='#bsEditLayoutScreen'
     }}
+
+    <!--Start New Profit and Loss Edit Layout Screen modal -->
+    <div class="modal fade nplLayoutCreationScreen nplEditLayoutScreen" id="bsEditLayoutScreen" tabindex="-1" role="dialog" aria-hidden="true">
+        {{> bseditlayoutscreen
+                dateAsAt=dateAsAt
+                indexDBName='BalanceSheetReport'
+                apiName=apiFunction
+                dateFrom='1899-01-01'
+        }}
+    </div>
+    <!--End New Profit and Loss Edit Layout Screen -->
 </template>

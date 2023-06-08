@@ -1,0 +1,49 @@
+[{
+    "Id": 1,
+    "Type": "License",
+    "Title": "Class A",
+    "Active": true
+},
+{
+    "Id": 2,
+    "Type": "License",
+    "Title": "Class B",
+    "Active": true
+},
+{
+    "Id": 3,
+    "Type": "License",
+    "Title": "Class C",
+    "Active": true
+},
+{
+    "Id": 4,
+    "Type": "License",
+    "Title": "Class D",
+    "Active": true
+},
+{
+    "Id": 5,
+    "Type": "Permit",
+    "Title": "Permit A",
+    "Active": true
+},
+{
+    "Id": 6,
+    "Type": "Permit",
+    "Title": "Permit B",
+    "Active": true
+},
+{
+    "Id": 7,
+    "Type": "Permit",
+    "Title": "Permit C",
+    "Active": true
+},
+{
+    "Id": 8,
+    "Type": "Permit",
+    "Title": "Permit D",
+    "Active": true
+}
+]

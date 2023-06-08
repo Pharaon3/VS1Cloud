@@ -61,6 +61,8 @@ Template.supplierlistpop.onCreated(function () {
             data.Notes || '',
             data.Active ? "" : "In-Active",
             data.TERMS || data.TermsName || loggedTermsSales || 'COD',
+            data.FirstName || '',
+            data.LastName || ''
             // data.Email || '',
             // data.AccountNo || '',
             // data.ClientNo || '',
@@ -90,6 +92,8 @@ Template.supplierlistpop.onCreated(function () {
         { index: 12, label: 'Comments', class: 'colNotes', active: true, display: true, width: "300" },
         { index: 13, label: 'Status', class: 'colStatus', active: true, display: true, width: "120" },
         { index: 14, label: 'Terms', class: 'colTerms colSupplierTermName', active: false, display: true, width: "100"},
+        { index: 15, label: 'Terms', class: 'colFirstName', active: false, display: true, width: "100"},
+        { index: 16, label: 'Terms', class: 'colLastName', active: false, display: true, width: "100"},
     ];
     templateObject.tableheaderrecords.set(headerStructure);
 });

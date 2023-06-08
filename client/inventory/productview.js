@@ -1044,6 +1044,7 @@ Template.productview.onRendered(function () {
 
                 let isBOMProduct = false;
                 let bomProducts = templateObject.bomProducts.get();
+                
                 let bomIndex = bomProducts.findIndex((product) => {
                   return data.fields.ProductName == product.fields.Caption;
                 });
@@ -1051,7 +1052,7 @@ Template.productview.onRendered(function () {
                 if (bomIndex > -1) {
                   isBOMProduct = true;
                   templateObject.bomStructure.set(bomProducts[bomIndex]);
-                } else {
+                } else if(bomProducts.length >= initialBaseDataLoad) {
                   productService.getOneBOMProductByName(data.fields.ProductName).then(function (data) {
                     if (data.tproctree.length > -1) {
                       isBOMProduct = true;
@@ -1244,8 +1245,8 @@ Template.productview.onRendered(function () {
                 if (bomIndex > -1) {
                   isBOMProduct = true;
                   templateObject.bomStructure.set(bomProducts[bomIndex])
-                } else {
-                  productService.getOneBOMProductByName(useData[i].ProductName).then(function (data) {
+                } else if(bomProducts.length >= initialBaseDataLoad) {
+                  productService.getOneBOMProductByName(useData[i].fields.ProductName).then(function (data) {
                     if (data.tproctree.length > -1) {
                       isBOMProduct = true;
                       templateObject.bomStructure.set(data.tproctree[0])
@@ -1437,7 +1438,7 @@ Template.productview.onRendered(function () {
                   if (bomIndex > -1) {
                     isBOMProduct = true;
                     templateObject.bomStructure.set(bomProducts[bomIndex])
-                  } else {
+                  } else if(bomProducts.length >= initialBaseDataLoad) {
                     productService.getOneBOMProductByName(data.fields.ProductName).then(function (data) {
                       if (data.tproctree.length > -1) {
                         isBOMProduct = true;
@@ -1618,7 +1619,7 @@ Template.productview.onRendered(function () {
               if (bomIndex > -1) {
                 isBOMProduct = true;
                 templateObject.bomStructure.set(bomProducts[bomIndex])
-              } else {
+              } else if(bomProducts.length >= initialDatatableLoad) {
                 productService.getOneBOMProductByName(data.ProductName).then(function (data) {
                   if (data.tproctree.length > -1) {
                     isBOMProduct = true;
@@ -3849,6 +3850,8 @@ Template.productview.events({
       var url = FlowRouter.current().path;
       var getso_id = url.split("?id=") ;
       var currentID = FlowRouter.current().queryParams.id || templateObject.data.id || 0;
+      var netWeight = parseFloat($('#delivery_weight').val());
+      var volume = parseFloat($('#delivery_volume').val());
 
       if ($("#chkSellPrice").is(":checked")) {
         $(".itemExtraSellRow").each(function () {
@@ -3894,6 +3897,8 @@ Template.productview.events({
               AssetAccount: $("#sltinventoryacount").val(),
               CogsAccount: $("#sltcogsaccount").val(),
               IncomeAccount: $("#sltsalesacount").val(),
+              NetWeightKg: netWeight,
+              Volume: volume,
               BuyQty1Cost:
                 parseFloat(
                   $("#edtbuyqty1cost")
@@ -3951,6 +3956,8 @@ Template.productview.events({
               SalesDescription: $("#txasalesdescription").val(),
               CogsAccount: $("#sltcogsaccount").val(),
               IncomeAccount: $("#sltsalesacount").val(),
+              NetWeightKg: netWeight,
+              Volume: volume,
               BuyQty1Cost:
                 parseFloat(
                   $("#edtbuyqty1cost")
@@ -4106,6 +4113,8 @@ Template.productview.events({
                     AssetAccount: $("#sltinventoryacount").val(),
                     CogsAccount: $("#sltcogsaccount").val(),
                     IncomeAccount: $("#sltsalesacount").val(),
+                    NetWeightKg: netWeight,
+                    Volume: volume,
                     BuyQty1Cost:
                       parseFloat(
                         $("#edtbuyqty1cost")
@@ -4163,6 +4172,8 @@ Template.productview.events({
                     SalesDescription: $("#txasalesdescription").val(),
                     CogsAccount: $("#sltcogsaccount").val(),
                     IncomeAccount: $("#sltsalesacount").val(),
+                    NetWeightKg: netWeight,
+                    Volume: volume,
                     BuyQty1Cost:
                       parseFloat(
                         $("#edtbuyqty1cost")
@@ -4277,6 +4288,8 @@ Template.productview.events({
                     CogsAccount: $("#sltcogsaccount").val(),
                     IncomeAccount: $("#sltsalesacount").val(),
                     BuyQty1: parseFloat($("#edttotalqtyinstock1").val()) || 1,
+                    NetWeightKg: netWeight,
+                    Volume: volume,
                     BuyQty1Cost:
                       parseFloat(
                         $("#edtbuyqty1cost")
@@ -4337,6 +4350,8 @@ Template.productview.events({
                     CogsAccount: $("#sltcogsaccount").val(),
                     IncomeAccount: $("#sltsalesacount").val(),
                     BuyQty1: parseFloat($("#edttotalqtyinstock1").val()) || 1,
+                    NetWeightKg: netWeight,
+                    Volume: volume,
                     BuyQty1Cost:
                       parseFloat(
                         $("#edtbuyqty1cost")
@@ -4453,6 +4468,8 @@ Template.productview.events({
                   CogsAccount: $("#sltcogsaccount").val(),
                   IncomeAccount: $("#sltsalesacount").val(),
                   BuyQty1: parseFloat($("#edttotalqtyinstock1").val()) || 1,
+                  NetWeightKg: netWeight,
+                  Volume: volume,
                   BuyQty1Cost:
                     parseFloat(
                       $("#edtbuyqty1cost")
@@ -4513,6 +4530,8 @@ Template.productview.events({
                   CogsAccount: $("#sltcogsaccount").val(),
                   IncomeAccount: $("#sltsalesacount").val(),
                   BuyQty1: parseFloat($("#edttotalqtyinstock1").val()) || 1,
+                  NetWeightKg: netWeight,
+                  Volume: volume,
                   BuyQty1Cost:
                     parseFloat(
                       $("#edtbuyqty1cost")
@@ -4619,11 +4638,13 @@ Template.productview.events({
         });
 
         if (existIndex == -1) {
-          await productService.getOneBOMProductByName(bomObject.fields.Caption).then(function (data) {
-            if (data.tproctree.length > 0) {
-              existID = data.tproctree[0].fields.ID;
-            }
-          });
+          if(bomProducts.length >= initialBaseDataLoad) {
+            await productService.getOneBOMProductByName(bomObject.fields.Caption).then(function (data) {
+              if (data.tproctree.length > 0) {
+                existID = data.tproctree[0].fields.ID;
+              }
+            });
+          }
         } else {
           existID = bomProducts[existIndex].fields.ID;
         }
@@ -4658,9 +4679,14 @@ Template.productview.events({
   "click .btnBack": function (event) {
     playCancelAudio();
     event.preventDefault();
-    setTimeout(function () {
-      history.back(1);
-    }, delayTimeAfterSound);
+    let templateObject = Template.instance();
+    if(templateObject.data.isModal == true) {
+    } else {
+      setTimeout(function () {
+        history.back(1);
+      }, delayTimeAfterSound);
+
+    }
   },
   "click #chkTrack": function (event) {
     const templateObject = Template.instance();
@@ -5647,15 +5673,17 @@ Template.productview.events({
       return product.Caption == $("#edtMainProductName").val();
     });
     if (index == -1) {
-      productService.getOneBOMProductByName($("#edtMainProductName").val()).then(function (data) {
-        if (data.tproctree.length == 0) {
-          $("#chkBOM").attr("checked", false);
-          templateObject.isManufactured.set(false);
-        } else {
-          $("#chkBOM").attr("checked", true);
-          templateObject.isManufactured.set(true);
-        }
-      });
+      if(bomProducts.length >= initialBaseDataLoad) {
+        productService.getOneBOMProductByName($("#edtMainProductName").val()).then(function (data) {
+          if (data.tproctree.length == 0) {
+            $("#chkBOM").attr("checked", false);
+            templateObject.isManufactured.set(false);
+          } else {
+            $("#chkBOM").attr("checked", true);
+            templateObject.isManufactured.set(true);
+          }
+        });
+      }
     }
   },
 

@@ -335,19 +335,19 @@ authenticatedRoutes.route('/newappointments', {
 
 /* Sales */
 authenticatedRoutes.route('/salesordercard', {
-    name: 'new_salesorder',
+    name: 'new_salesorder_temp',
     action() {
         BlazeLayout.render('layout', {
-            yield: 'new_salesorder'
+            yield: 'new_salesorder_temp'
         });
     }
 });
 
 authenticatedRoutes.route('/salesordertemp', {
-    name: 'new_salesorder_temp',
+    name: 'new_salesorder',
     action() {
         BlazeLayout.render('layout', {
-            yield: 'new_salesorder_temp'
+            yield: 'new_salesorder'
         });
     }
 });
@@ -373,16 +373,6 @@ authenticatedRoutes.route('/invoicecard', {
 
 
 authenticatedRoutes.route('/refundtemp', {
-    name: 'new_refund_temp',
-    action() {
-        BlazeLayout.render('layout', {
-            yield: 'new_refund_temp'
-        });
-    }
-});
-
-
-authenticatedRoutes.route('/refundcard', {
     name: 'refundcard',
     action() {
         BlazeLayout.render('layout', {
@@ -391,20 +381,30 @@ authenticatedRoutes.route('/refundcard', {
     }
 });
 
-authenticatedRoutes.route('/quotecard', {
-    name: 'new_quote',
+
+authenticatedRoutes.route('/refundcard', {
+    name: 'new_refund_temp',
     action() {
         BlazeLayout.render('layout', {
-            yield: 'new_quote'
+            yield: 'new_refund_temp'
+        });
+    }
+});
+
+authenticatedRoutes.route('/quotecard', {
+    name: 'new_quote_temp',
+    action() {
+        BlazeLayout.render('layout', {
+            yield: 'new_quote_temp'
         });
     }
 });
 
 authenticatedRoutes.route('/quotetemp', {
-    name: 'new_quote_temp',
+    name: 'new_quote',
     action() {
         BlazeLayout.render('layout', {
-            yield: 'new_quote_temp'
+            yield: 'new_quote'
         });
     }
 });
@@ -578,11 +578,19 @@ authenticatedRoutes.route('/depotlist', {
     }
 });
 
+authenticatedRoutes.route('/newdepot', {
+    name: 'adddepot',
+    action() {
+        BlazeLayout.render('layout', {
+            yield: 'adddepot'
+        });
+    }
+});
 authenticatedRoutes.route('/drivervehiclelistcard', {
     name: 'addDriverVehicle',
     action() {
         BlazeLayout.render('layout', {
-            yield: 'addDriverVehicle'
+            yield: 'drivervehiclelist'
         });
     }
 });
@@ -603,15 +611,6 @@ authenticatedRoutes.route('/vehiclelist', {
     }
 });
 authenticatedRoutes.route('/billcard', {
-    name: 'billcard',
-    action() {
-        BlazeLayout.render('layout', {
-            yield: 'billcard'
-        });
-    }
-});
-
-authenticatedRoutes.route('/billtemp', {
     name: 'billcard_temp',
     action() {
         BlazeLayout.render('layout', {
@@ -620,20 +619,29 @@ authenticatedRoutes.route('/billtemp', {
     }
 });
 
-authenticatedRoutes.route('/chequecard', {
-    name: 'chequecard',
+authenticatedRoutes.route('/billtemp', {
+    name: 'billcard',
     action() {
         BlazeLayout.render('layout', {
-            yield: 'chequecard'
+            yield: 'billcard'
+        });
+    }
+});
+
+authenticatedRoutes.route('/chequecard', {
+    name: 'chequecard_temp',
+    action() {
+        BlazeLayout.render('layout', {
+            yield: 'chequecard_temp'
         });
     }
 });
 
 authenticatedRoutes.route('/chequetemp', {
-    name: 'chequecard_temp',
+    name: 'chequecard',
     action() {
         BlazeLayout.render('layout', {
-            yield: 'chequecard_temp'
+            yield: 'chequecard'
         });
     }
 });
@@ -777,18 +785,18 @@ authenticatedRoutes.route('/purchaseorderlistBO', {
 });
 
 authenticatedRoutes.route('/purchaseordercard', {
-    name: 'purchaseordercard',
-    action() {
-        BlazeLayout.render('layout', {
-            yield: 'purchaseordercard'
-        });
-    }
-});
-authenticatedRoutes.route('/potemp', {
     name: 'frmpotemp',
     action() {
         BlazeLayout.render('layout', {
             yield: 'frmpotemp'
+        });
+    }
+});
+authenticatedRoutes.route('/potemp', {
+    name: 'purchaseordercard',
+    action() {
+        BlazeLayout.render('layout', {
+            yield: 'purchaseordercard'
         });
     }
 });
@@ -1298,19 +1306,19 @@ authenticatedRoutes.route('/formnewbill', {
 });
 
 authenticatedRoutes.route('/creditcard', {
-    name: 'creditcard',
+    name: 'creditcard_temp',
     action() {
         BlazeLayout.render('layout', {
-            yield: 'creditcard'
+            yield: 'creditcard_temp'
         });
     }
 });
 
 authenticatedRoutes.route('/credittemp', {
-    name: 'creditcard_temp',
+    name: 'creditcard',
     action() {
         BlazeLayout.render('layout', {
-            yield: 'creditcard_temp'
+            yield: 'creditcard'
         });
     }
 });
@@ -1538,7 +1546,7 @@ authenticatedRoutes.route('/stocktransfercard', {
     }
 });
 
-authenticatedRoutes.route('/journalentrycard', {
+authenticatedRoutes.route('/journalentrytemp', {
     name: 'journalentrycard',
     action() {
         BlazeLayout.render('layout', {
@@ -1546,6 +1554,16 @@ authenticatedRoutes.route('/journalentrycard', {
         });
     }
 });
+
+authenticatedRoutes.route('/journalentrycard', {
+    name: 'journalentrycard_temp',
+    action() {
+        BlazeLayout.render('layout', {
+            yield: 'journalentrycard_temp'
+        });
+    }
+});
+
 authenticatedRoutes.route('/journalentrylist', {
     name: 'journalentrylist',
     action() {
@@ -2032,18 +2050,18 @@ authenticatedRoutes.route('/bankrulelist', {
 });
 
 authenticatedRoutes.route('/depositcard', {
-    name: 'depositcard',
-    action() {
-        BlazeLayout.render('layout', {
-            yield: 'depositcard'
-        });
-    }
-});
-authenticatedRoutes.route('/deposittemp', {
     name: 'depositcard_temp',
     action() {
         BlazeLayout.render('layout', {
             yield: 'depositcard_temp'
+        });
+    }
+});
+authenticatedRoutes.route('/deposittemp', {
+    name: 'depositcard',
+    action() {
+        BlazeLayout.render('layout', {
+            yield: 'depositcard'
         });
     }
 });
@@ -2516,6 +2534,15 @@ authenticatedRoutes.route('/eftbankrulelist', {
 })
 
 authenticatedRoutes.route('/workordercard', {
+    name: 'new_workorder_temp',
+    action() {
+        BlazeLayout.render('layout', {
+            yield: 'new_workorder_temp'
+        })
+    }
+})
+
+authenticatedRoutes.route('/workordertemp', {
     name: 'new_workorder',
     action() {
         BlazeLayout.render('layout', {

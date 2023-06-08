@@ -17,11 +17,11 @@ Template.transactionfooter.onCreated(function() {
     templateObject.getVolumetom3 = function (itemvolume, unit) {
         if(unit.toLowerCase() == 'm3') {
             return itemvolume
-        } else if(unit.toLowerCase() == 'l') {
+        } else if(unit.toLowerCase() == 'l' ) {
             return itemvolume / 1000
-        } else if(unit.toLowerCase() == 'ml') {
+        } else if(unit.toLowerCase() == 'ml' || unit.toLowerCase() == 'cm3') {
             return itemvolume / 1000000
-        }
+        } 
     }
 });
 
@@ -90,31 +90,7 @@ Template.transactionfooter.helpers({
         let returnVal = parseFloat(amount)* parseFloat(quantity);
         return returnVal
     },
-
-    totalWeight: ()=>{
-        let templateObject = Template.instance();
-        let recordLineItems = templateObject.data.recordLineItems;
-        let totalweight = 0;
-        for(let i = 0; i< recordLineItems.length; i++) {
-            let itemweight = recordLineItems[i].weight;
-            let unit = recordLineItems[i].weightUnit
-            let retVal =  templateObject.getWeighttokg(itemweight, unit);
-            totalweight += retVal
-        }
-        return totalweight
-    },
-    totalVolume: ()=>{
-        let templateObject = Template.instance();
-        let recordLineItems = templateObject.data.recordLineItems;
-        let totalvolume = 0.00;
-        for(let i = 0; i< recordLineItems.length; i++) {
-            let itemvolume = recordLineItems[i].volume;
-            let unit = recordLineItems[i].volumeUnit
-            let retVal =  templateObject.getVolumetom3(itemvolume, unit);
-            totalvolume += retVal
-        }
-        return totalvolume
-    }
+    
 });
 
 

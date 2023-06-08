@@ -134,7 +134,8 @@
                       style="margin: 14px;"><i class="icon ion-plus" style="padding-right: 5px;"></i>New
                       Employee</button>
                     <div class="modal fade addEmployeeModalNew" role="dialog" tabindex="-1" id="addEmployeeModal">
-                      {{> addemployeepop editableEmployee=editableEmployee isSetup="true" }}
+                      {{> addemployeepop record=editableEmployee}}
+                      <!-- {{> addemployeepop editableEmployee=editableEmployee isSetup="true" }} -->
                     </div>
                     <a role="button" data-toggle="modal" href="#helpModalEmployee" style="margin: 14px"
                       class="btn btn-primary alerts-border visiblePopupDiv helpModal">View Help Video</a>

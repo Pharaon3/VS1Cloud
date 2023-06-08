@@ -204,16 +204,6 @@ Template.wizard_inventory.events({
     }
     $("#addProductModal").modal("show");
   },
-  "click .btnActiveProd": function () {
-    $("#view-in-active").html(
-      "<button class='btn btn-danger btnDeleteProd vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make In-Active</button>"
-    );
-  },
-  "click .btnDeleteProd": function () {
-    $("#view-in-active").html(
-      "<button class='btn btn-success btnActiveProd vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make Active</button>"
-    );
-  },
   "click .templateDownload": function () {
     let utilityService = new UtilityService();
     let rows = [];

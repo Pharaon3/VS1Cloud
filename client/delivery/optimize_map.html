@@ -14,13 +14,6 @@
         /*
  * Optional: Makes the sample page fill the window.
  */
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
         @-moz-keyframes fadein {
             from {
                 opacity: 0;
@@ -2200,7 +2193,7 @@
             -ms-transform-origin: top left;
             transform-origin: top left;
             overflow: hidden;
-            font-size: 14.4px
+            /*font-size: 14.4px*/
         }
 
         body {
@@ -2554,48 +2547,6 @@
 
         button {
             border: 0
-        }
-
-        .btn,.onboarding-button {
-            display: inline-block;
-            padding: .91em 1.45em .9em;
-            margin-bottom: 0;
-            vertical-align: middle;
-            -webkit-border-radius: 4px;
-            border-radius: 4px;
-            font-size: .929em;
-            font-weight: 700;
-            line-height: 1;
-            text-transform: capitalize;
-            text-align: center;
-            text-decoration: none;
-            white-space: nowrap;
-            cursor: pointer;
-            -webkit-transition: all .3s ease-out;
-            -moz-transition: all .3s ease-out;
-            -o-transition: all .3s ease-out;
-            -ms-transition: all .3s ease-out;
-            transition: all .3s ease-out
-        }
-
-        .btn [class*=" icon-"],.btn [class^=icon-],.onboarding-button [class*=" icon-"],.onboarding-button [class^=icon-] {
-            font-size: 80%
-        }
-
-        .btn.no-transition,.onboarding-button.no-transition {
-            -webkit-transition: none!important;
-            -moz-transition: none!important;
-            -o-transition: none!important;
-            -ms-transition: none!important;
-            transition: none!important
-        }
-
-        .btn.disabled,.btn[disabled],.onboarding-button.disabled,.onboarding-button[disabled] {
-            opacity: .4;
-            -ms-filter: "alpha(Opacity=40)";
-            filter: alpha(opacity=40);
-            pointer-events: none;
-            cursor: none
         }
 
         [disabled] {
@@ -23294,9 +23245,9 @@
                                             >
                                                 <!-- ngIf: projectC.hasPassed -->
                                                 <!-- ngIf: !projectC.hasPassed -->
-                                                <h3 class="float-left">
-                                                    Plan
-                                                </h3>
+<!--                                                <h3 class="float-left">-->
+<!--                                                    Plan-->
+<!--                                                </h3>-->
                                             </div>
                                         </div>
                                         <div
@@ -23810,8 +23761,9 @@
                                             ng-if="route.showReoptimizeButton()"
                                             ng-click="route.reoptimize()"
                                             class="btn btn-big btn-action-alt onboarding-target-reoptimize-btn has-tooltip ng-binding ng-scope"
+                                            style="color: white;"
                                     >
-                                        <span class="fa fa-route"></span>
+<!--                                        <span class="fa fa-route"></span>-->
                                         Reoptimize
                                         <!-- ngIf: !route.allowReoptimizeButton() && !route.driverEnRoute -->
                                         <!-- ngIf: route.driverEnRoute -->
@@ -23834,12 +23786,13 @@
                                                     can-show="route.isInDispatchState() &amp;&amp; route.pendingRoutesCount() == 0"
                                                     class="btn btn-big btn-dispatch onboarding-target-dispatch-btn test-dispatch-to-drivers ng-scope ng-isolate-scope"
                                             >
-                                                    <!-- ngIf: route.isInDispatchState() && route.pendingRoutesCount() > 0 --><span
-                                                    class="fa fa-paper-plane"
-                                            ></span>
+<!--                                                    &lt;!&ndash; ngIf: route.isInDispatchState() && route.pendingRoutesCount() > 0 &ndash;&gt;<span-->
+<!--                                                    class="fa fa-paper-plane"-->
+<!--                                            ></span>-->
                                                 <!-- ngIf: !route.isInDispatchState() --><span
                                                     ng-if="!route.isInDispatchState()"
                                                     class="ng-binding ng-scope"
+                                                    style="color: white;"
                                             >Dispatch to
                                                         Drivers</span
                                             ><!-- end ngIf: !route.isInDispatchState() --><!-- ngIf: route.isInDispatchState() --></a

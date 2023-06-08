@@ -97,17 +97,11 @@ const TransactionTypeData = {
   workorders: {
     templates: [
       {
-        name: "Sales Orders",
-        title: "Sales Orders",
-        key: "sales_order",
+        name: "Work Orders",
+        title: "Work Orders",
+        key: "work_order",
         active: true,
-      },
-      {
-        name: "Delivery Docket",
-        title: "Delivery Docket",
-        key: "delivery_docket",
-        active: true,
-      },
+      }
     ],
   },
   supplierpayments: {
@@ -287,12 +281,34 @@ Template.transaction_print_modal.onCreated(async function () {
       return templates;
     }
   };
+  
 
   const getSMSSettings = async () => {
 
+
+    async function getSmsSettings () {
+      return new Promise((resolve, reject)=> {
+        getVS1Data('TERPPreference').then(function(dataObject){
+          if(dataObject.length == 0) {
+            smsService.getSMSSettings().then(function(data){
+              resolve(data)
+            })
+          } else {
+            let data = JSON.parse(dataObject[0].data);
+            resolve(data)
+          }
+        }).catch(function(e) {
+          smsService.getSMSSettings().then(function(data){
+            resolve(data)
+          })
+        })
+      })
+    }
+    
     const smsSettings = this.smsSettings.get()
 
-    const smsServiceSettings = await smsService.getSMSSettings();
+    const smsServiceSettings = await getSmsSettings();
+    // const smsServiceSettings = await smsService.getSMSSettings();
     if (smsServiceSettings.terppreference.length > 0) {
       for (let i = 0; i < smsServiceSettings.terppreference.length; i++) {
         switch (smsServiceSettings.terppreference[i].PrefName) {
@@ -337,20 +353,25 @@ Template.transaction_print_modal.onCreated(async function () {
   this.fnSendSMS = async function(isForced = false){
     const isCheckedSms = $("#printModal #sms").is(":checked");
     const customerId = $("#__customer_id").val();
+    const customername = $('.transheader #edtCustomerName').val();
     const contactService = new ContactService();
     let contactServiceData = null;
     if(isForced){
       LoadingOverlay.show();
     }
-    if(customerId){
-      contactServiceData = await contactService.getOneCustomerDataEx(
-        customerId
-      );
-    }
+    // if(customerId){
+    //   contactServiceData = await contactService.getOneCustomerDataEx(
+    //     customerId
+    //   );
+    // }
 
     // Send SMS
-    if ((isCheckedSms || isForced) && contactServiceData) {
-      let phoneNumber = contactServiceData.fields.Mobile;
+    let clientPhone = templateObject.data.clientPhone;
+    if ((isCheckedSms || isForced) && clientPhone) {
+      let phoneNumber = clientPhone.mobile;
+      let firstname = clientPhone.firstname;
+      let lastname = clientPhone.lastname
+      // let phoneNumber = contactServiceData.fields.Mobile;
       // const phoneNumber = "+13374761311"
       if (phoneNumber == '' || phoneNumber == null) {
         LoadingOverlay.hide();
@@ -375,7 +396,7 @@ Template.transaction_print_modal.onCreated(async function () {
         customerName
       );
 
-      message = `${message} - Hi ${contactServiceData?.fields?.FirstName} ${contactServiceData?.fields?.LastName}`;
+      message = `${message} - Hi ${firstname} ${lastname}`;
 
       if (phoneNumber) {
         Meteor.call(
@@ -408,7 +429,7 @@ Template.transaction_print_modal.onCreated(async function () {
           }
         );
       }
-    } else if ( isCheckedSms && !contactServiceData){
+    } else if ( isCheckedSms && !clientPhone){
       swal({
         title: "Oops...",
         text: "We can not get Customer data to send SMS!",

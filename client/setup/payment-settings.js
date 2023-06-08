@@ -236,99 +236,7 @@ Template.wizard_payment.onRendered(() => {
       }
     }
   });
-});
-
-Template.wizard_payment.events({
-  "click #saveStep3"() {
-    $(".fullScreenSpin").css("display", "inline-block");
-    let companyID = 1;
-    let feeMethod = "apply";
-    if ($("#feeInPriceInput").is(":checked")) {
-      feeMethod = "include";
-    }
-
-    var objDetails = {
-      type: "TCompanyInfo",
-      fields: {
-        Id: companyID,
-        DvaABN: feeMethod,
-      },
-    };
-    organisationService
-      .saveOrganisationSetting(objDetails)
-      .then(function (data) {
-        localStorage.setItem("vs1companyStripeFeeMethod", feeMethod);
-        LoadingOverlay.hide();
-        swal({
-          title: "Default Payment Method Setting Successfully Changed",
-          text: "",
-          type: "success",
-          showCancelButton: false,
-          confirmButtonText: "OK",
-        }).then((result) => {});
-      })
-      .catch(function (err) {
-        LoadingOverlay.hide();
-        swal({
-          title: "Default Payment Method Setting Successfully Changed",
-          text: "",
-          type: "success",
-          showCancelButton: false,
-          confirmButtonText: "OK",
-        });
-      });
-  },
-  "click .feeOnTopInput": function (event) {
-    if ($(event.target).is(":checked")) {
-      $(".feeInPriceInput").attr("checked", false);
-    }
-  },
-  "click .feeInPriceInput": function (event) {
-    if ($(event.target).is(":checked")) {
-      $(".feeOnTopInput").attr("checked", false);
-    }
-  },
-  "click .btnRefreshPaymentMethod"() {
-    $(".fullScreenSpin").css("display", "inline-block");
-    sideBarService
-      .getPaymentMethodDataList()
-      .then(function (dataList) {
-        addVS1Data("TPaymentMethodList", JSON.stringify(dataList))
-          .then(function (datareturn) {
-            sideBarService
-              .getPaymentMethodDataVS1()
-              .then(function (dataReload) {
-                addVS1Data("TPaymentMethod", JSON.stringify(dataReload))
-                  .then(function (datareturn) {
-                    location.reload(true);
-                  })
-                  .catch(function (err) {
-                    location.reload(true);
-                  });
-              })
-              .catch(function (err) {
-                location.reload(true);
-              });
-          })
-          .catch(function (err) {
-            location.reload(true);
-          });
-      })
-      .catch(function (err) {
-        location.reload(true);
-      });
-  },
-  "click .btnDeletePaymentMethod"() {
-    $("#view-in-active").html(
-      "<button class='btn btn-success btnActivePaymentMethod vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make Active</button>"
-    );
-  },
-  "click .btnActivePaymentMethod"() {
-    $("#view-in-active").html(
-      "<button class='btn btn-danger btnDeletePaymentMethod vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make In-Active</button>"
-    );
-  },
-  "click .btnSavePaymentMethod"() {
+  templateObject.savePaymentMethod = function (maiaMode=false, isMakeActive) {
     playSaveAudio();
     setTimeout(function () {
       $(".fullScreenSpin").css("display", "inline-block");
@@ -341,6 +249,9 @@ Template.wizard_payment.events({
         isCreditCard = false;
       }
       let active = $("#view-in-active button").hasClass("btnDeletePaymentMethod");
+      if (maiaMode) {
+        active = isMakeActive;
+      }
 
       let objDetails = "";
       if (paymentName === "") {
@@ -526,6 +437,100 @@ Template.wizard_payment.events({
           });
       }
     }, delayTimeAfterSound);
+  };
+});
+
+Template.wizard_payment.events({
+  "click #saveStep3"() {
+    $(".fullScreenSpin").css("display", "inline-block");
+    let companyID = 1;
+    let feeMethod = "apply";
+    if ($("#feeInPriceInput").is(":checked")) {
+      feeMethod = "include";
+    }
+
+    var objDetails = {
+      type: "TCompanyInfo",
+      fields: {
+        Id: companyID,
+        DvaABN: feeMethod,
+      },
+    };
+    organisationService
+      .saveOrganisationSetting(objDetails)
+      .then(function (data) {
+        localStorage.setItem("vs1companyStripeFeeMethod", feeMethod);
+        LoadingOverlay.hide();
+        swal({
+          title: "Default Payment Method Setting Successfully Changed",
+          text: "",
+          type: "success",
+          showCancelButton: false,
+          confirmButtonText: "OK",
+        }).then((result) => {});
+      })
+      .catch(function (err) {
+        LoadingOverlay.hide();
+        swal({
+          title: "Default Payment Method Setting Successfully Changed",
+          text: "",
+          type: "success",
+          showCancelButton: false,
+          confirmButtonText: "OK",
+        });
+      });
+  },
+  "click .feeOnTopInput": function (event) {
+    if ($(event.target).is(":checked")) {
+      $(".feeInPriceInput").attr("checked", false);
+    }
+  },
+  "click .feeInPriceInput": function (event) {
+    if ($(event.target).is(":checked")) {
+      $(".feeOnTopInput").attr("checked", false);
+    }
+  },
+  "click .btnRefreshPaymentMethod"() {
+    $(".fullScreenSpin").css("display", "inline-block");
+    sideBarService
+      .getPaymentMethodDataList()
+      .then(function (dataList) {
+        addVS1Data("TPaymentMethodList", JSON.stringify(dataList))
+          .then(function (datareturn) {
+            sideBarService
+              .getPaymentMethodDataVS1()
+              .then(function (dataReload) {
+                addVS1Data("TPaymentMethod", JSON.stringify(dataReload))
+                  .then(function (datareturn) {
+                    location.reload(true);
+                  })
+                  .catch(function (err) {
+                    location.reload(true);
+                  });
+              })
+              .catch(function (err) {
+                location.reload(true);
+              });
+          })
+          .catch(function (err) {
+            location.reload(true);
+          });
+      })
+      .catch(function (err) {
+        location.reload(true);
+      });
+  },
+  "click .btnDeletePaymentMethod"() {
+    const templateObject = Template.instance();
+    templateObject.savePaymentMethod(maiaMode=true, false);
+  },
+  "click .btnActivePaymentMethod"() {
+    const templateObject = Template.instance();
+    templateObject.savePaymentMethod(maiaMode=true, true);
+  },
+  "click .btnSavePaymentMethod"() {
+    const templateObject = Template.instance();
+    templateObject.savePaymentMethod();
   },
   "click .btnAddPaymentMethod"() {
     let templateObject = Template.instance();

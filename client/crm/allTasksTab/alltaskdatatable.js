@@ -2454,7 +2454,7 @@ Template.alltaskdatatable.onRendered(function () {
 Template.alltaskdatatable.events({
 
     "click .btnAddSubTask": function (event) {
-        $("#newTaskModal").modal("toggle");
+        $("#newTaskModal_001").modal("toggle");
     },
 
     "click .btnCancelAddTask": function (event) {
@@ -2484,7 +2484,7 @@ Template.alltaskdatatable.events({
             let id = e.target.dataset.id;
             let type = e.target.dataset.ttype;
 
-            $("#taskDetailModal").modal("hide");
+            $("#taskDetailModal_001").modal("hide");
 
             openEditTaskModal(id, type);
         }
@@ -2526,7 +2526,7 @@ Template.alltaskdatatable.events({
                 $(".fullScreenSpin").css("display", "none");
                 $(".btnRefresh").addClass('btnSearchAlert');
 
-                $('#taskDetailModal').modal('toggle');
+                $('#taskDetailModal_001').modal('toggle');
 
             });
         }
@@ -2589,7 +2589,7 @@ Template.alltaskdatatable.events({
                         templateObject.getAllTaskList();
                         templateObject.getTProjectList();
                         $(".fullScreenSpin").css("display", "none");
-                        $("#taskDetailModal").modal("hide");
+                        $("#taskDetailModal_001").modal("hide");
                         // $("#newProjectTasksModal").modal("hide");
                     });
                 } else if (result.dismiss === "cancel") {
@@ -2711,11 +2711,11 @@ Template.alltaskdatatable.events({
         $("#chkPriorityAdd3").prop("checked", false);
         $("#chkPriorityAdd" + value).prop("checked", true);
 
-        $("#newTaskModal .taskModalActionFlagDropdown").removeClass("task_modal_priority_3");
-        $("#newTaskModal .taskModalActionFlagDropdown").removeClass("task_modal_priority_2");
-        $("#newTaskModal .taskModalActionFlagDropdown").removeClass("task_modal_priority_1");
-        $("#newTaskModal .taskModalActionFlagDropdown").removeClass("task_modal_priority_0");
-        $("#newTaskModal .taskModalActionFlagDropdown").addClass("task_modal_priority_" + value);
+        $("#newTaskModal_001 .taskModalActionFlagDropdown").removeClass("task_modal_priority_3");
+        $("#newTaskModal_001 .taskModalActionFlagDropdown").removeClass("task_modal_priority_2");
+        $("#newTaskModal_001 .taskModalActionFlagDropdown").removeClass("task_modal_priority_1");
+        $("#newTaskModal_001 .taskModalActionFlagDropdown").removeClass("task_modal_priority_0");
+        $("#newTaskModal_001 .taskModalActionFlagDropdown").addClass("task_modal_priority_" + value);
     },
 
     // submit save new task add task
@@ -2821,7 +2821,7 @@ Template.alltaskdatatable.events({
                     //   templateObject.getAllTaskList();
                     //   templateObject.getTProjectList();
                     // }, 500);
-                    $("#newTaskModal").modal("hide");
+                    $("#newTaskModal_001").modal("hide");
                     // $("#newProjectTasksModal").modal("hide");
                     if (subTaskID) {
                         crmService.getTaskDetail(subTaskID).then(function (data) {
@@ -3385,7 +3385,7 @@ Template.alltaskdatatable.events({
         let allCompletedRecords = templateObject.allWithCompletedRecords.get();
 
         if (labelid) {
-            $("#taskDetailModal").modal("hide");
+            $("#taskDetailModal_001").modal("hide");
 
             allCompletedRecords = allCompletedRecords.filter((item) => item.fields.TaskLabel != null);
 
@@ -3703,7 +3703,7 @@ Template.alltaskdatatable.events({
         // uncheck all labels
         $(".chkAddLabel").prop("checked", false);
 
-        $("#newTaskModal").modal("toggle");
+        $("#newTaskModal_001").modal("toggle");
 
         let projectName = $(".editCrmProjectName").html() ? $(".editCrmProjectName").html().length > 26 ? $(".editCrmProjectName").html().substring(0, 26) + "..." : $(".editCrmProjectName").html() : "All Task";
         $(".addTaskModalProjectName").html(projectName);
@@ -4786,7 +4786,7 @@ function openEditTaskModal(id, type) {
                         "task_modal_priority_" + selected_record.priority
                     );
 
-                    $("#taskDetailModal").modal("toggle");
+                    $("#taskDetailModal_001").modal("toggle");
 
                     $(".crmDatepicker").datepicker({
                         showOn: "button",

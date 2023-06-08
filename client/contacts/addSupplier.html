@@ -319,6 +319,10 @@
                         width: 100%;
                       }
                     }
+                    
+                    .hidden{
+                        display: none;
+                    }
                   </style>
                   <div class="tab-pane active border rounded-0 tab-2" role="tabpanel" id="tab-2"
                     style="background-color: #ededed; border-color: #ededed #00a3d3 #00a3d3 #00a3d3 !important;">
@@ -1119,161 +1123,444 @@
                               style="border-color: #ededed #00a3d3 #00a3d3 #00a3d3 !important; ">
                               <div class="row no-gutters" style="margin: 12px;">
                                 <div class="col d-xl-flex align-items-xl-center">
-                                    <button class="btn btn-primary addNewDeliveryCustomField" type="button" style="margin: 4px;">
+                                    <button class="btn btn-primary addNewDelivery" type="button" style="margin: 4px;">
                                         <i class="fa fa-plus" style="margin-right: 5px;"></i>Add New
                                     </button>
                                 </div>
                               </div>
-                              <div class="row no-gutters" style="margin: 12px;">
-                                <div class="col d-xl-flex align-items-xl-center col-6">
-                                    <div class="form-group flex-grow-1 checkbox1div"
-                                        style="margin: 4px;padding-right:4px;">
-                                        <div style="margin-left: 12px;">
-                                            {{> vs1___dropdown
-                                                type='search'
-                                                id="vehicles"
-                                                name="vehicles"
-                                                modalId='fixedassetlistpopModal'
-                                                list_template_name="fixedassetlistpop"
-                                                modal_title='Vehicles'
-                                                innerModal=true
-                                                label = 'Vehicles'
-                                                colNameForValue="colRegisterAssetName"
-                                                is_editable=false
-                                            }}
+                              <div id="vehicle1">
+                                <div class="row no-gutters" style="margin: 12px;">
+                                    <div class="col d-xl-flex align-items-xl-center col-3">
+                                        <div class="form-group flex-grow-1 checkbox1div"
+                                            style="margin: 4px;padding-right:4px;">
+                                            <div style="margin-left: 12px;">
+                                                {{> vs1___dropdown
+                                                    type='search'
+                                                    id="vehicles"
+                                                    name="vehicles"
+                                                    modalId='fixedassetlistpopModal'
+                                                    list_template_name="fixedassetlistpop"
+                                                    modal_title='Vehicle'
+                                                    innerModal=true
+                                                    label = 'Vehicle'
+                                                    colNameForValue="colRegisterAssetName"
+                                                    is_editable=false
+                                                    custid='f1'
+                                                }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3" style="padding: 0px;">
+                                        <div class="custom-control custom-switch chkSameSupplier" style="height:100%; display: flex; align-items: center; margin-left: 20px; margin-top: 12px;">
+                                            <input class="custom-control-input" type="checkbox" id="isDriver" style=" cursor: pointer;" checked="{{#if record.isDriver}}checked{{/if}}">
+                                            <label class="custom-control-label" for="isDriver" style=" cursor: pointer;">Is Driver</label>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-6 col-md-3" style="padding: 0px;">
-                                    <div class="custom-control custom-switch chkSameSupplier" style="height:100%; display: flex; align-items: center; margin-left: 20px; margin-top: 12px;">
-                                        <input class="custom-control-input" type="checkbox" id="isDriver" style=" cursor: pointer;" checked="{{#if record.isDriver}}checked{{/if}}">
-                                        <label class="custom-control-label" for="isDriver" style=" cursor: pointer;">Is Driver</label>
+                                <div class="row no-gutters" style="margin: 12px;">
+                                    <div class="col d-xl-flex align-items-xl-center">
+                                        <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                                style="margin: 4px;padding-right:4px;">
+                                                {{> vs1___dropdown
+                                                    type='search'
+                                                    id="ltype"
+                                                    name="ltype"
+                                                    modalId='licenseTypepopModal'
+                                                    list_template_name="licenselistpop"
+                                                    modal_title='License Type'
+                                                    innerModal=true
+                                                    label = 'License Type'
+                                                    colNameForValue="colLicenseType"
+                                                    is_editable=false                                            
+                                                    custid='l1'
+                                                }}
+                                        </div>
+                                        <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                                style="margin: 4px;padding-right:4px;">
+                                            <label class="lblCustomField1">
+                                                License Number
+                                            </label>
+                                            <input type="text" class="form-control" id="lnumber" name="lnumber" value="">
+                                        </div>
+                                        <div class="form-group flex-grow-1 checkbox1div col-6 col-md-2"
+                                            style="margin: 4px;padding-right:4px; margin-top:12px;">
+                                            {{> single_date_picker
+                                                id="lExpDate"
+                                                name="lExpDate"
+                                                defaultValue=record.lExpDate
+                                                label='License Expiry Date'
+                                            }}
+                                        </div>
+                                        <div class="form-group flex-grow-1 checkbox1div col-6 col-md-4"
+                                                style="margin: 4px;padding-right:4px; margin-top:24px;">
+                                            <input type="file" id="license-attachment" style="display:none" multiple
+                                                accept="image/*;capture=camera,.jpg,.gif,.png,.bmp,.tiff,.pdf,.doc,.docx,.xls,.xlsx,.ppt,
+                                                        .pptx,.odf,.csv,.txt,.rtf,.eml,.msg,.ods,.odt,.keynote,.key,.pages-tef,
+                                                        .pages,.numbers-tef,.numbers,.zip,.rar,.zipx,.xzip,.7z,image/jpeg,
+                                                        image/gif,image/png,image/bmp,image/tiff,application/pdf,
+                                                        application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                                        application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                                        application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,
+                                                        application/vnd.oasis.opendocument.formula,text/csv,text/plain,text/rtf,message/rfc822,
+                                                        application/vnd.ms-outlook,application/vnd.oasis.opendocument.spreadsheet,
+                                                        application/vnd.oasis.opendocument.text,application/x-iwork-keynote-sffkey,
+                                                        application/vnd.apple.keynote,application/x-iwork-pages-sffpages,
+                                                        application/vnd.apple.pages,application/x-iwork-numbers-sffnumbers,
+                                                        application/vnd.apple.numbers,application/zip,application/rar,
+                                                        application/x-zip-compressed,application/x-zip,application/x-7z-compressed">
+                                        <button class="btn btn-primary btnUploadFile license_attachment_btn1" type="button"
+                                                style="margin: 4px;"><i class="fa fa-cloud-upload"
+                                                                        style="margin-right: 5px;"></i>License Attachment</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row no-gutters" style="margin: 12px;">
+                                    <div class="col d-xl-flex align-items-xl-center">
+                                        <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                                style="margin: 4px;padding-right:4px;">
+                                                {{> vs1___dropdown
+                                                    type='search'
+                                                    id="ptype"
+                                                    name="ptype"
+                                                    modalId='permitTypepopModal'
+                                                    list_template_name="permitlistpop"
+                                                    modal_title='Permit Type'
+                                                    innerModal=true
+                                                    label = 'Permit Type'
+                                                    colNameForValue="colPermitType"
+                                                    is_editable=false                                            
+                                                    custid='p1'
+                                                }}
+                                        </div>
+                                        <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                                style="margin: 4px;padding-right:4px;">
+                                            <label class="lblCustomField1">
+                                                Permit Number
+                                            </label>
+                                            <input type="text" class="form-control" id="pnumber" name="pnumber" value="">
+                                        </div>
+                                        <div class="form-group flex-grow-1 checkbox1div col-6 col-md-2"
+                                                style="margin: 5px;padding-right:4px; margin-top:12px;">
+                                            {{> single_date_picker
+                                                id="pExpDate"
+                                                name="pExpDate"
+                                                defaultValue=record.pExpDate
+                                                label='Permit Expiry'
+                                            }}
+                                        </div>
+                                        <div class="form-group flex-grow-1 checkbox1div col-6 col-md-4"
+                                                style="margin: 4px;padding-right:4px; margin-top:24px;">
+                                                <input type="file" id="permit-attachment" style="display:none" multiple
+                                                accept="image/*;capture=camera,.jpg,.gif,.png,.bmp,.tiff,.pdf,.doc,.docx,.xls,.xlsx,.ppt,
+                                                        .pptx,.odf,.csv,.txt,.rtf,.eml,.msg,.ods,.odt,.keynote,.key,.pages-tef,
+                                                        .pages,.numbers-tef,.numbers,.zip,.rar,.zipx,.xzip,.7z,image/jpeg,
+                                                        image/gif,image/png,image/bmp,image/tiff,application/pdf,
+                                                        application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                                        application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                                        application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,
+                                                        application/vnd.oasis.opendocument.formula,text/csv,text/plain,text/rtf,message/rfc822,
+                                                        application/vnd.ms-outlook,application/vnd.oasis.opendocument.spreadsheet,
+                                                        application/vnd.oasis.opendocument.text,application/x-iwork-keynote-sffkey,
+                                                        application/vnd.apple.keynote,application/x-iwork-pages-sffpages,
+                                                        application/vnd.apple.pages,application/x-iwork-numbers-sffnumbers,
+                                                        application/vnd.apple.numbers,application/zip,application/rar,
+                                                        application/x-zip-compressed,application/x-zip,application/x-7z-compressed">
+                                        <button class="btn btn-primary btnUploadFile permit_attachment_btn1" type="button"
+                                                style="margin: 4px;"><i class="fa fa-cloud-upload"
+                                                                        style="margin-right: 5px;"></i>Permit Attachment</button>
+                                        </div>
                                     </div>
                                 </div>
                               </div>
-                              <div class="row no-gutters" style="margin: 12px;">
-                                <div class="col d-xl-flex align-items-xl-center">
-                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
-                                            style="margin: 4px;padding-right:4px;">
-                                        <label class="lblCustomField1">
-                                            License Type
-                                        </label>
-                                        <input type="text" class="form-control" id="ltype" name="ltype" value="">
-                                    </div>
-                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
-                                            style="margin: 4px;padding-right:4px;">
-                                        <label class="lblCustomField1">
-                                            License Number
-                                        </label>
-                                        <input type="text" class="form-control" id="lnumber" name="lnumber" value="">
-                                    </div>
-                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-2"
-                                        style="margin: 4px;padding-right:4px; margin-top:12px;">
-                                        {{> single_date_picker
-                                            id="lExpDate"
-                                            name="lExpDate"
-                                            defaultValue=record.lExpDate
-                                            label='License Expiry Date'
-                                        }}
-                                    </div>
-                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-4"
-                                            style="margin: 4px;padding-right:4px; margin-top:24px;">
-                                        <input type="file" id="license-attachment" style="display:none" multiple
-                                            accept="image/*;capture=camera,.jpg,.gif,.png,.bmp,.tiff,.pdf,.doc,.docx,.xls,.xlsx,.ppt,
-                                                    .pptx,.odf,.csv,.txt,.rtf,.eml,.msg,.ods,.odt,.keynote,.key,.pages-tef,
-                                                    .pages,.numbers-tef,.numbers,.zip,.rar,.zipx,.xzip,.7z,image/jpeg,
-                                                    image/gif,image/png,image/bmp,image/tiff,application/pdf,
-                                                    application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
-                                                    application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
-                                                    application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,
-                                                    application/vnd.oasis.opendocument.formula,text/csv,text/plain,text/rtf,message/rfc822,
-                                                    application/vnd.ms-outlook,application/vnd.oasis.opendocument.spreadsheet,
-                                                    application/vnd.oasis.opendocument.text,application/x-iwork-keynote-sffkey,
-                                                    application/vnd.apple.keynote,application/x-iwork-pages-sffpages,
-                                                    application/vnd.apple.pages,application/x-iwork-numbers-sffnumbers,
-                                                    application/vnd.apple.numbers,application/zip,application/rar,
-                                                    application/x-zip-compressed,application/x-zip,application/x-7z-compressed">
-                                    <button class="btn btn-primary btnUploadFile new_attachment_btn" type="button"
-                                            style="margin: 4px;"><i class="fa fa-cloud-upload"
-                                                                    style="margin-right: 5px;"></i>License Attachment</button>
-                                    </div>
-                                </div>
+                              <div id="vehicle2" class="hidden">
+                                  <div style="width: 98%; height: 1px; background-color: #00a3d3; margin: auto;" ></div>
+                                  <div class="row no-gutters" style="margin: 12px;">
+                                      <div class="col d-xl-flex align-items-xl-center col-3">
+                                          <div class="form-group flex-grow-1 checkbox1div"
+                                              style="margin: 4px;padding-right:4px;">
+                                              <div style="margin-left: 12px;">
+                                                  {{> vs1___dropdown
+                                                      type='search'
+                                                      id="vehicles2"
+                                                      name="vehicles2"
+                                                      modalId='fixedassetlistpopModal2'
+                                                      list_template_name="fixedassetlistpop"
+                                                      modal_title='Vehicles'
+                                                      innerModal=true
+                                                      label = 'Vehicle'
+                                                      colNameForValue="colRegisterAssetName"
+                                                      is_editable=false
+                                                      custid='f2'
+                                                  }}
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="col-6 col-md-3" style="padding: 0px;">
+                                          <div class="custom-control custom-switch chkSameSupplier" style="height:100%; display: flex; align-items: center; margin-left: 20px; margin-top: 12px;">
+                                              <input class="custom-control-input" type="checkbox" id="isDriver2" style=" cursor: pointer;" checked="{{#if record.isDriver2}}checked{{/if}}">
+                                              <label class="custom-control-label" for="isDriver2" style=" cursor: pointer;">Is Driver</label>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="row no-gutters" style="margin: 12px;">
+                                      <div class="col d-xl-flex align-items-xl-center">
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                                  style="margin: 4px;padding-right:4px;">
+                                                  {{> vs1___dropdown
+                                                      type='search'
+                                                      id="ltype2"
+                                                      name="ltype2"
+                                                      modalId='licenseTypepopModal2'
+                                                      list_template_name="licenselistpop"
+                                                      modal_title='License Type'
+                                                      innerModal=true
+                                                      label = 'License Type'
+                                                      colNameForValue="colLicenseType"
+                                                      is_editable=false
+                                                      custid='l2'
+                                                  }}
+                                          </div>
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                                  style="margin: 4px;padding-right:4px;">
+                                              <label class="lblCustomField1">
+                                                  License Number
+                                              </label>
+                                              <input type="text" class="form-control" id="lnumber2" name="lnumber2" value="">
+                                          </div>
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-2"
+                                              style="margin: 4px;padding-right:4px; margin-top:12px;">
+                                              {{> single_date_picker
+                                                  id="lExpDate2"
+                                                  name="lExpDate2"
+                                                  defaultValue=record.lExpDate2
+                                                  label='License Expiry Date'
+                                              }}
+                                          </div>
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-4"
+                                                  style="margin: 4px;padding-right:4px; margin-top:24px;">
+                                              <input type="file" id="license-attachment2" style="display:none" multiple
+                                                  accept="image/*;capture=camera,.jpg,.gif,.png,.bmp,.tiff,.pdf,.doc,.docx,.xls,.xlsx,.ppt,
+                                                          .pptx,.odf,.csv,.txt,.rtf,.eml,.msg,.ods,.odt,.keynote,.key,.pages-tef,
+                                                          .pages,.numbers-tef,.numbers,.zip,.rar,.zipx,.xzip,.7z,image/jpeg,
+                                                          image/gif,image/png,image/bmp,image/tiff,application/pdf,
+                                                          application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                                          application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                                          application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,
+                                                          application/vnd.oasis.opendocument.formula,text/csv,text/plain,text/rtf,message/rfc822,
+                                                          application/vnd.ms-outlook,application/vnd.oasis.opendocument.spreadsheet,
+                                                          application/vnd.oasis.opendocument.text,application/x-iwork-keynote-sffkey,
+                                                          application/vnd.apple.keynote,application/x-iwork-pages-sffpages,
+                                                          application/vnd.apple.pages,application/x-iwork-numbers-sffnumbers,
+                                                          application/vnd.apple.numbers,application/zip,application/rar,
+                                                          application/x-zip-compressed,application/x-zip,application/x-7z-compressed">
+                                          <button class="btn btn-primary btnUploadFile license_attachment_btn2" type="button"
+                                                  style="margin: 4px;"><i class="fa fa-cloud-upload"
+                                                                          style="margin-right: 5px;"></i>License Attachment</button>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="row no-gutters" style="margin: 12px;">
+                                      <div class="col d-xl-flex align-items-xl-center">
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                                  style="margin: 4px;padding-right:4px;">
+                                                  {{> vs1___dropdown
+                                                      type='search'
+                                                      id="ptype2"
+                                                      name="ptype2"
+                                                      modalId='permitTypepopModal2'
+                                                      list_template_name="permitlistpop"
+                                                      modal_title='Permit Type'
+                                                      innerModal=true
+                                                      label = 'Permit Type'
+                                                      colNameForValue="colPermitType"
+                                                      is_editable=false
+                                                      custid='p2'
+                                                  }}
+                                          </div>
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                                  style="margin: 4px;padding-right:4px;">
+                                              <label class="lblCustomField1">
+                                                  Permit Number
+                                              </label>
+                                              <input type="text" class="form-control" id="pnumber2" name="pnumber2" value="">
+                                          </div>
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-2"
+                                                  style="margin: 5px;padding-right:4px; margin-top:12px;">
+                                              {{> single_date_picker
+                                                  id="pExpDate2"
+                                                  name="pExpDate2"
+                                                  defaultValue=record.pExpDate2
+                                                  label='Permit Expiry'
+                                              }}
+                                          </div>
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-4"
+                                                  style="margin: 4px;padding-right:4px; margin-top:24px;">
+                                                  <input type="file" id="permit-attachment2" style="display:none" multiple
+                                                  accept="image/*;capture=camera,.jpg,.gif,.png,.bmp,.tiff,.pdf,.doc,.docx,.xls,.xlsx,.ppt,
+                                                          .pptx,.odf,.csv,.txt,.rtf,.eml,.msg,.ods,.odt,.keynote,.key,.pages-tef,
+                                                          .pages,.numbers-tef,.numbers,.zip,.rar,.zipx,.xzip,.7z,image/jpeg,
+                                                          image/gif,image/png,image/bmp,image/tiff,application/pdf,
+                                                          application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                                          application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                                          application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,
+                                                          application/vnd.oasis.opendocument.formula,text/csv,text/plain,text/rtf,message/rfc822,
+                                                          application/vnd.ms-outlook,application/vnd.oasis.opendocument.spreadsheet,
+                                                          application/vnd.oasis.opendocument.text,application/x-iwork-keynote-sffkey,
+                                                          application/vnd.apple.keynote,application/x-iwork-pages-sffpages,
+                                                          application/vnd.apple.pages,application/x-iwork-numbers-sffnumbers,
+                                                          application/vnd.apple.numbers,application/zip,application/rar,
+                                                          application/x-zip-compressed,application/x-zip,application/x-7z-compressed">
+                                          <button class="btn btn-primary btnUploadFile permit_attachment_btn2" type="button"
+                                                  style="margin: 4px;"><i class="fa fa-cloud-upload"
+                                                                          style="margin-right: 5px;"></i>Permit Attachment</button>
+                                          </div>
+                                      </div>
+                                  </div>
                               </div>
-                              <div class="row no-gutters" style="margin: 12px;">
-                                <div class="col d-xl-flex align-items-xl-center">
-                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
-                                            style="margin: 4px;padding-right:4px;">
-                                        <label class="lblCustomField1">
-                                            Permit Type
-                                        </label>
-                                        <input type="text" class="form-control" id="ptype" name="ptype" value="">
-                                    </div>
-                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
-                                            style="margin: 4px;padding-right:4px;">
-                                        <label class="lblCustomField1">
-                                            Permit Number
-                                        </label>
-                                        <input type="text" class="form-control" id="pnumber" name="pnumber" value="">
-                                    </div>
-                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-2"
-                                            style="margin: 5px;padding-right:4px; margin-top:12px;">
-                                        {{> single_date_picker
-                                            id="pExpDate"
-                                            name="pExpDate"
-                                            defaultValue=record.pExpDate
-                                            label='Permit Expiry'
-                                        }}
-                                    </div>
-                                    <div class="form-group flex-grow-1 checkbox1div col-6 col-md-4"
-                                            style="margin: 4px;padding-right:4px; margin-top:24px;">
-                                            <input type="file" id="permit-attachment" style="display:none" multiple
-                                            accept="image/*;capture=camera,.jpg,.gif,.png,.bmp,.tiff,.pdf,.doc,.docx,.xls,.xlsx,.ppt,
-                                                    .pptx,.odf,.csv,.txt,.rtf,.eml,.msg,.ods,.odt,.keynote,.key,.pages-tef,
-                                                    .pages,.numbers-tef,.numbers,.zip,.rar,.zipx,.xzip,.7z,image/jpeg,
-                                                    image/gif,image/png,image/bmp,image/tiff,application/pdf,
-                                                    application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
-                                                    application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
-                                                    application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,
-                                                    application/vnd.oasis.opendocument.formula,text/csv,text/plain,text/rtf,message/rfc822,
-                                                    application/vnd.ms-outlook,application/vnd.oasis.opendocument.spreadsheet,
-                                                    application/vnd.oasis.opendocument.text,application/x-iwork-keynote-sffkey,
-                                                    application/vnd.apple.keynote,application/x-iwork-pages-sffpages,
-                                                    application/vnd.apple.pages,application/x-iwork-numbers-sffnumbers,
-                                                    application/vnd.apple.numbers,application/zip,application/rar,
-                                                    application/x-zip-compressed,application/x-zip,application/x-7z-compressed">
-                                    <button class="btn btn-primary btnUploadFile new_attachment_btn" type="button"
-                                            style="margin: 4px;"><i class="fa fa-cloud-upload"
-                                                                    style="margin-right: 5px;"></i>Permit Attachment</button>
-                                    </div>
-                                </div>
-                              </div>
-                              <div id="deliveryCustom" class="row no-gutters" style="margin: 12px;display: none;">
-                                <div class="col d-xl-flex align-items-xl-center" style="">
-                                    <div id="deliveryCustom1" class="form-group flex-grow-1 checkbox1div" style="margin: 4px;padding-right:4px;">
-                                        <label class="lblCustomField1">
-                                            Custom Field 1
-                                        </label>
-                                        <input type="text" class="form-control" id="deliveryCustom1Val" name="deliveryCustom1Val" value="">
-                                    </div>
-                                    <div id="deliveryCustom2" class="form-group flex-grow-1 checkbox1div" style="margin: 4px;padding-right:4px; display: none;">
-                                        <label class="lblCustomField1">
-                                            Custom Field 2
-                                        </label>
-                                        <input type="text" class="form-control" id="deliveryCustom2Val" name="deliveryCustom2Val" value="">
-                                    </div>
-                                    <div id="deliveryCustom3" class="form-group flex-grow-1 checkbox1div" style="margin: 4px;padding-right:4px; display: none;">
-                                        <label class="lblCustomField1">
-                                            Custom Field 3
-                                        </label>
-                                        <input type="text" class="form-control" id="deliveryCustom3Val" name="deliveryCustom3Val" value="">
-                                    </div>
-                                    <div id="deliveryCustom4" class="form-group flex-grow-1 checkbox1div" style="margin: 4px;padding-right:4px; display: none;">
-                                        <label class="lblCustomField1">
-                                            Custom Field 4
-                                        </label>
-                                        <input type="text" class="form-control" id="deliveryCustom4Val" name="deliveryCustom4Val" value="">
-                                    </div>
-                                </div>
+                              <div id="vehicle3" class="hidden">
+                                  <div style="width: 98%; height: 1px; background-color: #00a3d3; margin: auto;" ></div>
+                                  <div class="row no-gutters" style="margin: 12px;">
+                                      <div class="col d-xl-flex align-items-xl-center col-3">
+                                          <div class="form-group flex-grow-1 checkbox1div"
+                                              style="margin: 4px;padding-right:4px;">
+                                              <div style="margin-left: 12px;">
+                                                  {{> vs1___dropdown
+                                                      type='search'
+                                                      id="vehicles3"
+                                                      name="vehicles3"
+                                                      modalId='fixedassetlistpopModal3'
+                                                      list_template_name="fixedassetlistpop"
+                                                      modal_title='Vehicle'
+                                                      innerModal=true
+                                                      label = 'Vehicle'
+                                                      colNameForValue="colRegisterAssetName"
+                                                      is_editable=false
+                                                      custid='f3'
+                                                  }}
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="col-6 col-md-3" style="padding: 0px;">
+                                          <div class="custom-control custom-switch chkSameSupplier" style="height:100%; display: flex; align-items: center; margin-left: 20px; margin-top: 12px;">
+                                              <input class="custom-control-input" type="checkbox" id="isDriver3" style=" cursor: pointer;" checked="{{#if record.isDriver3}}checked{{/if}}">
+                                              <label class="custom-control-label" for="isDriver3" style=" cursor: pointer;">Is Driver</label>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="row no-gutters" style="margin: 12px;">
+                                      <div class="col d-xl-flex align-items-xl-center">
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                                  style="margin: 4px;padding-right:4px;">                                    
+                                                  {{> vs1___dropdown
+                                                      type='search'
+                                                      id="ltype3"
+                                                      name="ltype3"
+                                                      modalId='licenseTypepopModal3'
+                                                      list_template_name="licenselistpop"
+                                                      modal_title='License Type'
+                                                      innerModal=true
+                                                      label = 'License Type'
+                                                      colNameForValue="colLicenseType"
+                                                      is_editable=false
+                                                      custid='l3'
+                                                  }}
+                                          </div>
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                                  style="margin: 4px;padding-right:4px;">
+                                              <label class="lblCustomField1">
+                                                  License Number
+                                              </label>
+                                              <input type="text" class="form-control" id="lnumber3" name="lnumber3" value="">
+                                          </div>
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-2"
+                                              style="margin: 4px;padding-right:4px; margin-top:12px;">
+                                              {{> single_date_picker
+                                                  id="lExpDate3"
+                                                  name="lExpDate3"
+                                                  defaultValue=record.lExpDate3
+                                                  label='License Expiry Date'
+                                              }}
+                                          </div>
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-4"
+                                                  style="margin: 4px;padding-right:4px; margin-top:24px;">
+                                              <input type="file" id="license-attachment3" style="display:none" multiple
+                                                  accept="image/*;capture=camera,.jpg,.gif,.png,.bmp,.tiff,.pdf,.doc,.docx,.xls,.xlsx,.ppt,
+                                                          .pptx,.odf,.csv,.txt,.rtf,.eml,.msg,.ods,.odt,.keynote,.key,.pages-tef,
+                                                          .pages,.numbers-tef,.numbers,.zip,.rar,.zipx,.xzip,.7z,image/jpeg,
+                                                          image/gif,image/png,image/bmp,image/tiff,application/pdf,
+                                                          application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                                          application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                                          application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,
+                                                          application/vnd.oasis.opendocument.formula,text/csv,text/plain,text/rtf,message/rfc822,
+                                                          application/vnd.ms-outlook,application/vnd.oasis.opendocument.spreadsheet,
+                                                          application/vnd.oasis.opendocument.text,application/x-iwork-keynote-sffkey,
+                                                          application/vnd.apple.keynote,application/x-iwork-pages-sffpages,
+                                                          application/vnd.apple.pages,application/x-iwork-numbers-sffnumbers,
+                                                          application/vnd.apple.numbers,application/zip,application/rar,
+                                                          application/x-zip-compressed,application/x-zip,application/x-7z-compressed">
+                                          <button class="btn btn-primary btnUploadFile license_attachment_btn3" type="button"
+                                                  style="margin: 4px;"><i class="fa fa-cloud-upload"
+                                                                          style="margin-right: 5px;"></i>License Attachment</button>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="row no-gutters" style="margin: 12px;">
+                                      <div class="col d-xl-flex align-items-xl-center">
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                                  style="margin: 4px;padding-right:4px;">
+                                                  {{> vs1___dropdown
+                                                      type='search'
+                                                      id="ptype3"
+                                                      name="ptype3"
+                                                      modalId='permitTypepopModal3'
+                                                      list_template_name="permitlistpop"
+                                                      modal_title='Permit Type'
+                                                      innerModal=true
+                                                      label = 'Permit Type'
+                                                      colNameForValue="colPermitType"
+                                                      is_editable=false
+                                                      custid='p3'
+                                                  }}
+                                          </div>
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-3"
+                                                  style="margin: 4px;padding-right:4px;">
+                                              <label class="lblCustomField1">
+                                                  Permit Number
+                                              </label>
+                                              <input type="text" class="form-control" id="pnumber3" name="pnumber3" value="">
+                                          </div>
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-2"
+                                                  style="margin: 5px;padding-right:4px; margin-top:12px;">
+                                              {{> single_date_picker
+                                                  id="pExpDate3"
+                                                  name="pExpDate3"
+                                                  defaultValue=record.pExpDate3
+                                                  label='Permit Expiry'
+                                              }}
+                                          </div>
+                                          <div class="form-group flex-grow-1 checkbox1div col-6 col-md-4"
+                                                  style="margin: 4px;padding-right:4px; margin-top:24px;">
+                                                  <input type="file" id="permit-attachment3" style="display:none" multiple
+                                                  accept="image/*;capture=camera,.jpg,.gif,.png,.bmp,.tiff,.pdf,.doc,.docx,.xls,.xlsx,.ppt,
+                                                          .pptx,.odf,.csv,.txt,.rtf,.eml,.msg,.ods,.odt,.keynote,.key,.pages-tef,
+                                                          .pages,.numbers-tef,.numbers,.zip,.rar,.zipx,.xzip,.7z,image/jpeg,
+                                                          image/gif,image/png,image/bmp,image/tiff,application/pdf,
+                                                          application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                                          application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                                          application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,
+                                                          application/vnd.oasis.opendocument.formula,text/csv,text/plain,text/rtf,message/rfc822,
+                                                          application/vnd.ms-outlook,application/vnd.oasis.opendocument.spreadsheet,
+                                                          application/vnd.oasis.opendocument.text,application/x-iwork-keynote-sffkey,
+                                                          application/vnd.apple.keynote,application/x-iwork-pages-sffpages,
+                                                          application/vnd.apple.pages,application/x-iwork-numbers-sffnumbers,
+                                                          application/vnd.apple.numbers,application/zip,application/rar,
+                                                          application/x-zip-compressed,application/x-zip,application/x-7z-compressed">
+                                          <button class="btn btn-primary btnUploadFile permit_attachment_btn3" type="button"
+                                                  style="margin: 4px;"><i class="fa fa-cloud-upload"
+                                                                          style="margin-right: 5px;"></i>Permit Attachment</button>
+                                          </div>
+                                      </div>
+                                  </div>
                               </div>
                             </div>
                             <!-- End Delivery Tab -->
@@ -1545,9 +1832,13 @@
     </div>
   </div>
 
-  {{> taskDetailModal}}
+  <div class="modal fade" id="taskDetailModal_supplier" tabindex="-1" role="dialog" aria-labelledby="taskNameLabel" aria-hidden="true">
+    {{> taskDetailModal}}
+  </div>
   {{> frmappointmentpop}}
-  {{> newTaskModal}}
+  <div class="modal fade" id="newTaskModal_supplier" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+    {{> newTaskModal}}
+  </div>
 
 
   <div class="modal fade customerListCrmModal" role="dialog" tabindex="-1" id="customerListCrmModal">

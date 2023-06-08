@@ -52,7 +52,7 @@
     includeAddress=true
     Category='quotes'
     TranascationType='quotes'
-    clientType='Supplier'
+    clientType='Customer'
     payment=true
     headerfields=headerfields
     headerbuttons=headerbuttons
@@ -68,7 +68,7 @@
 
     tablename="tblQuoteLine"
     isForeignEnabled=isForeignEnabled
-    canShowBackOrder=true
+    canShowBackOrder=false
     canShowUOM=true
     includeBOnShippedQty=false
     isBatchSerialNoTracking=isBatchSerialNoTracking
@@ -79,10 +79,14 @@
     footerFields = footerFields
     AttachmentCount=attachmentCount
     printName = 'Quotes'
+    TransactionType='quotes'
     printOptions=printOptions
     saveTransaction=saveTransaction
     custlisttype='ltSales'
     deliveryDocketName='Delivery Docket'
+    printfields = printfields
+    updateTransactionTemp=updateTransactionTemp
+    saveapifunction=saveapifunction
     }}
     <!-- Start PDF -->
     <!-- New A4 -->

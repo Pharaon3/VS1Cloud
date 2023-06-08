@@ -23,14 +23,14 @@ Template.vs1___dropdown.onCreated(function(){
     let keyword = templateObject.data.data
     let idVal = templateObject.data.value
     let email = templateObject.data.email
-    let listtemplatename = templateObject.data.list_template_name;
-    if(listtemplatename) {
-        templateObject.listTemp.set(listtemplatename)
-    }
-    let obj = {name: keyword, id: idVal, email: email }
+    // let listtemplatename = templateObject.data.list_template_name;
+    // if(listtemplatename) {
+    //     templateObject.listTemp.set(listtemplatename)
+    // }
+    let obj = {name: keyword, id: idVal, email: email, isModal: true }
     templateObject.edtParam.set(obj);
-    let target = templateObject.data.target_template_id;
-    templateObject.targetTemp.set(target);
+    // let target = templateObject.data.target_template_id;
+    // templateObject.targetTemp.set(target);
 })
 
 Template.vs1___dropdown.onRendered(async function(){
@@ -39,7 +39,6 @@ Template.vs1___dropdown.onRendered(async function(){
     if(templateObject.data.custid){
         id = id + "_" + templateObject.data.custid;
     }
-    let popupid = templateObject.data.modalId;
 
     async function setEditableSelect() {
         // $('#'+id).editableSelect();
@@ -78,6 +77,24 @@ Template.vs1___dropdown.onRendered(async function(){
         }
         return $found.first(); // Return first match of the collection
     }
+
+    templateObject.openlistpop = function (parent, updatetemplate) {
+        if(updatetemplate) {
+            templateObject.targetTemp.set('');
+            templateObject.listTemp.set(templateObject.data.list_template_name)
+        }
+        let openListInterval;
+        function openListPop () {
+            let popupmodal = $(parent).find("> .vs1_dropdown_modal");
+            if(popupmodal.length > 0) {
+                let selectTableID = $(parent).find("> .vs1_dropdown_modal table").attr('id');
+                $(popupmodal).modal('show');
+                $(`#${selectTableID}_filter .form-control-sm`).get(0).focus();
+                clearInterval(openListInterval);
+            }
+        }
+        openListInterval = setInterval(openListPop, 300);
+    }
     $(document).on('click', '#'+id, function(event, li) {
         event.preventDefault();
         event.stopPropagation();
@@ -87,38 +104,20 @@ Template.vs1___dropdown.onRendered(async function(){
         // $("#"+popupid).val("");
         let parent = $(event.target).parent();
         
-        let popupmodal = $(parent).find("> .vs1_dropdown_modal");
         
-        let selectTableID = $(parent).find("> .vs1_dropdown_modal table").attr('id');
-        let tableFilter = $(popupmodal).closest_descendent('.dataTables_filter');
+        let listmodal = $(parent).find("> .vs1_dropdown_modal");
+        
+        let tableFilter = $(listmodal).closest_descendent('.dataTables_filter');
         let searchInput = $(tableFilter).find('label > input');
         
         if (event.pageX > offset.left + $earch.width() - 8) {
             // X button 16px wide?
-            templateObject.targetTemp.set('');
-            $(popupmodal).modal('show');
-            // setTimeout(()=>{
-            //     if(searchInput && searchInput.length > 0) {
-            //         searchInput.trigger('focus')
-            //         searchInput[0].trigger('focus')
-            //         searchInput[0].focus()
-            //     }
-            //     // searchInput.focus()
-            // }, 1000)
-            setTimeout(function () {
-                $(`#${selectTableID}_filter .form-control-sm`).get(0).focus();
-            }, 500)
+            templateObject.openlistpop(parent, true);
 
         } else {
-            // setTimeout(()=>{
                 let value = event.target.value;
                 if (value.replace(/\s/g, '') == '') {
-                    templateObject.targetTemp.set('');
-                    $(popupmodal).modal('show');
-                   
-                    setTimeout(function () {
-                        $(`#${selectTableID}_filter .form-control-sm`).get(0).focus();
-                    }, 500);
+                    templateObject.openlistpop(parent, true);
                 } else {
                     if(templateObject.data.is_editable == true) {
                         templateObject.targetTemp.set('');
@@ -139,21 +138,10 @@ Template.vs1___dropdown.onRendered(async function(){
                             }, 3000);
                         }
                     } else {
-                        $(popupmodal).modal('show');
-                        setTimeout(function () {
-                            $(`#${selectTableID}_filter .form-control-sm`).get(0).focus();
-                        }, 500);
-                        // setTimeout(()=>{
-                        //     if(searchInput && searchInput.length > 0) {
-                        //     searchInput.trigger('focus')
-                        //     searchInput[0].trigger('focus')
-                        //     searchInput[0].focus()
-                        //     }
-                        //     // $(searchInput).focus()
-                        // }, 1000)
+                        templateObject.openlistpop(parent, false);
+                        
                     }
                 }
-            // }, 1000)
         }
     })
 
@@ -180,12 +168,11 @@ Template.vs1___dropdown.helpers({
     },
     listTemp: ()=>{
         let templateObject = Template.instance();
-        let listempname = templateObject.data.list_template_name;
+        // let listempname = templateObject.data.list_template_name;
+        let listempname = templateObject.listTemp.get()
         return listempname
     },
     listparam:()=>{
-        //let obj = {custid: Template.instance().data.custid}
-        //let obj = {custid: Template.instance().data.custid, typefilter: Template.instance().data.typefilter}
         let obj = {custid: Template.instance().data.custid, typefilter: Template.instance().data.typefilter, sn: Template.instance().data.sn, custid2: Template.instance().data.custid2} //sn for Stefan
         return obj
     }
@@ -208,7 +195,7 @@ Template.vs1___dropdown.events({
 
         templateObject.edtParam.set({name: value, id: objectId, email: email, isModal: true })
 
-        templateObject.targetTemp.set(templateObject.data.target_template_id)
+        // templateObject.targetTemp.set(templateObject.data.target_template_id)
 
         // $('#'+id).val(value)
         let target = templateObject.targetEle.get();
@@ -223,5 +210,16 @@ Template.vs1___dropdown.events({
         // }, 100)
 
     },
+
+
+    'click button[data-dismiss="modal"]': function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        let targetModal = $(event.target).closest('div.modal.hide.show');
+        if(targetModal.length > 0) {
+            $(targetModal).modal('hide')
+        }
+    }
+
 
 })

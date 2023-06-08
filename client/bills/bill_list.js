@@ -16,6 +16,7 @@ import {FlowRouter} from 'meteor/ostrio:flow-router-extra';
 
 
 let sideBarService = new SideBarService();
+let purchaseService = new PurchaseBoardService();
 let utilityService = new UtilityService();
 Template.billlist.onCreated(function () {
     const templateObject = Template.instance();
@@ -27,6 +28,8 @@ Template.billlist.onCreated(function () {
 
     templateObject.billResponse = new ReactiveVar();
     templateObject.bills = new ReactiveVar([]);
+    
+    templateObject.temporaryfiles = new ReactiveVar([]);
 
     templateObject.getDataTableList = function (data) {
         let orderstatus = data.OrderStatus || '';
@@ -66,6 +69,18 @@ Template.billlist.onCreated(function () {
         {index: 10, label: "Status", class: "colStatus", active: true, display: true, width: "120"},
     ];
     templateObject.tableheaderrecords.set(headerStructure);
+
+    getVS1Data('TBillTemp').then(function(dataObject) {
+        if(dataObject.length == 0) {
+        } else {
+          let data = JSON.parse(dataObject[0].data);
+          let useData = data.tbilltemp;
+          if(useData.length > 0) {
+              templateObject.temporaryfiles.set(useData);
+            $(".btnRefresh").addClass("btnRefreshAlert");
+          }
+        }
+    })
 });
 
 Template.billlist.onRendered(function () {
@@ -194,6 +209,83 @@ Template.billlist.events({
 
             $(".btnRefresh").trigger("click");
         }
+    },
+
+    'click .btnRefresh': async function(event) {
+        $(".fullScreenSpin").css("display", "inline-block");
+
+        let templateObject = Template.instance();
+        let tempfiles = templateObject.temporaryfiles.get()
+        async function sendPostRequest  () {
+        return new Promise((resolve, reject) => {
+            for(let i=0; i< tempfiles.length; i++) {
+            // return
+            purchaseService.saveBillEx(tempfiles[i]).then(function() {
+                let newTemp = tempfiles.slice(i+1, tempfiles.length);
+                addVS1Data('TBillTemp', JSON.stringify({tbilltemp: newTemp})).then(function() {
+                if(i == tempfiles.length -1) {
+                    resolve()
+                }
+                })
+            }).catch(function(e) {
+                resolve();
+            })
+            }
+        })
+        }
+        if(tempfiles&&tempfiles.length) {
+        await sendPostRequest();
+        }
+        getVS1Data('TBillTemp').then(function(dataObject) {
+        if(dataObject.length ==0) {
+            $('.btnRefresh').removeClass('btnRefreshAlert');
+        } else {
+        }
+        }).catch(function(e) {
+        $('.btnRefresh').removeClass('btnRefreshAlert');
+        })
+        let currentDate = new Date();
+        let hours = currentDate.getHours(); //returns 0-23
+        let minutes = currentDate.getMinutes(); //returns 0-59
+        let seconds = currentDate.getSeconds(); //returns 0-59
+        let month = currentDate.getMonth() + 1;
+        let days = currentDate.getDate();
+
+        var currentBeginDate = new Date();
+        var begunDate = moment(currentBeginDate).format("DD/MM/YYYY");
+        let fromDateMonth = currentBeginDate.getMonth() + 1;
+        let fromDateDay = currentBeginDate.getDate();
+        if (currentBeginDate.getMonth() + 1 < 10) {
+        fromDateMonth = "0" + (currentBeginDate.getMonth() + 1);
+        } else {
+        fromDateMonth = currentBeginDate.getMonth() + 1;
+        }
+
+        if (currentBeginDate.getDate() < 10) {
+        fromDateDay = "0" + currentBeginDate.getDate();
+        }
+        var toDate =
+        currentBeginDate.getFullYear() + "-" + fromDateMonth + "-" + fromDateDay;
+        let prevMonth11Date = moment().subtract(reportsloadMonths, "months").format("YYYY-MM-DD");
+
+
+        sideBarService.getAllBillListData(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (dataBill) {
+            addVS1Data("TBillList", JSON.stringify(dataBill)).then(function (datareturn) {
+                sideBarService.getAllBillListData(initialDataLoad, 0).then(function (dataBill) {
+                    addVS1Data("TBillEx", JSON.stringify(dataBill)).then(function (datareturn) {
+                        window.open("/billlist", "_self");
+                    }).catch(function (err) {
+                        window.open("/billlist", "_self");
+                    });
+                    }).catch(function (err) {
+                    window.open("/billlist", "_self");
+                    });
+            }).catch(function (err) {
+                window.open("/billlist", "_self");
+            });
+        }).catch(function (err) {
+            window.open("/billlist", "_self");
+        });
     },
     'click .resetTable': function (event) {
         let templateObject = Template.instance();

@@ -20,6 +20,7 @@ Template.refundlist.onCreated(function () {
     templateObject.custfields = new ReactiveVar([]);
     templateObject.displayfields = new ReactiveVar([]);
     templateObject.reset_data = new ReactiveVar([]);
+    templateObject.temporaryfiles = new ReactiveVar([]);
 
     templateObject.getDataTableList = function(data) {
         let totalAmountEx = utilityService.modifynegativeCurrencyFormat(data.TotalAmount) || 0.00;
@@ -73,6 +74,18 @@ Template.refundlist.onCreated(function () {
     ];
 
     templateObject.tableheaderrecords.set(headerStructure);
+
+    getVS1Data('TRefundTemp').then(function(dataObject) {
+      if(dataObject.length == 0) {
+      } else {
+        let data = JSON.parse(dataObject[0].data);
+        let useData = data.trefundtemp;
+        if(useData.length > 0) {
+            templateObject.temporaryfiles.set(useData);
+          $(".btnRefresh").addClass("btnRefreshAlert");
+        }
+      }
+    })
 });
 
 Template.refundlist.onRendered(function () {
@@ -1867,8 +1880,40 @@ Template.refundlist.events({
     //     $('.fullScreenSpin').css('display', 'none');
     //
     // },
-    'click .btnRefresh': function () {
+    'click .btnRefresh': async function () {
         $('.fullScreenSpin').css('display', 'inline-block');
+        let templateObject = Template.instance();
+        let tempfiles = templateObject.temporaryfiles.get()
+        let salesService = new SalesBoardService();
+
+          async function sendPostRequest  () {
+            return new Promise((resolve, reject) => {
+              for(let i=0; i< tempfiles.length; i++) {
+                // return
+                salesService.saveRefundSale(tempfiles[i]).then(function() {
+                  let newTemp = tempfiles.slice(i+1, tempfiles.length);
+                  addVS1Data('TRefundTemp', JSON.stringify({trefundtemp: newTemp})).then(function() {
+                    if(i == tempfiles.length -1) {
+                      resolve()
+                    }
+                  })
+                }).catch(function(e) {
+                  resolve();
+                })
+              }
+            })
+          }
+          if(tempfiles&&tempfiles.length) {
+            await sendPostRequest();
+          }
+          getVS1Data('TRefundTemp').then(function(dataObject) {
+            if(dataObject.length ==0) {
+              $('.btnRefresh').removeClass('btnRefreshAlert');
+            } else {
+            }
+          }).catch(function(e) {
+            $('.btnRefresh').removeClass('btnRefreshAlert');
+          })
         let currentDate = new Date();
         let hours = currentDate.getHours(); //returns 0-23
         let minutes = currentDate.getMinutes(); //returns 0-59

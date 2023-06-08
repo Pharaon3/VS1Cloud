@@ -52,7 +52,7 @@ const countryService = new CountryService();
 const productService = new ProductService();
 const appointmentService = new AppointmentService();
 let edtProductSelect = "";
-var deliveryCustomCount = 0;
+var deliveryCustomCount = 1;
 
 function MakeNegative() {
     $('td').each(function () {
@@ -383,7 +383,7 @@ Template.employeescard.onCreated(function () {
 });
 
 Template.employeescard.onRendered(function () {
-    deliveryCustomCount = 0;
+    deliveryCustomCount = 1;
     let begunDate;
     let currentDate;
     LoadingOverlay.show();
@@ -522,7 +522,7 @@ Template.employeescard.onRendered(function () {
 
     setTimeout(function () {
         MakeNegative();
-        $("#edtFirstPayDate, #dtStartingDate,#dtDOB,#dtTermninationDate,#dtAsOf,#edtLeaveStartDate,#edtLeaveEndDate,#edtPeriodPaymentDate,#lExpDate,#pExpDate").datepicker({
+        $("#edtFirstPayDate, #dtStartingDate,#dtDOB,#dtTermninationDate,#dtAsOf,#edtLeaveStartDate,#edtLeaveEndDate,#edtPeriodPaymentDate,#lExpDate,#pExpDate,#lExpDate2,#pExpDate2,#lExpDate3,#pExpDate3").datepicker({
             showOn: 'button',
             buttonText: 'Show Date',
             buttonImageOnly: true,
@@ -1448,6 +1448,8 @@ Template.employeescard.onRendered(function () {
             website: '',
             isEmployee: true,
             isDriver: data.fields.isDriver || false,
+            isDriver2: data.fields.isDriver2 || false,
+            isDriver3: data.fields.isDriver3 || false,
         }
 
         templateObject.records.set(lineItemObj);
@@ -1718,7 +1720,9 @@ Template.employeescard.onRendered(function () {
             dashboardOptions: data.fields.LoginDefault || '',
             salesQuota: data.fields.CustFld12 || '',
             isEmployee: true,
-            isDriver: data.fields.isDriver || false
+            isDriver: data.fields.isDriver || false,
+            isDriver2: data.fields.isDriver2 || false,
+            isDriver3: data.fields.isDriver3 || false,
         };
         templateObject.getEmployeeProfileImageData(data.fields.EmployeeName);
 
@@ -3109,7 +3113,6 @@ Template.employeescard.onRendered(function () {
         });
 
         let response = data.response;
-
         let earningLines = response.tpaytemplateearningline.map((earning) => earning.fields);
         if (employeeID) {
             earningLines = earningLines.filter((item) => parseInt(item.EmployeeID) == parseInt(employeeID));
@@ -3706,36 +3709,38 @@ Template.employeescard.onRendered(function () {
             let employeePaySettings = {}
             let objEmployeePaySettings = {}
             if (useData.length == 0) {
-                let ePaySettings = await contactService.getOneEmployeeDataEx(employeeID);
-                if (ePaySettings) {
-                    objEmployeePaySettings = {
-                        ID: 0,
-                        Payperiod: "",
-                        EmployeeName: ePaySettings.fields.EmployeeName,
-                        StartingDate: "",
-                        BankAccountName: "",
-                        BankAccountBSB: "",
-                        BankAccountNo: "",
-                        StatementText: "",
-                        AnnualSalary: 0,
-                        EarningYTD: 0,
-                        NextPayDate: moment().format('YYYY-MM-DD'),
-                        AnnSalary: 0,
-                        TFN: ePaySettings.fields.TFN,
-                        Country: ePaySettings.fields.Country,
-                        TaxFreeThreshold: false,
-                        TFNExemption: "",
-                        EmploymentBasis: "",
-                        ResidencyStatus: "",
-                        StudyTrainingSupportLoan: false,
-                        EligibleToReceiveLeaveLoading: false,
-                        OtherTaxOffsetClaimed: false,
-                        UpwardvariationRequested: false,
-                        SeniorandPensionersTaxOffsetClaimed: false,
-                        HasApprovedWithholdingVariation: false,
+                if(employeeID && employeeID !== '0'){
+                    let ePaySettings = await contactService.getOneEmployeeDataEx(employeeID);
+                    if (ePaySettings) {
+                        objEmployeePaySettings = {
+                            ID: 0,
+                            Payperiod: "",
+                            EmployeeName: ePaySettings.fields.EmployeeName,
+                            StartingDate: "",
+                            BankAccountName: "",
+                            BankAccountBSB: "",
+                            BankAccountNo: "",
+                            StatementText: "",
+                            AnnualSalary: 0,
+                            EarningYTD: 0,
+                            NextPayDate: moment().format('YYYY-MM-DD'),
+                            AnnSalary: 0,
+                            TFN: ePaySettings.fields.TFN,
+                            Country: ePaySettings.fields.Country,
+                            TaxFreeThreshold: false,
+                            TFNExemption: "",
+                            EmploymentBasis: "",
+                            ResidencyStatus: "",
+                            StudyTrainingSupportLoan: false,
+                            EligibleToReceiveLeaveLoading: false,
+                            OtherTaxOffsetClaimed: false,
+                            UpwardvariationRequested: false,
+                            SeniorandPensionersTaxOffsetClaimed: false,
+                            HasApprovedWithholdingVariation: false,
+                        }
                     }
+                    templateObject.employeePaySettings.set(objEmployeePaySettings);
                 }
-                templateObject.employeePaySettings.set(objEmployeePaySettings);
             } else {
                 employeePaySettings = useData[0]
                 objEmployeePaySettings = {
@@ -4699,7 +4704,7 @@ Template.employeescard.onRendered(function () {
         $(".editTaskDetailName").val($("#tblCustomerCrmListWithDate tbody .dnd-moved .colTaskName").html());
         $(".editTaskDetailDescription").val($("#tblCustomerCrmListWithDate tbody .dnd-moved .colTaskDesc").html());
         $("#taskmodalDuedate").val($("#tblCustomerCrmListWithDate tbody .dnd-moved #completeDate").val());
-        $("#taskDetailModal").modal("toggle");
+        $("#taskDetailModal_employee").modal("toggle");
     });
 
     $(document).on("change", ".editTaskDetailName, .editTaskDetailDescription, #taskmodalDuedate", function (e) {
@@ -5127,6 +5132,8 @@ Template.employeescard.events({
             let skype = $('#edtSkype').val() || '';
             let gender = $('#edtGender').val() || '';
             let isDriver = !!$('#isDriver').is(':checked');
+            let isDriver2 = !!$('#isDriver2').is(':checked');
+            let isDriver3 = !!$('#isDriver3').is(':checked');
             let employeeName = $('#edtCustomerCompany').val() || '';
             const dateofbirthTime = new Date($("#dtDOB").datepicker("getDate"));
             const startdateTime = new Date($("#dtStartingDate").datepicker("getDate"));
@@ -5156,10 +5163,26 @@ Template.employeescard.events({
             let pnumber = $("#pnumber").val();
             let pExpDate = $("#pExpDate").val();
             let permit_attachment = $("#permit-attachment").val();
-            let deliveryCustom1Val = $("#deliveryCustom1Val").val();
-            let deliveryCustom2Val = $("#deliveryCustom2Val").val();
-            let deliveryCustom3Val = $("#deliveryCustom3Val").val();
-            let deliveryCustom4Val = $("#deliveryCustom4Val").val();
+            
+            let delivery_vehicles2 = $("#vehicles2").val();
+            let ltype2 = $("#ltype2").val();
+            let lnumber2 = $("#lnumber2").val();
+            let lExpDate2 = $("#lExpDate2").val();
+            let license_attachment2 = $("#license-attachment2").val();
+            let ptype2 = $("#ptype2").val();
+            let pnumber2 = $("#pnumber2").val();
+            let pExpDate2 = $("#pExpDate2").val();
+            let permit_attachment2 = $("#permit-attachment2").val();
+            
+            let delivery_vehicles3 = $("#vehicles3").val();
+            let ltype3 = $("#ltype3").val();
+            let lnumber3 = $("#lnumber3").val();
+            let lExpDate3 = $("#lExpDate3").val();
+            let license_attachment3 = $("#license-attachment3").val();
+            let ptype3 = $("#ptype3").val();
+            let pnumber3 = $("#pnumber3").val();
+            let pExpDate3 = $("#pExpDate3").val();
+            let permit_attachment3 = $("#permit-attachment3").val();
             // Delivery tab End
             // add to custom field
             let custField1 = $('#edtSaleCustField1').val() || '';
@@ -5258,7 +5281,9 @@ Template.employeescard.events({
                         permit_type: ptype,
                         permit_number: pnumber,
                         permit_expDate: pExpDate,
-                        isDriver: isDriver
+                        isDriver: isDriver,
+                        isDriver2: isDriver2,
+                        isDriver3: isDriver3
                     }
                 };
                 if(deliveryCustom1Val) objDetails.fields.deliveryCustom1Val = deliveryCustom1Val;
@@ -5308,7 +5333,9 @@ Template.employeescard.events({
                         permit_type: ptype,
                         permit_number: pnumber,
                         permit_expDate: pExpDate,
-                        isDriver: isDriver
+                        isDriver: isDriver,
+                        isDriver2: isDriver2,
+                        isDriver3: isDriver3
                     }
                 };
                 if(deliveryCustom1Val) objDetails.fields.deliveryCustom1Val = deliveryCustom1Val;
@@ -9856,7 +9883,24 @@ Template.employeescard.events({
     },
     'click .new_attachment_btn': function (event) {
         $('#attachment-upload').trigger('click');
-
+    },
+    'click .permit_attachment_btn1': function (event) {
+        $('#permit-attachment').trigger('click');
+    },
+    'click .permit_attachment_btn2': function (event) {
+        $('#permit-attachment2').trigger('click');
+    },
+    'click .permit_attachment_btn3': function (event) {
+        $('#permit-attachment3').trigger('click');
+    },
+    'click .license_attachment_btn1': function (event) {
+        $('#license-attachment').trigger('click');
+    },
+    'click .license_attachment_btn2': function (event) {
+        $('#license-attachment2').trigger('click');
+    },
+    'click .license_attachment_btn3': function (event) {
+        $('#license-attachment3').trigger('click');
     },
     'click #edtPriority': function (event) {
         let templateObject = Template.instance();
@@ -10695,17 +10739,17 @@ Template.employeescard.events({
         // $(".btnCustomerTask").attr("disabled", false);
         event.preventDefault();
     },
-    "click .addNewDeliveryCustomField": function (event) {
-        $("#deliveryCustom").css("display", 'block');
+    "click .addNewDelivery": function (event) {
         deliveryCustomCount ++;
-        if(deliveryCustomCount > 4) deliveryCustomCount = 4;
-        $("#deliveryCustom" + deliveryCustomCount).css("display", "block");
+        $("#vehicle" + deliveryCustomCount).removeClass("hidden");
+        if(deliveryCustomCount > 2) deliveryCustomCount = 3;
+        // $("#deliveryCustom" + deliveryCustomCount).css("display", "block");
     },
 
 });
 
 Template.employeescard.helpers({
-
+ 
     apiFunctionpayrun:function() {
         return sideBarService.getCalender;
     },
@@ -10749,16 +10793,21 @@ Template.employeescard.helpers({
         return Template.instance().isCloudUserPass.get();
     },
     record: () => {
-        let temp = Template.instance().records.get();
-        let phoneCodes = Template.instance().phoneCodeData.get();
-        if (temp && temp.mobile && temp.country) {
-            let thisCountry = phoneCodes.find(item => {
-                return item.name == temp.country
-            })
-            temp.mobile = temp.mobile.replace(thisCountry?.dial_code, '0') || '0';
+        let parentRecord = Template.parentData(0).record;
+        if (parentRecord) {
+            return parentRecord;
+        } else {
+            let temp = Template.instance().records.get();
+            let phoneCodes = Template.instance().phoneCodeData.get();
+            if (temp && temp.mobile && temp.country) {
+                let thisCountry = phoneCodes.find(item => {
+                    return item.name == temp.country
+                })
+                temp.mobile = temp.mobile.replace(thisCountry?.dial_code, '0') || '0';
+            }
+            // temp.dashboardOptions = "All";
+            return temp;
         }
-        // temp.dashboardOptions = "All";
-        return temp;
     },
     employeePayInfo: () => {
         return Template.instance().employeePayInfos.get();
@@ -11577,7 +11626,7 @@ function openEditTaskModals(id, type) {
                         "task_modal_priority_" + selected_record.priority
                     );
 
-                    $("#taskDetailModal").modal("toggle");
+                    $("#taskDetailModal_employee").modal("toggle");
 
                     $(".crmDatepicker").datepicker({
                         showOn: "button",

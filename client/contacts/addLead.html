@@ -1032,9 +1032,13 @@
         {{> title_list_pop}}
     </div>
 
-    {{> taskDetailModal}}
+    <div class="modal fade" id="taskDetailModal_lead" tabindex="-1" role="dialog" aria-labelledby="taskNameLabel" aria-hidden="true">
+        {{> taskDetailModal}}
+    </div>
     {{> frmappointmentpop}}
-    {{> newTaskModal}}
+    <div class="modal fade" id="newTaskModal_lead" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+        {{> newTaskModal}}
+    </div>
 
 
     <div class="modal fade customerListCrmModal" role="dialog" tabindex="-1" id="customerListCrmModal">

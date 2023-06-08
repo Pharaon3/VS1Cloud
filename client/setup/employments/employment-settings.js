@@ -156,12 +156,12 @@ Template.wizard_employment.helpers({
   },
 });
 Template.wizard_employment.events({
-  "click .btnSaveEmpPop"(e) {
-    playSaveAudio();
-    setTimeout(function () {
-      $("#addEmployeeModal").modal("toggle");
-    }, delayTimeAfterSound);
-  },
+  // "click .btnSaveEmpPop"(e) {
+  //   playSaveAudio();
+  //   setTimeout(function () {
+  //     $("#addEmployeeModal").modal("toggle");
+  //   }, delayTimeAfterSound);
+  // },
   "click #tblSetupEmployeelist tbody tr"(e) {
     $("#addEmployeeModal").modal("toggle");
     // $("#add-customer-title").text("Edit Employee")
@@ -234,16 +234,16 @@ Template.wizard_employment.events({
     templateObject.editableEmployee.set(null);
     LoadingOverlay.hide();
   },
-  "click .btnActiveEmp": function () {
-    $("#view-in-active").html(
-      "<button class='btn btn-danger btnDeleteEmp vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make In-Active</button>"
-    );
-  },
-  "click .btnDeleteEmp": function () {
-    $("#view-in-active").html(
-      "<button class='btn btn-success btnActiveEmp vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make Active</button>"
-    );
-  },
+  // "click .btnActiveEmp": function () {
+  //   $("#view-in-active").html(
+  //     "<button class='btn btn-danger btnDeleteEmp vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make In-Active</button>"
+  //   );
+  // },
+  // "click .btnDeleteEmp": function () {
+  //   $("#view-in-active").html(
+  //     "<button class='btn btn-success btnActiveEmp vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make Active</button>"
+  //   );
+  // },
   "click .btnAddVS1User"(event) {
     swal({
       title: "Is this an existing Employee?",

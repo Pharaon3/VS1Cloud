@@ -1,11 +1,11 @@
 <template name="crmoverviewcards">
     <div class="col-md-6 col-xl-3 mb-4 openaccountreceivable hideelement card-visibility menu_all_task" card-id="0" chartgroup="CRMOverview" data-default-position="0" position="0" card-active="true" card-key="all-crm-tasks" id={{itembank.name}}>
-        <div class="card shadow customCardMainDiv border-left-success py-2">
+        <div class="card shadow customCardMainDiv border-left-success">
             <div class="hideShowDiv">
                 {{> editCardChartOptions}}
                 <a href="javascript:void(0);" class="cardSettingBtn editCardBtn"><i class="fas fa-cog"></i></a>
             </div>
-            <div class="card-body" style="cursor: pointer;">
+            <div class="card-body chart-canvas" style="cursor: pointer; padding-top: 2rem !important; padding-bottom: 2rem !important;">
                 <div class="row align-items-center no-gutters">
                     <a class="col mr-2">
                         <div class="text-uppercase text-success font-weight-bold text-xs mb-1">
@@ -19,15 +19,16 @@
                     <div class="col-auto"><i class="fas fa-inbox fa-2x text-gray-300"></i></div>
                 </div>
             </div>
+            <img class="chart-img d-none d-none w-100 h-100" src="img/charts/ALL TASKS.png"/>
         </div>
     </div>
     <div class="col-md-6 col-xl-3 mb-4 openaccountreceivable hideelement card-visibility menu_today" card-id="0" chartgroup="CRMOverview" data-default-position="1" position="1" card-active="true" card-key="today-crm-tasks" id={{itembank.name}}>
-        <div class="card shadow customCardMainDiv border-left-danger py-2">
+        <div class="card shadow customCardMainDiv border-left-danger">
             <div class="hideShowDiv">
                 {{> editCardChartOptions}}
                 <a href="javascript:void(0);" class="cardSettingBtn editCardBtn"><i class="fas fa-cog"></i></a>
             </div>
-            <div class="card-body" style="cursor: pointer;">
+            <div class="card-body chart-canvas" style="cursor: pointer; padding-top: 2rem !important; padding-bottom: 2rem !important;">
                 <div class="row align-items-center no-gutters">
                     <a class="col mr-2">
                         <div class="text-uppercase text-danger font-weight-bold text-xs mb-1">
@@ -41,15 +42,16 @@
                     <div class="col-auto"><i class="fas fa-calendar-day fa-2x text-gray-300"></i></div>
                 </div>
             </div>
+            <img class="chart-img d-none w-100 h-100" src="img/charts/TODAY.png"/>
         </div>
     </div>
     <div class="col-md-6 col-xl-3 mb-4 openaccountreceivable hideelement card-visibility menu_upcoming" card-id="0" chartgroup="CRMOverview" data-default-position="2" position="2" card-active="true" card-key="upcoming-crm-tasks" id={{itembank.name}}>
-        <div class="card shadow customCardMainDiv border-left-warning py-2">
+        <div class="card shadow customCardMainDiv border-left-warning">
             <div class="hideShowDiv">
                 {{> editCardChartOptions}}
                 <a href="javascript:void(0);" class="cardSettingBtn editCardBtn"><i class="fas fa-cog"></i></a>
             </div>
-            <div class="card-body" style="cursor: pointer;">
+            <div class="card-body chart-canvas" style="cursor: pointer; padding-top: 2rem !important; padding-bottom: 2rem !important;">
                 <div class="row align-items-center no-gutters">
                     <a class="col mr-2">
                         <div class="text-uppercase text-warning font-weight-bold text-xs mb-1"><span style="font-size: 14px;">Upcoming</span></div>
@@ -61,15 +63,16 @@
                     <div class="col-auto"><i class="fas fa-calendar-alt fa-2x text-gray-300"></i></div>
                 </div>
             </div>
+            <img class="chart-img d-none w-100 h-100" src="img/charts/UPCOMING.png"/>
         </div>
     </div>
     <div class="col-md-6 col-xl-3 mb-4 openaccountreceivable hideelement card-visibility menu_project" card-id="0" chartgroup="CRMOverview" data-default-position="3" position="3" card-active="true" card-key="crm-projects" id={{itembank.name}}>
-        <div class="card shadow customCardMainDiv border-left-primary py-2">
+        <div class="card shadow customCardMainDiv border-left-primary">
             <div class="hideShowDiv">
                 {{> editCardChartOptions}}
                 <a href="javascript:void(0);" class="cardSettingBtn editCardBtn"><i class="fas fa-cog"></i></a>
             </div>
-            <div class="card-body" style="cursor: pointer;">
+            <div class="card-body chart-canvas" style="cursor: pointer; padding-top: 2rem !important; padding-bottom: 2rem !important;">
                 <div class="row align-items-center no-gutters">
                     <a class="col mr-2">
                         <div class="text-uppercase text-primary font-weight-bold text-xs mb-1"><span style="font-size: 14px;">Projects</span></div>
@@ -81,6 +84,7 @@
                     <div class="col-auto"><i class="fas fa-project-diagram fa-2x text-gray-300"></i></div>
                 </div>
             </div>
+            <img class="chart-img d-none w-100 h-100" src="img/charts/PROJECTS.png"/>
         </div>
     </div>
 </template>

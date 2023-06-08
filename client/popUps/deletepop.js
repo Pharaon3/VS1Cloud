@@ -130,7 +130,7 @@ Template.deletepop.onCreated(() => {
 })
 
 Template.deletepop.onRendered(function () {
-  hasFollowings();
+  // hasFollowings();
 })
 
 Template.deletepop.helpers({
@@ -186,14 +186,15 @@ const hasFollowings = async function() {
       var creationDate = invData.fields.CreationDate;
       var fromDate = creationDate.substring(0, 10);
       var toDate = currentDate.getFullYear() + '-' + ("0" + (currentDate.getMonth() + 1)).slice(-2) + '-' + ("0" + (currentDate.getDate())).slice(-2);
-      var followingInvoices = await sideBarService.getAllTInvoiceListData(
-        fromDate,
-        toDate,
-        false,
-        initialReportLoad,
-        0
-      );
-      var invList = followingInvoices.tinvoicelist;
+      // var followingInvoices = await sideBarService.getAllTInvoiceListData(
+      //   fromDate,
+      //   toDate,
+      //   false,
+      //   initialReportLoad,
+      //   0
+      // );
+      // var invList = followingInvoices.tinvoicelist;
+      var invList = [];
       $("#following_cnt").val(invList.length);
       if (invList.length > 0) {
         $("#btn_follow1").css("display", "inline-block");
@@ -431,35 +432,35 @@ const hasFollowings = async function() {
     }
   }
   if('refunds' == templateInstance.data.formType) {
-    if (getso_id[1]) {
-      currentInvoice = parseInt(currentInvoice);
-      var refundData = await salesService.getRefundSales(currentInvoice);
-      var creationDate = refundData.fields.CreationDate;
-      var fromDate = creationDate.substring(0, 10);
-      var toDate =
-          currentDate.getFullYear() +
-          "-" +
-          ("0" + (currentDate.getMonth() + 1)).slice(-2) +
-          "-" +
-          ("0" + currentDate.getDate()).slice(-2);
-      var followingRefunds =
-          await sideBarService.getAllTRefundSaleListData(
-              fromDate,
-              toDate,
-              false,
-              initialReportLoad,
-              0
-          );
-      var refundList = followingRefunds.trefundsalelist;
-      $("#following_cnt").val(refundList.length);
-      if (refundList.length > 0) {
-          $("#btn_follow1").css("display", "inline-block");
-          $("#btn_follow2").css("display", "inline-block");
-        } else {
-          $("#btn_follow1").css("display", "none");
-          $("#btn_follow2").css("display", "none");
-        }
-    }
+    // if (getso_id[1]) {
+    //   currentInvoice = parseInt(currentInvoice);
+    //   var refundData = await salesService.getRefundSales(currentInvoice);
+    //   var creationDate = refundData.fields.CreationDate;
+    //   var fromDate = creationDate.substring(0, 10);
+    //   var toDate =
+    //       currentDate.getFullYear() +
+    //       "-" +
+    //       ("0" + (currentDate.getMonth() + 1)).slice(-2) +
+    //       "-" +
+    //       ("0" + currentDate.getDate()).slice(-2);
+    //   var followingRefunds =
+    //       await sideBarService.getAllTRefundSaleListData(
+    //           fromDate,
+    //           toDate,
+    //           false,
+    //           initialReportLoad,
+    //           0
+    //       );
+    //   var refundList = followingRefunds.trefundsalelist;
+    //   $("#following_cnt").val(refundList.length);
+    //   if (refundList.length > 0) {
+    //       $("#btn_follow1").css("display", "inline-block");
+    //       $("#btn_follow2").css("display", "inline-block");
+    //     } else {
+    //       $("#btn_follow1").css("display", "none");
+    //       $("#btn_follow2").css("display", "none");
+    //     }
+    // }
   }
   if('supplierpayments' == templateInstance.data.formType) {
     if (getso_id[1]) {

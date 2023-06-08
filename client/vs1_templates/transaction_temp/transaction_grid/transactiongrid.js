@@ -29,16 +29,16 @@ Template.transactiongrid.onRendered(function() {
     let includeBOnShippedQty = templateObject.data.includeBOnShippedQty.toString() === "true";
     let canShowUOM = templateObject.data.canShowUOM.toString() === "true";
     let canShowBackOrder = templateObject.data.canShowBackOrder.toString() === "true";
-    let allowedExRateTables = ['tblPOLine', 'tblInvoiceLine'];
+    let allowedExRateTables = ['tblPurchaseOrderLine', 'tblInvoiceLine',  'tblSalesOrderLine'];
     let isFixedAssets = localStorage.getItem('CloudFixedAssetsModule');
     
     templateObject.init_reset_data = async function() {
         let reset_data = [];
         
         reset_data = [
-            { index: 0,  label: "Product Name",       class: "ProductName",   width: "300",       active: true,   display: true },
+            { index: 0,  label: "Product Name",       class: "ProductName",   width: "200",       active: true,   display: true },
             { index: 1,  label: "Description",        class: "Description",   width: "",          active: true,   display: true },
-            { index: 2,  label: "Account Name",       class: "AccountName",   width: "300",       active: true,   display: true },
+            { index: 2,  label: "Account Name",       class: "AccountName",   width: "200",       active: true,   display: true },
             { index: 3,  label: "Memo",               class: "Memo",          width: "",          active: true,   display: true },
             { index: 4,  label: "Qty",                class: "Qty",           width: "50",        active: true,   display: true },
             { index: 5,  label: "Ordered",            class: "Ordered",       width: "75",        active: true,   display: true },
@@ -68,7 +68,7 @@ Template.transactiongrid.onRendered(function() {
         // }
         let default_display = [];
         switch(currenttranstablename) {
-            case 'tblPOLine':
+            case 'tblPurchaseOrderLine':
                 default_display = TransactionFields.initPurchaseOrderLine;
                 break;
             case 'tblBillLine':
@@ -117,7 +117,8 @@ Template.transactiongrid.onRendered(function() {
     templateObject.initCustomFieldDisplaySettings = function(data, listType) {
         let reset_data = templateObject.reset_data.get();
         // Fixet Asset
-        templateObject.showCustomFieldDisplaySettings(reset_data);
+        // templateObject.showCustomFieldDisplaySettings(reset_data);
+        
         getVS1Data("VS1_Customize").then(function(dataObject){
             if(dataObject.length == 0) {
                 // Import VS1_Customize from API
@@ -135,11 +136,11 @@ Template.transactiongrid.onRendered(function() {
                         findItem = reset_data.find(item => item.class === "Qty"); if(findItem != undefined) findItem.display = findItem.active = !(canShowBackOrder && includeBOnShippedQty);
                     }
                     // canShowUOM
-                    findItem = reset_data.find(item => item.class === "Units"); if(findItem != undefined) findItem.display = findItem.active = canShowUOM;
+                    findItem = reset_data.find(item => item.class === "Units"); if(findItem != undefined) {findItem.display =canShowUOM; findItem.active = false };
                     // isBatchSerialNoTracking
-                    findItem = reset_data.find(item => item.class === "SerialNo"); if(findItem != undefined) findItem.display = findItem.active = isBatchSerialNoTracking;
+                    findItem = reset_data.find(item => item.class === "SerialNo"); if(findItem != undefined) {findItem.display = isBatchSerialNoTracking; findItem.active = false};
                     //Fixed Asset
-                    findItem = reset_data.find(item => item.class === "FixedAsset"); if(findItem != undefined) findItem.display = findItem.active = isFixedAssets;
+                    findItem = reset_data.find(item => item.class === "FixedAsset"); if(findItem != undefined) {findItem.display =isFixedAssets; findItem.active = false} ;
                     templateObject.showCustomFieldDisplaySettings(reset_data);
                 }).catch( function(err) {});
             } else {
@@ -160,11 +161,11 @@ Template.transactiongrid.onRendered(function() {
                                 findItem = reset_data.find(item => item.class === "Qty"); if(findItem != undefined) findItem.display = findItem.active = !(canShowBackOrder && includeBOnShippedQty);
                             }
                             // canShowUOM
-                            findItem = reset_data.find(item => item.class === "Units"); if(findItem != undefined) findItem.display = findItem.active = canShowUOM;
+                            findItem = reset_data.find(item => item.class === "Units"); if(findItem != undefined) {findItem.display = canShowUOM; findItem.active = false} ;
                             // isBatchSerialNoTracking
-                            findItem = reset_data.find(item => item.class === "SerialNo"); if(findItem != undefined) findItem.display = findItem.active = isBatchSerialNoTracking;
+                            findItem = reset_data.find(item => item.class === "SerialNo"); if(findItem != undefined) {findItem.display =isBatchSerialNoTracking; findItem.active = false};
                             //Fixed Asset
-                            findItem = reset_data.find(item => item.class === "FixedAsset"); if(findItem != undefined) findItem.display = findItem.active = isFixedAssets;
+                            findItem = reset_data.find(item => item.class === "FixedAsset"); if(findItem != undefined) {findItem.display = isFixedAssets; findItem.active = false} ;
                         }
                     }
                     templateObject.showCustomFieldDisplaySettings(reset_data);
@@ -528,6 +529,28 @@ Template.transactiongrid.events({
                 $('.chkAmountInc').prop('checked', false)
                 $('.colAmountInc').removeClass('showColumn')
                 $('.colAmountInc').addClass('hiddenColumn')
+            }
+
+            if($(event.target).hasClass('chkCreditEx') == true) {
+
+                $('.chkCreditInc').prop('checked', false)
+                $('.colCreditInc').removeClass('showColumn')
+                $('.colCreditInc').addClass('hiddenColumn')
+            }
+            if($(event.target).hasClass('chkCreditInc') == true) {
+                $('.chkCreditEx').prop('checked', false)
+                $('.colCreditEx').removeClass('showColumn')
+                $('.colCreditEx').addClass('hiddenColumn')
+            }
+            if($(event.target).hasClass('chkDebitInc') == true) {
+                $('.chkDebitEx').prop('checked', false)
+                $('.colDebitEx').removeClass('showColumn')
+                $('.colDebitEx').addClass('hiddenColumn')
+            }
+            if($(event.target).hasClass('chkDebitEx') == true) {
+                $('.chkDebitInc').prop('checked', false)
+                $('.colDebitInc').removeClass('showColumn')
+                $('.colDebitInc').addClass('hiddenColumn')
             }
             
         } else {

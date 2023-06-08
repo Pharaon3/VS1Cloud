@@ -1,0 +1,69 @@
+[{
+    "Id": 1,
+    "AssetName": "Ford Truck",
+    "AdministrativeCosts": "421",
+    "Depreciation": "234",
+    "Fuel": "2351",
+    "Insurance": "100",
+    "Loan_Lease": "240",
+    "Maintenance": "100",
+    "Registration": "320",
+    "Tolls": "50",
+    "Active": true
+},
+{
+    "Id": 2,
+    "AssetName": "Motorcycle",
+    "AdministrativeCosts": "220",
+    "Depreciation": "100",
+    "Fuel": "1500",
+    "Insurance": "100",
+    "Loan_Lease": "140",
+    "Maintenance": "140",
+    "Registration": "220",
+    "Tolls": "50",
+    "Active": true
+},
+
+{
+    "Id": 3,
+    "AssetName": "Bicycle",
+    "AdministrativeCosts": "40",
+    "Depreciation": "20",
+    "Fuel": "20",
+    "Insurance": "10",
+    "Loan_Lease": "10",
+    "Maintenance": "10",
+    "Registration": "20",
+    "Tolls": "20",
+    "Active": false
+},
+
+{
+    "Id": 4,
+    "AssetName": "Van",
+    "AdministrativeCosts": "400",
+    "Depreciation": "20",
+    "Fuel": "2000",
+    "Insurance": "20",
+    "Loan_Lease": "240",
+    "Maintenance": "100",
+    "Registration": "320",
+    "Tolls": "50",
+    "Active": true
+},
+
+{
+    "Id": 5,
+    "AssetName": "Minivan",
+    "AdministrativeCosts": "200",
+    "Depreciation": "100",
+    "Fuel": "1800",
+    "Insurance": "100",
+    "Loan_Lease": "240",
+    "Maintenance": "100",
+    "Registration": "320",
+    "Tolls": "50",
+    "Active": true
+}
+]

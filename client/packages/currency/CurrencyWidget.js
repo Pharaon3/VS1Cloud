@@ -46,8 +46,8 @@ Template.CurrencyWidget.events({
   },
   "click .tblCurrencyPopList tbody tr": e => {
     //const rateType = $(".currency-js").attr("type"); // String "buy" | "sell"
-    const rateType = e.currentTarget.closest(".currency-js").attributes["type"].value; // String "buy" | "sell"
-
+    // const rateType = e.currentTarget.closest(".currency-js").attributes["type"].value; // String "buy" | "sell"
+    const rateType = Template.instance().data.rate;
     const currencySymbol = $(e.currentTarget).find(".colSymbol").text() || "N/A";
     setCurrentCurrencySymbol(currencySymbol);
     const currencyCode = $(e.currentTarget).find(".colCode").text();

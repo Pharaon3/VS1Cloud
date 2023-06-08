@@ -8,6 +8,7 @@ import {Session} from 'meteor/session';
 import { Template } from 'meteor/templating';
 import './costcard.html';
 import { FlowRouter } from 'meteor/ostrio:flow-router-extra';
+import { DeliveryService } from "../../../overviews/delivery-service.js";
 
 let sideBarService = new SideBarService();
 let utilityService = new UtilityService();
@@ -69,9 +70,9 @@ Template.costcard.onRendered(function() {
         });
     };
     
-    $(".totalCost").text("$9102.53");
-    $(".fuelCost").text("$7323.64");
-    $(".serviceCost").text("$1352.94");
+    // $(".totalCost").text("$9102.53");
+    // $(".fuelCost").text("$7323.64");
+    // $(".serviceCost").text("$1352.94");
 
 });
 

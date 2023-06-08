@@ -1,5 +1,5 @@
 import "../../lib/global/indexdbstorage.js";
-import { CRMService } from "../../crm/crm-service.js";
+import { DeliveryService } from "../../overviews/delivery-service.js";
 
 import { Template } from 'meteor/templating';
 import './deliverychart.html';
@@ -146,6 +146,7 @@ Template.deliverychart.onRendered(() => {
       "#070",
       "#090",
       "#0b0",
+      "#0d0",
       "#0f0"
     ];
     let borderColors = [];
@@ -191,12 +192,15 @@ Template.deliverychart.onRendered(() => {
   };
 
   templateObject.getDataFromAPI = function() {
-    let crmService = new CRMService();
-    let fromDate = moment($("#dateFrom").val(), "DD/MM/YYYY").format("YYYY-MM-DD");
-    let toDate = moment($("#dateTo").val(), "DD/MM/YYYY").format("YYYY-MM-DD");
-    crmService.getAllLeadCharts(fromDate, toDate).then(function (data) {
+    let deliveryService = new DeliveryService();
+    deliveryService.getOperatingCostReport().then(function (data) {
       addVS1Data("Tdeliverychart", JSON.stringify(data));
       templateObject.setLeadChartData(data);
+    }).catch(function (err) {
+      deliveryService.getOperatingCostReport1().then(function (data) {
+        addVS1Data("Tdeliverychart", JSON.stringify(data));
+        templateObject.setLeadChartData(data);
+      });
     });
   }
 
@@ -214,57 +218,9 @@ Template.deliverychart.onRendered(() => {
   }
 
   templateObject.setLeadChartData = async function (data) {
-    let bar_records = [];
+    const detailedData = data.tdeliverychart[1].data;
     let pie_records = [];
-    // if (data.tprospect.length) {
-
-    //   let accountData = data.tprospect;
-    //   for (let i = 0; i < accountData.length; i++) {
-    //     let recordObj = {};
-    //     recordObj.Id = data.tprospect[i].Id;
-    //     CreationDate = data.tprospect[i].CreationDate ? data.tprospect[i].CreationDate.substr(0, 10) : "";
-
-    //     recordObj.CreationDateSort = CreationDate ? CreationDate : "-";
-    //     recordObj.CreationDate = CreationDate ? getModdayOfCurrentWeek(CreationDate) + "~" : "-";
-    //     bar_records.push(recordObj);
-
-    //     let pieRecordObj = {};
-    //     pieRecordObj.Id = data.tprospect[i].Id;
-    //     pieRecordObj.SourceName = data.tprospect[i].SourceName ? data.tprospect[i].SourceName : "-";
-    //     pie_records.push(pieRecordObj);
-    //   }
-
-    //   bar_records = _.sortBy(bar_records, 'CreationDateSort');
-    //   bar_records = await _.groupBy(bar_records, 'CreationDate');
-
-    //   pie_records = _.sortBy(pie_records, 'SourceName');
-    //   pie_records = await _.groupBy(pie_records, 'SourceName');
-
-    // } else {
-    //   let recordObj = {};
-    //   recordObj.Id = '';
-    //   recordObj.CreationDate = '-';
-
-    //   let pieRecordObj = {};
-    //   pieRecordObj.Id = '';
-    //   pieRecordObj.SourceName = '-';
-
-    //   await bar_records.push(recordObj);
-    //   await pie_records.push(pieRecordObj);
-    // }
-
-    pie_records = {
-      // "Total Cost": 37333.11,
-      "Fuel Cost": 9352.14,
-      "Administrative Cost": 124.34,
-      "Depreciation": 5424.34,
-      "Insurance": 4544.34,
-      "Loan/Lease": 24.34,
-      "Maintenance": 524.34,
-      "Registration": 1124.34,
-      "Tolls": 1246.34,
-    }
-    //  drawBarChart(bar_records);
+    pie_records = detailedData;
      drawPieChart(pie_records);
   };
 

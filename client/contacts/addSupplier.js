@@ -469,6 +469,8 @@ Template.supplierscard.onCreated(function () {
       issupplier: data.fields.IsSupplier || false,
       iscustomer: data.fields.IsCustomer || false,
       isDriver: data.fields.IsDriver || false,
+      isDriver2: data.fields.IsDriver2 || false,
+      isDriver3: data.fields.IsDriver3 || false,
       bankName: data.fields.BankName || '',
       swiftCode: data.fields.SwiftCode || '',
       routingNumber: data.fields.RoutingNumber || '',
@@ -878,7 +880,7 @@ Template.supplierscard.onCreated(function () {
 });
 
 Template.supplierscard.onRendered(function () {
-  deliveryCustomCount = 0;
+  deliveryCustomCount = 1;
 
   $('.fullScreenSpin').css('display', 'inline-block');
 
@@ -888,7 +890,7 @@ Template.supplierscard.onRendered(function () {
   templateObject.getCountryData();
 
   setTimeout(function () {
-    $("#dtStartingDate,#dtDOB,#dtTermninationDate,#dtAsOf,#lExpDate,#pExpDate").datepicker({
+    $("#dtStartingDate,#dtDOB,#dtTermninationDate,#dtAsOf,#lExpDate,#pExpDate,#lExpDate2,#pExpDate2,#lExpDate3,#pExpDate3").datepicker({
       showOn: 'button',
       buttonText: 'Show Date',
       buttonImageOnly: true,
@@ -1192,7 +1194,7 @@ Template.supplierscard.onRendered(function () {
     $(".editTaskDetailName").val($("#tblSupplierCrmListWithDate tbody .dnd-moved .colTaskName").html());
     $(".editTaskDetailDescription").val($("#tblSupplierCrmListWithDate tbody .dnd-moved .colTaskDesc").html());
     $("#taskmodalDuedate").val($("#tblSupplierCrmListWithDate tbody .dnd-moved #completeDate").val());
-    $("#taskDetailModal").modal("toggle");
+    $("#taskDetailModal_supplier").modal("toggle");
   });
 
   $(document).on("change", ".editTaskDetailName, .editTaskDetailDescription, #taskmodalDuedate", function (e) {
@@ -1399,6 +1401,8 @@ Template.supplierscard.events({
       let isContractor = false;
       let isCustomer = false;
       let isDriver = false;
+      let isDriver2 = false;
+      let isDriver3 = false;
       // Delivery tab Begin
       let delivery_vehicles = $("#vehicles").val();
       let ltype = $("#ltype").val();
@@ -1409,13 +1413,31 @@ Template.supplierscard.events({
       let pnumber = $("#pnumber").val();
       let pExpDate = $("#pExpDate").val();
       let permit_attachment = $("#permit-attachment").val();
-      let deliveryCustom1Val = $("#deliveryCustom1Val").val();
-      let deliveryCustom2Val = $("#deliveryCustom2Val").val();
-      let deliveryCustom3Val = $("#deliveryCustom3Val").val();
-      let deliveryCustom4Val = $("#deliveryCustom4Val").val();
+      
+      let delivery_vehicles2 = $("#vehicles2").val();
+      let ltype2 = $("#ltype2").val();
+      let lnumber2 = $("#lnumber2").val();
+      let lExpDate2 = $("#lExpDate2").val();
+      let license_attachment2 = $("#license-attachment2").val();
+      let ptype2 = $("#ptype2").val();
+      let pnumber2 = $("#pnumber2").val();
+      let pExpDate2 = $("#pExpDate2").val();
+      let permit_attachment2 = $("#permit-attachment2").val();
+      
+      let delivery_vehicles3 = $("#vehicles3").val();
+      let ltype3 = $("#ltype3").val();
+      let lnumber3 = $("#lnumber3").val();
+      let lExpDate3 = $("#lExpDate3").val();
+      let license_attachment3 = $("#license-attachment3").val();
+      let ptype3 = $("#ptype3").val();
+      let pnumber3 = $("#pnumber3").val();
+      let pExpDate3 = $("#pExpDate3").val();
+      let permit_attachment3 = $("#permit-attachment3").val();
       // Delivery tab End
       isCustomer = !!$('#chkSameAsCustomer').is(':checked');
       isDriver = !!$('#isDriver').is(':checked');
+      isDriver2 = !!$('#isDriver2').is(':checked');
+      isDriver3 = !!$('#isDriver3').is(':checked');
       if ($('#isformcontractor').is(':checked')) {
         isContractor = true;
       }
@@ -1532,7 +1554,6 @@ Template.supplierscard.events({
             CUSTFLD10: middlename,
             LastName: lastname,
             IsCustomer: isCustomer,
-            // IsDriver: isDriver,
             Email: email,
             Phone: phone,
             Mobile: mobile,
@@ -1574,13 +1595,28 @@ Template.supplierscard.events({
             permit_type: ptype,
             permit_number: pnumber,
             permit_expDate: pExpDate,
+            
+            vehicles2: delivery_vehicles2,
+            license_type2: ltype2,
+            license_number2: lnumber2,
+            license_expDate2: lExpDate2,
+            permit_type2: ptype2,
+            permit_number2: pnumber2,
+            permit_expDate2: pExpDate2,
+            
+            vehicles3: delivery_vehicles3,
+            license_type3: ltype3,
+            license_number3: lnumber3,
+            license_expDate3: lExpDate3,
+            permit_type3: ptype3,
+            permit_number3: pnumber3,
+            permit_expDate3: pExpDate3,
+
             isDriver: isDriver,
+            isDriver2: isDriver2,
+            isDriver3: isDriver3,
           }
-        };
-        if(deliveryCustom1Val) objDetails.fields.deliveryCustom1Val = deliveryCustom1Val;
-        if(deliveryCustom2Val) objDetails.fields.deliveryCustom2Val = deliveryCustom2Val;
-        if(deliveryCustom3Val) objDetails.fields.deliveryCustom3Val = deliveryCustom3Val;
-        if(deliveryCustom4Val) objDetails.fields.deliveryCustom4Val = deliveryCustom4Val;            
+        };      
       } else {
         let suppdupID = 0;
         let checkSuppData = await contactService.getCheckSuppliersData(company);
@@ -1597,6 +1633,8 @@ Template.supplierscard.events({
               LastName: lastname,
               IsCustomer: isCustomer,
               // IsDriver: isDriver,
+              // IsDriver2: isDriver2,
+              // IsDriver3: isDriver3,
               Email: email,
               Phone: phone,
               Mobile: mobile,
@@ -1638,13 +1676,28 @@ Template.supplierscard.events({
               permit_type: ptype,
               permit_number: pnumber,
               permit_expDate: pExpDate,
-              isDriver: isDriver
+
+              vehicles2: delivery_vehicles2,
+              license_type2: ltype2,
+              license_number2: lnumber2,
+              license_expDate2: lExpDate2,
+              permit_type2: ptype2,
+              permit_number2: pnumber2,
+              permit_expDate2: pExpDate2,
+              
+              vehicles3: delivery_vehicles3,
+              license_type3: ltype3,
+              license_number3: lnumber3,
+              license_expDate3: lExpDate3,
+              permit_type3: ptype3,
+              permit_number3: pnumber3,
+              permit_expDate3: pExpDate3,
+
+              isDriver: isDriver,
+              isDriver2: isDriver2,
+              isDriver2: isDriver3
             }
           };
-          if(deliveryCustom1Val) objDetails.fields.deliveryCustom1Val = deliveryCustom1Val;
-          if(deliveryCustom2Val) objDetails.fields.deliveryCustom2Val = deliveryCustom2Val;
-          if(deliveryCustom3Val) objDetails.fields.deliveryCustom3Val = deliveryCustom3Val;
-          if(deliveryCustom4Val) objDetails.fields.deliveryCustom4Val = deliveryCustom4Val;
         } else {
           objDetails = {
             type: "TSupplierEx",
@@ -1656,6 +1709,8 @@ Template.supplierscard.events({
               LastName: lastname,
               IsCustomer: isCustomer,
               // IsDriver: isDriver,
+              // IsDriver2: isDriver2,
+              // IsDriver3: isDriver3,
               Email: email,
               Phone: phone,
               Mobile: mobile,
@@ -1697,13 +1752,28 @@ Template.supplierscard.events({
               permit_type: ptype,
               permit_number: pnumber,
               permit_expDate: pExpDate,
-              isDriver: isDriver
+
+              vehicles2: delivery_vehicles2,
+              license_type2: ltype2,
+              license_number2: lnumber2,
+              license_expDate2: lExpDate2,
+              permit_type2: ptype2,
+              permit_number2: pnumber2,
+              permit_expDate2: pExpDate2,
+              
+              vehicles3: delivery_vehicles3,
+              license_type3: ltype3,
+              license_number3: lnumber3,
+              license_expDate3: lExpDate3,
+              permit_type3: ptype3,
+              permit_number3: pnumber3,
+              permit_expDate3: pExpDate3,
+              
+              isDriver: isDriver,
+              isDriver2: isDriver2,
+              isDriver3: isDriver3
             }
           };
-          if(deliveryCustom1Val) objDetails.fields.deliveryCustom1Val = deliveryCustom1Val;
-          if(deliveryCustom2Val) objDetails.fields.deliveryCustom2Val = deliveryCustom2Val;
-          if(deliveryCustom3Val) objDetails.fields.deliveryCustom3Val = deliveryCustom3Val;
-          if(deliveryCustom4Val) objDetails.fields.deliveryCustom4Val = deliveryCustom4Val;
         }
       }
       $('.fullScreenSpin').css('display', 'inline-block');
@@ -2521,7 +2591,7 @@ Template.supplierscard.events({
           //   templateObject.getAllTaskList();
           //   templateObject.getTProjectList();
           // }, 500);
-          $("#newTaskModal").modal("hide");
+          $("#newTaskModal_supplier").modal("hide");
           // $("#newProjectTasksModal").modal("hide");
           if (subTaskID) {
             crmService.getTaskDetail(subTaskID).then(function (data) {
@@ -2725,6 +2795,13 @@ Template.supplierscard.events({
   // "change #edtSupplierCompanyEmail": async function (event) {
   //   $('#primaryAccountantUsername').val($(event.target).val())
   // },
+  
+  "click .addNewDelivery": function (event) {
+    deliveryCustomCount ++;
+    $("#vehicle" + deliveryCustomCount).removeClass("hidden");
+    if(deliveryCustomCount > 2) deliveryCustomCount = 3;
+    // $("#deliveryCustom" + deliveryCustomCount).css("display", "block");
+},
 });
 
 Template.supplierscard.helpers({
@@ -3273,7 +3350,7 @@ function openEditTaskModals(id, type) {
             "task_modal_priority_" + selected_record.priority
           );
 
-          $("#taskDetailModal").modal("toggle");
+          $("#taskDetailModal_supplier").modal("toggle");
 
           $(".crmDatepicker").datepicker({
             showOn: "button",

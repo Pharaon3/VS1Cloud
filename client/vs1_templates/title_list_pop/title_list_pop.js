@@ -20,8 +20,8 @@ Template.title_list_pop.onCreated(function () {
 
     let headerStructure = [
         { index: 0, label: '#ID', class: '', active: false, display: true, width: "30" },
-        { index: 1, label: 'Title', class: 'colTitleName', active: true, display: true, width: "150" },
-        { index: 2, label: 'Status', class: 'colStatus', active: true, display: true, width: "100" },
+        { index: 1, label: 'Title', class: 'colTitleName', active: true, display: true, width: "350" },
+        { index: 2, label: 'Status', class: 'colStatus', active: true, display: true, width: "250" },
     ];
 
     templateObject.tableheaderrecords.set(headerStructure);

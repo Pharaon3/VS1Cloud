@@ -25,8 +25,6 @@ Template.onSalesOrderPopUp.onCreated(function () {
 
 
   templateObject.getDataTableList = function(data) {
-    if(data.TranstypeDesc!=="Sales Order")
-    return []
     var dataList = [
         data.Id,
         data.TransactionDate != ""
@@ -135,17 +133,17 @@ Template.onSalesOrderPopUp.helpers({
 
   apiFunction:function() {
     let productService = new ProductService();
-    return productService.getProductRecentTransactionsAll
+    return productService.getProductRecentTransactionsSalesOrder
   },
 
   searchAPI: function() {
     let productService = new ProductService();
-    return productService.getOneProductRecentTransaction
+    return productService.getOneProductRecentTransaction;
   },
 
   service: ()=>{
-    let sideBarService = new SideBarService();
-    return sideBarService;
+    let productService = new ProductService();
+    return productService;
 
   },
 
@@ -166,7 +164,7 @@ Template.onSalesOrderPopUp.helpers({
   },
 
   apiParams: function() {
-    return ['limitCount', 'limitFrom', 'deleteFilter'];
+    return ['dateFrom','dateTo','ignoreDate','limitcount','limitfrom', 'deleteFilter'];
   },
 //   tablename: () => {
 //     let templateObject = Template.instance();

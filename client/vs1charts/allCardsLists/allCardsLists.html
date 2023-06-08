@@ -1,8 +1,8 @@
 <template name="allCardsLists">
     <style>
-        .dimmedChart>div {
+        /* .dimmedChart>div {
             background-color: #dddfeb !important;
-        }
+        } */
 
         .hideelement {
             display: none !important;
@@ -50,17 +50,28 @@
             {{#if equals type "dashboardSalesManager"}}
             {{> dashboardManagerCards }}
             {{else}}
-            <!-- {{> deliveryoverviewcards }} -->
+            {{#if equals type "Delivery_Overview"}}
+            {{> costcard }}
             {{> purchasesaleschart}}
             {{> bankingoverviewcards}}
             {{> paymentoverviewcards}}
-            {{> costcard}}
             {{> crmoverviewcards }}
             {{> purchasesoverviewcards }}
             {{> seedtosalecards }}
             {{> shippingcards}}
             {{> paymentoverviewcardssupplier}}
             {{> paymentoverviewcardscustomer}}
+            {{else}}
+            {{> purchasesaleschart}}
+            {{> bankingoverviewcards}}
+            {{> paymentoverviewcards}}
+            {{> crmoverviewcards }}
+            {{> purchasesoverviewcards }}
+            {{> seedtosalecards }}
+            {{> shippingcards}}
+            {{> paymentoverviewcardssupplier}}
+            {{> paymentoverviewcardscustomer}}
+            {{/if}}
             {{/if}}
             {{/if}}
         </div>

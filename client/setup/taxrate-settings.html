@@ -155,14 +155,14 @@
                     tableclass="tblTaxRatesList"
                     tablename="tblTaxRatesList"
                     apiName= apiFunction
-                    indexeddbname = 'TTaxcodeVS1'
+                    indexeddbname = 'TTaxcodeVS1List'
                     tableheaderrecords = tableheaderrecords
                     exportfilename = 'Tax Rates List'
                     apiParams= apiParams
                     datahandler = datahandler
                     service=service
-                    lowercaseDataName='ttaxcodevs1'
-                    exIndexDBName = 'ttaxcodevs1'
+                    lowercaseDataName='ttaxcodevs1list'
+                    exIndexDBName = 'TTaxcodeVS1List'
                     exdatahandler = exDataHandler
                     searchAPI = searchAPI
                 }}
@@ -179,4 +179,7 @@
       </div>
   </div>
   {{> import_template ImportformName="Tax Rates"}}
+  <script>
+    modalDraggable();
+  </script>
 </template>

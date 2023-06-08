@@ -177,7 +177,7 @@ Template.addsupplierpop.onRendered(async function() {
                     });
                 } else {
                     let data = JSON.parse(dataObject[0].data);
-                    let useData = data.tpaymentmethodlist;
+                    let useData = data.tpaymentmethodvs1;
                     for (let i = 0; i < useData.length; i++) {
                         preferedPayments.push(useData[i].fields.PaymentMethodName);
                     }

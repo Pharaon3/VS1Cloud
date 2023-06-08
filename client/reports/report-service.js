@@ -11,6 +11,60 @@ export class ReportService extends BaseService {
         return this.getList(this.ERPObjects.TDashboardExecData1, options);
     }
 
+    getDashboardSalesData1(dateAsOf) {
+        let options = '';
+        options = {
+            SelDate: '"' + dateAsOf + '"',
+        };
+
+        return this.getList(this.ERPObjects.TDashboardSalesData1, options);
+    }
+
+    getDashboardSalesData2(dateAsOf) {
+        let options = '';
+        options = {
+            SelDate: '"' + dateAsOf + '"',
+        };
+
+        return this.getList(this.ERPObjects.TDashboardSalesData2, options);
+    }
+
+    getDashboardSalesData3(dateAsOf) {
+        let options = '';
+        options = {
+            SelDate: '"' + dateAsOf + '"',
+        };
+
+        return this.getList(this.ERPObjects.TDashboardSalesData3, options);
+    }
+
+    getDashboardMyData1(dateAsOf) {
+        let options = '';
+        options = {
+            SelDate: '"' + dateAsOf + '"',
+        };
+
+        return this.getList(this.ERPObjects.TDashboardMyData1, options);
+    }
+
+    getDashboardMyData2(dateAsOf) {
+        let options = '';
+        options = {
+            SelDate: '"' + dateAsOf + '"',
+        };
+
+        return this.getList(this.ERPObjects.TDashboardMyData2, options);
+    }
+
+    getDashboardMyData3(dateAsOf) {
+        let options = '';
+        options = {
+            SelDate: '"' + dateAsOf + '"',
+        };
+
+        return this.getList(this.ERPObjects.TDashboardMyData3, options);
+    }
+
     getCashReceivedData(dateFrom, dateTo) {
         let options = {
             IgnoreDates: false,
@@ -421,7 +475,7 @@ export class ReportService extends BaseService {
             options = {
                 IgnoreDates: true,
                 ReportType: "Summary",
-                ClientID: contactID,
+                ClientID: contactID||-1,
                 LimitCount: limitCount,
                 LimitFrom: limitFrom,
             };
@@ -455,7 +509,7 @@ export class ReportService extends BaseService {
             options = {
                 IgnoreDates: true,
                 ReportType: "Summary",
-                ClientID: contactID,
+                ClientID: contactID||-1,
                 LimitCount: limitCount,
                 LimitFrom: limitFrom,
                 Search: Search
@@ -490,7 +544,7 @@ export class ReportService extends BaseService {
         if (contactID != '') {
             options = {
                 IgnoreDates: true,
-                ClientID: contactID,
+                ClientID: contactID||-1,
                 LimitCount: limitCount,
                 LimitFrom: limitFrom,
             };
@@ -521,7 +575,7 @@ export class ReportService extends BaseService {
         if (contactID != '') {
             options = {
                 IgnoreDates: true,
-                ClientID: contactID,
+                ClientID: contactID||-1,
                 LimitCount: limitCount,
                 LimitFrom: limitFrom,
                 Search: Search
@@ -554,7 +608,7 @@ export class ReportService extends BaseService {
         if (contactID != '') {
             options = {
                 IgnoreDates: true,
-                ClientID: contactID
+                ClientID: contactID||-1
             };
         } else {
             if (ignoreDate == true) {
@@ -578,7 +632,7 @@ export class ReportService extends BaseService {
             options = {
                 IgnoreDates: true,
                 ReportType: "Summary",
-                ClientID: contactID,
+                ClientID: contactID||-1,
                 IncludeRefunds: false,
                 LimitCount: limitCount,
                 LimitFrom: limitFrom,
@@ -614,7 +668,7 @@ export class ReportService extends BaseService {
             options = {
                 IgnoreDates: true,
                 ReportType: "Summary",
-                ClientID: contactID,
+                ClientID: contactID||-1,
                 IncludeRefunds: false,
                 LimitCount: limitCount,
                 LimitFrom: limitFrom,
@@ -1357,8 +1411,8 @@ export class ReportService extends BaseService {
                 };
             }
         }
-        // return this.getList(this.ERPObjects.TProductMovementList, options);
-        return this.getList(this.ERPObjects.TStockMovementList, options);
+        return this.getList(this.ERPObjects.TProductMovementList, options);
+        // return this.getList(this.ERPObjects.TStockMovementList, options);
     }
 
     getSerialNumberReport(dateFrom, dateTo, ignoreDate = false) {

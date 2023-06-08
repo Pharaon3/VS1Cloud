@@ -1494,11 +1494,132 @@ Template.addAccountModal.events({
     //   $(".btnImport").Attr("disabled");
     // }
   },
-  "click .btnDeleteAccount": (e, template) => {
+  "click .btnDeleteAccount": () => {
+    let templateObject = Template.instance();
+    let accountService = new AccountService();
     playDeleteAudio();
     setTimeout(function(){
-    template.deleteAccount();
-  }, delayTimeAfterSound);
+      swal({
+        title: "Delete Account",
+        text: "Are you sure you want to Delete Account?",
+        type: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+      }).then((result) => {
+          if (result.value) {
+              $(".fullScreenSpin").css("display", "inline-block");
+              let accountID = $("#edtAccountID").val();
+              if (accountID === "") {
+                  location.reload(true);
+              } else {
+                  let data = {
+                      type: "TAccount",
+                      fields: {
+                          ID: accountID,
+                          Active: false,
+                      },
+                  };
+
+                  accountService
+                      .saveAccount(data)
+                      .then(function(data) {
+                          sideBarService
+                              .getAllTAccountVS1List()
+                              .then(function(dataReload) {
+                                  addVS1Data("TAccountVS1List", JSON.stringify(dataReload))
+                                      .then(function(datareturn) {
+                                          location.reload(true);
+                                      })
+                                      .catch(function(err) {
+                                        $(".fullScreenSpin").css("display", "none");
+                                      });
+                              })
+                              .catch(function(err) {
+                                $(".fullScreenSpin").css("display", "none");
+                              });
+                      })
+                      .catch(function(err) {
+                          swal({
+                              title: "Oooops...",
+                              text: err,
+                              type: "error",
+                              showCancelButton: false,
+                              confirmButtonText: "Try Again",
+                          }).then((result) => {
+                              if (result.value) {
+                                  location.reload(true);
+                              } else if (result.dismiss === "cancel") {}
+                          });
+                          $(".fullScreenSpin").css("display", "none");
+                      });
+              }
+          }
+      });
+    }, delayTimeAfterSound);
+  },
+
+  "click .btnActiveAccount": () => {
+    let templateObject = Template.instance();
+    let accountService = new AccountService();
+    playDeleteAudio();
+    setTimeout(function(){
+      swal({
+        title: "Active Account",
+        text: "Are you sure you want to Active Account?",
+        type: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+      }).then((result) => {
+          if (result.value) {
+              $(".fullScreenSpin").css("display", "inline-block");
+              let accountID = $("#edtAccountID").val();
+              if (accountID === "") {
+                  location.reload(true);
+              } else {
+                  let data = {
+                      type: "TAccount",
+                      fields: {
+                          ID: accountID,
+                          Active: true,
+                      },
+                  };
+
+                  accountService
+                      .saveAccount(data)
+                      .then(function(data) {
+                          sideBarService
+                              .getAllTAccountVS1List()
+                              .then(function(dataReload) {
+                                  addVS1Data("TAccountVS1List", JSON.stringify(dataReload))
+                                      .then(function(datareturn) {
+                                          location.reload(true);
+                                      })
+                                      .catch(function(err) {
+                                        $(".fullScreenSpin").css("display", "none");
+                                      });
+                              })
+                              .catch(function(err) {
+                                $(".fullScreenSpin").css("display", "none");
+                              });
+                      })
+                      .catch(function(err) {
+                          swal({
+                              title: "Oooops...",
+                              text: err,
+                              type: "error",
+                              showCancelButton: false,
+                              confirmButtonText: "Try Again",
+                          }).then((result) => {
+                              if (result.value) {
+                                  location.reload(true);
+                              } else if (result.dismiss === "cancel") {}
+                          });
+                          $(".fullScreenSpin").css("display", "none");
+                      });
+              }
+          }
+      });
+    }, delayTimeAfterSound);
   },
 
   "click #openEftOptionsModal" : (e) => {

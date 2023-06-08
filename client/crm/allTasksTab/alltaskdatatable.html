@@ -285,9 +285,12 @@
   {{> newProjectModal}}
 
   {{> moveToProjectModal}}
-
-  {{> taskDetailModal}}
-  {{> newTaskModal}}
+  <div class="modal fade" id="taskDetailModal_001" tabindex="-1" role="dialog" aria-labelledby="taskNameLabel" aria-hidden="true">
+    {{> taskDetailModal}}
+  </div>
+  <div class="modal fade" id="newTaskModal_001" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+    {{> newTaskModal}}
+  </div>
 
   {{> newLabelModal}}
   {{> editLabelModal}}

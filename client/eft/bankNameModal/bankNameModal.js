@@ -7,6 +7,7 @@ import moment from "moment";
 import {SideBarService} from "../../js/sidebar-service";
 
 let bankNameService = new BankNameService();
+let sideBarService = new SideBarService();
 Template.bankNameModal.onCreated(function () {
   const templateObject = Template.instance();
   templateObject.eftOptionsList = new ReactiveVar([]);
@@ -62,12 +63,11 @@ Template.bankNameModal.helpers({
   },
 
   apiFunction:function() {
-    let bankNameService = new BankNameService();
-    return bankNameService.getBankNameList;
+    return sideBarService.getBankNameList;
   },
 
   searchAPI: function() {
-    return bankNameService.getBankNameList;
+    return bankNameService.getBankByName;
   },
 
   service: ()=>{

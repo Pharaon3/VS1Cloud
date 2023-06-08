@@ -1307,6 +1307,7 @@ Template.customerscard.onRendered(function () {
     if (FlowRouter.current().route.name != "customerscard") {
         currentId = "";
     }
+    
     let customerID = '';
     let salestaxcode = '';
     Meteor.call('readPrefMethod', localStorage.getItem('mycloudLogonID'), 'defaulttax', function (error, result) {
@@ -2120,7 +2121,7 @@ Template.customerscard.onRendered(function () {
         $(".editTaskDetailName").val($("#tblCustomerCrmListWithDate tbody .dnd-moved .colTaskName").html());
         $(".editTaskDetailDescription").val($("#tblCustomerCrmListWithDate tbody .dnd-moved .colTaskDesc").html());
         $("#taskmodalDuedate").val($("#tblCustomerCrmListWithDate tbody .dnd-moved #completeDate").val());
-        $("#taskDetailModal").modal("toggle");
+        $("#taskDetailModal_customer").modal("toggle");
     });
 
     $(document).on("change", ".editTaskDetailName, .editTaskDetailDescription, #taskmodalDuedate", function (e) {
@@ -2142,6 +2143,10 @@ Template.customerscard.onRendered(function () {
             $(".btnJobTask").attr("disabled", false);
         }
     });
+    if(localStorage.getItem('isCustomerJob') === 'true'){
+        $('#customerListModal_job').modal('toggle')
+        localStorage.setItem('isCustomerJob',false)
+    }
 });
 
 Template.customerscard.events({
@@ -2823,6 +2828,13 @@ Template.customerscard.events({
             } else {
                 window.open('/customerscard?id=' + custLineID, '_self');
             }
+        }
+    },
+    'click #customerListModal_job .tblCustomerlist tbody tr': function (event) {
+        const custLineID = $(event.target).closest('tr').attr('id');
+        if (custLineID) {
+            $('#customerListModal_job').modal('hide');
+            window.open('/customerscard?jobid=' + custLineID+"&transTab=job", '_self');
         }
     },
     'click #exportbtnTransaction': function () {
@@ -3602,7 +3614,7 @@ Template.customerscard.events({
                     $("#chkPriorityAdd2").prop("checked", false);
                     $("#chkPriorityAdd3").prop("checked", false);
 
-                    $("#newTaskModal").modal("hide");
+                    $("#newTaskModal_customer").modal("hide");
                     if (subTaskID) {
                         crmService.getTaskDetail(subTaskID).then(function (data) {
                             $(".fullScreenSpin").css("display", "none");
@@ -4547,7 +4559,7 @@ function openEditTaskModals(id, type) {
                         "task_modal_priority_" + selected_record.priority
                     );
 
-                    $("#taskDetailModal").modal("toggle");
+                    $("#taskDetailModal_customer").modal("toggle");
 
                     $(".crmDatepicker").datepicker({
                         showOn: "button",

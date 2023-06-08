@@ -33,7 +33,6 @@ Template.deliveryoverview.onCreated(function () {
   //   } catch (error) {
   //     dashboardOptions = require('../popUps/dashboardoptions.json');
   //   }
-  //   console.log("dashboardOptions: ", dashboardOptions);
   //   const accountDashboardOption = dashboardOptions.find(option => option.name === 'Delivery');
   //   if(!accountDashboardOption) return false;
   //   templateObject.showChart.set(accountDashboardOption.isshowdefault);

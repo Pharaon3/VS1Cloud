@@ -198,6 +198,7 @@ Template.wizard_accounts.onRendered(() => {
                 var level1 = $(event.target).closest("tr").find(".colLevel1").text() || "";
                 var level2 = $(event.target).closest("tr").find(".colLevel2").text() || "";
                 var level3 = $(event.target).closest("tr").find(".colLevel3").text() || "";
+                var status = $(event.target).closest("tr").find(".colStatus").text();
 
                 if (accounttype === "BANK") {
                     $(".isBankAccount").removeClass("isNotBankAccount");
@@ -245,6 +246,16 @@ Template.wizard_accounts.onRendered(() => {
 
                 let category = $(event.target).closest("tr").find(".colExpenseCategory").attr("category") || "";
                 $("#expenseCategory").val(category);
+
+                if (status == "In-Active") {
+                  $("#view-in-active").html(
+                    "<button class='btn btn-success btnActiveAccount vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make Active</button>"
+                  );
+                } else {
+                  $("#view-in-active").html(
+                    "<button class='btn btn-danger btnDeleteAccount vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make In-Active</button>"
+                  );
+                }
 
                 $(this).closest("tr").attr("data-target", "#addNewAccountModal");
                 $(this).closest("tr").attr("data-toggle", "modal");
@@ -604,6 +615,9 @@ Template.wizard_accounts.events({
     $("#sltTaxCode").val("");
     $(".isBankAccount").addClass("isNotBankAccount");
     $(".isCreditAccount").addClass("isNotCreditAccount");
+    $("#view-in-active").html(
+      "<button class='btn btn-danger btnDeleteAccount vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make In-Active</button>"
+    );
   },
   "click .templateDownload": function() {
       let utilityService = new UtilityService();
@@ -969,67 +983,6 @@ Template.wizard_accounts.events({
             },
         });
     } else {}
-},
-  "click .btnDeleteAccount": function() {
-      playDeleteAudio();
-      let templateObject = Template.instance();
-      let accountService = new AccountService();
-      swal({
-          title: "Delete Account",
-          text: "Are you sure you want to Delete Account?",
-          type: "question",
-          showCancelButton: true,
-          confirmButtonText: "Yes",
-      }).then((result) => {
-          if (result.value) {
-              $(".fullScreenSpin").css("display", "inline-block");
-              let accountID = $("#edtAccountID").val();
-              if (accountID === "") {
-                  window.open("/accountsoverview", "_self");
-              } else {
-                  let data = {
-                      type: "TAccount",
-                      fields: {
-                          ID: accountID,
-                          Active: false,
-                      },
-                  };
-
-                  accountService
-                      .saveAccount(data)
-                      .then(function(data) {
-                          sideBarService
-                              .getAccountListVS1()
-                              .then(function(dataReload) {
-                                  addVS1Data("TAccountVS1", JSON.stringify(dataReload))
-                                      .then(function(datareturn) {
-                                          window.open("/accountsoverview", "_self");
-                                      })
-                                      .catch(function(err) {
-                                          window.open("/accountsoverview", "_self");
-                                      });
-                              })
-                              .catch(function(err) {
-                                  window.open("/accountsoverview", "_self");
-                              });
-                      })
-                      .catch(function(err) {
-                          swal({
-                              title: "Oooops...",
-                              text: err,
-                              type: "error",
-                              showCancelButton: false,
-                              confirmButtonText: "Try Again",
-                          }).then((result) => {
-                              if (result.value) {
-                                  Meteor._reload.reload();
-                              } else if (result.dismiss === "cancel") {}
-                          });
-                          $(".fullScreenSpin").css("display", "none");
-                      });
-              }
-          } else {}
-      });
   },
   'click #tblCategory tbody tr': function(e) {
       let category = $(e.target).closest('tr').find(".colReceiptCategory").text() || '';

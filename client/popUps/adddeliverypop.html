@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <!-- DON'T REMOVE closeTermsPop property and DON'T ADD  data-dismiss="modal" -->
-                <h4>Add Delivery</h4><button type="button" class="close closeDeliveryPop" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <h4>Add Delivery</h4><button type="button" class="close closeDeliveryPop" aria-label="Close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" style="width: 100%; display:none;" id="selectLineID" name="selectLineID" readonly>
@@ -13,13 +13,13 @@
                             <div class="form-group">
                                 <label>Weight</label>
                                 <input type="text" class="form-control" id="delivery_weight"
-                                    name="delivery_weight" value="" />
+                                    name="delivery_weight" value={{initialWeight}} />
                             </div>
                         </div>
                         <div class="col-6 col-md-3 coldelivery" id="coldelivery">
                             <div class="form-group">
                                 {{>vs1___dropdown
-                                    data=record.loginDefault
+                                    data=initialWeightUnit
                                     type='search'
                                     id='delivery_weightunit'
                                     name='delivery_weightunit'
@@ -28,7 +28,7 @@
                                     modal_title='Weight Unit'
                                     innerModal=true
                                     label = 'Weight Unit'
-                                    colNameForValue = 'colOptionsName'
+                                    colNameForValue = 'colWeightUnit'
                                     is_editable=true
                                     noBorder=false
                                     custid='fromtransaction'
@@ -39,13 +39,13 @@
                             <div class="form-group">
                                 <label>Volume</label>
                                 <input type="text" class="form-control" id="delivery_volume"
-                                    name="delivery_volume" value="" />
+                                    name="delivery_volume" value={{initialVolume}} />
                             </div>
                         </div>
                         <div class="col-6 col-md-3 coldelivery" id="coldelivery">
                             <div class="form-group">
                                 {{>vs1___dropdown
-                                    data=record.loginDefault
+                                    data=initialVolumeUnit
                                     type='search'
                                     id='delivery_volumeunit'
                                     name='delivery_volumeunit'
@@ -54,7 +54,7 @@
                                     modal_title='Volume Unit'
                                     innerModal=true
                                     label = 'Volume Unit'
-                                    colNameForValue = 'colOptionsName'
+                                    colNameForValue = 'colVolumeUnit'
                                     is_editable=true
                                     noBorder=false
                                     custid='fromtransaction'
@@ -67,7 +67,14 @@
             </div>
             <div class="modal-footer">
                 <!-- DON'T REMOVE closeTermsPop property and DON'T ADD  data-dismiss="modal" -->
-                <button class="btn btn-light closeTermsPop" type="button">Close</button>
+                {{> vs1_button
+                    color='success'
+                    classes='btnSaveDelivery'
+                    type='button'
+                    iconName='save'
+                    title='Save'
+                  }}
+                <button class="btn btn-light closeTermsPop" type="button" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

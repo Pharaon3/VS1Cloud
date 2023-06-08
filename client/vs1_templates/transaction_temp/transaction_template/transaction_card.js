@@ -51,6 +51,8 @@ Template.transaction_card.onCreated(function () {
   templateObject.followingTransactions = new ReactiveVar([]);
   templateObject.showDelivery = new ReactiveVar(false);
   templateObject.selectedLine = new ReactiveVar();
+  templateObject.clientPhone = new ReactiveVar();
+  templateObject.showSN = new ReactiveVar(false)
   
   let isBOnShippedQty = localStorage.getItem("CloudSalesQtyOnly")||false;
   if(JSON.parse(isBOnShippedQty)) {
@@ -67,24 +69,27 @@ Template.transaction_card.onRendered(async function () {
       let client = ""
       if(templateObject.data.clientType == 'Customer') {
         client ={
-         customerid: data.tcustomer[0].fields.ID || " ",
-         firstname: data.tcustomer[0].fields.FirstName || " ",
-         lastname: data.tcustomer[0].fields.LastName || " ",
-         customername: data.tcustomer[0].fields.ClientName || " ",
-         customeremail: data.tcustomer[0].fields.Email || " ",
-         street: data.tcustomer[0].fields.Street || " ",
-         street2: data.tcustomer[0].fields.Street2 || " ",
-         street3: data.tcustomer[0].fields.Street3 || " ",
-         suburb: data.tcustomer[0].fields.Suburb || " ",
+         customerid: data.tcustomer[0].fields.ID || data.tcustomer[0].ID || " ",
+         firstname: data.tcustomer[0].fields.FirstName || data.tcustomer[0].FirstName ||  " ",
+         lastname: data.tcustomer[0].fields.LastName || data.tcustomer[0].LastName || " ",
+         customername: data.tcustomer[0].fields.ClientName || data.tcustomer[0].ClientName || " ",
+         customeremail: data.tcustomer[0].fields.Email || data.tcustomer[0].Email || " ",
+         street: data.tcustomer[0].fields.Street || data.tcustomer[0].Street || " ",
+         street2: data.tcustomer[0].fields.Street2 || data.tcustomer[0].Street2 || " ",
+         street3: data.tcustomer[0].fields.Street3 || data.tcustomer[0].Street3 || " ",
+         suburb: data.tcustomer[0].fields.Suburb || data.tcustomer[0].Suburb || " ",
          statecode: data.tcustomer[0].fields.State +
            " " +
-           data.tcustomer[0].fields.Postcode || " ",
-         country: data.tcustomer[0].fields.Country || " ",
-         termsName: data.tcustomer[0].fields.TermsName || "",
-         taxCode: data.tcustomer[0].fields.TaxCodeName || "E",
-         clienttypename: data.tcustomer[0].fields.ClientTypeName || "Default",
-         discount: data.tcustomer[0].fields.Discount || 0,
+           data.tcustomer[0].fields.Postcode || data.tcustomer[0].State +
+           " " + data.tcustomer[0].Postcode || " ",
+         country: data.tcustomer[0].fields.Country || data.tcustomer[0].Country || " ",
+         termsName: data.tcustomer[0].fields.TermsName || data.tcustomer[0].TermsName || "",
+         taxCode: data.tcustomer[0].fields.TaxCodeName || data.tcustomer[0].TaxCodeName || "E",
+         clienttypename: data.tcustomer[0].fields.ClientTypeName || data.tcustomer[0].ClientTypeName || "Default",
+         discount: data.tcustomer[0].fields.Discount || data.tcustomer[0].Discount || 0,
+         mobile: data.tcustomer[0].fields.Mobile || data.tcustomer[0].Mobile || "",
        }
+       
       } else if (templateObject.data.clientType == 'Supplier') {
         client = {
           supplierid: data.tsupplier[0].ID || ' ',
@@ -96,9 +101,13 @@ Template.transaction_card.onRendered(async function () {
           suburb: data.tsupplier[0].Suburb || ' ',
           statecode: data.tsupplier[0].State + ' ' + data.tsupplier[0].Postcode || ' ',
           country: data.tsupplier[0].Country || ' ',
-          termsName: data.tsupplier[0].TermsName || ''
+          termsName: data.tsupplier[0].TermsName || '',
+          mobile: data.tsupplier[0].Mobile || '',
+          firstname: data.tsupplier[0].FistName || '',
+          lastname: data.tsupplier[0].LastName || ''
+        }
       }
-      }
+      templateObject.clientPhone.set({mobile: client.mobile, firsname: client.firstname, lastname: client.lastname})
       resolve(client);
     })
   }
@@ -114,12 +123,12 @@ Template.transaction_card.onRendered(async function () {
         resolve(clients[clientIndex])
       } else {
         if(templateObject.data.clientType == 'Customer') {
-          contactService.getOneCustomerDataEx(clientId).then(data=> {
+          contactService.getOneCustomerData(clientId).then(data=> {
             resolve(templateObject.getClientDetail(data))
             
           }).catch(function(err) {resolve('')})
         } else if(templateObject.data.clientType == 'Supplier') {
-          contactService.getOneSupplierDataEx(clientId).then (data => {
+          contactService.getOneSupplierData(clientId).then (data => {
             templateObject.getClientDetail(data)
           }).catch(function(err) {resolve('')})
         }
@@ -204,6 +213,7 @@ Template.transaction_card.onRendered(async function () {
             taxCode: data.tcustomervs1[i].fields.TaxCodeName || "E",
             clienttypename: data.tcustomervs1[i].fields.ClientTypeName || "Default",
             discount: data.tcustomervs1[i].fields.Discount || 0,
+            mobile: data.tcustomervs1[i].fields.Mobile || ""
           };
           clientList.push(customerrecordObj);
         }
@@ -233,17 +243,14 @@ Template.transaction_card.onRendered(async function () {
                 suburb: data.tsuppliervs1[i].Suburb || data.tsuppliervs1[i].fields.Suburb || ' ',
                 statecode: data.tsuppliervs1[i].State + ' ' + data.tsuppliervs1[i].Postcode|| data.tsuppliervs1[i].fields.State + ' ' + data.tsuppliervs1[i].fields.Postcode || ' ',
                 country: data.tsuppliervs1[i].Country || data.tsuppliervs1[i].fields.Country || ' ',
-                termsName: data.tsuppliervs1[i].TermsName || data.tsuppliervs1[i].fields.TermsName || ''
+                termsName: data.tsuppliervs1[i].TermsName || data.tsuppliervs1[i].fields.TermsName || '',
+                mobile: data.tsuppliervs1[i].Mobile || data.tsuppliervs1[i].fields.Mobile || ''
             };
             clientList.push(supplierrecordObj);
         }
     }
       templateObject.clientrecords.set(clientList);
-      for (let i = 0; i < clientList.length; i++) {
-          //$('#edtSupplierName').editableSelect('add', clientList[i].customername);
-      }
       if (FlowRouter.current().queryParams.id || FlowRouter.current().queryParams.supplierid || FlowRouter.current().queryParams.copypoid) {
-
       } else {
           setTimeout(function() {
               $('#edtSupplierName').trigger("click");
@@ -371,7 +378,7 @@ Template.transaction_card.onRendered(async function () {
         return undefined;
       }
       const transactions = JSON.parse(dataObject[0].data)[exLowercaseName];
-      const currentTransactionData = transactions.find(trans => trans.fields.ID === trans_id);
+      const currentTransactionData = transactions.find(trans => trans.fields?.ID === trans_id || trans.Id == trans_id);
       return currentTransactionData
     } catch (error) {
       return undefined;
@@ -413,6 +420,16 @@ Template.transaction_card.onRendered(async function () {
     if(data) {
       let record = templateObject.data.setTransData(data);
       templateObject.transactionrecord.set(record.record);
+
+      setTimeout(function () {
+        let selectedLineId = templateObject.selectedLineId.get();
+        if(!selectedLineId || selectedLineId == '') {
+          selectedLineId = $('#'+templateObject.data.gridTableId + ' >tbody >tr').first().attr('id');
+        }
+        templateObject.selectedLineId.set(selectedLineId)
+      }, 500)
+
+      templateObject.showFx.set(record.record.showingFx)
       if(record) {
         templateObject.hasFollow.set(record.record.isRepeated)
         let currentCurrencySymbol = await FxGlobalFunctions.getCurrencySymbol(record.record.currency)
@@ -791,8 +808,10 @@ Template.transaction_card.onRendered(async function () {
         let targetRow = $("#" + lineID);
         let targetTaxCode = targetRow.find(".lineTaxCode").val();
         let qty = targetRow.find(".lineQty").val() || 0
-        let price = targetRow.find(".colUnitPriceExChange").val() || 0;
+        let price = targetRow.find(".colUnitPriceExChange").val() || "0";
         const taxDetail = templateObject.taxcodes.get().find((v) => v.CodeName === targetTaxCode);
+
+        
 
         if (taxDetail) {
             let priceTotal = parseFloat(qty, 10) * Number(price.replace(/[^0-9.-]+/g, ""));
@@ -803,7 +822,7 @@ Template.transaction_card.onRendered(async function () {
                     if (taxItems[taxCode]) {
                         taxItems[taxCode] += amount;
                     }
-                    else {
+                  else {
                         taxItems[taxCode] = amount;
                     }
                 });
@@ -812,15 +831,52 @@ Template.transaction_card.onRendered(async function () {
                 // taxItems[targetTaxCode] = taxTotal;
             }
         }
-
-        array_data.push([
-            tdproduct,
-            tddescription,
-            tdQty,
-            tdunitprice,
-            taxAmount,
-            tdlineamt,
-        ]);
+        let type = templateObject.data.TransactionType;
+        if( type == 'invoices' || type == 'purchaseorders' || type == 'sales' || type=='quotes') {
+          array_data.push([
+              tdproduct,
+              tddescription,
+              tdQty,
+              tdunitprice,
+              taxAmount,
+              tdlineamt,
+          ]);
+        } else if (type == 'cheques') {
+          let tdaccount = $("#" + lineID + " .lineAccountName").val();
+          let tddmemo = $('#'+ lineID + '.lineMemo').text();
+          let tdtaxAmount = $('#' + lineID + ' .lineTaxAmount').text();
+          let tdamount = $('#'+lineID + ' .colAmountEx').text();
+          array_data.push ([
+            tdaccount,
+              tddmemo,
+              tdtaxAmount,
+              tdamount
+          ])
+        } else if(type == 'deposit') {
+          let tdaccount = $("#" + lineID + " .sltFromAccount").val()
+          let tdpaymentmethod = $("#" + lineID + " .vs1dropdown.sltPaymentMethod").val();
+          let tdreferenceno = $("#" + lineID + " td.colReference").text();
+          let tdcompany = $("#"+ lineID + ' .vs1dropdown.sltCompanyFrom').val();
+          let tdamount = $('#'+ lineID + ' .colAmount').text()
+          array_data.push ([
+            tdaccount,
+            tdpaymentmethod,
+            tdreferenceno,
+            tdcompany,
+            tdamount
+          ])
+        } else if(type == 'journalentry') {
+          let tdaccount = $("#" + lineID + " .sltFromAccount").val()
+          let tdmemo = $("#" + lineID + " td.colMemo").text();
+          let tdcredit = $("#"+ lineID + ' .lineCreditEx').val();
+          let tddebit = $("#"+ lineID + " .lineDebitEx").val();
+          array_data.push ([
+            tdaccount,
+            tdmemo,
+            tdcredit,
+            tddebit
+          ])
+        }
 
         const lineItemObj = {
             description: tddescription || "",
@@ -873,14 +929,15 @@ Template.transaction_card.onRendered(async function () {
       supplier_type: templateObject.data.clientType,
       supplier_name : customer,
       supplier_addr : txabillingAddress,
-      fields: {
-        "Product Name": ["25", "left"],
-        "Description": ["30", "left"],
-        "Qty": ["7", "right"],
-        "Unit Price": ["15", "right"],
-        "Tax": ["7", "right"],
-        "Amount": ["15", "right"],
-      },
+      // fields: {
+      //   "Product Name": ["25", "left"],
+      //   "Description": ["30", "left"],
+      //   "Qty": ["7", "right"],
+      //   "Unit Price": ["15", "right"],
+      //   "Tax": ["7", "right"],
+      //   "Amount": ["15", "right"],
+      // },
+      fields: templateObject.data.printfields,
       subtotal :subtotal_total,
       gst : subtotal_tax,
       total : grandTotal,
@@ -1245,131 +1302,122 @@ Template.transaction_card.onRendered(async function () {
   };
 
   templateObject.exportSalesToPdf = async function (template_title, number) {
-    if (template_title == templateObject.data.printName) {
-      await templateObject.showTemplate1(template_title, number, true);
-    } else if (template_title == templateObject.data.deliveryDocketName){
-      await templateObject.showDeliveryDocket1(template_title, number, true);
-    }
-
-    await applyDisplaySettings(template_title, number);
-    
-    let transactionData = templateObject.transactionrecord.get();
-    // let lowerCasePrintName = templateObject.data.TranascationType.toLowerCase()
-    var source;
-    if (number == 1) {
-      $("#html-2-pdfwrapper").show();
-      $("#html-2-pdfwrapper2").hide();
-      $("#html-2-pdfwrapper3").hide();
-      source = document.getElementById("html-2-pdfwrapper");
-    } else if (number == 2) {
-      $("#html-2-pdfwrapper").hide();
-      $("#html-2-pdfwrapper2").show();
-      $("#html-2-pdfwrapper3").hide();
-      source = document.getElementById("html-2-pdfwrapper2");
-    } else {
-      $("#html-2-pdfwrapper").hide();
-      $("#html-2-pdfwrapper2").hide();
-      $("#html-2-pdfwrapper3").show();
-      source = document.getElementById("html-2-pdfwrapper3");
-    }
-
-    setTimeout(()=>{let file = templateObject.data.printName +".pdf";
-    if ($('.printID').attr('id') != undefined || $('.printID').attr('id') != "") {
+    return new Promise(async(resolve, reject) => {
       if (template_title == templateObject.data.printName) {
-        file = template_title + '-' + transactionData.id + '.pdf';
+        await templateObject.showTemplate1(template_title, number, true);
+      } else if (template_title == templateObject.data.deliveryDocketName){
+        await templateObject.showDeliveryDocket1(template_title, number, true);
       }
-    }
-    // const opt = {
-    //   margin: 0,
-    //   filename: file,
-    //   image: {
-    //     type: 'jpeg',
-    //     quality: 0.98
-    //   },
-    //   html2canvas: {
-    //     scale: 2
-    //   },
-    //   jsPDF: {
-    //     unit: 'in',
-    //     format: 'a4',
-    //     orientation: 'portrait'
-    //   }
-    // };
-
-    let height = $(source).find('.invoice_wrapper').height();
-    let width = $(source).find('.invoice_wrapper').width();
-
-    let heightCM = height / 35.35 + 1.6;
-    let widthCM = width / 35.35 + 2.2;
-    var opt = {
-      margin: 1,
-      filename: file,
-      html2canvas: { dpi: 192, letterRendering: true },
-      jsPDF: {
-        unit: "cm",
-        format: [widthCM, heightCM],
-        orientation: "portrait",
-      },
-    };
-    html2pdf().set(opt).from(source).toPdf().output('datauristring').then(data => {
-      let attachment = [];
-      let base64data = data.split(',')[1];
-      let chequeId = FlowRouter.current().queryParams.id ? FlowRouter.current().queryParams.id : ''
-      let pdfObject = {
-        filename: templateObject.data.printName + '-' + chequeId + '.pdf',
-        content: base64data,
-        encoding: 'base64'
-      };
-      attachment.push(pdfObject);
-      let values = [];
-      let basedOnTypeStorages = Object.keys(localStorage);
-      basedOnTypeStorages = basedOnTypeStorages.filter((storage) => {
-        let employeeId = storage.split('_')[2];
-        return storage.includes('BasedOnType_');
-      });
-      let j = basedOnTypeStorages.length;
-      if (j > 0) {
-        while (j--) {
-          values.push(localStorage.getItem(basedOnTypeStorages[j]));
-        }
-      }
-      if (values.length > 0) {
-        values.forEach(value => {
-          let reportData = JSON.parse(value);
-          let temp = { ...reportData };
-          temp.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-          reportData.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
-          temp.attachments = attachment;
-          if (temp.BasedOnType.includes("P")) {
-            if (temp.FormID == 1) {
-              let formIds = temp.FormIDs.split(',');
-              if (formIds.includes(templateObject.data.transreportindex.toString())) {
-                temp.FormID = templateObject.data.transreportindex;
-                Meteor.call('sendNormalEmail', temp);
-              }
-            } else {
-              if (temp.FormID == templateObject.data.transreportindex.toString())
-                Meteor.call('sendNormalEmail', temp);
-            }
-          }
-        });
-      }
-    });
-
-
-
-    html2pdf().set(opt).from(source).save().then(function (dataObject) {
-      if ($('.printID').attr('id') == undefined || $('.printID').attr('id') == "") {
-        $('.fullScreenSpin').css("display", "none");
-      } else {
-        $('#html-2-pdfwrapper_new').css('display', 'none');
-        $('#html-2-pdfwrapper').css('display', 'none');
-        $("#html-2-pdfwrapper").hide();
+  
+      await applyDisplaySettings(template_title, number);
+      
+      let transactionData = templateObject.transactionrecord.get();
+      // let lowerCasePrintName = templateObject.data.TranascationType.toLowerCase()
+      var source;
+      if (number == 1) {
+        $("#html-2-pdfwrapper").show();
         $("#html-2-pdfwrapper2").hide();
         $("#html-2-pdfwrapper3").hide();
-        $('.fullScreenSpin').css("display", "none");
+        source = document.getElementById("html-2-pdfwrapper");
+      } else if (number == 2) {
+        $("#html-2-pdfwrapper").hide();
+        $("#html-2-pdfwrapper2").show();
+        $("#html-2-pdfwrapper3").hide();
+        source = document.getElementById("html-2-pdfwrapper2");
+      } else {
+        $("#html-2-pdfwrapper").hide();
+        $("#html-2-pdfwrapper2").hide();
+        $("#html-2-pdfwrapper3").show();
+        source = document.getElementById("html-2-pdfwrapper3");
       }
-    });}, 2000)
+  
+      // setTimeout(()=>{
+      let file = templateObject.data.printName +".pdf";
+      if ($('.printID').attr('id') != undefined || $('.printID').attr('id') != "") {
+        if (template_title == templateObject.data.printName) {
+          file = template_title + '-' + transactionData.id + '.pdf';
+        }
+      }
+    
+      let height = $(source).find('.invoice_wrapper').height();
+      let width = $(source).find('.invoice_wrapper').width();
+  
+      let heightCM = height / 35.35 + 1.6;
+      let widthCM = width / 35.35 + 2.2;
+      var opt = {
+        margin: 1,
+        filename: file,
+        html2canvas: { dpi: 192, letterRendering: true },
+        jsPDF: {
+          unit: "cm",
+          format: [widthCM, heightCM],
+          orientation: "portrait",
+        },
+      };
+      html2pdf().set(opt).from(source).toPdf().output('datauristring').then(data => {
+        let attachment = [];
+        let base64data = data.split(',')[1];
+        let chequeId = FlowRouter.current().queryParams.id ? FlowRouter.current().queryParams.id : ''
+        let pdfObject = {
+          filename: templateObject.data.printName + '-' + chequeId + '.pdf',
+          content: base64data,
+          encoding: 'base64'
+        };
+        attachment.push(pdfObject);
+        let values = [];
+        let basedOnTypeStorages = Object.keys(localStorage);
+        basedOnTypeStorages = basedOnTypeStorages.filter((storage) => {
+          let employeeId = storage.split('_')[2];
+          return storage.includes('BasedOnType_');
+        });
+        let j = basedOnTypeStorages.length;
+        if (j > 0) {
+          while (j--) {
+            values.push(localStorage.getItem(basedOnTypeStorages[j]));
+          }
+        }
+        if (values.length > 0) {
+          values.forEach(value => {
+            let reportData = JSON.parse(value);
+            let temp = { ...reportData };
+            temp.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
+            reportData.HostURL = $(location).attr('protocal') ? $(location).attr('protocal') + "://" + $(location).attr('hostname') : 'http://' + $(location).attr('hostname');
+            temp.attachments = attachment;
+            if (temp.BasedOnType.includes("P")) {
+              if (temp.FormID == 1) {
+                let formIds = temp.FormIDs.split(',');
+                if (formIds.includes(templateObject.data.transreportindex.toString())) {
+                  temp.FormID = templateObject.data.transreportindex;
+                  Meteor.call('sendNormalEmail', temp);
+                }
+              } else {
+                if (temp.FormID == templateObject.data.transreportindex.toString())
+                  Meteor.call('sendNormalEmail', temp);
+              }
+            }
+          });
+        }
+      });
+  
+  
+  
+      html2pdf().set(opt).from(source).save().then(function (dataObject) {
+        if ($('.printID').attr('id') == undefined || $('.printID').attr('id') == "") {
+          $('.fullScreenSpin').css("display", "none");
+          resolve(true);
+        } else {
+          $('#html-2-pdfwrapper_new').css('display', 'none');
+          $('#html-2-pdfwrapper').css('display', 'none');
+          $("#html-2-pdfwrapper").hide();
+          $("#html-2-pdfwrapper2").hide();
+          $("#html-2-pdfwrapper3").hide();
+          $('.fullScreenSpin').css("display", "none");
+          resolve(true)
+        }
+      });
+    // }, 2000)
+    })
+    
     return true;
     // }
   }
@@ -1613,7 +1661,6 @@ Template.transaction_card.onRendered(async function () {
   //   // }
 
   //   let transData = templateObject.transactionrecord.get();
-  //   console.log("has followings", transData)
   // }
   // templateObject.hasFollowings();
 
@@ -1662,21 +1709,17 @@ templateObject.getAllCostTypes();
       var printTemplate = [];
       // $("#html-2-pdfwrapper1").css("display", "block");
       if(_template !== ''){
-        const _templateNumber = $(`input[name="${_template}"]:checked`).val();
+        const _templateNumber = $(`input[name="${_template}"]:checked`).val() || 1;
         await templateObject.exportSalesToPdf(_template, _templateNumber);
         return;
       }
 
       $(".pdfCustomerName").html($("#edtCustomerName").val());
       $(".pdfCustomerAddress").html(
-        $("#txabillingAddress")
-          .val()
-          .replace(/[\r\n]/g, "<br />")
+        $("#txabillingAddress").val()?.replace(/[\r\n]/g, "<br />")
       );
       $("#printcomment").html(
-        $("#txaComment")
-          .val()
-          .replace(/[\r\n]/g, "<br />")
+        $("#txaComment")?.val()?.replace(/[\r\n]/g, "<br />")
       );
       var ponumber = $("#ponumber").val() || ".";
       $(".po").text(ponumber);
@@ -1711,22 +1754,29 @@ templateObject.getAllCostTypes();
       var template_number = 1;
       if (printTemplate.length > 0) {
         for (var i = 0; i < printTemplate.length; i++) {
-          if (printTemplate[i] == templateObject.data.printName) {
-            template_number = $("input[name=Invoices]:checked").val();
-          } else if (printTemplate[i] == "Delivery Docket") {
-            template_number = $(
-              'input[name="Delivery Docket"]:checked'
-            ).val();
-          } else if (printTemplate[i] == templateObject.data.printName + " Back Orders") {
-            template_number = $(
-              'input[name='+templateObject.data.printName+'" Back Orders"]:checked'
-            ).val();
-          } else { }
-          let result = await templateObject.exportSalesToPdf(
-            printTemplate[i],
-            template_number
-          );
-          if (result == true) { }
+          // setTimeout(async ()=>{
+            async function print__template () {
+              return new Promise(async(resolve, reject)=> {
+                if (printTemplate[i] == templateObject.data.printName) {
+                  template_number = $("input[name='"+templateObject.data.printName+"']:checked").val() || 1;
+                } else if (printTemplate[i] == "Delivery Docket") {
+                  template_number = $(
+                    'input[name="Delivery Docket"]:checked'
+                  ).val() || 1;
+                } else if (printTemplate[i] == templateObject.data.printName + " Back Orders") {
+                  template_number = $(
+                    'input[name='+templateObject.data.printName+'" Back Orders"]:checked'
+                  ).val() || 1;
+                } else { }
+                let result = await templateObject.exportSalesToPdf(
+                  printTemplate[i],
+                  template_number
+                );
+                if (result == true) {resolve() }
+              })
+            }
+            await print__template();
+          // }, 2000)
         }
       }
       const isCheckedEmail = $("#printModal").find("#emailSend").is(":checked");
@@ -2015,13 +2065,15 @@ templateObject.getAllCostTypes();
   // })
 
   templateObject.updateTransactionLine = function(lid) {
-    LoadingOverlay.show()
+    // LoadingOverlay.show()
     let tablename = templateObject.data.gridTableId;
     if(templateObject.data.custid) {
       tablename = tablename + "_" + templateObject.data.custid
     }
+    
     FxGlobalFunctions.convertToForeignEveryFieldsInTableId("#"+tablename, new UtilityService());
     setTimeout(async ()=>{
+      
       let rate = $("#exchange_rate").val();
       let cloneRecord  = cloneDeep(templateObject.transactionrecord.get());
       let lineItems = cloneRecord.LineItems;
@@ -2029,23 +2081,33 @@ templateObject.getAllCostTypes();
       let lineIndex = lineItems.findIndex(line =>{
         return line.lineID == lid
       })
-
+      let amt = $("#"+tablename+" tr#"+lid).find('.colAmountEx.lineAmount').text();
+      let desc = $("#"+tablename+" tr#"+lid).find('.lineProductDesc').text();
+      $("#"+tablename+" tr#"+lid).find('.colAmountEx.lineAmount').text('');
+      $("#"+tablename+" tr#"+lid).find('.lineProductDesc').text('');
       lineItems[lineIndex].item = $("#"+tablename+" tr#"+lid).find('.colProductName .lineProductName').val();
-      lineItems[lineIndex].description = $("#"+tablename+" tr#"+lid).find('.lineProductDesc').text();
+      lineItems[lineIndex].accountname = $("#"+tablename+" tr#"+lid).find('.colProductName .lineAccountName').val();
+      lineItems[lineIndex].description = desc;
+      lineItems[lineIndex].memo = desc;
+      lineItems[lineIndex].TaxTotal = $("#"+tablename+" tr#"+lid).find('.colProductName .lineTaxTotal').val();
+
+      lineItems[lineIndex].qtyshipped = $("#"+tablename+" tr#"+lid).find('.lineQty').val();
+      lineItems[lineIndex].qtyordered = $("#"+tablename+" tr#"+lid).find('.lineOrdered').val();
+
 
       lineItems[lineIndex].lineCost = $("#"+tablename+" tr#"+lid).find('.colCostPrice .colCostPrice').val();
   
       lineItems[lineIndex].unitPrice = $("#"+tablename+" tr#"+lid).find('.colUnitPriceEx .colUnitPriceEx').val();
-  
-      lineItems[lineIndex].TotalAmt = $("#"+tablename+" tr#"+lid).find('.colAmountEx.lineAmount').text();
+      
+      lineItems[lineIndex].TotalAmt = amt;
   
   
       cloneRecord.LineItems = lineItems;
-      $("#"+tablename+" tr#"+lid).find('.lineProductDesc').text('');
-      $("#"+tablename+" tr#"+lid).find('.colAmountEx.lineAmount').text('');
+      
       templateObject.transactionrecord.set(cloneRecord);
+      templateObject.selectedLineId.set(lid)
 
-      LoadingOverlay.hide()
+      // LoadingOverlay.hide()
     }, 500)
   }
 
@@ -2210,6 +2272,7 @@ templateObject.getAllCostTypes();
   } else {
     let initialRecords = templateObject.data.initialRecords();
     templateObject.transactionrecord.set(initialRecords);
+    templateObject.showFx.set(false)
     setCurrentCurrencySymbol(Currency)
     let clientId = ''
     if (FlowRouter.current().queryParams.customerid) {
@@ -2264,15 +2327,6 @@ templateObject.getAllCostTypes();
         // templateObject.initialRecords
       }
     } else {
-      // setTimeout(()=>{
-      //   if(templateObject.data.clientType == 'Customer') {
-      //     $('.edtCustomerName').trigger('click')
-      //   } else if(templateObject.data.clientType == 'Supplier') {
-      //     $('.edtSupplierName').trigger('click')
-      //   } else if (templateObject.data.clientType == 'Account') {
-      //     $("#account_fromtransactionheader").trigger('click')
-      //   }
-      // },200)
     }
   }
   
@@ -2507,7 +2561,8 @@ templateObject.getAllCostTypes();
       //     }
       //   }
       // });
-      templateObject.updateLine()
+      templateObject.updateLine();
+      templateObject.updateTransactionLine(selectLineID)
 
       // $printrows.each(function (index) {
       //   var $printrows = $(this);
@@ -2542,7 +2597,327 @@ templateObject.getAllCostTypes();
       //   e.stopImmediatePropagation();
       // });
 
+    }
+
+    $("#tblInventory_filter .form-control-sm").val("");
+    $(".fullScreenSpin").css("display", "none");
+  });
+  $(document).on("click", ".tblBOMList tbody tr", async function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(".colProductName").removeClass("boldtablealertsborder");
+    let selectLineID = templateObject.selectedLine.get();
+    var table = $(e.target).closest('tr');
+    
+    if (selectLineID) {
+      let lineProductName = table.find(".colName").text();
+      let lineProductDesc = table.find(".colDescription").text();
+      
+     
+      $("#" + selectLineID + " .lineProductName").val(lineProductName);
+      $("#" + selectLineID + " .lineProductDesc").text(lineProductDesc);
+      $("#" + selectLineID + " .lineOrdered").val(1);
+      $("#" + selectLineID + " .lineQty").val(1);
+      $("#" + selectLineID + " .lineBackOrder").val(0);
+      $("#" + selectLineID + " .lineUnitPrice").val(lineUnitPrice);
+      $("#" + selectLineID + " .lineCostPrice").val(lineCostPrice);
+
+
+      if (
+        $(".printID").attr("id") == undefined ||
+        $(".printID").attr("id") != undefined ||
+        $(".printID").attr("id") != ""
+      ) {
+       
+        var rowData1 = $("."+templateObject.data.printTableId+" tbody>tr:last").clone(true);
+        $(".lineProductName", rowData1).val(lineProductName);
+        $(".lineProductDesc", rowData1).text(lineProductDesc);
+        
+        $(".lineQty", rowData1).text(1);
+        $("."+templateObject.data.printTableId+" tbody").append(rowData1);
+      }
+
+      let lineItems = cloneRecord.LineItems;
+      let lineIndex = lineItems.findIndex(line =>{
+        return line.lineID == selectLineID
+      });
+
+
+      let desc = $("#"+tablename+" tr#"+lid).find('.lineProductDesc').text();
+
+      lineItems[lineIndex].item = $("#"+tablename+" tr#"+lid).find('.colProductName .lineProductName').val();
+      lineItems[lineIndex].description = desc;
+      lineItems[lineIndex].qty = $("#"+tablename+" tr#"+lid).find('.lineQty').val();
+
+      cloneRecord.LineItems = lineItems;
+      templateObject.transactionrecord.set(cloneRecord);
+      templateObject.selectedLineId.set(lid)
+
+
+      
+    
+
+    }
+
+    $("#tblInventory_filter .form-control-sm").val("");
+    $(".fullScreenSpin").css("display", "none");
+  });
+
+
+
+
+  $(document).on("click", "#tblAccount tbody tr", async function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    let modal = $(e.target).closest('div.modal.vs1_dropdown_modal');
+    let modalcustid = $(modal).attr('selectedid');
+    if(modalcustid == 'fromtransactionheader'){return}
+    $(".colAccountName").removeClass("boldtablealertsborder");
+    let selectLineID = templateObject.selectedLine.get();
+    let taxcodeList = await templateObject.taxraterecords.get();
+    var table = $(e.target).closest('tr');
+    var $printrows = $("."+templateObject.data.printTableId+" tbody tr");
+    let $tblrows = $("#"+templateObject.data.gridTableId+" tbody tr");
+    let taxcode1 = "";
+
+    let selectedCust = $("#edtCustomerName").val();
+    if(templateObject.data.clientType == 'Supplier') {
+      selectedCust = $('#edtSupplierName').val()
+    }
+    let getCustDetails = "";
+    let lineTaxRate = "";
+    let taxRate = "";
+    getCustDetails = await templateObject.getClientDetailByName(selectedCust)
+    if (getCustDetails !=  '') {
+      taxRate = taxcodeList.filter((taxrate) => {
+        return taxrate.codename == getCustDetails.taxCode || "";
+      });
+      if (taxRate.length > 0) {
+        if (taxRate[0].codename != "") {
+          lineTaxRate = taxRate[0].codename;
+        } else {
+          lineTaxRate = table.find(".taxrate").text();
+        }
+      } else {
+        lineTaxRate = table.find(".coltaxrate").text();
+      }
+
+      taxcode1 = getCustDetails.taxCode || "";
+    } else {
+      var customerTaxCode =
+        $("#edtCustomerName").attr("custtaxcode").replace(/\s/g, "") || "";
+      taxRate = taxcodeList.filter((taxrate) => {
+        return taxrate.codename == customerTaxCode || "";
+      });
+      if (taxRate.length > 0) {
+        if (taxRate.codename != "") {
+          lineTaxRate = taxRate[0].codename;
+        } else {
+          lineTaxRate = table.find(".taxrate").text();
+        }
+      } else {
+        lineTaxRate = table.find(".coltaxrate").text();
+      }
+
+      taxcode1 = customerTaxCode || "";
+    }
+    if (selectLineID) {
+      let lineAccountName = table.find(".colAccountName").text();
+      let lineMemo = table.find(".colDescription").text();
+     
+     
+      let getCustomerClientTypeName =
+        $("#edtCustomerUseType").val() || "Default";
+      let getCustomerDiscount =
+        parseFloat($("#edtCustomerUseDiscount").val()) || 0;
+      let getCustomerProductDiscount = 0;
+      let discountAmount = getCustomerDiscount;
+     
+      $("#" + selectLineID + " .lineDiscount").val(discountAmount);
+      let lineAmount = 0;
+      let subGrandTotal = 0;
+      let taxGrandTotal = 0;
+
+      let subDiscountTotal = 0; // New Discount
+      let taxGrandTotalPrint = 0;
+      if (taxcodeList) {
+        for (var i = 0; i < taxcodeList.length; i++) {
+          if (taxcodeList[i].codename == lineTaxRate) {
+            $("#" + selectLineID + " .lineTaxRate").text(
+              taxcodeList[i].coderate
+            );
+          }
+        }
+      }
+      $("#" + selectLineID + " .lineAccountName").val(lineAccountName);
+      $("#" + selectLineID + " .lineMemo").text(lineMemo);
+      // $("#" + selectLineID + " .lineOrdered").val(1);
+      // $("#" + selectLineID + " .lineQty").val(1);
+      // $("#" + selectLineID + " .lineBackOrder").val(0);
+      // $("#" + selectLineID + " .lineUnitPrice").val(lineUnitPrice?lineUnitPrice: 0);
+      // $("#" + selectLineID + " .lineCostPrice").val(lineCostPrice?lineCostPrice: 0);
+
+
+      if (
+        $(".printID").attr("id") == undefined ||
+        $(".printID").attr("id") != undefined ||
+        $(".printID").attr("id") != ""
+      ) {
+        // $("#" + selectLineID + " .lineProductName").val(lineProductName);
+        // $("#" + selectLineID + " .lineProductDesc").text(lineProductDesc);
+        // $("#" + selectLineID + " #lineOrdered").text(1);
+        // $("#" + selectLineID + " #lineQty").text(1);
+        // $("#" + selectLineID + " #lineBackOrder").text(0);
+        // $("#" + selectLineID + " #lineUnitPrice").text(lineUnitPrice);
+        var rowData1 = $("."+templateObject.data.printTableId+" tbody>tr:last").clone(true);
+        $(".lineAccountName", rowData1).val(lineAccountName);
+        $(".lineMemo", rowData1).text(lineMemo);
+        // $(".lineOrdered", rowData1).text(1);
+        // $(".lineQty", rowData1).text(1);
+        // $(".lineBackOrder", rowData1).text(0);
+        // $(".lineUnitPrice", rowData1).text(lineUnitPrice?lineUnitPrice:0);
+        $("."+templateObject.data.printTableId+" tbody").append(rowData1);
+      }
+
+      if (lineTaxRate == "NT") {
+        lineTaxRate = "E";
+        $("#" + selectLineID + " .lineTaxCode").val(lineTaxRate);
+        if (
+          $(".printID").attr("id") != undefined ||
+          $(".printID").attr("id") != ""
+        ) {
+          $("#" + selectLineID + " .lineTaxCode").text(lineTaxRate);
+        }
+      } else {
+        $("#" + selectLineID + " .lineTaxCode").val(lineTaxRate);
+        if (
+          $(".printID").attr("id") != undefined ||
+          $(".printID").attr("id") != ""
+        ) {
+          $("#" + selectLineID + " .lineTaxCode").text(lineTaxRate);
+        }
+      }
+
+      // lineAmount = 1 * Number(lineUnitPrice.replace(/[^0-9.-]+/g, "")) || 0;
+      lineAmount = 0;
+      $("#" + selectLineID + " .lineAmt").text(
+        utilityService.modifynegativeCurrencyFormat(lineAmount)
+      );
+      if (
+        $(".printID").attr("id") == undefined ||
+        $(".printID").attr("id") != undefined ||
+        $(".printID").attr("id") != ""
+      ) {
+        $("#" + selectLineID + " #lineAmt").text(
+          utilityService.modifynegativeCurrencyFormat(lineAmount)
+        );
+      }
+      $("#accountListModal").modal("hide");
+      let subGrandTotalNet = 0;
+      let taxGrandTotalNet = 0;
+      // $tblrows.each(function (index) {
+      //   var $tblrow = $(this);
+      //   let tdproduct = $tblrow.find(".lineProductName").val() || "";
+      //   if (tdproduct != "") {
+      //     var qty = $tblrow.find(".lineQty").val() || 0;
+      //     var price = $tblrow.find(".colUnitPriceExChange").val() || 0;
+      //     var taxRate = $tblrow.find(".lineTaxCode").val();
+      //     var taxrateamount = 0;
+      //     if (taxcodeList) {
+      //       for (var i = 0; i < taxcodeList.length; i++) {
+      //         if (taxcodeList[i].codename == taxRate) {
+      //           taxrateamount = taxcodeList[i].coderate.replace("%", "") / 100;
+      //         }
+      //       }
+      //     }
+
+      //     var subTotal = parseFloat(qty, 10) * Number(price.replace(/[^0-9.-]+/g, "")) || 0;
+      //     var taxTotal = parseFloat(qty, 10) * Number(price.replace(/[^0-9.-]+/g, "")) * parseFloat(taxrateamount);
+      //     var lineDiscountPerc = parseFloat($tblrow.find(".lineDiscount").val()) || 0; // New Discount
+      //     let lineTotalAmount = subTotal + taxTotal;
+
+      //     let lineDiscountTotal = lineDiscountPerc / 100;
+
+      //     var discountTotal = lineTotalAmount * lineDiscountTotal;
+      //     var subTotalWithDiscount = subTotal * lineDiscountTotal || 0;
+      //     var subTotalWithDiscountTotalLine = subTotal - subTotalWithDiscount || 0;
+      //     var taxTotalWithDiscount = taxTotal * lineDiscountTotal || 0;
+      //     var taxTotalWithDiscountTotalLine = taxTotal - taxTotalWithDiscount;
+      //     if (!isNaN(discountTotal)) {
+      //       subDiscountTotal += isNaN(discountTotal) ? 0 : discountTotal;
+
+      //       document.getElementById("subtotal_discount").innerHTML =
+      //         utilityService.modifynegativeCurrencyFormat(subDiscountTotal);
+      //     }
+      //     $tblrow.find(".lineTaxAmount").text(utilityService.modifynegativeCurrencyFormat(taxTotalWithDiscountTotalLine));
+
+      //     let unitPriceIncCalc = Number(price.replace(/[^0-9.-]+/g, "")) * parseFloat(taxrateamount) || 0;
+      //     let lineUnitPriceExVal = Number(price.replace(/[^0-9.-]+/g, "")) || 0;
+      //     let lineUnitPriceIncVal = lineUnitPriceExVal + unitPriceIncCalc || 0;
+      //     $tblrow.find(".colUnitPriceExChange").val(utilityService.modifynegativeCurrencyFormat(lineUnitPriceExVal));
+      //     $tblrow.find(".colUnitPriceIncChange").val(utilityService.modifynegativeCurrencyFormat(lineUnitPriceIncVal));
+
+      //     if (!isNaN(subTotal)) {
+      //       $tblrow.find(".colAmountEx").text(utilityService.modifynegativeCurrencyFormat(subTotal));
+      //       $tblrow.find(".colAmountInc").text(utilityService.modifynegativeCurrencyFormat(lineTotalAmount));
+      //       subGrandTotal += isNaN(subTotalWithDiscountTotalLine) ? 0 : subTotalWithDiscountTotalLine;
+      //       subGrandTotalNet += isNaN(subTotal) ? 0 : subTotal;
+      //       document.getElementById("subtotal_total").innerHTML =utilityService.modifynegativeCurrencyFormat(subGrandTotalNet);
+      //     }
+
+      //     if (!isNaN(taxTotal)) {
+      //       taxGrandTotal += isNaN(taxTotalWithDiscountTotalLine) ? 0 : taxTotalWithDiscountTotalLine;
+      //       taxGrandTotalNet += isNaN(taxTotal) ? 0 : taxTotal;
+      //       document.getElementById("subtotal_tax").innerHTML = utilityService.modifynegativeCurrencyFormat(taxGrandTotalNet);
+      //     }
+
+      //     if (!isNaN(subGrandTotal) && !isNaN(taxGrandTotal)) {
+      //       let GrandTotal = parseFloat(subGrandTotal) + parseFloat(taxGrandTotal);
+      //       let GrandTotalNet = parseFloat(subGrandTotalNet) + parseFloat(taxGrandTotalNet);
+      //       document.getElementById("subtotal_nett").innerHTML =utilityService.modifynegativeCurrencyFormat(GrandTotalNet);
+      //       document.getElementById("grandTotal").innerHTML =utilityService.modifynegativeCurrencyFormat(GrandTotal);
+      //       document.getElementById("balanceDue").innerHTML =utilityService.modifynegativeCurrencyFormat(GrandTotal);
+      //       document.getElementById("totalBalanceDue").innerHTML =utilityService.modifynegativeCurrencyFormat(GrandTotal);
+      //     }
+      //   }
+      // });
+      templateObject.updateLine();
       templateObject.updateTransactionLine(selectLineID)
+
+      // $printrows.each(function (index) {
+      //   var $printrows = $(this);
+      //   var qty = $printrows.find("#lineQty").text() || 0;
+      //   var price = $printrows.find("#lineUnitPrice").text() || "0";
+      //   var taxrateamount = 0;
+      //   var taxRate = $printrows.find("#lineTaxCode").text();
+      //   if (taxcodeList) {
+      //     for (var i = 0; i < taxcodeList.length; i++) {
+      //       if (taxcodeList[i].codename == taxRate) {
+      //         taxrateamount = taxcodeList[i].coderate.replace("%", "") / 100;
+      //       }
+      //     }
+      //   }
+
+      //   var subTotal = parseFloat(qty, 10) * Number(price.replace(/[^0-9.-]+/g, "")) || 0;
+      //   var taxTotal = parseFloat(qty, 10) * Number(price.replace(/[^0-9.-]+/g, "")) * parseFloat(taxrateamount);
+      //   $printrows.find("#lineTaxAmount").text(utilityService.modifynegativeCurrencyFormat(taxTotal));
+      //   if (!isNaN(subTotal)) {$printrows.find("#lineAmt").text(utilityService.modifynegativeCurrencyFormat(subTotal));
+      //     subGrandTotal += isNaN(subTotal) ? 0 : subTotal;
+      //     document.getElementById("subtotal_totalPrint").innerHTML = $("#subtotal_total").text();
+      //   }
+
+      //   if (!isNaN(taxTotal)) {
+      //     taxGrandTotalPrint += isNaN(taxTotal) ? 0 : taxTotal;
+      //     document.getElementById("totalTax_totalPrint").innerHTML = utilityService.modifynegativeCurrencyFormat(taxGrandTotalPrint);
+      //   }
+      //   if (!isNaN(subGrandTotal) && !isNaN(taxGrandTotal)) {
+      //     document.getElementById("grandTotalPrint").innerHTML = $("#grandTotal").text();
+      //     document.getElementById("totalBalanceDuePrint").innerHTML = $("#totalBalanceDue").text();
+      //   }
+      //   e.stopImmediatePropagation();
+      // });
+
     }
 
     $("#tblInventory_filter .form-control-sm").val("");
@@ -2560,8 +2935,10 @@ templateObject.getAllCostTypes();
   });
 
 
-  $(document).on("click", ".tblTaxRate tbody tr", function (e) {
-    let selectLineID = $(e.target).closest('tr').attr('id');
+  $(document).on("click", ".tblTaxRate> tbody> tr", function (e) {
+    let modal = $(e.target).closest('td.colTaxCode');
+
+    let selectLineID = $(modal).closest('tr').attr('id');
     let taxcodeList = templateObject.taxraterecords.get();
     var table = $(this);
     let utilityService = new UtilityService();
@@ -2698,12 +3075,12 @@ templateObject.getAllCostTypes();
 
 
   $(document).on('change', '.transheader .sltCurrency', function(event) {
-    if(CountryAbbr == $(event.target).val()) {
-      templateObject.showFx.set(false)
-    } else if($(event.target).val() !== '') {
-      templateObject.showFx.set(true)
-      templateObject.fxEnabled.set(true)
-    }
+    // if(CountryAbbr == $(event.target).val()) {
+    //   templateObject.showFx.set(false)
+    // } else if($(event.target).val() !== '') {
+    //   templateObject.showFx.set(true)
+    //   templateObject.fxEnabled.set(true)
+    // }
   });
 
   $('#costTypeLine').editableSelect()
@@ -2721,7 +3098,7 @@ templateObject.getAllCostTypes();
 
   templateObject.removeTransaction = function (removeFollowing = false) {
     playDeleteAudio();
-    setTimeout(function () {
+    setTimeout(async function () {
       LoadingOverlay.show();
       var url = FlowRouter.current().path;
       var getso_id = url.split("?id=");
@@ -2736,8 +3113,9 @@ templateObject.getAllCostTypes();
             Deleted: true,
           },
         };
-        let service = templateObject.data.service;
-        templateObject.data.saveapifunction.apply(service, [objDetails]).then(async function(objDetails){
+        // let service = templateObject.data.service;
+        // templateObject.data.saveapifunction.apply(service, [objDetails]).then(async function(objDetails){
+          await templateObject.data.updateTransactionTemp(objDetails).then(async function() {
           if(removeFollowing == true) {
             await templateObject.removeFollowingTransactions(currentTransaction)
           }
@@ -2796,7 +3174,8 @@ templateObject.getAllCostTypes();
         $('.deleteloadingbar').css('width', ((100/transList.length*j)) + '%').attr('aria-valuenow', ((100/transList.length*j)));
         // var result = await salesService.saveInvoiceEx(objDetails);
         // let service = templateObject.data.service;
-        templateObject.data.saveapifunction.apply(service, [objDetails]).then(function() {
+        // templateObject.data.saveapifunction.apply(service, [objDetails]).then(function() {
+          templateObject.data.updateTransactionTemp(objDetails).then(function () {
           if(i == transList.length -1) {
             $("#deletecheckmarkwrapper").removeClass('hide');
             $('.modal-backdrop').css('display', 'none');
@@ -2807,19 +3186,22 @@ templateObject.getAllCostTypes();
       }
     })
   }
-  $("#date-input,#edtWeeklyStartDate,#edtWeeklyFinishDate,#dtDueDate,#customdateone,#edtMonthlyStartDate,#edtMonthlyFinishDate,#edtDailyStartDate,#edtDailyFinishDate,#edtOneTimeOnlyDate").datepicker({
-    showOn: 'button',
-    buttonText: 'Show Date',
-    buttonImageOnly: true,
-    buttonImage: '/img/imgCal2.png',
-    constrainInput: false,
-    dateFormat: 'd/mm/yy',
-    showOtherMonths: true,
-    selectOtherMonths: true,
-    changeMonth: true,
-    changeYear: true,
-    yearRange: "-90:+10",
-  });
+  setTimeout(function() {
+    $("#date-input,#edtWeeklyStartDate,#edtWeeklyFinishDate,#dtDueDate,#customdateone,#edtMonthlyStartDate,#edtMonthlyFinishDate,#edtDailyStartDate,#edtDailyFinishDate,#edtOneTimeOnlyDate,#edtSaleCustField_2,#dtSODate,#dtShipDate").datepicker({
+      showOn: 'button',
+      buttonText: 'Show Date',
+      buttonImageOnly: true,
+      buttonImage: '/img/imgCal2.png',
+      constrainInput: false,
+      dateFormat: 'd/mm/yy',
+      showOtherMonths: true,
+      selectOtherMonths: true,
+      changeMonth: true,
+      changeYear: true,
+      yearRange: "-90:+10",
+    });
+  }, 10000)
+
 
 })
 
@@ -2833,10 +3215,6 @@ Template.transaction_card.helpers({
   
   selectedLineId: ()=>{
     return Template.instance().selectedLineId.get();
-  },
-
-  currency: ()=> {
-    return Template.instance().selectedCurrency.get();
   },
 
   includeBOnShippedQty:()=> {
@@ -2855,19 +3233,59 @@ Template.transaction_card.helpers({
     return Template.instance().fxEnabled.get();
   },
 
+  showSN:()=>{
+    return Template.instance().showSN.get();
+  },
+  
+  clientPhone:()=> {
+    return Template.instance().clientPhone.get();
+  }
 })
 
 Template.transaction_card.events({
   'change #toggleShowFx': function(event) {
     let templateObject = Template.instance();
-    templateObject.fxEnabled.set($(event.target).is(':checked'))
+    templateObject.fxEnabled.set($(event.target).is(':checked'));
+    templateObject.showFx.set($(event.target).is(':checked'));
+    let selectedLineId = templateObject.selectedLineId.get();
+    if(!selectedLineId || selectedLineId == '') {
+      selectedLineId = $('#'+templateObject.data.gridTableId + ' >tbody >tr').first().attr('id');
+    }
+    templateObject.selectedLineId.set(selectedLineId)
   },
 
   'change #toggleShowDelivery': function(event) {
     let templateObject = Template.instance();
     let record = cloneDeep(templateObject.transactionrecord.get());
-    record.showDelivery = $(event.target).is(':checked')
+    record.showingDelivery = $(event.target).is(':checked')
     templateObject.transactionrecord.set(record)
+    let selectedLineId = templateObject.selectedLineId.get();
+    if(!selectedLineId || selectedLineId == '') {
+      selectedLineId = $('#'+templateObject.data.gridTableId + ' >tbody >tr').first().attr('id');
+    }
+    templateObject.selectedLineId.set(selectedLineId)
+  },
+
+  'change #toggleShowSN': function(event) {
+    let templateObject = Template.instance();
+    let record = cloneDeep(templateObject.transactionrecord.get());
+    record.showingSN = $(event.target).is(':checked')
+    templateObject.transactionrecord.set(record)
+    let selectedLineId = templateObject.selectedLineId.get();
+    if(!selectedLineId || selectedLineId == '') {
+      selectedLineId = $('#'+templateObject.data.gridTableId + ' >tbody >tr').first().attr('id');
+    }
+    templateObject.selectedLineId.set(selectedLineId)
+  },
+
+  'click .tblCurrencyPopList tbody tr': function(event) {
+    let templateObject = Template.instance();
+    let selectedLineId = templateObject.selectedLineId.get();
+    if(!selectedLineId || selectedLineId == '') {
+      selectedLineId = $('#'+templateObject.data.gridTableId + ' >tbody >tr').first().attr('id');
+    }
+    templateObject.selectedLineId.set(selectedLineId)
+
   },
   "click .new_attachment_btn": function (event) {
     $("#attachment-upload_fromtransactionfooter").trigger("click");
@@ -3087,37 +3505,41 @@ Template.transaction_card.events({
 
   "click .printConfirm": async function (event) {
     // const checkedPrintOptions = $("#printModal").find(".chooseTemplateBtn:checked")
-    // console.log("checked print options", checkedPrintOptions)
     // // if(checkedPrintOptions.length == 0){
     // //   return;
     // // }
-    // playPrintAudio();
-    // const templateObject = Template.instance();
-    // templateObject.print()
+    playPrintAudio();
+    const templateObject = Template.instance();
+    templateObject.print()
 
 
 
-    if (localStorage.getItem("confirmPrintStatus") == 'print') {
-      localStorage.setItem("confirmPrintStatus", "idle");
-      playPrintAudio();
-      const templateObject = Template.instance();
-      templateObject.print();
-    } else {
-      let checkedTemplate =$(event.target).parents('.modal-content').find('.chooseTemplateBtn:checked').first();
-      if (checkedTemplate.length > 0) {
-        let defaultTemplates = $('.chooseTemplateModal .chkGlobalSettings:checked');
-        for (let i = 0; i < defaultTemplates.length; i++) {
-          let template_name = defaultTemplates[i].id.substr(0, defaultTemplates[i].id.lastIndexOf('_'));
-          if ($(checkedTemplate[0]).data('id') == template_name) {
-            localStorage.setItem("confirmPrintStatus", "preview");
-            let previewButton = $(defaultTemplates[i]).parents('.templateItem').children('.btnPreviewTemplate');
-            previewButton.trigger('click');
-            $('#closeTemplatePreview').data('template', template_name);
-            break;
-          }
-        }
-      }
-    }
+    // if (localStorage.getItem("confirmPrintStatus") == 'print') {
+    //   localStorage.setItem("confirmPrintStatus", "idle");
+    //   playPrintAudio();
+    //   const templateObject = Template.instance();
+    //   setTimeout(()=>{
+    //     templateObject.print();
+    //   },1000)
+    // } else {
+    //   let checkedTemplate =$(event.target).parents('.modal-content').find('.chooseTemplateBtn:checked');
+    //   // let checkedTemplate =$(event.target).parents('.modal-content').find('.chooseTemplateBtn:checked').first();
+    //   if (checkedTemplate.length > 0) {
+    //     // for(let j=0; j< checkedTemplate.length; j++) {
+    //       let defaultTemplates = $('.chooseTemplateModal .chkGlobalSettings:checked');
+    //       for (let i = 0; i < defaultTemplates.length; i++) {
+    //         let template_name = defaultTemplates[i].id.substr(0, defaultTemplates[i].id.lastIndexOf('_'));
+    //         if ($(checkedTemplate[0]).data('id') == template_name) {
+    //           localStorage.setItem("confirmPrintStatus", "preview");
+    //           let previewButton = $(defaultTemplates[i]).parents('.templateItem').children('.btnPreviewTemplate');
+    //           previewButton.trigger('click');
+    //           $('#closeTemplatePreview').data('template', template_name);
+    //           break;
+    //         }
+    //       }
+    //     // }
+    //   }
+    // }
   },
 
   'click .btnSave:not(.btnSaveGridSettings)': function (event) {
@@ -3143,7 +3565,7 @@ Template.transaction_card.events({
     let $printrows = $(".invoice_print tbody tr");
     let isBOnShippedQty = templateObject.includeBOnShippedQty.get();
     var targetID = $(event.target).closest("tr").attr("id");
-    if (isBOnShippedQty == true) {
+    if (isBOnShippedQty == true && templateObject.data.canShowBackOrder == true) {
       let qtyOrdered = $("#" + targetID + " .lineOrdered").val();
       let qtyShipped = $("#" + targetID + " .lineQty").val();
       let boValue = "";
@@ -3238,6 +3660,7 @@ Template.transaction_card.events({
     // });
 
     templateObject.updateLine();
+    templateObject.updateTransactionLine(targetID)
 
     // $printrows.each(function (index) {
     //   var $printrows = $(this);
@@ -3370,11 +3793,13 @@ Template.transaction_card.events({
     //     }
     //   }
     // });
-    templateObject.updateLine()
+    templateObject.updateLine();
+    templateObject.updateTransactionLine(targetID)
   },
   "blur .lineDiscount": function (event) {
     let templateObject = Template.instance();
     let taxcodeList = templateObject.taxraterecords.get();
+    let targetID = $(event.target).closest('tr').attr('id')
     let utilityService = new UtilityService();
     let $tblrows = $("#tblInvoiceLine tbody tr");
     let $printrows = $(".invoice_print tbody tr");
@@ -3453,7 +3878,8 @@ Template.transaction_card.events({
     //   }
     // });
 
-    templateObject.updateLine()
+    templateObject.updateLine();
+    templateObject.updateTransactionLine(targetID)
 
     // $printrows.each(function (index) {
     //   var $printrows = $(this);
@@ -3601,7 +4027,8 @@ Template.transaction_card.events({
     //   }
     // });
 
-    templateObject.updateLine()
+    templateObject.updateLine();
+    templateObject.updateTransactionLine(targetID)
 
     // $printrows.each(function (index) {
     //   var $printrows = $(this);
@@ -3750,11 +4177,13 @@ Template.transaction_card.events({
     //     }
     //   }
     // });
-    templateObject.updateLine(false)
+    templateObject.updateLine(false);
+    
 
     $("#" + targetID + " #lineUnitPrice").text(
       $("#" + targetID + " .colUnitPriceExChange").val()
     );
+    templateObject.updateTransactionLine(targetID)
 
     // $printrows.each(function (index) {
     //   var $printrows = $(this);
@@ -3858,6 +4287,9 @@ Template.transaction_card.events({
 
   'click #addRow': function(event) {
     let templateObject = Template.instance();
+    if(templateObject.data.gridTableId == 'tblJournalEntryLine') {
+      return
+    }
     let tokenid = Random.id();
     let rows = $('#'+templateObject.data.gridTableId + '> tbody >tr');
     for(let i = 0; i< rows.length; i++) {
@@ -3866,45 +4298,84 @@ Template.transaction_card.events({
         return false
       }
     }
+    if(templateObject.data.transCategory == 'Accounting') {
+      for(let i = 0; i< rows.length; i++) {
+      if($(rows[i]).find('td> .lineAccountName').val() == '') {
+        swal("You have to select Account.", "", "info");
+        return false
+      }
+    }
+    }
     let tempRecord = cloneDeep(templateObject.transactionrecord.get());
     let lineItems = tempRecord.LineItems;
-    lineItems.push({
-      DiscountPercent: 0,
-      SalesLinesCustField1: "",
-      TaxRate: "",
-      TaxTotal: "",
-      TotalAmt: "",
-      TotalAmtInc: "",
-      UnitOfMeasure: "",
-      curTotalAmt: "",
-      description: "",
-      expirydates:"",
-      item: "",
-      lineCost: "",
-      lineID: tokenid,
-      lotnumbers: "",
-      qtybo: 0,
-      qtyordered: 0,
-      qtyshipped: 0,
-      quantity: 1,
-      serialnumbers: "",
-      taxCode: "",
-      taxRate: "",
-      unitPrice: "",
-      unitPriceInc: "" ,
-      weight: 0,
-      weightUnit:'kg',
-      volume: 0,
-      volumeUnit:'m3' 
-    })
+    if(templateObject.data.transCategory == 'Accounting') {
+      lineItems.push({
+        TaxRate: 0,
+        TaxTotal: 0,
+        TotalAmt: "$0.00",
+        accountname: '',
+        curTotalAmt: 0,
+        description: "",
+        item: undefined,
+        lineCost: 0,
+        memo: "",
+        taxCode: "",
+        taxRate: 0,
+        unitPrice: undefined,
+        unitPriceInc: 0
+      })
+    } else {
+      lineItems.push({
+        DiscountPercent: 0,
+        SalesLinesCustField1: "",
+        TaxRate: "",
+        TaxTotal: "",
+        TotalAmt: "",
+        TotalAmtInc: "",
+        UnitOfMeasure: "",
+        curTotalAmt: "",
+        description: "",
+        expirydates:"",
+        item: "",
+        lineCost: "",
+        lineID: tokenid,
+        lotnumbers: "",
+        qtybo: 0,
+        qtyordered: 0,
+        qtyshipped: 0,
+        quantity: 1,
+        serialnumbers: "",
+        taxCode: "",
+        taxRate: "",
+        unitPrice: "",
+        unitPriceInc: "" ,
+        weight: 1,
+        weightUnit:'KG',
+        volume: 1,
+        volumeUnit:'CF' 
+      })
+    }
     tempRecord.LineItems = lineItems;
     templateObject.transactionrecord.set(tempRecord);
     templateObject.selectedLine.set(tokenid)
     setTimeout(()=>{
       $('#'+templateObject.data.gridTableId+ '>tbody>tr:last').attr('id', tokenid);
       // $("#selectLineID").val(tokenid);
-      $('#'+templateObject.data.gridTableId+ '>tbody>tr:last >td> input.lineProductName').trigger('click')
-    }, 10000  )
+      if(templateObject.data.transCategory == 'Accounting') {
+        $('#'+templateObject.data.gridTableId+ '>tbody>tr:last >td> input.lineAccountName').trigger('click')
+      }else {
+        $('#'+templateObject.data.gridTableId+ '>tbody>tr:last >td> input.lineProductName').trigger('click')
+      }
+    }, 2000  )
+  },
+
+  'change .chkLineGrid': function(event) {
+    let templateObject = Template.instance();
+    let records = cloneDeep(templateObject.transactionrecord.get());
+    templateObject.transactionrecord.set('');
+    setTimeout(()=>{
+      templateObject.transactionrecord.set(records)
+    },1000)
   },
 
   "click .btnSnLotmodal": function (event) {
@@ -4470,6 +4941,27 @@ Template.transaction_card.events({
     }
   },
 
+  "click .btnSNCreate": function (event) {
+    // $("#availableSerialNumberModal").modal("hide");
+    // $("#serialNumberModal").modal("show");
+
+    let tokenid = "random";
+    var rowData = `<tr class="dnd-moved checkRowSelected" id="${tokenid}">
+              <td class="colChkBox pointer" style="width:10%!important;">
+                  <div class="custom-control custom-switch chkBox pointer chkServiceCard" style="width:15px;">
+                      <input name="pointer" class="custom-control-input chkBox pointer chkServiceCard" type="checkbox" id="formCheck-${tokenid}" checked>
+                      <label class="custom-control-label chkBox pointer" for="formCheck-${tokenid}"></label>
+                  </div>
+              </td>
+              <td class="colID hiddenColumn dtr-control" tabindex="0">
+                  ${tokenid}
+              </td>
+              <td class="colSN" contenteditable="true">Random</td>
+          </tr>`;
+
+    $("#tblAvailableSNCheckbox tbody").prepend(rowData);
+  },
+
   'click .btnFixedAsset': function(e) {
     $('#FixedAssetLineAddModal').modal();
   },
@@ -4485,6 +4977,8 @@ Template.transaction_card.events({
   },
 
   "click .btnRemove": async function (event) {
+    event.preventDefault();
+    event.stopPropagation();
     $("#footerDeleteModal2").modal("show");
   },
 
@@ -4562,7 +5056,7 @@ Template.transaction_card.events({
 
   },
 
-  'click .btnSaveFrequency': async function () {
+  'click .btnSavedequency': async function () {
     let templateObject = Template.instance();
     templateObject.copyTransaction()
   },
@@ -4636,20 +5130,11 @@ Template.transaction_card.events({
     var targetID = $(event.target).closest("tr").attr("id");
     if (!isNaN($(event.target).val())) {
       let inputUnitPrice = parseFloat($(event.target).val()) || 0;
-      $(event.target).val(
-        utilityService.modifynegativeCurrencyFormat(inputUnitPrice)
-      );
+      $(event.target).val(utilityService.modifynegativeCurrencyFormat(inputUnitPrice));
     } else {
-      let inputUnitPrice =
-        Number(
-          $(event.target)
-            .val()
-            .replace(/[^0-9.-]+/g, "")
-        ) || 0;
+      let inputUnitPrice = Number($(event.target).val().replace(/[^0-9.-]+/g, "")) || 0;
 
-      $(event.target).val(
-        utilityService.modifynegativeCurrencyFormat(inputUnitPrice)
-      );
+      $(event.target).val(utilityService.modifynegativeCurrencyFormat(inputUnitPrice));
     }
     let $tblrows = $("#tblChequeLine tbody tr");
     let $printrows = $(".cheque_print tbody tr");
@@ -4680,7 +5165,6 @@ Template.transaction_card.events({
     //       }
     //     }
     //   }
-    //   console.log("tax rate amount", taxrateamount)
     //   var subTotal = parseFloat(amount.replace(/[^0-9.-]+/g, "")) || 0;
     //   var taxTotal =
     //     parseFloat(amount.replace(/[^0-9.-]+/g, "")) *
@@ -4723,6 +5207,7 @@ Template.transaction_card.events({
     //   }
     // });
     templateObject.updateLine();
+    templateObject.updateTransactionLine(targetID)
 
     // if ($(".printID").val() == "") {
     //   $printrows.each(function (index) {
@@ -4895,7 +5380,8 @@ Template.transaction_card.events({
     //     }
     //   });
     // }
-    templateObject.updateLine()
+    templateObject.updateLine();
+    templateObject.updateTransactionLine(targetID)
   },
 
 
@@ -4903,10 +5389,18 @@ Template.transaction_card.events({
   'click #tblCustomerlist tbody tr, click #tblSupplierlist tbody tr': function(event) {
     let templateObject = Template.instance();
     let tableid = templateObject.data.gridTableId;
+    let mobile = $(event.target).closest('tr').find('.colMobile').text() || '';
+    let firstname = $(event.target).closest('tr').find('.colCustomerFirstName').text() || '';
+    if(templateObject.data.clientType == 'Supplier') {
+      firstname = $(event.target).closest('tr').find('.colFirstName').text() || '';
+    }
+    let lastname = $(event.target).closest('tr').find('.colCustomerLastName').text() || '';
+    if(templateObject.data.clientType == 'Supplier') {
+      lastname = $(event.target).closest('tr').find('.colLastName').text() || '';
+    }
+    templateObject.clientPhone.set({mobile:mobile, firstname: firstname, lastname: lastname})
     let rows = $('#'+tableid).find('tr');
     let lastrow = rows[rows.length-1];
-    // console.log($(lastrow).find('.lineProductName'))
-    // console.log($(lastrow).find('.lineAccountName'))
     let id = $('#'+templateObject.data.gridTableId+ '>tbody>tr:last').attr('id');
     // $("#selectLineID").val(id)
     if(templateObject.data.transCategory == 'Accounting') {
@@ -4920,6 +5414,39 @@ Template.transaction_card.events({
         $('#'+templateObject.data.gridTableId+ '>tbody>tr:last >td .lineProductName').trigger('click')
       }
     }
+  },
+
+  'click .btnSaveDelivery': function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    let modalBody = $(event.target).closest('.modal-content').find('.modal-body');
+    let weight = $(modalBody).find('#delivery_weight').val();
+    let weightUnit = $(modalBody).find("#delivery_weightunit_fromtransaction").val();
+    let volume = $(modalBody).find('#delivery_volume').val();
+    let volumeUnit = $(modalBody).find('#delivery_volumeunit_fromtransaction').val();
+    if(weight == '' || volume == '') {
+      swal("Please fill out the fields.", "", "info");
+      return
+    }
+    let templateObject = Template.instance();
+    let record = cloneDeep(templateObject.transactionrecord.get());
+    let lineItems = record.LineItems;
+    let lineIndex = lineItems.findIndex(line=>{
+      return line.lineID == templateObject.selectedLineId.get();
+    })
+    if(lineIndex > -1) {
+      lineItems[lineIndex].weight = weight;
+      lineItems[lineIndex].weightUnit = weightUnit;
+      lineItems[lineIndex].volume = volume;
+      lineItems[lineIndex].volumeUnit = volumeUnit;
+      $("#"+templateObject.data.gridTableId+ ' tbody tr#'+ templateObject.selectedLineId.get()).attr('weight', weight)
+      $("#"+templateObject.data.gridTableId+ ' tbody tr#'+ templateObject.selectedLineId.get()).attr('weightUnit', weightUnit)
+      $("#"+templateObject.data.gridTableId+ ' tbody tr#'+ templateObject.selectedLineId.get()).attr('volume', volume)
+      $("#"+templateObject.data.gridTableId+ ' tbody tr#'+ templateObject.selectedLineId.get()).attr('volumeUnit', volumeUnit)
+    }
+    record.LineItems = lineItems;
+    templateObject.transactionrecord.set(record)
+    $(event.target).closest('div.modal.fade.show').modal('hide')
   }
 
 

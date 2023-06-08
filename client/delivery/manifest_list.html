@@ -47,12 +47,8 @@
           <div class="col float-left flex-grow-1 mb-1">
             <button class="btn btn-primary btnRefresh" type="button" style="margin: 12px"><i class="la la-lightbulb-o"
                 style="padding-right: 5px;"></i>Refresh</button>
-            <button id="btnNewInvoice" name="btnNewInvoice" class="btn btn-primary" type="button"
-              style="margin: 12px 0 12px;"><i class="icon ion-plus" style="padding-right: 5px;"></i>New Manifest</button>
-            <button id="btnInvoiceBOList" name="btnInvoiceBOList" class="btn btn-primary" type="button"
-              style="margin-left: 12px;">BO List</button>
-              <button style="margin-right: 0px;" class="btn btn-primary btnSelectAll vs1ButtonMargin" type="button">Select All</button>
-              <button class="btn btn-primary btnLoadMap vs1ButtonMargin" type="button"><i class="la la-map-o" style="padding-right: 5px;"></i>Load To Map</button>
+            <button id="btnNewInvoice" name="btnNewInvoice" class="btn btn-primary vs1ButtonMargin" type="button"><i class="icon ion-plus" style="padding-right: 5px;"></i>New Manifest</button>
+            <button class="btn btn-primary btnLoadMap vs1ButtonMargin" type="button"><i class="la la-map-o" style="padding-right: 5px;"></i>Load To Map</button>
           </div>
   
           <div class="col-5 col-md-7 d-xl-flex justify-content-xl-end align-items-xl-start">
@@ -87,6 +83,7 @@
                 exIndexDBName = 'tinvoicelist'
                 exdatahandler = exDataHandler
                 searchAPI = searchAPI
+                orderby = '[[ 1, "desc" ]]'
             }}
           </div>
         </div>

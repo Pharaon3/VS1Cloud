@@ -44,7 +44,6 @@ Template.jobprofitabilityreport.onCreated(() => {
   ]
   templateObject.displaysettings.set(reset_data);
   templateObject.getReportDataRecord = function(data) {
-    console.log(data);
     var dataList = [];
     if(data!='') {
       dataList =  [

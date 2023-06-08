@@ -12,9 +12,9 @@
   initialRecords=initialRecords
   includeClient=true
   includeAddress=true
-  Category='salesorders'
+  Category='Cheque'
   TranascationType='quotes'
-  clientType='Supplier'
+  clientType='Customer'
   payment=true
   headerfields=headerfields
   headerbuttons=headerbuttons
@@ -25,13 +25,13 @@
   gridTableId='tblSalesOrderLine'
   printTableId='sales_print'
   printTemplateId = 'print_sales_order'
-
+  printWrapPrefix = 'invoice_wrapper'
 
   tablename="tblSalesOrderLine"
   isForeignEnabled=isForeignEnabled
   canShowBackOrder=true
   canShowUOM=true
-  includeBOnShippedQty=false
+  includeBOnShippedQty=true
   isBatchSerialNoTracking=isBatchSerialNoTracking
   getDefaultCurrency=getDefaultCurrency
   mainselector='lineProductName'
@@ -40,9 +40,14 @@
   footerFields = footerFields
   AttachmentCount=attachmentCount
   printName = 'Sales Orders'
-  TransactionType='Sales Order'
+  TransactionType='sales'
   printOptions=printOptions
   saveTransaction=saveTransaction
+  custlisttype='ltSales'
+  deliveryDocketName='Delivery Docket'
+  updateTransactionTemp = updateTransactionTemp
+  delivery=true
+  printfields=printfields
   }}
   <!-- Start PDF -->
   <!-- New A4 -->

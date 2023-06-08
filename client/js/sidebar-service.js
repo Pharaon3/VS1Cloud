@@ -513,7 +513,7 @@ export class SideBarService extends BaseService {
     options = {
       ListType: "Detail",
       // select:'[ClientName] f7like "' +dataSearchName +'" OR [ID] f7like "' +dataSearchName +'"',
-      Search: 'AND TransHeader.AddToManifest = "T" AND TransHeader.Deleted = "F" AND TransHeader.CustomerName like "%' + dataSearchName + '%" OR TransHeader.InvoiceDocNumber like "%' + dataSearchName + '%" OR TransHeader.EmployeeName like "%' + dataSearchName + '%" OR TransHeader.Comments like "%' + dataSearchName + '%" OR TransHeader.SaleDate like "%' + dataSearchName + '%"',
+      Search: 'AND TransHeader.AddToManifest = true AND TransHeader.Deleted = "F" AND (TransHeader.CustomerName like "%' + dataSearchName + '%" OR TransHeader.InvoiceDocNumber like "%' + dataSearchName + '%" OR TransHeader.EmployeeName like "%' + dataSearchName + '%" OR TransHeader.Comments like "%' + dataSearchName + '%" OR TransHeader.SaleDate like "%' + dataSearchName + '%")',
     };
     return this.getList(this.ERPObjects.TInvoiceList, options);
   }
@@ -986,7 +986,7 @@ export class SideBarService extends BaseService {
         LimitCount: parseInt(limitcount)||initialReportLoad,
         LimitFrom: parseInt(limitfrom)||0,
       };
-    }  
+    }
   }
     return this.getList(this.ERPObjects.TSupplierPaymentList, options);
   }
@@ -1026,6 +1026,16 @@ export class SideBarService extends BaseService {
       ListType: "Detail",
       orderby: '"PrintName asc"',
       select:'[Companyname] f7like "' +dataSearchName +'" OR [ID] f7like "' +dataSearchName +'"',
+    };
+    return this.getList(this.ERPObjects.TCustomerVS1, options);
+  }
+
+  getNewCustomerByName(dataSearchName) {
+    let options = "";
+    options = {
+      ListType: "Detail",
+      orderby: '"PrintName asc"',
+      select:'[Companyname]="' +dataSearchName +'"',
     };
     return this.getList(this.ERPObjects.TCustomerVS1, options);
   }
@@ -1322,6 +1332,7 @@ export class SideBarService extends BaseService {
   // @}
 
   getAllTAccountVS1List(limitcount, limitfrom, deleteFilter, typeFilter = 'all', useReceiptClaim) {
+    if(typeFilter =='typeFilter'){typeFilter='all'};
     // Alex: add for bank rec {
     let typeFilterList = typeFilter.split(',');
     // @}
@@ -1342,12 +1353,12 @@ export class SideBarService extends BaseService {
           LimitFrom: parseInt(limitfrom)||0,
         };
       }
-      // if(typeFilter != 'all') {
-      //   options.Search = options.Search + ` and AccountType IN (${"'" + typeFilterList.join("','") + "'"})`
-      // }
-      // if (useReceiptClaim) {
-      //   options.Search = options.Search + ` and AllowExpenseClaim=true`
-      // }
+      if(typeFilter != 'all') {
+          options.Search = options.Search + ` and AccountType IN (${"'" + typeFilterList.join("','") + "'"})`
+        }
+        if (useReceiptClaim) {
+          options.Search = options.Search + ` and AllowExpenseClaim=true`
+        }
     } else {
       if (limitcount == "All") {
         options = {
@@ -1363,15 +1374,15 @@ export class SideBarService extends BaseService {
         };
       }
 
-      // if(typeFilter != 'all') {
-      //   options.Search = `AccountType IN (${"'" + typeFilterList.join("','") + "'"})`
-      // }
-      // if (useReceiptClaim) {
-      //   if (options.Search)
-      //     options.Search = options.Search + ` and AllowExpenseClaim=true`
-      //   else
-      //     options.Search = `AllowExpenseClaim=true`
-      // }
+      if(typeFilter != 'all') {
+        options.Search = `AccountType IN (${"'" + typeFilterList.join("','") + "'"})`
+      }
+      if (useReceiptClaim) {
+        if (options.Search)
+          options.Search = options.Search + ` and AllowExpenseClaim=true`
+        else
+          options.Search = `AllowExpenseClaim=true`
+      }
     }
 
     return this.getList(this.ERPObjects.TAccountVS1List, options);
@@ -1715,7 +1726,7 @@ export class SideBarService extends BaseService {
         options = {
           IgnoreDates: true,
           OrderBy: "SaleID desc",
-          
+
           Search: "Deleted = 'F'",
           LimitCount: parseInt(limitcount)||initialReportLoad,
           LimitFrom: parseInt(limitfrom)||0,
@@ -2008,7 +2019,7 @@ export class SideBarService extends BaseService {
         LimitCount: parseInt(limitcount)||initialReportLoad,
         LimitFrom: parseInt(limitfrom)||0,
       };
-    }  
+    }
   }
   return this.getList(this.ERPObjects.TBillList, options);
   }
@@ -2725,7 +2736,7 @@ export class SideBarService extends BaseService {
     options = {
       IgnoreDates: true,
       OrderBy: "Batchno asc, Alloctype asc",
-      Search: "Alloctype == 'OUT'",
+      Search: "Alloctype = 'OUT'",
     };
 
     if(deleteFilter) options.Search = "";
@@ -2950,6 +2961,20 @@ export class SideBarService extends BaseService {
     );
   }
 
+  getAllSerialNumberListReport(limitcount, limitfrom, deleteFilter) {
+    let options = "";
+
+    options = {
+      IgnoreDates: true,
+      OrderBy: "TransDate desc, AllocType asc",
+      LimitCount: parseInt(limitcount)||initialReportLoad,
+      LimitFrom: parseInt(limitfrom)||0,
+    };
+
+    if(deleteFilter) options.Search = "";
+    return this.getList(this.ERPObjects.TSerialNumberListCurrentReport, options);
+  }
+
   getAllStockTransferEntryList(dateFrom, dateTo, ignoreDate, limitcount, limitfrom, deleteFilter) {
     let options = {};
     if (ignoreDate == true) {
@@ -3043,8 +3068,9 @@ export class SideBarService extends BaseService {
         options = {
           IgnoreDates: true,
           OrderBy: "SaleID desc",
-          PropertyList:"Id,SaleDate,SaleID,DueDate,CustomerName,TotalAmount,TotalTax,TotalAmountInc,TotalPaid,TotalBalance,SaleCustField1,SaleCustField2,EmployeeName,Comments",
+          ListType: 'Detail',
           Search: "Deleted = 'F'",
+          // PropertyList:"Id,SaleDate,SaleID,DueDate,CustomerName,TotalAmount,TotalTax,TotalAmountInc,TotalPaid,TotalBalance,SaleCustField1,SaleCustField2,EmployeeName,Comments",
           LimitCount: parseInt(limitcount)||initialReportLoad,
           LimitFrom: parseInt(limitfrom)||0,
         };
@@ -3052,8 +3078,9 @@ export class SideBarService extends BaseService {
         options = {
           OrderBy: "SaleID desc",
           IgnoreDates: false,
-          PropertyList:"Id,SaleDate,SaleID,DueDate,CustomerName,TotalAmount,TotalTax,TotalAmountInc,TotalPaid,TotalBalance,SaleCustField1,SaleCustField2,EmployeeName,Comments",
+          // PropertyList:"Id,SaleDate,SaleID,DueDate,CustomerName,TotalAmount,TotalTax,TotalAmountInc,TotalPaid,TotalBalance,SaleCustField1,SaleCustField2,EmployeeName,Comments",
           Search: "Deleted = 'F'",
+          ListType:'Detail',
           DateFrom: '"' + dateFrom + '"',
           DateTo: '"' + dateTo + '"',
           LimitCount: parseInt(limitcount)||initialReportLoad,
@@ -3065,7 +3092,8 @@ export class SideBarService extends BaseService {
         options = {
           IgnoreDates: true,
           OrderBy: "SaleID desc",
-          PropertyList:"Id,SaleDate,SaleID,DueDate,CustomerName,TotalAmount,TotalTax,TotalAmountInc,TotalPaid,TotalBalance,SaleCustField1,SaleCustField2,EmployeeName,Comments",
+          // PropertyList:"Id,SaleDate,SaleID,DueDate,CustomerName,TotalAmount,TotalTax,TotalAmountInc,TotalPaid,TotalBalance,SaleCustField1,SaleCustField2,EmployeeName,Comments",
+          ListType: 'Detail',
           LimitCount: parseInt(limitcount)||initialReportLoad,
           LimitFrom: parseInt(limitfrom)||0,
         };
@@ -3073,7 +3101,8 @@ export class SideBarService extends BaseService {
         options = {
           OrderBy: "SaleID desc",
           IgnoreDates: false,
-          PropertyList:"Id,SaleDate,SaleID,DueDate,CustomerName,TotalAmount,TotalTax,TotalAmountInc,TotalPaid,TotalBalance,SaleCustField1,SaleCustField2,EmployeeName,Comments",
+          ListType: 'Detail',
+          // PropertyList:"Id,SaleDate,SaleID,DueDate,CustomerName,TotalAmount,TotalTax,TotalAmountInc,TotalPaid,TotalBalance,SaleCustField1,SaleCustField2,EmployeeName,Comments",
           DateFrom: '"' + dateFrom + '"',
           DateTo: '"' + dateTo + '"',
           LimitCount: parseInt(limitcount)||initialReportLoad,
@@ -3143,7 +3172,7 @@ export class SideBarService extends BaseService {
       options = {
         IgnoreDates: true,
         Search: "AND TransHeader.Deleted = 'F' AND TransHeader.AddToManifest='T'",
-        OrderBy: "SaleID desc",
+        OrderBy: "SaleDate desc",
         IncludeBo: false,
         IncludeShipped: true,
         IncludeLines: false,
@@ -3152,7 +3181,7 @@ export class SideBarService extends BaseService {
       };
     } else {
       options = {
-        OrderBy: "SaleID desc",
+        OrderBy: "SaleDate desc",
         IgnoreDates: false,
         Search: "AND TransHeader.Deleted = 'F' AND TransHeader.AddToManifest='T'",
         IncludeBo: false,
@@ -3285,7 +3314,7 @@ export class SideBarService extends BaseService {
       if(contactID && contactID != ''){
         options = {
           IgnoreDates: true,
-          ClientID:contactID,
+          ClientID:contactID||-1,
           AgeByTransactionDate:true,
           OrderBy: "OrderDate desc"
         };
@@ -3311,7 +3340,7 @@ export class SideBarService extends BaseService {
       if(contactID && contactID != ''){
         options = {
           IgnoreDates: true,
-          ClientID:contactID,
+          ClientID:contactID||-1,
           AgeByTransactionDate:true,
           LimitCount: limitCount,
           LimitFrom: limitFrom,
@@ -3376,25 +3405,31 @@ export class SideBarService extends BaseService {
     return this.getList(this.ERPObjects.TAPReport, options);
   }
 
-  getAgedPayableDetailsSummaryData(dateFrom, dateTo, ignoreDate,contactID) {
+  getAgedPayableDetailsSummaryData(limitCount, limitFrom,dateFrom, dateTo, ignoreDate,contactID) {
     let options = "";
     if(contactID && contactID != ''){
       options = {
         IgnoreDates: true,
         ReportType: "Summary",
-        ClientID:contactID
+        LimitCount: limitCount,
+        LimitFrom: limitFrom,
+        ClientID:contactID||-1
       };
     }else{
 
     if (ignoreDate == true) {
       options = {
         IgnoreDates: true,
+        LimitCount: limitCount,
+        LimitFrom: limitFrom,
         ReportType: "Summary",
       };
     } else {
       options = {
         IgnoreDates: false,
         ReportType: "Summary",
+        LimitCount: limitCount,
+        LimitFrom: limitFrom,
         DateFrom: '"' + dateFrom + '"',
         DateTo: '"' + dateTo + '"',
       };
@@ -3409,7 +3444,7 @@ export class SideBarService extends BaseService {
       options = {
         IgnoreDates: true,
         ReportType: "Summary",
-        ClientID:contactID,
+        ClientID:contactID||-1,
         IncludeRefunds:false
       };
     }else{
@@ -3471,6 +3506,31 @@ export class SideBarService extends BaseService {
         // LimitCount: initialReportLoad
       };
     return this.getList(this.ERPObjects.Tprojecttasks, options);
+  }
+
+  getAllTasksList(dateFrom, dateTo, ignoreDate, limitCount, limitFrom, deleteFilter) {
+      let options;
+      if (ignoreDate == true) {
+          options = {
+              ListType: "Detail",
+              Search: "pt.Active=true",
+              IgnoreDates: true,
+              LimitCount: parseInt(limitCount)||initialReportLoad,
+              LimitFrom: parseInt(limitFrom)||0,
+          };
+      } else {
+          options = {
+              ListType: "Detail",
+              Search: "pt.Active=true",
+              IgnoreDates: false,
+              DateFrom: '"' + dateFrom + '"',
+              DateTo: '"' + dateTo + '"',
+              LimitCount: parseInt(limitCount)||initialReportLoad,
+              LimitFrom: parseInt(limitFrom)||0,
+          };
+      }
+      if(deleteFilter) options.Search = "";
+      return this.getList(this.ERPObjects.TProjectTasksList, options);
   }
 
   getAllAppointmentList(limitcount, limitfrom) {
@@ -5685,7 +5745,8 @@ export class SideBarService extends BaseService {
                 var splashArrayTitleList = [['1', 'T'],
                 ['2', 'KG'],
                 ['3', 'G'],
-                ['4', 'MG']]
+                ['4', 'MG'],
+                ['4', 'LBS']]
                 resolve({"tweightunit" : splashArrayTitleList});
             });
             return promise;
@@ -5702,8 +5763,9 @@ export class SideBarService extends BaseService {
             var that = this;
             var promise = new Promise(function(resolve, reject) {
                 var splashArrayTitleList = [['1', 'M3'],
-                ['2', 'L'],
-                ['3', 'CM3']]
+                ['2', 'CF'],
+                ['3', 'L'],
+                ['4', 'CM3']]
                 resolve({"tvolumeunit" : splashArrayTitleList});
             });
             return promise;
@@ -5824,5 +5886,16 @@ export class SideBarService extends BaseService {
 
     return this.getList(this.ERPObjects.VS1_ClosingDates, options);
   }
+
+  getCostTypeList(limitCount, limitFrom, deleteFilter) {
+    let options = {
+      ListType: "Detail",
+      LimitCount: parseInt(limitCount)||initialReportLoad,
+      LimitFrom: parseInt(limitFrom)||0,
+    };
+    if(deleteFilter) options.select = "";
+    return this.getList(this.ERPObjects.TCostTypes, options);
+  }
+
 
 }

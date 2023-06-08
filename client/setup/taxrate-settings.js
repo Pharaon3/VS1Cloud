@@ -26,94 +26,76 @@ Template.wizard_taxrate.onCreated(() => {
   templateObject.selectedFile = new ReactiveVar();
 
   templateObject.getDataTableList = function (data) {
-    let taxRate = (data.fields.Rate * 100).toFixed(2) + "%";
+    let taxRate = (data.Rate * 100).toFixed(2) + "%";
     let tdPurchaseDef = "";
     let tdSalesDef = "";
     // Check if Purchase Default is checked
-    if (data.fields.IsDefaultPurchase == true) {
+    if (data.IsDefaultPurchase == true) {
       tdPurchaseDef =
         '<span style="display:none;">' +
-        data.fields.IsDefaultPurchase +
+        data.IsDefaultPurchase +
         '</span><div class="custom-control custom-switch chkBox text-center"><input class="custom-control-input chkBox" type="checkbox" id="isPurchasedefault-' +
-        data.fields.ID +
+        data.TaxCodeID +
         '" checked><label class="custom-control-label chkBox" for="isPurchasedefault-' +
-        data.fields.ID +
+        data.TaxCodeID +
         '"></label></div>';
     } else {
       tdPurchaseDef =
         '<span style="display:none;">' +
-        data.fields.IsDefaultPurchase +
+        data.IsDefaultPurchase +
         '</span><div class="custom-control custom-switch chkBox text-center"><input class="custom-control-input chkBox" type="checkbox" id="isPurchasedefault-' +
-        data.fields.ID +
+        data.TaxCodeID +
         '"><label class="custom-control-label chkBox" for="isPurchasedefault-' +
-        data.fields.ID +
+        data.TaxCodeID +
         '"></label></div>';
     }
     // Check if Sales Default is checked
-    if (data.fields.IsDefaultSales == true) {
+    if (data.IsDefaultSales == true) {
       tdSalesDef =
         '<span style="display:none;">' +
-        data.fields.IsDefaultSales +
+        data.IsDefaultSales +
         '</span><div class="custom-control custom-switch chkBox text-center"><input class="custom-control-input chkBox" type="checkbox" id="isSalesdefault-' +
-        data.fields.ID +
+        data.TaxCodeID +
         '" checked><label class="custom-control-label chkBox" for="isSalesdefault-' +
-        data.fields.ID +
+        data.TaxCodeID +
         '"></label></div>';
     } else {
       tdSalesDef =
         '<span style="display:none;">' +
-        data.fields.IsDefaultSales +
+        data.IsDefaultSales +
         '</span><div class="custom-control custom-switch chkBox text-center"><input class="custom-control-input chkBox" type="checkbox" id="isSalesdefault-' +
-        data.fields.ID +
+        data.TaxCodeID +
         '"><label class="custom-control-label chkBox" for="isSalesdefault-' +
-        data.fields.ID +
+        data.TaxCodeID +
         '"></label></div>';
     }
     let dataList = [
-      data.fields.ID || "",
-      data.fields.CodeName || "",
-      data.fields.Description || "",
+      data.TaxCodeID || "",
+      data.Name || "",
+      data.Description || "",
       taxRate || "",
       tdPurchaseDef,
       tdSalesDef,
-      data.fields.Active ? "" : "In-Active",
+      data.Active ? "" : "In-Active",
     ];
     return dataList;
   };
 
   let headerStructure = [
-    { index: 0, label: "Id", class: "colTaxRateId", active: false, display: true, width: "20" },
+    { index: 0, label: "ID", class: "colTaxRateId", active: false, display: true, width: "20" },
     { index: 1, label: "Name", class: "colTaxRateName", active: true, display: true, width: "200" },
     { index: 2, label: "Description", class: "colTaxRateDesc", active: true, display: true, width: "500" },
-    { index: 3, label: "Rate", class: "colTaxRate", active: true, display: true, width: "80" },
-    { index: 4, label: "Purchase Default", class: "colTaxRatePurchaseDefault", active: true, display: true, width: "140" },
-    { index: 5, label: "Sales Default", class: "colTaxRateSalesDefault", active: true, display: true, width: "140" },
+    { index: 3, label: "Rate", class: "colTaxRate", active: true, display: true, width: "100" },
+    { index: 4, label: "Purchase Default", class: "colTaxRatePurchaseDefault", active: true, display: true, width: "180" },
+    { index: 5, label: "Sales Default", class: "colTaxRateSalesDefault", active: true, display: true, width: "180" },
     { index: 6, label: "Status", class: "colStatus", active: true, display: true, width: "120" },
   ];
   templateObject.tableheaderrecords.set(headerStructure);
 });
 
-Template.wizard_taxrate.onRendered(() => {});
-
-Template.wizard_taxrate.events({
-  "click .btnRefreshTaxRate": function () {
-    $(".fullScreenSpin").css("display", "inline-block");
-    sideBarService
-      .getTaxRateVS1()
-      .then(function (dataReload) {
-        addVS1Data("TTaxcodeVS1", JSON.stringify(dataReload))
-          .then(function (datareturn) {
-            location.reload(true);
-          })
-          .catch(function (err) {
-            location.reload(true);
-          });
-      })
-      .catch(function (err) {
-        location.reload(true);
-      });
-  },
-  "click .btnSaveTaxRate": function () {
+Template.wizard_taxrate.onRendered(() => {
+  const templateObject = Template.instance();
+  templateObject.saveTaxRate = function (maiaMode=false, isMakeActive) {
     playSaveAudio();
     let taxRateService = new TaxRateService();
     setTimeout(function () {
@@ -126,6 +108,11 @@ Template.wizard_taxrate.events({
       let taxDesc = $("#edtTaxDesc").val();
       let taxRate = parseFloat($("#edtTaxRate").val() / 100);
       let active = $("#view-in-active button").hasClass("btnDeleteTaxRate");
+      if (maiaMode) {
+        active = isMakeActive;
+      }
+      let isDefaultPurchase = $("#isDefaultPurchase").is(':checked');
+      let isDefaultSales = $("#isDefaultSales").is(':checked');
       let objDetails = "";
       if (taxName === "") {
         Bert.alert("<strong>WARNING:</strong> Tax Rate cannot be blank!", "warning");
@@ -146,6 +133,8 @@ Template.wizard_taxrate.events({
                 CodeName: taxName,
                 Description: taxDesc,
                 Rate: taxRate,
+                IsDefaultPurchase: isDefaultPurchase,
+                IsDefaultSales: isDefaultSales,
                 PublishOnVS1: true,
               },
             };
@@ -153,9 +142,9 @@ Template.wizard_taxrate.events({
               .saveTaxRate(objDetails)
               .then(function (objDetails) {
                 sideBarService
-                  .getTaxRateVS1()
+                  .getTaxRateVS1List()
                   .then(function (dataReload) {
-                    addVS1Data("TTaxcodeVS1", JSON.stringify(dataReload))
+                    addVS1Data("TTaxcodeVS1List", JSON.stringify(dataReload))
                       .then(function (datareturn) {
                         if (url.includes("/productview")) {
                           if (taxSelected === "sales") {
@@ -170,7 +159,7 @@ Template.wizard_taxrate.events({
                         if (url.includes("/accountsoverview")) {
                           $("#sltTaxCode").val(taxName);
                         }
-                        $("#newTaxRateModal").modal("toggle");
+                        $("#addTaxRateModal").modal("toggle");
                         $(".fullScreenSpin").css("display", "none");
                         location.reload(true);
                       })
@@ -188,7 +177,7 @@ Template.wizard_taxrate.events({
                         if (url.includes("/accountsoverview")) {
                           $("#sltTaxCode").val(taxName);
                         }
-                        $("#newTaxRateModal").modal("toggle");
+                        $("#addTaxRateModal").modal("toggle");
                         $(".fullScreenSpin").css("display", "none");
                       });
                   })
@@ -205,7 +194,7 @@ Template.wizard_taxrate.events({
                     if (url.includes("/accountsoverview")) {
                       $("#sltTaxCode").val(taxName);
                     }
-                    $("#newTaxRateModal").modal("toggle");
+                    $("#addTaxRateModal").modal("toggle");
                     $(".fullScreenSpin").css("display", "none");
                   });
                 var selectLineID = $("#selectLineID").val();
@@ -223,7 +212,7 @@ Template.wizard_taxrate.events({
                 }).then((result) => {
                   if (result.value) {
                     // Meteor._reload.reload();
-                    $("#newTaxRateModal").modal("toggle");
+                    $("#addTaxRateModal").modal("toggle");
                     $(".fullScreenSpin").css("display", "none");
                   } else if (result.dismiss === "cancel") {
                   }
@@ -240,6 +229,8 @@ Template.wizard_taxrate.events({
                 CodeName: taxName,
                 Description: taxDesc,
                 Rate: taxRate,
+                IsDefaultPurchase: isDefaultPurchase,
+                IsDefaultSales: isDefaultSales,
                 PublishOnVS1: true,
               },
             };
@@ -248,9 +239,9 @@ Template.wizard_taxrate.events({
               .saveTaxRate(objDetails)
               .then(function (objDetails) {
                 sideBarService
-                  .getTaxRateVS1()
+                  .getTaxRateVS1List()
                   .then(function (dataReload) {
-                    addVS1Data("TTaxcodeVS1", JSON.stringify(dataReload))
+                    addVS1Data("TTaxcodeVS1List", JSON.stringify(dataReload))
                       .then(function (datareturn) {
                         if (url.includes("/productview")) {
                           if (taxSelected === "sales") {
@@ -264,7 +255,7 @@ Template.wizard_taxrate.events({
                         if (url.includes("/accountsoverview")) {
                           $("#sltTaxCode").val(taxName);
                         }
-                        $("#newTaxRateModal").modal("toggle");
+                        $("#addTaxRateModal").modal("toggle");
                         $(".fullScreenSpin").css("display", "none");
                         location.reload(true);
                       })
@@ -281,7 +272,7 @@ Template.wizard_taxrate.events({
                         if (url.includes("/accountsoverview")) {
                           $("#sltTaxCode").val(taxName);
                         }
-                        $("#newTaxRateModal").modal("toggle");
+                        $("#addTaxRateModal").modal("toggle");
                         $(".fullScreenSpin").css("display", "none");
                       });
                   })
@@ -298,7 +289,7 @@ Template.wizard_taxrate.events({
                     if (url.includes("/accountsoverview")) {
                       $("#sltTaxCode").val(taxName);
                     }
-                    $("#newTaxRateModal").modal("toggle");
+                    $("#addTaxRateModal").modal("toggle");
                     $(".fullScreenSpin").css("display", "none");
                   });
                 var selectLineID = $("#selectLineID").val();
@@ -316,7 +307,7 @@ Template.wizard_taxrate.events({
                 }).then((result) => {
                   if (result.value) {
                     // Meteor._reload.reload();
-                    $("#newTaxRateModal").modal("toggle");
+                    $("#addTaxRateModal").modal("toggle");
                     $(".fullScreenSpin").css("display", "none");
                   } else if (result.dismiss === "cancel") {
                   }
@@ -333,6 +324,8 @@ Template.wizard_taxrate.events({
             CodeName: taxName,
             Description: taxDesc,
             Rate: taxRate,
+            IsDefaultPurchase: isDefaultPurchase,
+            IsDefaultSales: isDefaultSales,
             PublishOnVS1: true,
           },
         };
@@ -340,9 +333,9 @@ Template.wizard_taxrate.events({
           .saveTaxRate(objDetails)
           .then(function (objDetails) {
             sideBarService
-              .getTaxRateVS1()
+              .getTaxRateVS1List()
               .then(function (dataReload) {
-                addVS1Data("TTaxcodeVS1", JSON.stringify(dataReload))
+                addVS1Data("TTaxcodeVS1List", JSON.stringify(dataReload))
                   .then(function (datareturn) {
                     if (url.includes("/productview")) {
                       if (taxSelected === "sales") {
@@ -357,13 +350,13 @@ Template.wizard_taxrate.events({
                     if (url.includes("/accountsoverview")) {
                       $("#sltTaxCode").val(taxName);
                     }
-                    $("#newTaxRateModal").modal("toggle");
+                    $("#addTaxRateModal").modal("toggle");
                     $(".fullScreenSpin").css("display", "none");
                     location.reload(true);
                   })
                   .catch(function (err) {
                     // Meteor._reload.reload();
-                    $("#newTaxRateModal").modal("toggle");
+                    $("#addTaxRateModal").modal("toggle");
                     $(".fullScreenSpin").css("display", "none");
                   });
               })
@@ -380,7 +373,7 @@ Template.wizard_taxrate.events({
                 if (url.includes("/accountsoverview")) {
                   $("#sltTaxCode").val(taxName);
                 }
-                $("#newTaxRateModal").modal("toggle");
+                $("#addTaxRateModal").modal("toggle");
                 $(".fullScreenSpin").css("display", "none");
               });
             var selectLineID = $("#selectLineID").val();
@@ -398,7 +391,7 @@ Template.wizard_taxrate.events({
             }).then((result) => {
               if (result.value) {
                 // Meteor._reload.reload();
-                $("#newTaxRateModal").modal("toggle");
+                $("#addTaxRateModal").modal("toggle");
                 $(".fullScreenSpin").css("display", "none");
               } else if (result.dismiss === "cancel") {
               }
@@ -407,6 +400,30 @@ Template.wizard_taxrate.events({
           });
       }
     }, delayTimeAfterSound);
+  }
+});
+
+Template.wizard_taxrate.events({
+  "click .btnRefreshTaxRate": function () {
+    $(".fullScreenSpin").css("display", "inline-block");
+    sideBarService
+      .getTaxRateVS1List()
+      .then(function (dataReload) {
+        addVS1Data("TTaxcodeVS1List", JSON.stringify(dataReload))
+          .then(function (datareturn) {
+            location.reload(true);
+          })
+          .catch(function (err) {
+            location.reload(true);
+          });
+      })
+      .catch(function (err) {
+        location.reload(true);
+      });
+  },
+  "click .btnSaveTaxRate": function () {
+    const templateObject = Template.instance();
+    templateObject.saveTaxRate();
   },
   "click .btnAddTaxRate": function () {
     $("#add-tax-title").text("Add New Tax Rate");
@@ -415,6 +432,8 @@ Template.wizard_taxrate.events({
     $("#edtTaxName").prop("readonly", false);
     $("#edtTaxRate").val("");
     $("#edtTaxDesc").val("");
+    $("#isDefaultPurchase").prop("checked", false);
+    $("#isDefaultSales").prop("checked", false);
     $("#view-in-active").html(
       "<button class='btn btn-danger btnDeleteTaxRate vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make In-Active</button>"
     );
@@ -437,12 +456,16 @@ Template.wizard_taxrate.events({
         var taxName = $(e.currentTarget).closest("tr").find(".colTaxRateName").text() || "";
         var taxRate = $(e.currentTarget).closest("tr").find(".colTaxRate").text() || "";
         var taxDescription = $(e.currentTarget).closest("tr").find(".colTaxRateDesc").text() || "";
+        var isDefaultPurchase = $(e.currentTarget).closest("tr").find(".colTaxRatePurchaseDefault input.chkBox").is(":checked");
+        var isDefaultSales = $(e.currentTarget).closest("tr").find(".colTaxRateSalesDefault input.chkBox").is(":checked");
         let status = $(e.currentTarget).closest("tr").find(".colStatus").text();
         $("#edtTaxID").val(taxid);
         $("#edtTaxName").val(taxName);
 
         $("#edtTaxRate").val(String(taxRate).replace("%", ""));
         $("#edtTaxDesc").val(taxDescription);
+        $("#isDefaultPurchase").prop("checked", isDefaultPurchase);
+        $("#isDefaultSales").prop("checked", isDefaultSales);
 
         if (status == "In-Active") {
           $("#view-in-active").html(
@@ -458,14 +481,12 @@ Template.wizard_taxrate.events({
     }
   },
   "click .btnActiveTaxRate": function () {
-    $("#view-in-active").html(
-      "<button class='btn btn-danger btnDeleteTaxRate vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make In-Active</button>"
-    );
+    const templateObject = Template.instance();
+    templateObject.saveTaxRate(maiaMode=true, true);
   },
   "click .btnDeleteTaxRate": function () {
-    $("#view-in-active").html(
-      "<button class='btn btn-success btnActiveTaxRate vs1ButtonMargin' id='view-in-active' type='button'><i class='fa fa-trash' style='padding-right: 8px;'></i>Make Active</button>"
-    );
+    const templateObject = Template.instance();
+    templateObject.saveTaxRate(maiaMode=true, false);
   },
   "click .templateDownload": function () {
     let utilityService = new UtilityService();
@@ -563,9 +584,9 @@ Template.wizard_taxrate.events({
 
             setTimeout(function () {
               sideBarService
-                .getTaxRateVS1()
+                .getTaxRateVS1List()
                 .then(function (dataReload) {
-                  addVS1Data("TTaxcodeVS1", JSON.stringify(dataReload))
+                  addVS1Data("TTaxcodeVS1List", JSON.stringify(dataReload))
                     .then(function (datareturn) {
                       location.reload(true);
                     })

@@ -84,6 +84,19 @@ Template.depositcard_temp.onCreated(() => {
     templateObject.gridfields = new ReactiveVar();
     templateObject.printOptions = new ReactiveVar();
 
+    templateObject.printfields = new ReactiveVar();
+    templateObject.temporaryfiles = new ReactiveVar([]);
+
+    let printfields = {
+        "From_Account" : ["20", "left"],
+        "Payment_Method" : ["20", "left"],
+        "Reference_No" : ["20", "left"],
+        "Received_From" : ["25", "right"],
+        "Deposit Amt" : ["15", "right"],
+    }
+
+    templateObject.printfields.set(printfields)
+
 
     function formatDate (date) {
         return moment(date).format('DD/MM/YYYY');
@@ -94,6 +107,8 @@ Template.depositcard_temp.onCreated(() => {
     { title: 'SMS', number: 1, nameFieldID: 'SMS_1' }, { title: 'SMS', number: 2, nameFieldID: 'SMS_2' }, { title: 'SMS', number: 3, nameFieldID: 'SMS_3' },
     { title: 'Preview', number: 1, nameFieldID: 'Preview_1' }, { title: 'Preview', number: 2, nameFieldID: 'Preview_2' }, { title: 'Preview', number: 3, nameFieldID: 'Preview_3' },
     ]
+
+    
 
     templateObject.initialRecords = (data) => {
 
@@ -131,7 +146,6 @@ Template.depositcard_temp.onCreated(() => {
             transdate: begunDate,
             LineItems: lineItems,
             isReconciled: false
-
         };
         $("#form :input").prop("disabled", false);
         templateObject.record.set(record);
@@ -171,8 +185,8 @@ Template.depositcard_temp.onCreated(() => {
             });
         }
 
-        return templateObject.record.get()
-
+        // return templateObject.record.get()
+        return record;
 
     }
 
@@ -181,7 +195,7 @@ Template.depositcard_temp.onCreated(() => {
     // Methods
 
     let transactionheaderfields = [
-        { label: 'Account', type: 'search', id: 'account', listModalId: 'accountListModalABC12', listModalTemp: 'accountlistpop', colName: 'colAccoutName', editModalId: 'vs1_dropdown_modal', editModalTemp: 'addaccountpop', editable: true, divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader" },
+        { label: 'Account', type: 'search', id: 'account', listModalId: 'accountListModalABC12', listModalTemp: 'accountlistpop', colName: 'colAccountName', editModalId: 'vs1_dropdown_modal', editModalTemp: 'addaccountpop', editable: true, divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader" },
         { label: 'Deposit No.', type: 'default', id: 'edtEntryNo', value: '', readonly: false, divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader" },
         { label: 'Deposit Total', type: 'default', id: 'depositTotal', value: '0', readonly: false, divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader" },
         { label: "Date", type: "date", id:"dtTransDate", readonly: false, value: formatDate(new Date()), divClass: "col-12 col-md-6 col-lg-4 col-xl-2 transheader", },
@@ -203,7 +217,7 @@ Template.depositcard_temp.onCreated(() => {
     let transactiongridfields = [
         { index: 0,  custfieldlabel: "From Account", parentClass:'colAccount', label: "From Account",  type: "select", id:"sltFromAccount", listtemplatename: 'accountlistpop', modalId: 'fromaccountlistmodal', targettemplate:'addAccountModal', targetId: 'edtfromaccountmodal', editable: true,  class: "sltAccountName lineAccountName", colName:'colAccountName',  width: "300",       active: true,   display: true },
         { index: 1,  custfieldlabel: "Payment Method", parentClass:'colPaymentMethod', label: "Payment Method", type: "select", id:"sltPaymentMethod", listtemplatename: 'paymentmethodpop', modalId:"paymentmethodmodal", editable: false, class: "linePaymentMethod",   colName:'colNamePopUp', width: "",          active: true,   display: true },
-        { index: 2,  custfieldlabel: "Amount",      label: "Amount",       class: "colAmount lineAmount",   width: "200",       active: true,   display: true },
+        { index: 2,  custfieldlabel: "Amount", parentClass:'colAmount', label: "Amount", class: "colAmount lineAmount", width: "200", active: true, display: true },
         { index: 3,  custfieldlabel: "Reference No", parentClass:'colReference',label: "Reference No", class: "lineReference", width: "",  active: true,   display: true },
         { index: 4,  custfieldlabel: "Received From", parentClass:'colCompany', label: "Received From",  type: "select", id:"sltCompanyFrom", listtemplatename: 'customerlistpop', modalId: 'companylistmodal', targettemplate:'addcustomerpop', targetId: 'edtcustomermodal', editable: true,  class: "sltAccountName1 lineAccountName1", colName:'colCompany',  width: "300",       active: true,   display: true },
     ]
@@ -254,6 +268,18 @@ Template.depositcard_temp.onCreated(() => {
         mediaQuery(x);
         x.addListener(mediaQuery)
     }, 10);
+
+    getVS1Data('TDepositTemp').then(function(dataObject){
+        if(dataObject.length == 0) {
+          templateObject.temporaryfiles.set([]);
+        } else {
+          let data = JSON.parse(dataObject[0].data);
+          let useData = data.tdeposittemp;
+          templateObject.temporaryfiles.set(useData)
+        }
+      }).catch(function(e){
+        templateObject.temporaryfiles.set([])
+      })
 
 });
 
@@ -347,9 +373,11 @@ Template.depositcard_temp.onRendered(() => {
     $('.fullScreenSpin').css('display', 'inline-block');
    
 
-    setTimeout(function () {
-        $('#account_fromtransactionheader').trigger("click");
-    }, 500);
+    if(!(FlowRouter.current().queryParams.id)){
+        setTimeout(function () {
+            $('#account_fromtransactionheader').trigger("click");
+        }, 500);
+    }
     // var url = FlowRouter.current().path;
     // if (url.indexOf('?id=') > 0) {
     //     var getso_id = url.split('?id=');
@@ -1021,7 +1049,7 @@ Template.depositcard_temp.onRendered(() => {
             $('#taxRateListModal').modal('toggle');
             $tblrows.each(function (index) {
                 var $tblrow = $(this);
-                var amount = $tblrow.find(".colAmount").text() || 0;
+                var amount = $tblrow.find(".lineAmount").text() || 0;
                 var taxcode = $tblrow.find(".lineTaxCode").text() || '';
 
                 var taxrateamount = 0;
@@ -1044,7 +1072,7 @@ Template.depositcard_temp.onRendered(() => {
                 }
 
                 if (!isNaN(subTotal)) {
-                    $tblrow.find('.colAmount').text(Currency + '' + subTotal.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+                    $tblrow.find('.lineAmount').text(Currency + '' + subTotal.toLocaleString(undefined, { minimumFractionDigits: 2 }));
                     subGrandTotal += isNaN(subTotal) ? 0 : subTotal;
                     document.getElementById("subtotal_total").innerHTML = Currency + '' + subGrandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
                 }
@@ -1079,7 +1107,6 @@ Template.depositcard_temp.onRendered(function () {
     const accountnamerecords = [];
 
     templateObject.setOneDepositData = (data) => {
-
         $('.fullScreenSpin').css('display', 'none');
         let lineItems = [];
         let lineItemObj = {};
@@ -1132,12 +1159,17 @@ Template.depositcard_temp.onRendered(function () {
             $(".close").prop("disabled", false);
         }
 
-
         $(".printConfirm").prop("disabled", false);
         $(".btnBack").prop("disabled", false);
         templateObject.record.set(record);
 
         $('#sltAccountName').val(data.fields.AccountName);
+
+        $('#account_fromtransactionheader').val(record.accountname);
+        $('#edtEntryNo').val(record.id);
+        $('#depositTotal').val(record.deposittotal);
+        
+        $('#dtSODate').val(record.transdate);
 
         if (templateObject.record.get()) {
             Meteor.call('readPrefMethod', localStorage.getItem('mycloudLogonID'), 'tblDepositEntryLine', function (error, result) {
@@ -1177,7 +1209,27 @@ Template.depositcard_temp.onRendered(function () {
 
                 }
             });
+
+            setTimeout(function() {
+                if(record.LineItems){
+                    let lineitems = record.LineItems;
+                    let lineTotal = 0
+                    for(let i=0; i< lineitems.length; i++) {
+                        let row = $('#tblDepositEntryLine tbody tr')[i];
+                        $(row).find('.sltFromAccount').val(lineItems[i].accountname);
+                        $(row).find('.sltPaymentMethod').val(lineItems[i].paymentmethod);
+                        $(row).find('.colReference').text(lineItems[i].memo);
+                        $(row).find('.sltCompanyFrom').val(lineItems[i].companyname);
+                        $(row).find('.lineAmount').text(lineItems[i].lineamount);
+                        lineTotal += parseFloat(lineItems[i].lineamount.replace(/[^0-9.-]+/g, ""))
+                    }
+
+                    $('#depositTotalLine').text(utilityService.modifynegativeCurrencyFormat(lineTotal) || 0)
+    
+                }
+            }, 2000)
         }
+
         return {record: record, attachmentCount: templateObject.attachmentCount.get(), uploadedFiles: templateObject.uploadedFiles.get(), selectedCurrency: record.currency}
 
     }
@@ -1185,12 +1237,11 @@ Template.depositcard_temp.onRendered(function () {
     templateObject.saveDeposite = (data) => {
 
         playSaveAudio();
-        let templateObject = Template.instance();
         let purchaseService = new PurchaseBoardService();
         let uploadedItems = templateObject.uploadedFiles.get();
         setTimeout(function () {
 
-            let account = $('#sltAccountName').val();
+            let account = $('#account_fromtransactionheader').val();
             let depositTotal = $('#depositTotal').val();
             let depositTotalLine = $('#depositTotalLine').text();
             let txaNotes = $('#txaNotes').val();
@@ -1199,7 +1250,7 @@ Template.depositcard_temp.onRendered(function () {
                 swal('Account has not been selected!', '', 'warning');
                 e.preventDefault();
             } else {
-                if ($('#depositTotalLine').val().replace(/[^0-9.-]+/g, "") !== $('#depositTotalLine').text().replace(/[^0-9.-]+/g, "")) {
+                if (depositTotal.replace(/[^0-9.-]+/g, "") !== $('#depositTotalLine').text().replace(/[^0-9.-]+/g, "")) {
 
                     swal({
                         title: 'Total Deposit does not equal Total Deposited!',
@@ -1215,8 +1266,7 @@ Template.depositcard_temp.onRendered(function () {
                             let lineItemsForm = [];
                             let lineItemObjForm = {};
                             let tdtaxCode = "";
-
-                            var transdateTime = new Date($("#dtTransDate").datepicker("getDate"));
+                            var transdateTime = new Date($("#dtSODate").datepicker("getDate")) || new Date();
                             let transDate = transdateTime.getFullYear() + "-" + (transdateTime.getMonth() + 1) + "-" + transdateTime.getDate();
                             let entryNo = $('#edtEnrtyNo').val();
 
@@ -1228,11 +1278,11 @@ Template.depositcard_temp.onRendered(function () {
                             if (getso_id[1]) {
                                 $('#tblDepositEntryLine > tbody > tr').each(function () {
                                     var lineID = this.id;
-                                    let tdaccount = $('#' + lineID + " .lineAccountName").val() || $('#sltAccountName').val();
-                                    let tdpaymentmethod = $('#' + lineID + " .linePaymentMethod").val();
+                                    let tdaccount = $('#' + lineID + " .sltFromAccount").val();
+                                    let tdpaymentmethod = $('#' + lineID + " .sltPaymentMethod").val();
                                     let tddmemo = $('#' + lineID + " .colReference").text();
-                                    let tdcompany = $('#' + lineID + " .lineCompany").val();
-                                    let tdamount = $('#' + lineID + " .colAmount").val();
+                                    let tdcompany = $('#' + lineID + " .sltCompanyFrom").val();
+                                    let tdamount = $('#' + lineID + " .lineAmount").text();
                                     let erpLineID = $('#' + lineID + " .lineAccountName").attr('lineid');
 
                                     if (tdaccount !== "") {
@@ -1275,14 +1325,14 @@ Template.depositcard_temp.onRendered(function () {
                                 };
                             } else {
                                 $('#tblDepositEntryLine > tbody > tr').each(function () {
-                                    var lineID = this.id;
-                                    let tdaccount = $('#' + lineID + " .lineAccountName").val() || $('#sltAccountName').val();
-                                    let tdpaymentmethod = $('#' + lineID + " .linePaymentMethod").val();
-                                    let tddmemo = $('#' + lineID + " .colReference").text();
-                                    let tdcompany = $('#' + lineID + " .lineCompany").val();
-                                    let tdamount = $('#' + lineID + " .colAmount").val();
-                                    let erpLineID = $('#' + lineID + " .lineAccountName").attr('lineid');
 
+                                    var lineID = this.id;
+                                    let tdaccount = $('#' + lineID + " .sltFromAccount").val();
+                                    let tdpaymentmethod = $('#' + lineID + " .sltPaymentMethod").val();
+                                    let tddmemo = $('#' + lineID + " .colReference").text();
+                                    let tdcompany = $('#' + lineID + " .sltCompanyFrom").val();
+                                    let tdamount = $('#' + lineID + " .lineAmount").text();
+                                    let erpLineID = $('#' + lineID + " .lineAccountName").attr('lineid');
                                     if (tdaccount !== "") {
                                         lineItemObjForm = {
                                             type: "TBankDepositLines",
@@ -1306,6 +1356,7 @@ Template.depositcard_temp.onRendered(function () {
                                         lineItemsForm.push(lineItemObjForm);
                                         splashLineArray.push(lineItemObjForm);
                                     }
+                                   
                                 });
                                 objDetails = {
                                     type: "TVS1BankDeposit",
@@ -1319,6 +1370,7 @@ Template.depositcard_temp.onRendered(function () {
                                         Notes: txaNotes
                                     }
                                 };
+                                
                             }
 
                             if (splashLineArray.length > 0) {
@@ -1329,8 +1381,14 @@ Template.depositcard_temp.onRendered(function () {
                                 event.preventDefault();
                                 return false;
                             };
-
-                            purchaseService.saveBankDeposit(objDetails).then(function (objDetails) {
+                            showSimpleMessageTransaction();
+                            playSaveAudio();
+                    
+                            let currentDeposittemp = templateObject.temporaryfiles.get();
+                            let newDeposittemp= [...currentDeposittemp, objDetails];
+                            templateObject.temporaryfiles.set(newDeposittemp);
+                            addVS1Data('TDepositTemp', JSON.stringify({tdeposittemp: newDeposittemp})).then(function(){
+                            // purchaseService.saveBankDeposit(objDetails).then(function (objDetails) {
                                 if (localStorage.getItem("enteredURL") != null) {
                                     FlowRouter.go(localStorage.getItem("enteredURL"));
                                     localStorage.removeItem("enteredURL");
@@ -1369,7 +1427,7 @@ Template.depositcard_temp.onRendered(function () {
                     let lineItemObjForm = {};
                     let tdtaxCode = "";
 
-                    var transdateTime = new Date($("#dtTransDate").datepicker("getDate"));
+                    var transdateTime = new Date($("#dtSODate").datepicker("getDate")) || new Date();
                     let transDate = transdateTime.getFullYear() + "-" + (transdateTime.getMonth() + 1) + "-" + transdateTime.getDate();
                     let entryNo = $('#edtEnrtyNo').val();
 
@@ -1381,12 +1439,14 @@ Template.depositcard_temp.onRendered(function () {
                     if (getso_id[1]) {
                         $('#tblDepositEntryLine > tbody > tr').each(function () {
                             var lineID = this.id;
-                            let tdaccount = $('#' + lineID + " .lineAccountName").val() || $('#sltAccountName').val();
-                            let tdpaymentmethod = $('#' + lineID + " .linePaymentMethod").val();
+                            let tdaccount = $('#' + lineID + " .sltFromAccount").val();
+                            let tdpaymentmethod = $('#' + lineID + " .sltPaymentMethod").val();
                             let tddmemo = $('#' + lineID + " .colReference").text();
-                            let tdcompany = $('#' + lineID + " .lineCompany").val();
-                            let tdamount = $('#' + lineID + " .colAmount").val();
+                            let tdcompany = $('#' + lineID + " .sltCompanyFrom").val();
+                            let tdamount = $('#' + lineID + " .lineAmount").text();
                             let erpLineID = $('#' + lineID + " .lineAccountName").attr('lineid');
+
+                            
 
                             if (tdaccount != "") {
                                 lineItemObjForm = {
@@ -1429,11 +1489,11 @@ Template.depositcard_temp.onRendered(function () {
                     } else {
                         $('#tblDepositEntryLine > tbody > tr').each(function () {
                             var lineID = this.id;
-                            let tdaccount = $('#' + lineID + " .lineAccountName").val() || $('#sltAccountName').val();
-                            let tdpaymentmethod = $('#' + lineID + " .linePaymentMethod").val();
+                            let tdaccount = $('#' + lineID + " .sltFromAccount").val();
+                            let tdpaymentmethod = $('#' + lineID + " .sltPaymentMethod").val();
                             let tddmemo = $('#' + lineID + " .colReference").text();
-                            let tdcompany = $('#' + lineID + " .lineCompany").val();
-                            let tdamount = $('#' + lineID + " .colAmount").val();
+                            let tdcompany = $('#' + lineID + " .sltCompanyFrom").val();
+                            let tdamount = $('#' + lineID + " .lineAmount").text();
                             let erpLineID = $('#' + lineID + " .lineAccountName").attr('lineid');
 
                             if (tdaccount != "") {
@@ -1482,7 +1542,20 @@ Template.depositcard_temp.onRendered(function () {
                         event.preventDefault();
                         return false;
                     };
-                    purchaseService.saveBankDeposit(objDetails).then(function (objDetails) {
+
+                    // console.log("object details", objDetails);
+                    // return;
+
+                    showSimpleMessageTransaction();
+                    playSaveAudio();
+
+                    let currentDeposittemp = templateObject.temporaryfiles.get();
+                    let newDepositTemp= [...currentDeposittemp, objDetails];
+                    templateObject.temporaryfiles.set(newDepositTemp);
+                    addVS1Data('TDepositTemp', JSON.stringify({tdeposittemp: newDepositTemp})).then(function(){
+
+                    
+                    // purchaseService.saveBankDeposit(objDetails).then(function (objDetails) {
                         FlowRouter.go('/depositlist?success=true');
                         $('.modal-backdrop').css('display', 'none');
 
@@ -1511,6 +1584,16 @@ Template.depositcard_temp.onRendered(function () {
 
     }
 
+
+    templateObject.updateDepositTemp = async function(objDetails) {
+        return new Promise( (resolve, reject) => {
+          let currentTemp = templateObject.temporaryfiles.get();
+          let newTemp = [...currentTemp, objDetails];
+          templateObject.temporaryfiles.set(newTemp);
+           addVS1Data('TDepositTemp', JSON.stringify({tdeposittemp:newTemp})).then(function(){resolve()})
+        })
+      }
+
 });
 Template.depositcard_temp.helpers({
     oneExAPIName: function () {
@@ -1529,6 +1612,11 @@ Template.depositcard_temp.helpers({
 
     listapifunction: function () {
         return sideBarService.getAllTBankDepositListData
+    },
+
+    saveapifunction: function () {
+        let purchaseService = new PurchaseBoardService();
+        return purchaseService.saveBankDeposit
     },
 
     setTransData: () => {
@@ -1562,6 +1650,10 @@ Template.depositcard_temp.helpers({
         return Template.instance().printOptions.get()
     },
 
+    printfields:()=>{
+        return Template.instance().printfields.get()
+    },
+
     footerFields: function () {
         return Template.instance().tranasctionfooterfields.get()
     },
@@ -1571,6 +1663,13 @@ Template.depositcard_temp.helpers({
         return function (data) {
             templateObject.saveDeposite(data)
         }
+    },
+
+    updateTransactionTemp: function () {
+        let templateObject = Template.instance();
+        return async function(data) {
+            await templateObject.updateDepositTemp(data)
+          }
     },
     getTemplateList: function () {
         return template_list;
@@ -1599,17 +1698,6 @@ Template.depositcard_temp.helpers({
         });
     },
     
-
-
-
-
-
-
-
-
-
-
-
     termrecords: () => {
         return Template.instance().termrecords.get().sort(function (a, b) {
             if (a.termsname == 'NA') {
@@ -1719,77 +1807,11 @@ Template.depositcard_temp.helpers({
 });
 
 Template.depositcard_temp.events({
-    // 'click input.basedOnSettings': function (event) {
-    //     if (event.target.id == "basedOnEvent") {
-    //         const value = $(event.target).prop('checked');
-    //         if (value) {
-    //             $('#onEventSettings').css('display', 'block');
-    //             $('#settingsOnEvents').prop('checked', true);
-    //         } else {
-    //             $('#onEventSettings').css('display', 'none');
-    //             $('#settingsOnEvents').prop('checked', false);
-    //             $('#settingsOnLogout').prop('checked', false);
-    //         }
-    //     } else if (event.target.id == 'basedOnFrequency') {
-    //         const value = $(event.target).prop('checked');
-    //         if(value) {
-    //             $('#edtFrequencyDetail').css('display', 'flex');
-    //             $('#basedOnSettingsTitle').css('border-top-width', '1px');
-    //         }else {
-    //             $('#edtFrequencyDetail').css('display', 'none');
-    //             $('#basedOnSettingsTitle').css('border-top-width', '0px');
-    //         }
-    //     }
-    //   },
-    // 'click input[name="frequencyRadio"]': function (event) {
-    //     if (event.target.id == "frequencyMonthly") {
-    //         document.getElementById("monthlySettings").style.display = "block";
-    //         document.getElementById("weeklySettings").style.display = "none";
-    //         document.getElementById("dailySettings").style.display = "none";
-    //         document.getElementById("oneTimeOnlySettings").style.display = "none";
-    //     } else if (event.target.id == "frequencyWeekly") {
-    //         document.getElementById("weeklySettings").style.display = "block";
-    //         document.getElementById("monthlySettings").style.display = "none";
-    //         document.getElementById("dailySettings").style.display = "none";
-    //         document.getElementById("oneTimeOnlySettings").style.display = "none";
-    //     } else if (event.target.id == "frequencyDaily") {
-    //         document.getElementById("dailySettings").style.display = "block";
-    //         document.getElementById("monthlySettings").style.display = "none";
-    //         document.getElementById("weeklySettings").style.display = "none";
-    //         document.getElementById("oneTimeOnlySettings").style.display = "none";
-    //     } else if (event.target.id == "frequencyOnetimeonly") {
-    //         document.getElementById("oneTimeOnlySettings").style.display = "block";
-    //         document.getElementById("monthlySettings").style.display = "none";
-    //         document.getElementById("weeklySettings").style.display = "none";
-    //         document.getElementById("dailySettings").style.display = "none";
-    //     } else {
-    //         $("#copyFrequencyModal").modal('toggle');
-    //     }
-    // },
-    // 'click input[name="settingsMonthlyRadio"]': function (event) {
-    //     if (event.target.id == "settingsMonthlyEvery") {
-    //         $('.settingsMonthlyEveryOccurence').attr('disabled', false);
-    //         $('.settingsMonthlyDayOfWeek').attr('disabled', false);
-    //         $('.settingsMonthlySpecDay').attr('disabled', true);
-    //     } else if (event.target.id == "settingsMonthlyDay") {
-    //         $('.settingsMonthlySpecDay').attr('disabled', false);
-    //         $('.settingsMonthlyEveryOccurence').attr('disabled', true);
-    //         $('.settingsMonthlyDayOfWeek').attr('disabled', true);
-    //     } else {
-    //         $("#frequencyModal").modal('toggle');
-    //     }
-    // },
-    // 'click input[name="dailyRadio"]': function (event) {
-    //     if (event.target.id == "dailyEveryDay") {
-    //         $('.dailyEveryXDays').attr('disabled', true);
-    //     } else if (event.target.id == "dailyWeekdays") {
-    //         $('.dailyEveryXDays').attr('disabled', true);
-    //     } else if (event.target.id == "dailyEvery") {
-    //         $('.dailyEveryXDays').attr('disabled', false);
-    //     } else {
-    //         $("#frequencyModal").modal('toggle');
-    //     }
-    // },
+    'click #accountListModalABC12 tbody tr': function(event) {
+        let templateObject = Template.instance();
+        let row = $('#tblDepositEntryLine> tbody >tr:last');
+        $(row).find('input.sltFromAccount').trigger('click')        
+    }, 
     'click #copyDeposit': async function (event) {
         playCopyAudio();
         let templateObject = Template.instance();
@@ -2228,56 +2250,6 @@ Template.depositcard_temp.events({
     //     $('#edtSupplierName').select();
     //     $('#edtSupplierName').editableSelect();
     // },
-    'blur .lineCreditEx': function (event) {
-
-        if (!isNaN($(event.target).val())) {
-            let inputCreditEx = parseFloat($(event.target).val());
-            $(event.target).val(Currency + '' + inputCreditEx.toLocaleString(undefined, { minimumFractionDigits: 2 }));
-        } else {
-            let inputCreditEx = Number($(event.target).val().replace(/[^0-9.-]+/g, ""));
-
-            $(event.target).val(Currency + '' + inputCreditEx.toLocaleString(undefined, { minimumFractionDigits: 2 }) || Currency + '0');
-        }
-        let templateObject = Template.instance();
-        let taxcodeList = templateObject.taxraterecords.get();
-        let utilityService = new UtilityService();
-
-        let inputCredit = parseFloat($(event.target).val()) || 0;
-        if (!isNaN($(event.target).val())) {
-            $(event.target).val(Currency + '' + inputCredit.toLocaleString(undefined, { minimumFractionDigits: 2 }) || Currency + '0');
-        } else {
-            let inputCredit = Number($(event.target).val().replace(/[^0-9.-]+/g, ""));
-
-            $(event.target).val(Currency + '' + inputCredit.toLocaleString(undefined, { minimumFractionDigits: 2 }) || Currency + '0');
-        }
-
-        let $tblrows = $("#tblDepositEntryLine tbody tr");
-        var targetID = $(event.target).closest('tr').attr('id');
-        if ($(event.target).val().replace(/[^0-9.-]+/g, "") != 0) {
-            $('#' + targetID + " .lineDebitEx").val(Currency + '0.00');
-        }
-
-        let lineAmount = 0;
-        let subGrandCreditTotal = 0;
-        let subGrandDebitTotal = 0;
-        $tblrows.each(function (index) {
-            var $tblrow = $(this);
-            var credit = $tblrow.find(".lineCreditEx").val() || Currency + '0';
-            var debit = $tblrow.find(".lineDebitEx").val() || Currency + '0';
-            var subTotalCredit = Number(credit.replace(/[^0-9.-]+/g, "")) || Currency + '0';
-            var subTotalDebit = Number(debit.replace(/[^0-9.-]+/g, "")) || Currency + '0';
-            if (!isNaN(subTotalCredit)) {
-                subGrandCreditTotal += isNaN(subTotalCredit) ? 0 : subTotalCredit;
-            };
-            if (!isNaN(subTotalDebit)) {
-                subGrandDebitTotal += isNaN(subTotalDebit) ? 0 : subTotalDebit;
-            };
-
-        });
-        templateObject.totalCredit.set(utilityService.modifynegativeCurrencyFormat(subGrandCreditTotal));
-        templateObject.totalDebit.set(utilityService.modifynegativeCurrencyFormat(subGrandDebitTotal));
-
-    },
     'click #btnCustomFileds': function (event) {
         var x = document.getElementById("divCustomFields");
         if (x.style.display === "none") {
@@ -2286,19 +2258,7 @@ Template.depositcard_temp.events({
             x.style.display = "none";
         }
     },
-    'click .lineAccountName, keydown .lineAccountName': function (event) {
-        var $earch = $(event.currentTarget);
-        var offset = $earch.offset();
-        $('#edtAccountID').val('');
-        $('#add-account-title').text('Add New Account');
-        let suppliername = $('#edtSupplierName').val();
-        let accountService = new AccountService();
-        const accountTypeList = [];
-        if (suppliername === '') {
-            swal('Supplier has not been selected!', '', 'warning');
-            event.preventDefault();
-        }
-    },
+    
     'click #accountListModal #refreshpagelist': function () {
         Meteor._reload.reload();
     },
@@ -2343,29 +2303,7 @@ Template.depositcard_temp.events({
     //         }
     //     }, delayTimeAfterSound);
     // },
-    'keydown .lineAmount': function (event) {
-        if ($.inArray(event.keyCode, [46, 8, 9, 27, 13, 110]) !== -1 ||
-
-            (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) ||
-
-            (event.keyCode >= 35 && event.keyCode <= 40)) {
-
-            return;
-        }
-
-        if (event.shiftKey == true) {
-            event.preventDefault();
-        }
-
-        if ((event.keyCode >= 48 && event.keyCode <= 57) ||
-            (event.keyCode >= 96 && event.keyCode <= 105) ||
-            event.keyCode == 8 || event.keyCode == 9 ||
-            event.keyCode == 37 || event.keyCode == 39 ||
-            event.keyCode == 46 || event.keyCode == 190 || event.keyCode == 189 || event.keyCode == 109) {
-        } else {
-            event.preventDefault();
-        }
-    },
+ 
     // 'click .btnRemove': async function (event) {
     //     let templateObject = Template.instance();
     //     let taxcodeList = templateObject.taxraterecords.get();
@@ -3224,27 +3162,28 @@ Template.depositcard_temp.events({
     //         history.back(1);
     //     }, delayTimeAfterSound);
     // },
-    'change .colAmount': function (event) {
+    'blur td.lineAmount': function (event) {
         let utilityService = new UtilityService();
-        if (!isNaN($(event.target).val())) {
-            let inputUnitPrice = parseFloat($(event.target).val()) || 0;
-            $(event.target).val(utilityService.modifynegativeCurrencyFormat(inputUnitPrice));
+        if (!isNaN($(event.target).text())) {
+            let inputUnitPrice = parseFloat($(event.target).text()) || 0;
+            $(event.target).text(utilityService.modifynegativeCurrencyFormat(inputUnitPrice));
         } else {
-            let inputUnitPrice = Number($(event.target).val().replace(/[^0-9.-]+/g, "")) || 0;
-            $(event.target).val(utilityService.modifynegativeCurrencyFormat(inputUnitPrice));
+            let inputUnitPrice = Number($(event.target).text().replace(/[^0-9.-]+/g, "")) || 0;
+            $(event.target).text(utilityService.modifynegativeCurrencyFormat(inputUnitPrice));
         }
         let $tblrows = $("#tblDepositEntryLine tbody tr");
         let lineAmountTotal = 0;
         $tblrows.each(function (index) {
             var $tblrow = $(this);
-            var lineAmount = Number($tblrow.find(".colAmount").val().replace(/[^0-9.-]+/g, "")) || 0;
+            var lineAmount = Number($tblrow.find(".lineAmount").text().replace(/[^0-9.-]+/g, "")) || 0;
             lineAmountTotal += lineAmount;
         });
 
         document.getElementById("depositTotalLine").innerHTML = utilityService.modifynegativeCurrencyFormat(lineAmountTotal) || 0;
+        $('#depositTotal').val(utilityService.modifynegativeCurrencyFormat(lineAmountTotal) || 0);
 
     },
-    'change .depositTotal': function (event) {
+    'blur #depositTotal': function (event) {
         let utilityService = new UtilityService();
         if (!isNaN($(event.target).val())) {
             let inputUnitPrice = parseFloat($(event.target).val()) || 0;
@@ -3254,7 +3193,24 @@ Template.depositcard_temp.events({
             $(event.target).val(utilityService.modifynegativeCurrencyFormat(inputUnitPrice));
         }
     },
-    'keydown .colAmount, keydown .depositTotal, keydown .edtEnrtyNo': function (event) {
+    
+    'click .btnDeleteLine': function(event) {
+        let utilityService = new UtilityService();
+        setTimeout(() => {
+            let $tblrows = $("#tblDepositEntryLine tbody tr");
+            let lineAmountTotal = 0;
+            $tblrows.each(function (index) {
+                var $tblrow = $(this);
+                var lineAmount = Number($tblrow.find(".lineAmount").text().replace(/[^0-9.-]+/g, "")) || 0;
+                lineAmountTotal += lineAmount;
+            });
+    
+            document.getElementById("depositTotalLine").innerHTML = utilityService.modifynegativeCurrencyFormat(lineAmountTotal) || 0;
+            $('#depositTotal').val(utilityService.modifynegativeCurrencyFormat(lineAmountTotal) || 0);
+        }, 500);
+    },
+
+    'keydown .lineAmount, keydown .depositTotal, keydown .edtEnrtyNo': function (event) {
         if ($.inArray(event.keyCode, [46, 8, 9, 27, 13, 110]) !== -1 ||
 
             (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) ||

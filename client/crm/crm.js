@@ -162,7 +162,7 @@ Template.crmoverview.onRendered(function() {
         // uncheck all labels
         $(".chkAddLabel").prop("checked", false);
 
-        $("#newTaskModal").modal("toggle");
+        $("#newTaskModal_001").modal("toggle");
     }
 
     if (FlowRouter.current().queryParams.customerid) {
@@ -580,7 +580,8 @@ Template.crmoverview.events({
         $('#crmEditSelectEmployeeList').val(employeeName);
         $('#assignedID').val(employeeID);
         $('#contactEmailUser').val(employeeEmail);
-        $("#taskDetailModal").modal("toggle");
+        $("#taskDetailModal_001").modal("toggle");
+        // $("#taskDetailModal").modal("toggle");
     },
 
     "click .detail_label": function(e) {

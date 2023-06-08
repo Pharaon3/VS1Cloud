@@ -1,0 +1,41 @@
+[{
+    "Id": 1,
+    "DepotName": "Depot 1",
+    "Address": "53 Church St",
+    "Town": "Melbourne",
+    "PostalCode": "3067",
+    "State": "Victoria",
+    "Country": "Australia",
+    "Active": true
+},
+{
+    "Id": 2,
+    "DepotName": "Depot 2",
+    "Address": "88 Sumner Rd",
+    "Town": "Brisbane City",
+    "PostalCode": "4074",
+    "State": "Queensland",
+    "Country": "Australia",
+    "Active": true
+},
+{
+    "Id": 3,
+    "DepotName": "Depot 3",
+    "Address": "100 300 Ouellette Ave",
+    "Town": "Windsor",
+    "PostalCode": "N9A 7B4",
+    "State": "Ontario",
+    "Country": "Canada",
+    "Active": true
+},
+{
+    "Id": 4,
+    "DepotName": "Depot 4",
+    "Address": "Fabrikstationstrasse 16",
+    "Town": "Mannheim",
+    "PostalCode": "68163",
+    "State": "Baden-Württemberg",
+    "Country": "Germany",
+    "Active": true
+}
+]

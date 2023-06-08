@@ -173,6 +173,7 @@ const erpObject = {
     TsalesOrderNonBackOrder: "TsalesOrderNonBackOrder",
     TAccountVS1: "TAccountVS1",
     TTaxcodeVS1: "TTaxcodeVS1",
+    TTaxcodeVS1List: "TTaxcodeVS1List",
     TSubTaxVS1: "TSubTaxVS1",
     TTermsVS1: "TTermsVS1",
     TTermsVS1List: "TTermsVS1List",
@@ -293,6 +294,12 @@ const erpObject = {
     TProductQtyList: "TProductQtyList",
     TProductMovementList: "TProductMovementList",
     TDashboardExecData1: "TDashboardExecData1",
+    TDashboardSalesData1: "TDashboardSalesData1",
+    TDashboardSalesData2: "TDashboardSalesData2",
+    TDashboardSalesData3: "TDashboardSalesData3",
+    TDashboardMyData1: "TDashboardMyData1",
+    TDashboardMyData2: "TDashboardMyData2",
+    TDashboardMyData3: "TDashboardMyData3",
     TProcTree: "TProcTree",
     TPayrollSettingOvertimes: "TPayrollSettingOvertimes",
     TRateTypes: "TRateTypes",
@@ -342,6 +349,7 @@ const erpObject = {
     TNewLeaveRequest:"TNewLeaveRequest",
     TPayPeriods:"TPayPeriods",
     VS1_ClosingDates: "vs1_closingdates",
+    VS1AgedReceivableSummary_Card: "VS1AgedReceivableSummary_Card",
 };
 
 export default erpObject;

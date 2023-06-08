@@ -16,23 +16,23 @@ Template.assetcostreport.onCreated(function () {
   templateObject.getDataTableList = function (data) {
 
     let linestatus = '';
-    if(data.fields.Active == true){
+    if(data.Active == true){
       linestatus = "";
     }
-    else if(data.fields.Active == false){
+    else if(data.Active == false){
       linestatus = "In-Active";
     }
     const dataList = [
-      data.fields.ID || "",
-      data.fields.AssetName || "",
-      data.fields.AdminstrativeCosts || "",
-      data.fields.Depreciation || "",
-      data.fields.Fuel || "",
-      data.fields.Insurance || "",
-      data.fields.Loan || "",
-      data.fields.Maintenance || "",
-      data.fields.Registration || "",
-      data.fields.Tolls || "",
+      data.ID || "",
+      data.AssetName || "",
+      data.AdministrativeCosts || "",
+      data.Depreciation || "",
+      data.Fuel || "",
+      data.Insurance || "",
+      data.Loan_Lease || "",
+      data.Maintenance || "",
+      data.Registration || "",
+      data.Tolls || "",
       linestatus
     ];
     return dataList;
@@ -40,14 +40,14 @@ Template.assetcostreport.onCreated(function () {
   let headerStructure = [
     { "index": 0, "label": "ID", "class": "colID", "active": false, "display": true, "width": "30" },
     { "index": 1, "label": "Asset Name", "class": "colAssetName", "active": true, "display": true, "width": "200" },
-    { "index": 2, "label": "Administrative Costs", "class": "colAdministrativeCosts", "active": true, "display": true, "width": "500" },
-    { "index": 3, "label": "Depreciation", "class": "colDepreciation", "active": true, "display": true, "width": "500" },
-    { "index": 4, "label": "Fuel", "class": "colFuel", "active": true, "display": true, "width": "500" },
-    { "index": 5, "label": "Insurance", "class": "colInsurance", "active": true, "display": true, "width": "500" },
-    { "index": 6, "label": "Loan/Lease", "class": "colLoan", "active": true, "display": true, "width": "500" },
-    { "index": 7, "label": "Maintenance", "class": "colMaintenance", "active": true, "display": true, "width": "500" },
-    { "index": 8, "label": "Registration", "class": "colRegistration", "active": true, "display": true, "width": "500" },
-    { "index": 9, "label": "Tolls", "class": "colTolls", "active": true, "display": true, "width": "500" },
+    { "index": 2, "label": "Administrative Costs", "class": "colAdministrativeCosts", "active": true, "display": true, "width": "110" },
+    { "index": 3, "label": "Depreciation", "class": "colDepreciation", "active": true, "display": true, "width": "110" },
+    { "index": 4, "label": "Fuel", "class": "colFuel", "active": true, "display": true, "width": "110" },
+    { "index": 5, "label": "Insurance", "class": "colInsurance", "active": true, "display": true, "width": "110" },
+    { "index": 6, "label": "Loan/Lease", "class": "colLoan", "active": true, "display": true, "width": "110" },
+    { "index": 7, "label": "Maintenance", "class": "colMaintenance", "active": true, "display": true, "width": "110" },
+    { "index": 8, "label": "Registration", "class": "colRegistration", "active": true, "display": true, "width": "110" },
+    { "index": 9, "label": "Tolls", "class": "colTolls", "active": true, "display": true, "width": "110" },
     { "index": 10, "label": "Status", "class": "colStatus", "active": true, "display": true, "width": "120" },
 ];
   templateObject.tableheaderrecords.set(headerStructure);
@@ -143,7 +143,7 @@ Template.assetcostreport.helpers({
 
   apiFunction: function () {
     let fixedAssetService = new FixedAssetService();
-    return fixedAssetService.getCostTypeList;
+    return fixedAssetService.getAssetCostReportList;
   },
 
   searchAPI: function () {

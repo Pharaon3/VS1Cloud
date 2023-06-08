@@ -863,50 +863,50 @@ Template.frmappointmentpop.onRendered(function () {
                             randomColor = randomColor + "6";
                         }
                         let selectedColor = "#" + randomColor;
-                        if (useData[i].fields.CustFld6 == "") {
+                        if (useData[i].CustFld6 == "") {
                             objDetails = {
                                 type: "TEmployeeEx",
                                 fields: {
-                                    ID: useData[i].fields.ID,
+                                    ID: useData[i].ID,
                                     CustFld6: selectedColor,
-                                    Email: useData[i].fields.Email || useData[i].fields.FirstName.toLowerCase() + "@gmail.com",
-                                    Sex: useData[i].fields.Sex || "M",
-                                    DateStarted: useData[i].fields.DateStarted || moment().format("YYYY-MM-DD"),
-                                    DOB: useData[i].fields.DOB || moment("2018-07-01").format("YYYY-MM-DD"),
+                                    Email: useData[i].Email || useData[i].FirstName.toLowerCase() + "@gmail.com",
+                                    Sex: useData[i].Sex || "M",
+                                    DateStarted: useData[i].DateStarted || moment().format("YYYY-MM-DD"),
+                                    DOB: useData[i].DOB || moment("2018-07-01").format("YYYY-MM-DD"),
                                 },
                             };
 
                             contactService.saveEmployeeEx(objDetails).then(function (data) {});
                         }
 
-                        if (localStorage.getItem("mySessionEmployee") == useData[i].fields.EmployeeName) {
-                            if (useData[i].fields.CustFld8 == "false") {
+                        if (localStorage.getItem("mySessionEmployee") == useData[i].EmployeeName) {
+                            if (useData[i].CustFld8 == "false") {
                                 templateObject.includeAllProducts.set(false);
                             }
                         }
 
                         if (seeOwnAppointments == true) {
-                            if (useData[i].fields.EmployeeName == localStorage.getItem("mySessionEmployee")) {
+                            if (useData[i].EmployeeName == localStorage.getItem("mySessionEmployee")) {
                                 var dataList = {
-                                    id: useData[i].fields.ID || "",
-                                    employeeName: useData[i].fields.EmployeeName || "",
-                                    color: useData[i].fields.CustFld6 || selectedColor,
-                                    priority: useData[i].fields.CustFld5 || "0",
-                                    override: useData[i].fields.CustFld14 || "false",
-                                    custFld7: useData[i].fields.CustFld7 || "",
-                                    custFld8: useData[i].fields.CustFld8 || "",
+                                    id: useData[i].ID || "",
+                                    employeeName: useData[i].EmployeeName || "",
+                                    color: useData[i].CustFld6 || selectedColor,
+                                    priority: useData[i].CustFld5 || "0",
+                                    override: useData[i].CustFld14 || "false",
+                                    custFld7: useData[i].CustFld7 || "",
+                                    custFld8: useData[i].CustFld8 || "",
                                 };
                                 lineItems.push(dataList);
                             }
                         } else {
                             var dataList = {
-                                id: useData[i].fields.ID || "",
-                                employeeName: useData[i].fields.EmployeeName || "",
-                                color: useData[i].fields.CustFld6 || selectedColor,
-                                priority: useData[i].fields.CustFld5 || "0",
-                                override: useData[i].fields.CustFld14 || "false",
-                                custFld7: useData[i].fields.CustFld7 || "",
-                                custFld8: useData[i].fields.CustFld8 || "",
+                                id: useData[i].ID || "",
+                                employeeName: useData[i].EmployeeName || "",
+                                color: useData[i].CustFld6 || selectedColor,
+                                priority: useData[i].CustFld5 || "0",
+                                override: useData[i].CustFld14 || "false",
+                                custFld7: useData[i].CustFld7 || "",
+                                custFld8: useData[i].CustFld8 || "",
                             };
                             lineItems.push(dataList);
                         }

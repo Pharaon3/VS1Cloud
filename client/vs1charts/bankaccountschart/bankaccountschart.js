@@ -34,18 +34,18 @@ Template.bankaccountschart.onCreated(() => {
             utilityService.modifynegativeCurrencyFormat(data.OpenBalance) || 0.0,
             data.OnHold ? "On-Hold" : "Not Reconciled",
             '<span style="display:none;">'+moment(data.ReconciliationDate).format("YYYY/MM/DD")+'</span>'+moment(data.ReconciliationDate).format("DD/MM/YYYY"),
-            data.Deleted ? "In-Active" : "",
+            data.Deleted ? "Deleted" : "",
         ];
         return dataList;
     }
 
     let headerStructure = [
-        { index: 0, label: "#ID", class: "colReconId", width: "50", active: false, display: true },
-        { index: 1, label: "Account Name", class: "colReconAccountName", width: "100", active: true, display: true },
-        { index: 2, label: "Balance", class: "colReconBalance", width: "100", active: true, display: true },
+        { index: 0, label: "ID", class: "colReconId", width: "20", active: false, display: true },
+        { index: 1, label: "Account Name", class: "colReconAccountName", width: "200", active: true, display: true },
+        { index: 2, label: "Balance", class: "colReconBalance", width: "110", active: true, display: true },
         { index: 3, label: "Not Reconciled", class: "colStatus", width: "140", active: true, display: true },
         { index: 4, label: "Last Reconciled", class: "colReconDate", width: "140", active: true, display: true },
-        { index: 5, label: "Status", class: "colStatus", width: "80", active: true, display: true },
+        { index: 5, label: "Status", class: "colStatus", width: "120", active: true, display: true },
     ];
     templateObject.tableheaderrecords.set(headerStructure);
 });

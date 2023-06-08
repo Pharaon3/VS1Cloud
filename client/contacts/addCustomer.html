@@ -2746,7 +2746,9 @@
     </div>
     {{/if}}
   </div>
-
+  <div class="modal fade customerListModal" role="dialog" tabindex="-1" id="customerListModal_job">
+    {{> customerlistpop}}
+  </div>
   <div class="modal fade" role="dialog" tabindex="-1" id="referenceLetterModal">
     <div class="modal-dialog modal-md modal-dialog-centered" role="document">
       <div class="modal-content">
@@ -2860,11 +2862,15 @@
     {{> title_list_pop}}
   </div> -->
 
-  {{> taskDetailModal}}
+  <div class="modal fade" id="taskDetailModal_customer" tabindex="-1" role="dialog" aria-labelledby="taskNameLabel" aria-hidden="true">
+    {{> taskDetailModal}}
+  </div>
   <!-- {{> frmappointmentpop}} temp commented out because of using all_transaction_modal-->
-  {{> newTaskModal}}
+  <div class="modal fade" id="newTaskModal_customer" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+    {{> newTaskModal}}
+  </div>
   <div class="modal fade" role="dialog" tabindex="-1" id="myModalClientType">
-  {{> clienttypemodal}}
+    {{> clienttypemodal}}
   </div>
 
   <div class="modal fade customerListCrmModal" role="dialog" tabindex="-1" id="customerListCrmModal">

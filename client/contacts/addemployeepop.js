@@ -23,7 +23,7 @@ Template.addemployeepop.onCreated(function () {
     templateObject.productsdatatable = new ReactiveVar();
     templateObject.empuserrecord = new ReactiveVar();
     templateObject.employeerecords = new ReactiveVar([]);
-    templateObject.empPriorities = new ReactiveVar([]);
+    // templateObject.empPriorities = new ReactiveVar([]);//Duplicated in the addEmployee.js
     templateObject.recentTrasactions = new ReactiveVar([]);
 
     templateObject.datatablerecords = new ReactiveVar([]);
@@ -163,9 +163,7 @@ Template.addemployeepop.onRendered(function () {
                         }
 
                     }
-
                     templateObject.productsdatatable.set(productList);
-
                 });
             } else {
                 let data = JSON.parse(dataObject[0].data);
@@ -181,11 +179,9 @@ Template.addemployeepop.onRendered(function () {
                     }
                 }
                 templateObject.productsdatatable.set(productList);
-
             }
         }).catch(function (err) {
             productService.getNewProductListVS1().then(function (data) {
-
                 var dataList = {};
                 for (let i = 0; i < data.tproductvs1.length; i++) {
                     dataList = {
@@ -195,30 +191,26 @@ Template.addemployeepop.onRendered(function () {
                     if (data.tproductvs1[i].ProductType != 'INV') {
                         productList.push(dataList);
                     }
-
                 }
                 templateObject.productsdatatable.set(productList);
-
             });
         });
-
     }
     templateObject.getAllProductData();
-
-    contactService.getAllEmployeesPriority().then(function (data) {
-
-        if (data.temployee.length > 0) {
-            for (let x = 0; x < data.temployee.length; x++) {
-                if (data.temployee[x].CustFld5 != "" && data.temployee[x].CustFld5 != "0") {
-                    employeePriority.push(data.temployee[x].CustFld5);
-                }
-            }
-            var result = employeePriority.map(function (x) {
-                return parseInt(x, 10);
-            });
-            templateObject.empPriorities.set(result);
-        }
-    });
+    //Duplicated in the addEmployee.js
+    // contactService.getAllEmployeesPriority().then(function (data) {
+    //     if (data.temployee.length > 0) {
+    //         for (let x = 0; x < data.temployee.length; x++) {
+    //             if (data.temployee[x].CustFld5 != "" && data.temployee[x].CustFld5 != "0") {
+    //                 employeePriority.push(data.temployee[x].CustFld5);
+    //             }
+    //         }
+    //         var result = employeePriority.map(function (x) {
+    //             return parseInt(x, 10);
+    //         });
+    //         templateObject.empPriorities.set(result);
+    //     }
+    // });
 
     templateObject.getAllProductRecentTransactions = function (employeeName) {
         getVS1Data('TInvoiceEx').then(function (dataObject) {
@@ -252,9 +244,7 @@ Template.addemployeepop.onRendered(function () {
                         dataTableList.push(dataList);
                     }
                     templateObject.datatablerecords.set(dataTableList);
-
                     if (templateObject.datatablerecords.get()) {
-
                         Meteor.call('readPrefMethod', localStorage.getItem('mycloudLogonID'), 'tblTransactionlist', function (error, result) {
                             if (error) {}
                             else {
@@ -269,25 +259,20 @@ Template.addemployeepop.onRendered(function () {
                                         let columnindex = customcolumn[i].index + 1;
 
                                         if (hiddenColumn == true) {
-
                                             $("." + columnClass + "").addClass('hiddenColumn');
                                             $("." + columnClass + "").removeClass('showColumn');
                                         } else if (hiddenColumn == false) {
                                             $("." + columnClass + "").removeClass('hiddenColumn');
                                             $("." + columnClass + "").addClass('showColumn');
                                         }
-
                                     }
                                 }
-
                             }
                         });
-
                         setTimeout(function () {
                             MakeNegative();
                         }, 100);
                     }
-
                     LoadingOverlay.hide();
                     setTimeout(function () {
                         //$.fn.dataTable.moment('DD/MM/YY');
@@ -338,7 +323,6 @@ Template.addemployeepop.onRendered(function () {
                                     MakeNegative();
                                 }, 100);
                             },
-
                         }).on('page', function () {
                             setTimeout(function () {
                                 MakeNegative();
@@ -364,7 +348,6 @@ Template.addemployeepop.onRendered(function () {
                             columVisible = false;
                         }
                         sWidth = v.style.width.replace('px', "");
-
                         let datatablerecordObj = {
                             sTitle: v.innerText || '',
                             sWidth: sWidth || '',
@@ -382,11 +365,9 @@ Template.addemployeepop.onRendered(function () {
                             window.open('/invoicecard?id=' + listData, '_self');
                         }
                     });
-
                 }).catch(function (err) {
                     // Bert.alert('<strong>' + err + '</strong>!', 'danger');
                     LoadingOverlay.hide();
-
                     // Meteor._reload.reload();
                 });
             } else {
@@ -420,9 +401,7 @@ Template.addemployeepop.onRendered(function () {
                     dataTableList.push(dataList);
                 }
                 templateObject.datatablerecords.set(dataTableList);
-
                 if (templateObject.datatablerecords.get()) {
-
                     Meteor.call('readPrefMethod', localStorage.getItem('mycloudLogonID'), 'tblTransactionlist', function (error, result) {
                         if (error) {}
                         else {
@@ -437,25 +416,20 @@ Template.addemployeepop.onRendered(function () {
                                     let columnindex = customcolumn[i].index + 1;
 
                                     if (hiddenColumn == true) {
-
                                         $("." + columnClass + "").addClass('hiddenColumn');
                                         $("." + columnClass + "").removeClass('showColumn');
                                     } else if (hiddenColumn == false) {
                                         $("." + columnClass + "").removeClass('hiddenColumn');
                                         $("." + columnClass + "").addClass('showColumn');
                                     }
-
                                 }
                             }
-
                         }
                     });
-
                     setTimeout(function () {
                         MakeNegative();
                     }, 100);
                 }
-
                 LoadingOverlay.hide();
                 setTimeout(function () {
                     //$.fn.dataTable.moment('DD/MM/YY');
@@ -506,7 +480,6 @@ Template.addemployeepop.onRendered(function () {
                                 MakeNegative();
                             }, 100);
                         },
-
                     }).on('page', function () {
                         setTimeout(function () {
                             MakeNegative();
@@ -1386,7 +1359,6 @@ Template.addemployeepop.onRendered(function () {
                         }
                     }
                 }).catch(function (err) {
-
                     contactService.getOneEmployeeDataEx(employeeID).then(function (data) {
                         LoadingOverlay.hide();
                         let lineItems = [];
@@ -1963,407 +1935,346 @@ Template.addemployeepop.onRendered(function () {
         x.addListener(mediaQuery)
     }, 500);
 
-});
-
-Template.addemployeepop.events({
-    'click .addemployeepop #customerShipping-1': function (event) {
-        if ($(event.target).is(':checked')) {
-            $('.customerShipping-2').css('display', 'none');
-
-        } else {
-            $('.customerShipping-2').css('display', 'block');
-        }
-    },
-    'click .addemployeepop .btnSaveEmpPop': async function (event) {
+    templateObject.saveEmployee = function (maiaMode=false, isMakeActive) {
         playSaveAudio();
         let templateObject = Template.instance();
         let contactService = new ContactService();
         let appointmentService = new AppointmentService();
         setTimeout(async function(){
-        LoadingOverlay.show();
-        let title = $('.addemployeepop #edtTitle').val();
-        let firstname = $('.addemployeepop #edtFirstName').val();
-        if (firstname === '') {
-            LoadingOverlay.hide();
-            // Bert.alert('<strong>WARNING:</strong> First Name cannot be blank!', 'warning');
-            swal('First Name cannot be blank!', '', 'info');
-            e.preventDefault();
-            $('.addemployeepop #edtFirstName').focus();
-        }
-        let middlename = $('.addemployeepop #edtMiddleName').val() || '';
-        let lastname = $('.addemployeepop #edtLastName').val() || '';
-        let suffix = $('.addemployeepop #edtSuffix').val() || '';
-        let email = $('.addemployeepop #edtEmailAddress').val() || '';
-        let phone = $('.addemployeepop #edtPhone').val() || '';
-        let mobile = $('.addemployeepop #edtMobile').val() || '';
-        if(mobile != '') {
-            mobile = contactService.changeMobileFormat(mobile)
-        }
-        let fax = $('.addemployeepop #edtFax').val() || '';
-        let skype = $('.addemployeepop #edtSkype').val() || '';
-        let gender = $('.addemployeepop #edtGender').val() || '';
-        let employeeName = $('.addemployeepop #edtCustomerCompany').val() || '';
-
-        var dateofbirthTime = new Date($(".addemployeepop #dtDOB").datepicker("getDate"));
-        var startdateTime = new Date($(".addemployeepop #dtStartingDate").datepicker("getDate"));
-
-        let dateofbirth = dateofbirthTime.getFullYear() + "-" + (dateofbirthTime.getMonth() + 1) + "-" + dateofbirthTime.getDate();
-        let startdate = startdateTime.getFullYear() + "-" + (startdateTime.getMonth() + 1) + "-" + startdateTime.getDate();
-
-        let employeeID = $('.addemployeepop #edtEmployeeID').val();
-        let position = $('.addemployeepop #edtPosition').val();
-        let webiste = $('.addemployeepop #edtWebsite').val();
-
-        let streetaddress = $('.addemployeepop #edtStreetAddress').val();
-        let city = $('.addemployeepop #edtCity').val();
-        let state = $('.addemployeepop #edtState').val();
-        let postalcode = $('.addemployeepop #edtPostalCode').val();
-        let country = $('.addemployeepop #edtCountry').val();
-
-        let custField1 = $('.addemployeepop #edtCustomeField1').val();
-        let custField2 = $('.addemployeepop #edtCustomeField2').val();
-        let custField3 = $('.addemployeepop #edtCustomeField3').val();
-        let custField4 = $('.addemployeepop #edtCustomeField4').val();
-
-        let priorityData = $('.addemployeepop #edtPriority').val() || '';
-
-        let uploadedItems = templateObject.uploadedFiles.get();
-
-        let notes = $('.addemployeepop #txaNotes').val();
-        var url = FlowRouter.current().path;
-        var getemp_id = url.split('?id=');
-        //var currentEmployee = getemp_id[getemp_id.length-1];
-        var currentEmployee = 0;
-        let overrideGlobalCalendarSet = "false";
-
-        if ($('.addemployeepop #overridesettings').is(':checked')) {
-            overrideGlobalCalendarSet = "true";
-        }
-
-        let currentId = FlowRouter.current().queryParams;
-
-        if ((priorityData.replace(/\s/g, '') != '') && (priorityData.replace(/\s/g, '') != 0)) {
-            let checkEmpPriorityData = await contactService.getCheckCustomersPriority(priorityData);
-            if (checkEmpPriorityData.temployee.length) {
-                if (checkEmpPriorityData.temployee[0].Id === parseInt(currentId.id)) {}
-                else {
-                    LoadingOverlay.hide();
-                    swal({
-                        title: 'Sort Order already in use',
-                        text: 'Please enter another.',
-                        type: 'warning',
-                        showCancelButton: false,
-                        confirmButtonText: 'OK'
-                    }).then((result) => {});
-                    return false;
-                }
+            LoadingOverlay.show();
+            let title = $('.addemployeepop #edtTitle').val();
+            let firstname = $('.addemployeepop #edtFirstName').val();
+            if (firstname === '') {
+                LoadingOverlay.hide();
+                // Bert.alert('<strong>WARNING:</strong> First Name cannot be blank!', 'warning');
+                swal('First Name cannot be blank!', '', 'info');
+                e.preventDefault();
+                $('.addemployeepop #edtFirstName').focus();
             }
-        };
-        var objDetails = '';
-
-        let imageData = '';
-        if (templateObject.imageFileData.get()) {
-            imageData = templateObject.imageFileData.get().split(',')[1] || '';
-        }
-        let edtDashboardOptions = $('#edtDashboardOptions').val()||'';
-        let edtSalesQuota = $('#edtSalesQuota').val()||'';
-
-        currentEmployee = currentId.id ? currentId.id : $('.addemployeepop #edtEmployeeId').val();
-
-        if (currentEmployee) {
-            currentEmployee = parseInt(currentEmployee);
-            objDetails = {
-                type: "TEmployeeEx",
-                fields: {
-                    ID: currentEmployee,
-                    Title: title,
-                    FirstName: firstname,
-                    MiddleName: middlename,
-                    LastName: lastname,
-                    TFN: suffix,
-                    FaxNumber: fax,
-                    Email: email,
-                    Phone: phone,
-                    Mobile: mobile,
-                    SkypeName: skype,
-                    Sex: gender,
-                    DOB: dateofbirth||'',
-                    DateStarted: startdate||'',
-                    Position: position,
-                    Street: streetaddress,
-                    Street2: city,
-                    State: state,
-                    PostCode: postalcode,
-                    Country: country,
-                    Notes: notes,
-                    Attachments: uploadedItems,
-                    CustFld1: custField1,
-                    CustFld2: custField2,
-                    CustFld3: custField3,
-                    CustFld4: custField4,
-                    CustFld5: $('.addemployeepop #edtPriority').val(),
-                    CustFld6: $('.addemployeepop #favcolor').val(),
-                    CustFld14: overrideGlobalCalendarSet,
-                    CustFld11: edtDashboardOptions, // tempcode until the fields are added in backend
-                    CustFld12: edtSalesQuota // tempcode
-                }
-            };
-        } else {
-            objDetails = {
-                type: "TEmployeeEx",
-                fields: {
-                    Title: title,
-                    FirstName: firstname,
-                    MiddleName: middlename,
-                    LastName: lastname,
-                    TFN: suffix,
-                    FaxNumber: fax,
-                    Email: email,
-                    Phone: phone,
-                    Mobile: mobile,
-                    SkypeName: skype,
-                    Sex: gender,
-                    DOB: dateofbirth||'',
-                    DateStarted: startdate||'',
-                    Position: position,
-                    Street: streetaddress,
-                    Street2: city,
-                    State: state,
-                    PostCode: postalcode,
-                    Country: country,
-                    Notes: notes,
-                    Attachments: uploadedItems,
-                    CustFld1: custField1,
-                    CustFld2: custField2,
-                    CustFld3: custField3,
-                    CustFld4: custField4,
-                    CustFld5: $('.addemployeepop #edtPriority').val(),
-                    CustFld6: $('.addemployeepop #favcolor').val(),
-                    CustFld14: overrideGlobalCalendarSet,
-                    CustFld11: edtDashboardOptions, // tempcode until the fields are added in backend
-                    CustFld12: edtSalesQuota // tempcode
-
-                }
-            };
-        }
-        contactService.saveEmployeeEx(objDetails).then(function (objDetails) {
-            sideBarService.getAllEmployees().then(function(dataReload){
-                addVS1Data('TEmployee', JSON.stringify(dataReload)).then(function(datareturn) {
-                  $('.fullScreenSpin').css('display', 'none');
-                }).catch(function(err) {
-                  $('.fullScreenSpin').css('display', 'none');
-                });
-            }).catch(function(err) {
-              $('.fullScreenSpin').css('display', 'none');
-            });
-            let employeeSaveID = objDetails.fields.ID;
-            $('.addemployeepop #selectEmployeeID').val(employeeSaveID);
-            // var erpUserID = $("#erpEmpID").val();
-            let employeePicObj = "";
-            if ($('.addemployeepop .cloudEmpImgID').val() == "") {
-                employeePicObj = {
-                    type: "TEmployeePicture",
-                    fields: {
-                        EmployeeName: employeeName,
-                        EncodedPic: imageData
-                    }
-                }
-            } else {
-                employeePicObj = {
-                    type: "TEmployeePicture",
-                    fields: {
-                        ID: parseInt($('.addemployeepop .cloudEmpImgID').val()),
-                        EmployeeName: employeeName,
-                        EncodedPic: imageData
-                    }
-                }
+            let middlename = $('.addemployeepop #edtMiddleName').val() || '';
+            let lastname = $('.addemployeepop #edtLastName').val() || '';
+            let suffix = $('.addemployeepop #edtSuffix').val() || '';
+            let email = $('.addemployeepop #edtEmailAddress').val() || '';
+            let phone = $('.addemployeepop #edtPhone').val() || '';
+            let mobile = $('.addemployeepop #edtMobile').val() || '';
+            if(mobile != '') {
+                mobile = contactService.changeMobileFormat(mobile)
             }
+            let fax = $('.addemployeepop #edtFax').val() || '';
+            let skype = $('.addemployeepop #edtSkype').val() || '';
+            let gender = $('.addemployeepop #edtGender').val() || '';
+            let employeeName = $('.addemployeepop #edtCustomerCompany').val() || '';
 
-            contactService.saveEmployeePicture(employeePicObj).then(function (employeePicObj) {});
+            var dateofbirthTime = new Date($(".addemployeepop #dtDOB").datepicker("getDate"));
+            var startdateTime = new Date($(".addemployeepop #dtStartingDate").datepicker("getDate"));
 
-            let showSat = false;
-            let showSun = false;
+            let dateofbirth = dateofbirthTime.getFullYear() + "-" + (dateofbirthTime.getMonth() + 1) + "-" + dateofbirthTime.getDate();
+            let startdate = startdateTime.getFullYear() + "-" + (startdateTime.getMonth() + 1) + "-" + startdateTime.getDate();
+
+            let employeeID = $('.addemployeepop #edtEmployeeID').val();
+            let position = $('.addemployeepop #edtPosition').val();
+            let webiste = $('.addemployeepop #edtWebsite').val();
+
+            let streetaddress = $('.addemployeepop #edtStreetAddress').val();
+            let city = $('.addemployeepop #edtCity').val();
+            let state = $('.addemployeepop #edtState').val();
+            let postalcode = $('.addemployeepop #edtPostalCode').val();
+            let country = $('.addemployeepop #edtCountry').val();
+
+            let custField1 = $('.addemployeepop #edtCustomeField1').val();
+            let custField2 = $('.addemployeepop #edtCustomeField2').val();
+            let custField3 = $('.addemployeepop #edtCustomeField3').val();
+            let custField4 = $('.addemployeepop #edtCustomeField4').val();
+
+            let priorityData = $('.addemployeepop #edtPriority').val() || '';
+
+            let uploadedItems = templateObject.uploadedFiles.get();
+
+            let notes = $('.addemployeepop #txaNotes').val();
+            var url = FlowRouter.current().path;
+            var getemp_id = url.split('?id=');
+            //var currentEmployee = getemp_id[getemp_id.length-1];
+            var currentEmployee = 0;
             let overrideGlobalCalendarSet = "false";
-            if ($('.addemployeepop #showSaturday').is(':checked')) {
-                showSat = true;
+
+            let active = $("#view-in-active button").hasClass("btnDeleteEmp");
+            if (maiaMode) {
+                active = isMakeActive;
             }
 
-            if ($('.addemployeepop #showSunday').is(':checked')) {
-                showSun = true;
-            }
 
             if ($('.addemployeepop #overridesettings').is(':checked')) {
-                overrideGlobalCalendarSet = overrideGlobalCalendarSet;
+                overrideGlobalCalendarSet = "true";
             }
 
-            let settingID = '';
-            let calOptions = templateObject.calendarOptions.get();
-            if (calOptions) {
-                settingID = calOptions.id;
+            let currentId = FlowRouter.current().queryParams;
+
+            if ((priorityData.replace(/\s/g, '') != '') && (priorityData.replace(/\s/g, '') != 0)) {
+                let checkEmpPriorityData = await contactService.getCheckCustomersPriority(priorityData);
+                if (checkEmpPriorityData.temployee.length) {
+                    if (checkEmpPriorityData.temployee[0].Id === parseInt(currentId.id)) {}
+                    else {
+                        LoadingOverlay.hide();
+                        swal({
+                            title: 'Sort Order already in use',
+                            text: 'Please enter another.',
+                            type: 'warning',
+                            showCancelButton: false,
+                            confirmButtonText: 'OK'
+                        }).then((result) => {});
+                        return false;
+                    }
+                }
+            };
+            var objDetails = '';
+
+            let imageData = '';
+            if (templateObject.imageFileData.get()) {
+                imageData = templateObject.imageFileData.get().split(',')[1] || '';
             }
+            let edtDashboardOptions = $('#edtDashboardOptions').val()||'';
+            let edtSalesQuota = $('#edtSalesQuota').val()||'';
 
-            let defaultTime = parseInt($('.addemployeepop #defaultTime').val().split(' ')[0]) || 2;
-            let defaultProduct = $('.addemployeepop #product-list').children("option:selected").text().trim() || '';
-            let defaultProductID = $('.addemployeepop #product-list').children("option:selected").val() || 0;
+            currentEmployee = currentId.id ? currentId.id : $('.addemployeepop #edtEmployeeId').val();
 
-            let objectData = "";
-            if (settingID == "") {
-                objectData = {
-                    type: "TAppointmentPreferences",
+            if (currentEmployee) {
+                currentEmployee = parseInt(currentEmployee);
+                objDetails = {
+                    type: "TEmployeeEx",
                     fields: {
-                        EmployeeID: employeeSaveID,
-                        DefaultApptDuration: defaultTime,
-                        DefaultServiceProductID: defaultProductID,
-                        DefaultServiceProduct: defaultProduct,
-                        ShowSaturdayinApptCalendar: showSat,
-                        ShowSundayinApptCalendar: showSun
+                        ID: currentEmployee,
+                        Active: active,
+                        Title: title,
+                        FirstName: firstname,
+                        MiddleName: middlename,
+                        LastName: lastname,
+                        TFN: suffix,
+                        FaxNumber: fax,
+                        Email: email,
+                        Phone: phone,
+                        Mobile: mobile,
+                        SkypeName: skype,
+                        Sex: gender,
+                        DOB: dateofbirth||'',
+                        DateStarted: startdate||'',
+                        Position: position,
+                        Street: streetaddress,
+                        Street2: city,
+                        State: state,
+                        PostCode: postalcode,
+                        Country: country,
+                        Notes: notes,
+                        Attachments: uploadedItems,
+                        CustFld1: custField1,
+                        CustFld2: custField2,
+                        CustFld3: custField3,
+                        CustFld4: custField4,
+                        CustFld5: $('.addemployeepop #edtPriority').val(),
+                        CustFld6: $('.addemployeepop #favcolor').val(),
+                        CustFld14: overrideGlobalCalendarSet,
+                        CustFld11: edtDashboardOptions, // tempcode until the fields are added in backend
+                        CustFld12: edtSalesQuota // tempcode
                     }
                 };
             } else {
-                objectData = {
-                    type: "TAppointmentPreferences",
+                objDetails = {
+                    type: "TEmployeeEx",
                     fields: {
-                        ID: settingID,
-                        EmployeeID: employeeSaveID,
-                        DefaultApptDuration: defaultTime,
-                        DefaultServiceProductID: defaultProductID,
-                        DefaultServiceProduct: defaultProduct,
-                        ShowSaturdayinApptCalendar: showSat,
-                        ShowSundayinApptCalendar: showSun
+                        Active: active,
+                        Title: title,
+                        FirstName: firstname,
+                        MiddleName: middlename,
+                        LastName: lastname,
+                        TFN: suffix,
+                        FaxNumber: fax,
+                        Email: email,
+                        Phone: phone,
+                        Mobile: mobile,
+                        SkypeName: skype,
+                        Sex: gender,
+                        DOB: dateofbirth||'',
+                        DateStarted: startdate||'',
+                        Position: position,
+                        Street: streetaddress,
+                        Street2: city,
+                        State: state,
+                        PostCode: postalcode,
+                        Country: country,
+                        Notes: notes,
+                        Attachments: uploadedItems,
+                        CustFld1: custField1,
+                        CustFld2: custField2,
+                        CustFld3: custField3,
+                        CustFld4: custField4,
+                        CustFld5: $('.addemployeepop #edtPriority').val(),
+                        CustFld6: $('.addemployeepop #favcolor').val(),
+                        CustFld14: overrideGlobalCalendarSet,
+                        CustFld11: edtDashboardOptions, // tempcode until the fields are added in backend
+                        CustFld12: edtSalesQuota // tempcode
+
                     }
                 };
             }
-            appointmentService.saveAppointmentPreferences(objectData).then(function (data) {
-                var cloudDBID = localStorage.getItem('mycloudLogonDBID');
-                // var logonName = $("#cloudEmpLogonName").val();
-                var enteredEmail = $(".addemployeepop #cloudEmpEmailAddress").val();
-                var checkifupdate = $(".addemployeepop #cloudCheckEmpEmailAddress").val();
-                var enteredPassword = $(".addemployeepop #cloudEmpUserPassword").val();
-                let cloudpassword = $(".addemployeepop #cloudEmpUserPassword").val().replace(/;/g, ",");
-                let cloudcheckpassword = $(".addemployeepop #cloudCheckEmpUserPassword").val();
-                if (($.trim(enteredEmail).length != 0) && ($.trim(enteredPassword).length != 0)) {
-                    if (cloudpassword.toUpperCase() != cloudcheckpassword.toUpperCase()) {
-                        var cloudHashPassword = CryptoJS.MD5(enteredPassword).toString().toUpperCase();
-                        if ($.trim(checkifupdate).length != 0) {
+            contactService.saveEmployeeEx(objDetails).then(function (objDetails) {
+                sideBarService.getAllTEmployeeList().then(function(dataReload){
+                    addVS1Data('TEmployeeList', JSON.stringify(dataReload)).then(function(datareturn) {
+                    location.reload(true);
+                    $('.fullScreenSpin').css('display', 'none');
+                    }).catch(function(err) {
+                    $('.fullScreenSpin').css('display', 'none');
+                    });
+                }).catch(function(err) {
+                $('.fullScreenSpin').css('display', 'none');
+                });
+                let employeeSaveID = objDetails.fields.ID;
+                $('.addemployeepop #selectEmployeeID').val(employeeSaveID);
+                // var erpUserID = $("#erpEmpID").val();
+                let employeePicObj = "";
+                if ($('.addemployeepop .cloudEmpImgID').val() == "") {
+                    employeePicObj = {
+                        type: "TEmployeePicture",
+                        fields: {
+                            EmployeeName: employeeName,
+                            EncodedPic: imageData
+                        }
+                    }
+                } else {
+                    employeePicObj = {
+                        type: "TEmployeePicture",
+                        fields: {
+                            ID: parseInt($('.addemployeepop .cloudEmpImgID').val()),
+                            EmployeeName: employeeName,
+                            EncodedPic: imageData
+                        }
+                    }
+                }
+                if(imageData){
+                    contactService.saveEmployeePicture(employeePicObj).then(function (employeePicObj) {});
+                }
 
-                            if (cloudpassword.length < 8) {
+                let showSat = false;
+                let showSun = false;
+                let overrideGlobalCalendarSet = "false";
+                if ($('.addemployeepop #showSaturday').is(':checked')) {
+                    showSat = true;
+                }
 
+                if ($('.addemployeepop #showSunday').is(':checked')) {
+                    showSun = true;
+                }
+
+                if ($('.addemployeepop #overridesettings').is(':checked')) {
+                    overrideGlobalCalendarSet = overrideGlobalCalendarSet;
+                }
+
+                let settingID = '';
+                let calOptions = templateObject.calendarOptions.get();
+                if (calOptions) {
+                    settingID = calOptions.id;
+                }
+
+                let defaultTime = parseInt($('.addemployeepop #defaultTime').val().split(' ')[0]) || 2;
+                let defaultProduct = $('.addemployeepop #product-list').children("option:selected").text().trim() || '';
+                let defaultProductID = $('.addemployeepop #product-list').children("option:selected").val() || 0;
+
+                let objectData = "";
+                if (settingID == "") {
+                    objectData = {
+                        type: "TAppointmentPreferences",
+                        fields: {
+                            EmployeeID: employeeSaveID,
+                            DefaultApptDuration: defaultTime,
+                            DefaultServiceProductID: defaultProductID,
+                            DefaultServiceProduct: defaultProduct,
+                            ShowSaturdayinApptCalendar: showSat,
+                            ShowSundayinApptCalendar: showSun
+                        }
+                    };
+                } else {
+                    objectData = {
+                        type: "TAppointmentPreferences",
+                        fields: {
+                            ID: settingID,
+                            EmployeeID: employeeSaveID,
+                            DefaultApptDuration: defaultTime,
+                            DefaultServiceProductID: defaultProductID,
+                            DefaultServiceProduct: defaultProduct,
+                            ShowSaturdayinApptCalendar: showSat,
+                            ShowSundayinApptCalendar: showSun
+                        }
+                    };
+                }
+                appointmentService.saveAppointmentPreferences(objectData).then(function (data) {
+                    var cloudDBID = localStorage.getItem('mycloudLogonDBID');
+                    // var logonName = $("#cloudEmpLogonName").val();
+                    var enteredEmail = $(".addemployeepop #cloudEmpEmailAddress").val();
+                    var checkifupdate = $(".addemployeepop #cloudCheckEmpEmailAddress").val();
+                    var enteredPassword = $(".addemployeepop #cloudEmpUserPassword").val();
+                    let cloudpassword = $(".addemployeepop #cloudEmpUserPassword").val().replace(/;/g, ",");
+                    let cloudcheckpassword = $(".addemployeepop #cloudCheckEmpUserPassword").val();
+                    if (($.trim(enteredEmail).length != 0) && ($.trim(enteredPassword).length != 0)) {
+                        if (cloudpassword.toUpperCase() != cloudcheckpassword.toUpperCase()) {
+                            var cloudHashPassword = CryptoJS.MD5(enteredPassword).toString().toUpperCase();
+                            if ($.trim(checkifupdate).length != 0) {
+                                if (cloudpassword.length < 8) {
                                     swal('Invalid VS1 Password', 'Password must be at least eight characters including one capital letter and one number!', 'error');
                                     $('.addemployeepop #cloudEmpUserPassword').css('border-color', 'red');
                                     $('.addemployeepop #cloudEmpUserPassword').focus();
-
-                                LoadingOverlay.hide();
-                                return false;
-                            } else {
-                                var erpGet = erpDb();
-
-                                let objDetailsUserPassword = {
-                                    //JsonIn:{
-                                    Name: "VS1_ChangePassword",
-                                    Params: {
-                                        // FirstName: firstname,
-                                        // LastName: lastname,
-                                        // EmployeeName: $('#edtCustomerCompany').val(),
-                                        ERPLoginDetails: {
-                                            erpusername: $('.addemployeepop #cloudCheckEmpEmailAddress').val(),
-                                            // VS1Password: $('#cloudCheckEmpUserPassword').val(),
-                                            NewPassword: cloudpassword
+                                    LoadingOverlay.hide();
+                                    return false;
+                                } else {
+                                    var erpGet = erpDb();
+                                    let objDetailsUserPassword = {
+                                        //JsonIn:{
+                                        Name: "VS1_ChangePassword",
+                                        Params: {
+                                            // FirstName: firstname,
+                                            // LastName: lastname,
+                                            // EmployeeName: $('#edtCustomerCompany').val(),
+                                            ERPLoginDetails: {
+                                                erpusername: $('.addemployeepop #cloudCheckEmpEmailAddress').val(),
+                                                // VS1Password: $('#cloudCheckEmpUserPassword').val(),
+                                                NewPassword: cloudpassword
+                                            }
                                         }
-                                    }
-                                    //}
-                                };
-                                if (cloudpassword.toUpperCase() != cloudcheckpassword.toUpperCase()) {
-
-                                    var oPost = new XMLHttpRequest();
-                                    oPost.open("POST", URLRequest + loggedserverIP + ':' + loggedserverPort + '/' + 'erpapi/VS1_Cloud_Task/Method?Name="VS1_ChangePassword"', true);
-                                    oPost.setRequestHeader("database", vs1loggedDatatbase);
-                                    oPost.setRequestHeader("username", 'VS1_Cloud_Admin');
-                                    oPost.setRequestHeader("password", 'DptfGw83mFl1j&9');
-                                    oPost.setRequestHeader("Accept", "application/json");
-                                    oPost.setRequestHeader("Accept", "application/html");
-                                    oPost.setRequestHeader("Content-type", "application/json");
-
-                                    //var myString = '"JsonIn"' + ':' + JSON.stringify(objDetailsUser);
-                                    var myStringUserPassword = '"JsonIn"' + ':' + JSON.stringify(objDetailsUserPassword);
-                                    //
-                                    oPost.send(myStringUserPassword);
-
-                                    oPost.onreadystatechange = function () {
-                                        if (oPost.readyState == 4 && oPost.status == 200) {
-                                            var myArrResponsData = JSON.parse(oPost.responseText);
-
-                                            if (myArrResponsData.ProcessLog.ResponseNo == 401) {
-                                                swal({
-                                                    title: 'VS1 Change User Password Failed',
-                                                    text: myArrResponsData.ProcessLog.ResponseStatus,
-                                                    type: 'error',
-                                                    showCancelButton: false,
-                                                    confirmButtonText: 'OK'
-                                                }).then((result) => {
-                                                    if (result.value) {
-                                                        $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
-                                                    } else {
-                                                        $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
-                                                    }
-                                                });
-                                            } else {
-                                                if (employeeSaveID) {
-                                                    sideBarService.getAllEmployees(25, 0).then(function (dataReload) {
-                                                        addVS1Data('TEmployee', JSON.stringify(dataReload)).then(function (datareturn) {}).catch(function (err) {});
-                                                    }).catch(function (err) {});
-
-                                                    getVS1Data('vscloudlogininfo').then(function (dataObject) {
-                                                        if (dataObject.length == 0) {
-                                                            swal({
-                                                                title: 'Password successfully changed',
-                                                                text: '',
-                                                                type: 'success',
-                                                                showCancelButton: false,
-                                                                confirmButtonText: 'OK'
-                                                            }).then((result) => {
-                                                                if (result.value) {
-                                                                    $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
-                                                                } else {
-                                                                    $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
-                                                                }
-                                                            });
+                                        //}
+                                    };
+                                    if (cloudpassword.toUpperCase() != cloudcheckpassword.toUpperCase()) {
+                                        var oPost = new XMLHttpRequest();
+                                        oPost.open("POST", URLRequest + loggedserverIP + ':' + loggedserverPort + '/' + 'erpapi/VS1_Cloud_Task/Method?Name="VS1_ChangePassword"', true);
+                                        oPost.setRequestHeader("database", vs1loggedDatatbase);
+                                        oPost.setRequestHeader("username", 'VS1_Cloud_Admin');
+                                        oPost.setRequestHeader("password", 'DptfGw83mFl1j&9');
+                                        oPost.setRequestHeader("Accept", "application/json");
+                                        oPost.setRequestHeader("Accept", "application/html");
+                                        oPost.setRequestHeader("Content-type", "application/json");
+                                        //var myString = '"JsonIn"' + ':' + JSON.stringify(objDetailsUser);
+                                        var myStringUserPassword = '"JsonIn"' + ':' + JSON.stringify(objDetailsUserPassword);
+                                        oPost.send(myStringUserPassword);
+                                        oPost.onreadystatechange = function () {
+                                            if (oPost.readyState == 4 && oPost.status == 200) {
+                                                var myArrResponsData = JSON.parse(oPost.responseText);
+                                                if (myArrResponsData.ProcessLog.ResponseNo == 401) {
+                                                    swal({
+                                                        title: 'VS1 Change User Password Failed',
+                                                        text: myArrResponsData.ProcessLog.ResponseStatus,
+                                                        type: 'error',
+                                                        showCancelButton: false,
+                                                        confirmButtonText: 'OK'
+                                                    }).then((result) => {
+                                                        if (result.value) {
+                                                            $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
                                                         } else {
-                                                            let loginDataArray = [];
-                                                            if (dataObject[0].EmployeeEmail === $('#cloudCheckEmpEmailAddress').val()) {
-                                                                loginDataArray = dataObject[0].data;
-                                                                loginDataArray.ProcessLog.VS1AdminPassword = cloudpassword;
-                                                                addLoginData(loginDataArray).then(function (datareturnCheck) {
-                                                                    swal({
-                                                                        title: 'Password successfully changed',
-                                                                        text: '',
-                                                                        type: 'success',
-                                                                        showCancelButton: false,
-                                                                        confirmButtonText: 'OK'
-                                                                    }).then((result) => {
-                                                                        if (result.value) {
-                                                                            window.open('/', '_self');
-                                                                        } else {
-                                                                            window.open('/', '_self');
-                                                                        }
-                                                                    });
-
-                                                                }).catch(function (err) {
-                                                                    swal({
-                                                                        title: 'Password successfully changed',
-                                                                        text: '',
-                                                                        type: 'success',
-                                                                        showCancelButton: false,
-                                                                        confirmButtonText: 'OK'
-                                                                    }).then((result) => {
-                                                                        if (result.value) {
-                                                                            window.open('/', '_self');
-                                                                        } else {
-                                                                            window.open('/', '_self');
-                                                                        }
-                                                                    });
-                                                                });
-
-                                                            } else {
+                                                            $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
+                                                        }
+                                                    });
+                                                } else {
+                                                    if (employeeSaveID) {
+                                                        sideBarService.getAllEmployees(25, 0).then(function (dataReload) {
+                                                            addVS1Data('TEmployee', JSON.stringify(dataReload)).then(function (datareturn) {}).catch(function (err) {});
+                                                        }).catch(function (err) {});
+                                                        getVS1Data('vscloudlogininfo').then(function (dataObject) {
+                                                            if (dataObject.length == 0) {
                                                                 swal({
                                                                     title: 'Password successfully changed',
                                                                     text: '',
@@ -2377,50 +2288,75 @@ Template.addemployeepop.events({
                                                                         $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
                                                                     }
                                                                 });
-                                                            }
-                                                        }
-                                                    }).catch(function (err) {
-                                                        swal({
-                                                            title: 'Password successfully changed',
-                                                            text: '',
-                                                            type: 'success',
-                                                            showCancelButton: false,
-                                                            confirmButtonText: 'OK'
-                                                        }).then((result) => {
-                                                            if (result.value) {
-                                                                $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
                                                             } else {
-                                                                $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
+                                                                let loginDataArray = [];
+                                                                if (dataObject[0].EmployeeEmail === $('#cloudCheckEmpEmailAddress').val()) {
+                                                                    loginDataArray = dataObject[0].data;
+                                                                    loginDataArray.ProcessLog.VS1AdminPassword = cloudpassword;
+                                                                    addLoginData(loginDataArray).then(function (datareturnCheck) {
+                                                                        swal({
+                                                                            title: 'Password successfully changed',
+                                                                            text: '',
+                                                                            type: 'success',
+                                                                            showCancelButton: false,
+                                                                            confirmButtonText: 'OK'
+                                                                        }).then((result) => {
+                                                                            if (result.value) {
+                                                                                window.open('/', '_self');
+                                                                            } else {
+                                                                                window.open('/', '_self');
+                                                                            }
+                                                                        });
+                                                                    }).catch(function (err) {
+                                                                        swal({
+                                                                            title: 'Password successfully changed',
+                                                                            text: '',
+                                                                            type: 'success',
+                                                                            showCancelButton: false,
+                                                                            confirmButtonText: 'OK'
+                                                                        }).then((result) => {
+                                                                            if (result.value) {
+                                                                                window.open('/', '_self');
+                                                                            } else {
+                                                                                window.open('/', '_self');
+                                                                            }
+                                                                        });
+                                                                    });
+                                                                } else {
+                                                                    swal({
+                                                                        title: 'Password successfully changed',
+                                                                        text: '',
+                                                                        type: 'success',
+                                                                        showCancelButton: false,
+                                                                        confirmButtonText: 'OK'
+                                                                    }).then((result) => {
+                                                                        if (result.value) {
+                                                                            $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
+                                                                        } else {
+                                                                            $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
+                                                                        }
+                                                                    });
+                                                                }
                                                             }
+                                                        }).catch(function (err) {
+                                                            swal({
+                                                                title: 'Password successfully changed',
+                                                                text: '',
+                                                                type: 'success',
+                                                                showCancelButton: false,
+                                                                confirmButtonText: 'OK'
+                                                            }).then((result) => {
+                                                                if (result.value) {
+                                                                    $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
+                                                                } else {
+                                                                    $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
+                                                                }
+                                                            });
                                                         });
-                                                    });
-
+                                                    }
                                                 }
-
-                                            }
-
-                                        } else if (oPost.readyState == 4 && oPost.status == 403) {
-                                            LoadingOverlay.hide();
-                                            swal({
-                                                title: 'Oooops...',
-                                                text: oPost.getResponseHeader('errormessage'),
-                                                type: 'error',
-                                                showCancelButton: false,
-                                                confirmButtonText: 'Try Again'
-                                            }).then((result) => {
-                                                if (result.value) {
-                                                    window.open('/employeescard', '_self');
-                                                } else if (result.dismiss === 'cancel') {
-                                                    window.open('/employeescard', '_self');
-                                                }
-                                            });
-                                        } else if (oPost.readyState == 4 && oPost.status == 406) {
-                                            LoadingOverlay.hide();
-                                            var ErrorResponse = oPost.getResponseHeader('errormessage');
-                                            var segError = ErrorResponse.split(':');
-
-                                            if ((segError[1]) == ' "Unable to lock object') {
-
+                                            } else if (oPost.readyState == 4 && oPost.status == 403) {
+                                                LoadingOverlay.hide();
                                                 swal({
                                                     title: 'Oooops...',
                                                     text: oPost.getResponseHeader('errormessage'),
@@ -2428,57 +2364,75 @@ Template.addemployeepop.events({
                                                     showCancelButton: false,
                                                     confirmButtonText: 'Try Again'
                                                 }).then((result) => {
-                                                    if (result.value) {
-                                                        window.open('/employeescard', '_self');
-                                                    } else if (result.dismiss === 'cancel') {
-                                                        window.open('/employeescard', '_self');
-                                                    }
+                                                    // if (result.value) {
+                                                    //     window.open('/employeescard', '_self');
+                                                    // } else if (result.dismiss === 'cancel') {
+                                                    //     window.open('/employeescard', '_self');
+                                                    // }
+                                                });
+                                            } else if (oPost.readyState == 4 && oPost.status == 406) {
+                                                LoadingOverlay.hide();
+                                                var ErrorResponse = oPost.getResponseHeader('errormessage');
+                                                var segError = ErrorResponse.split(':');
+                                                if ((segError[1]) == ' "Unable to lock object') {
+                                                    swal({
+                                                        title: 'Oooops...',
+                                                        text: oPost.getResponseHeader('errormessage'),
+                                                        type: 'error',
+                                                        showCancelButton: false,
+                                                        confirmButtonText: 'Try Again'
+                                                    }).then((result) => {
+                                                        // if (result.value) {
+                                                        //     window.open('/employeescard', '_self');
+                                                        // } else if (result.dismiss === 'cancel') {
+                                                        //     window.open('/employeescard', '_self');
+                                                        // }
+                                                    });
+                                                } else {
+                                                    swal({
+                                                        title: 'Oooops...',
+                                                        text: oPost.getResponseHeader('errormessage'),
+                                                        type: 'error',
+                                                        showCancelButton: false,
+                                                        confirmButtonText: 'Try Again'
+                                                    }).then((result) => {
+                                                        // if (result.value) {
+                                                        //     window.open('/employeescard', '_self');
+                                                        // } else if (result.dismiss === 'cancel') {
+                                                        //     window.open('/employeescard', '_self');
+                                                        // }
+                                                    });
+                                                }
+                                            } else if (oPost.readyState == '') {
+                                                swal({
+                                                    title: 'Oooops...',
+                                                    text: oPost.getResponseHeader('errormessage'),
+                                                    type: 'error',
+                                                    showCancelButton: false,
+                                                    confirmButtonText: 'Try Again'
+                                                }).then((result) => {
+                                                    // if (result.value) {
+                                                    //     window.open('/employeescard', '_self');
+                                                    // } else if (result.dismiss === 'cancel') {
+                                                    //     window.open('/employeescard', '_self');
+                                                    // }
                                                 });
                                             } else {
-                                                swal({
-                                                    title: 'Oooops...',
-                                                    text: oPost.getResponseHeader('errormessage'),
-                                                    type: 'error',
-                                                    showCancelButton: false,
-                                                    confirmButtonText: 'Try Again'
-                                                }).then((result) => {
-                                                    if (result.value) {
-                                                        window.open('/employeescard', '_self');
-                                                    } else if (result.dismiss === 'cancel') {
-                                                        window.open('/employeescard', '_self');
-                                                    }
-                                                });
+                                                LoadingOverlay.hide();
                                             }
-
-                                        } else if (oPost.readyState == '') {
-
-                                            swal({
-                                                title: 'Oooops...',
-                                                text: oPost.getResponseHeader('errormessage'),
-                                                type: 'error',
-                                                showCancelButton: false,
-                                                confirmButtonText: 'Try Again'
-                                            }).then((result) => {
-                                                if (result.value) {
-                                                    window.open('/employeescard', '_self');
-                                                } else if (result.dismiss === 'cancel') {
-                                                    window.open('/employeescard', '_self');
-                                                }
-                                            });
-                                        } else {
-                                            LoadingOverlay.hide();
                                         }
-                                    }
-
-                                } else {
-                                    if (employeeSaveID) {
-                                        //window.open('/employeescard?id=' + employeeSaveID,'_self');
-                                        sideBarService.getAllEmployees(25, 0).then(function (dataReload) {
-                                            addVS1Data('TEmployee', JSON.stringify(dataReload)).then(function (datareturn) {
-                                                //$('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
-                                                sideBarService.getAllAppointmentPredList().then(function (data) {
-                                                    addVS1Data('TAppointmentPreferences', JSON.stringify(data)).then(function (datareturn) {
-                                                        $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
+                                    } else {
+                                        if (employeeSaveID) {
+                                            //window.open('/employeescard?id=' + employeeSaveID,'_self');
+                                            sideBarService.getAllEmployees(25, 0).then(function (dataReload) {
+                                                addVS1Data('TEmployee', JSON.stringify(dataReload)).then(function (datareturn) {
+                                                    //$('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
+                                                    sideBarService.getAllAppointmentPredList().then(function (data) {
+                                                        addVS1Data('TAppointmentPreferences', JSON.stringify(data)).then(function (datareturn) {
+                                                            // $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
+                                                        }).catch(function (err) {
+                                                            $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
+                                                        });
                                                     }).catch(function (err) {
                                                         $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
                                                     });
@@ -2488,32 +2442,27 @@ Template.addemployeepop.events({
                                             }).catch(function (err) {
                                                 $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
                                             });
+                                        }
+                                    }
+                                }
+                            } else {
+                                LoadingOverlay.hide();
+                                $('#addvs1userModal').modal('toggle');
+                            }
+                        } else {
+                            $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
+                        }
+                    } else {
+                        if (employeeSaveID) {
+                            //window.open('/employeescard?id=' + employeeSaveID,'_self');
+                            sideBarService.getAllEmployees(25, 0).then(function (dataReload) {
+                                addVS1Data('TEmployee', JSON.stringify(dataReload)).then(function (datareturn) {
+                                    sideBarService.getAllAppointmentPredList().then(function (data) {
+                                        addVS1Data('TAppointmentPreferences', JSON.stringify(data)).then(function (datareturn) {
+                                            // $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
                                         }).catch(function (err) {
                                             $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
                                         });
-                                    }
-                                }
-
-                            }
-                        } else {
-                            LoadingOverlay.hide();
-                            $('#addvs1userModal').modal('toggle');
-
-                        }
-
-                    } else {
-                        $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
-                    }
-
-                } else {
-                    if (employeeSaveID) {
-                        //window.open('/employeescard?id=' + employeeSaveID,'_self');
-                        sideBarService.getAllEmployees(25, 0).then(function (dataReload) {
-                            addVS1Data('TEmployee', JSON.stringify(dataReload)).then(function (datareturn) {
-                                sideBarService.getAllAppointmentPredList().then(function (data) {
-                                    addVS1Data('TAppointmentPreferences', JSON.stringify(data)).then(function (datareturn) {
-
-                                        $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
                                     }).catch(function (err) {
                                         $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
                                     });
@@ -2523,27 +2472,49 @@ Template.addemployeepop.events({
                             }).catch(function (err) {
                                 $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
                             });
-                        }).catch(function (err) {
-                            $('.setup-wizard') ? $('.btnRefreshEmployee').click() : FlowRouter.go('/employeelist?success=true');
-                        });
+                        }
                     }
-                }
+                });
+            }).catch(function (err) {
+                swal({
+                    title: 'Oooops...',
+                    text: err,
+                    type: 'error',
+                    showCancelButton: false,
+                    confirmButtonText: 'Try Again'
+                }).then((result) => {
+                    if (result.value) {
+                        if(err === checkResponseError){
+                            // window.open('/', '_self');
+                        }
+                    }else if (result.dismiss === 'cancel') {}
+                });
+                LoadingOverlay.hide();
             });
+        }, delayTimeAfterSound);
+    }
+});
 
-        }).catch(function (err) {
-            swal({
-                title: 'Oooops...',
-                text: err,
-                type: 'error',
-                showCancelButton: false,
-                confirmButtonText: 'Try Again'
-            }).then((result) => {
-                if (result.value) {if(err === checkResponseError){window.open('/', '_self');}}
-                 else if (result.dismiss === 'cancel') {}
-            });
-            LoadingOverlay.hide();
-        });
-    }, delayTimeAfterSound);
+Template.addemployeepop.events({
+    'click .addemployeepop #customerShipping-1': function (event) {
+        if ($(event.target).is(':checked')) {
+            $('.customerShipping-2').css('display', 'none');
+
+        } else {
+            $('.customerShipping-2').css('display', 'block');
+        }
+    },
+    'click .addemployeepop .btnSaveEmpPop': async function (event) {
+        const templateObject = Template.instance();
+        templateObject.saveEmployee();
+    },
+    'click .addemployeepop .btnDeleteEmp': async function (event) {
+        const templateObject = Template.instance();
+        templateObject.saveEmployee(maiaMode=true, false);
+    },
+    'click .addemployeepop .btnActiveEmp': async function (event) {
+        const templateObject = Template.instance();
+        templateObject.saveEmployee(maiaMode=true, true);
     },
     'click .addemployeepop .btnClosePayment': function (event) {
         if (FlowRouter.current().queryParams.id) {
@@ -3518,37 +3489,38 @@ Template.addemployeepop.events({
         $('.addemployeepop #attachment-upload').trigger('click');
 
     },
-    'click .addemployeepop #edtPriority': function (event) {
-        let templateObject = Template.instance();
-        let priorities = templateObject.empPriorities.get().sort((a, b) => a - b);
-        let allpriorities = priorities.join(',');
-        swal({
-            title: 'Enter Sort Order',
-            input: 'text',
-            inputPlaceholder: 'Please enter sort order',
-            text: 'Sort Order in use are: ' + allpriorities
-        }).then((result) => {
-            if (result.value) {
-                $('.addemployeepop #edtPriority').focus();
-                $('.addemployeepop #edtPriority').val(result.value);
-            } else if (result.dismiss === 'cancel') {}
-        })
+    // Duplicated on the addEmployee.js
+    // 'click .addemployeepop #edtPriority': function (event) {
+    //     let templateObject = Template.instance();
+    //     let priorities = templateObject.empPriorities.get().sort((a, b) => a - b);
+    //     let allpriorities = priorities.join(',');
+    //     swal({
+    //         title: 'Enter Sort Order',
+    //         input: 'text',
+    //         inputPlaceholder: 'Please enter sort order',
+    //         text: 'Sort Order in use are: ' + allpriorities
+    //     }).then((result) => {
+    //         if (result.value) {
+    //             $('.addemployeepop #edtPriority').focus();
+    //             $('.addemployeepop #edtPriority').val(result.value);
+    //         } else if (result.dismiss === 'cancel') {}
+    //     })
 
-        // swal({
-        //     title: 'User currently has an Existing Login.',
-        //     text: '',
-        //     type: 'info',
-        //     showCancelButton: false,
-        //     confirmButtonText: 'OK'
-        // }).then((result) => {
-        //     if (result.value) {
-        //         $('#cloudEmpEmailAddress').focus();
-        //     } else if (result.dismiss === 'cancel') {
+    //     // swal({
+    //     //     title: 'User currently has an Existing Login.',
+    //     //     text: '',
+    //     //     type: 'info',
+    //     //     showCancelButton: false,
+    //     //     confirmButtonText: 'OK'
+    //     // }).then((result) => {
+    //     //     if (result.value) {
+    //     //         $('#cloudEmpEmailAddress').focus();
+    //     //     } else if (result.dismiss === 'cancel') {
 
-        //     }
-        // });
+    //     //     }
+    //     // });
 
-    },
+    // },
     'change .addemployeepop #attachment-upload': function (e) {
         let templateObj = Template.instance();
         let saveToTAttachment = false;
@@ -3771,13 +3743,25 @@ Template.addemployeepop.helpers({
     isCloudUserPass: () => {
         return Template.instance().isCloudUserPass.get();
     },
-    record: () => {
-        let temp =  Template.instance().records.get();
-        if(temp && temp.mobile) {
-            temp.mobile = temp.mobile.replace('+61', '0')
-        }
-        return temp;
+    // record: () => {
+    //     let temp =  Template.instance().records.get();
+    //     if(temp && temp.mobile) {
+    //         temp.mobile = temp.mobile.replace('+61', '0')
+    //     }
+    //     return temp;
 
+    // },
+    record: () => {
+        let parentRecord = Template.parentData(0).record;
+        if (parentRecord) {
+            return parentRecord;
+        } else {
+            let temp = Template.instance().records.get();
+            if (temp && temp.mobile) {
+                temp.mobile = temp.mobile.replace('+61', '0')
+            }
+            return temp;
+        }
     },
     extraUserPrice: () => {
         return addExtraUserPrice || '$35';

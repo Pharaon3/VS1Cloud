@@ -12,6 +12,7 @@ import {CRMService} from "../crm/crm-service";
 
 let sideBarService = new SideBarService();
 let utilityService = new UtilityService();
+let purchaseService = new PurchaseBoardService();
 Template.purchaseorderlist.onCreated(function () {
   const templateObject = Template.instance();
   templateObject.datatablerecords = new ReactiveVar([]);
@@ -19,6 +20,7 @@ Template.purchaseorderlist.onCreated(function () {
   templateObject.custfields = new ReactiveVar([]);
   templateObject.displayfields = new ReactiveVar([]);
   templateObject.reset_data = new ReactiveVar([]);
+  templateObject.temporaryfiles = new ReactiveVar([])
 
   templateObject.tableheaderrecords = new ReactiveVar([]);
   templateObject.getDataTableList = function(data) {
@@ -68,6 +70,18 @@ Template.purchaseorderlist.onCreated(function () {
     { index: 12, label: 'Status', class: 'colStatus', active: true, display: true, width: "120" },
   ];
   templateObject.tableheaderrecords.set(headerStructure);
+
+  getVS1Data('TPurchaseOrderTemp').then(function(dataObject) {
+    if(dataObject.length == 0) {
+    } else {
+      let data = JSON.parse(dataObject[0].data);
+      let useData = data.tpurchaseordertemp;
+      if(useData.length > 0){
+        templateObject.temporaryfiles.set(useData);
+        $('.btnRefresh').addClass('btnRefreshAlert')
+      }
+    }
+  })
 });
 
 Template.purchaseorderlist.onRendered(function () {
@@ -154,7 +168,7 @@ Template.purchaseorderlist.onRendered(function () {
 
 
   let accountService = new AccountService();
-  let purchaseService = new PurchaseBoardService();
+
   const supplierList = [];
   let purchaseOrderTable;
   var splashArray = new Array();
@@ -2155,6 +2169,39 @@ Template.purchaseorderlist.events({
   },
   "click .btnRefresh":async function () {
     $(".fullScreenSpin").css("display", "inline-block");
+    let templateObject = Template.instance();
+    let tempfiles = templateObject.temporaryfiles.get();
+    async function sendPostRequest  () {
+      return new Promise((resolve, reject) => {
+        for(let i=0; i< tempfiles.length; i++) {
+          // return
+          purchaseService.savePurchaseOrderEx(tempfiles[i]).then(function() {
+            let newTemp = tempfiles.slice(i+1, tempfiles.length);
+            addVS1Data('TPurchaseOrderTemp', JSON.stringify({tpurchaseordertemp: newTemp})).then(function() {
+              if(i == tempfiles.length -1) {
+                resolve()
+              }
+            })
+          }).catch(function(e) {
+            resolve();
+          })
+        }
+      })
+    }
+
+    if(tempfiles&&tempfiles.length) {
+      await sendPostRequest();
+    }
+
+    getVS1Data('TPurchaseOrderTemp').then(function(dataObject) {
+      if(dataObject.length ==0) {
+        $('.btnRefresh').removeClass('btnRefreshAlert');
+      } else {
+      }
+    }).catch(function(e) {
+      $('.btnRefresh').removeClass('btnRefreshAlert');
+    })
+
     let currentDate = new Date();
     let hours = currentDate.getHours(); //returns 0-23
     let minutes = currentDate.getMinutes(); //returns 0-59
@@ -2170,7 +2217,6 @@ Template.purchaseorderlist.events({
       days = "0" + currentDate.getDate();
     }
     let currenctTodayDate =currentDate.getFullYear() +"-" +month +"-" +days +" " +hours +":" +minutes +":" +seconds;
-    let templateObject = Template.instance();
 
     var currentBeginDate = new Date();
     var begunDate = moment(currentBeginDate).format("DD/MM/YYYY");
@@ -2189,11 +2235,55 @@ Template.purchaseorderlist.events({
       currentBeginDate.getFullYear() + "-" + fromDateMonth + "-" + fromDateDay;
     let prevMonth11Date = moment().subtract(reportsloadMonths, "months").format("YYYY-MM-DD");
 
-    sideBarService.getAllPurchaseOrderListAll(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (data) {
-        addVS1Data("TbillReport", JSON.stringify(data)).then(function (datareturn) {}).catch(function (err) {});
-      }).catch(function (err) {});
+    // sideBarService.getAllPurchaseOrderListAll(prevMonth11Date,toDate,true,initialReportLoad,0).then(function (data) {
+    //     addVS1Data("TbillReport", JSON.stringify(data)).then(function (datareturn) {}).catch(function (err) {});
+    //   }).catch(function (err) {});
 
-      sideBarService.getAllPurchaseOrderList(initialDataLoad, 0).then(function (data) {
+      
+
+    sideBarService.getAllTPurchaseOrderListData(prevMonth11Date,toDate,true,initialReportLoad,0).then(async function (dataPO) {
+        addVS1Data("TPurchaseOrderList", JSON.stringify(dataPO)).then(async function (datareturn) {
+      //     sideBarService.getTPaymentList(prevMonth11Date, toDate, true, initialReportLoad, 0,'').then(function(dataPaymentList) {
+      //     addVS1Data('TPaymentList', JSON.stringify(dataPaymentList)).then(async function(datareturn) {
+      //         sideBarService.getAllTSupplierPaymentListData(prevMonth11Date, toDate, true, initialReportLoad, 0).then(async function(dataSuppPay) {
+      //             addVS1Data('TSupplierPaymentList', JSON.stringify(dataSuppPay)).then(async function(datareturn) {
+      //                 sideBarService.getAllTCustomerPaymentListData(prevMonth11Date, toDate, true, initialReportLoad, 0).then(async function(dataCustPay) {
+      //                     await addVS1Data('TCustomerPaymentList', JSON.stringify(dataCustPay)).then(function(datareturn) {
+      //                       setTimeout(function () {
+      //                         window.open('/purchaseorderlist', '_self');
+      //                       }, 2000);
+      //                     }).catch(function(err) {
+      //                       setTimeout(function () {
+      //                         window.open('/purchaseorderlist', '_self');
+      //                       }, 2000);
+      //                     });
+      //                 }).catch(function(err) {
+      //                   setTimeout(function () {
+      //                     window.open('/purchaseorderlist', '_self');
+      //                   }, 2000);
+      //                 });
+      //             }).catch(function(err) {
+      //                 setTimeout(function () {
+      //                     window.open('/purchaseorderlist', '_self');
+      //                  }, 2000);
+      //             });
+      //         }).catch(function(err) {
+      //           setTimeout(function () {
+      //             window.open('/purchaseorderlist', '_self');
+      //           }, 2000);
+      //         });
+      //     }).catch(function(err) {
+      //       setTimeout(function () {
+      //         window.open('/purchaseorderlist', '_self');
+      //       }, 2000);
+      //     });
+      // }).catch(function(err) {
+      //   setTimeout(function () {
+      //     window.open('/purchaseorderlist', '_self');
+      //   }, 2000);
+
+      // });
+        sideBarService.getAllPurchaseOrderList(initialDataLoad, 0).then(function (data) {
           addVS1Data("TPurchaseOrderEx", JSON.stringify(data)).then(function (datareturn) {
               window.open("/purchaseorderlist", "_self");
             }).catch(function (err) {
@@ -2202,60 +2292,6 @@ Template.purchaseorderlist.events({
         }).catch(function (err) {
           window.open("/purchaseorderlist", "_self");
         });
-
-    sideBarService.getAllTPurchaseOrderListData(prevMonth11Date,toDate,true,initialReportLoad,0).then(async function (dataPO) {
-        addVS1Data("TPurchaseOrderList", JSON.stringify(dataPO)).then(async function (datareturn) {
-          sideBarService.getTPaymentList(prevMonth11Date, toDate, true, initialReportLoad, 0,'').then(function(dataPaymentList) {
-          addVS1Data('TPaymentList', JSON.stringify(dataPaymentList)).then(async function(datareturn) {
-              sideBarService.getAllTSupplierPaymentListData(prevMonth11Date, toDate, true, initialReportLoad, 0).then(async function(dataSuppPay) {
-                  addVS1Data('TSupplierPaymentList', JSON.stringify(dataSuppPay)).then(async function(datareturn) {
-                      sideBarService.getAllTCustomerPaymentListData(prevMonth11Date, toDate, true, initialReportLoad, 0).then(async function(dataCustPay) {
-                          await addVS1Data('TCustomerPaymentList', JSON.stringify(dataCustPay)).then(function(datareturn) {
-                            setTimeout(function () {
-                              window.open('/purchaseorderlist', '_self');
-                            }, 2000);
-                          }).catch(function(err) {
-                            setTimeout(function () {
-                              window.open('/purchaseorderlist', '_self');
-                            }, 2000);
-                          });
-                      }).catch(function(err) {
-                        setTimeout(function () {
-                          window.open('/purchaseorderlist', '_self');
-                        }, 2000);
-                      });
-                  }).catch(function(err) {
-                      setTimeout(function () {
-                          window.open('/purchaseorderlist', '_self');
-                       }, 2000);
-                  });
-              }).catch(function(err) {
-                setTimeout(function () {
-                  window.open('/purchaseorderlist', '_self');
-                }, 2000);
-              });
-          }).catch(function(err) {
-            setTimeout(function () {
-              window.open('/purchaseorderlist', '_self');
-            }, 2000);
-          });
-      }).catch(function(err) {
-        setTimeout(function () {
-          window.open('/purchaseorderlist', '_self');
-        }, 2000);
-
-      });
-          }).catch(function (err) {
-            sideBarService.getAllPurchaseOrderList(initialDataLoad, 0).then(function (data) {
-                addVS1Data("TPurchaseOrderEx", JSON.stringify(data)).then(function (datareturn) {
-                    window.open("/purchaseorderlist", "_self");
-                  }).catch(function (err) {
-                    window.open("/purchaseorderlist", "_self");
-                  });
-              }).catch(function (err) {
-                window.open("/purchaseorderlist", "_self");
-              });
-          });
       }).catch(function (err) {
         sideBarService.getAllPurchaseOrderList(initialDataLoad, 0).then(function (data) {
             addVS1Data("TPurchaseOrderEx", JSON.stringify(data)).then(function (datareturn) {
@@ -2267,6 +2303,17 @@ Template.purchaseorderlist.events({
             window.open("/purchaseorderlist", "_self");
           });
       });
+    }).catch(function (err) {
+      sideBarService.getAllPurchaseOrderList(initialDataLoad, 0).then(function (data) {
+          addVS1Data("TPurchaseOrderEx", JSON.stringify(data)).then(function (datareturn) {
+              window.open("/purchaseorderlist", "_self");
+            }).catch(function (err) {
+              window.open("/purchaseorderlist", "_self");
+            });
+        }).catch(function (err) {
+          window.open("/purchaseorderlist", "_self");
+        });
+    });
   },
   "change #dateTo": function () {
     let templateObject = Template.instance();

@@ -105,7 +105,7 @@ Template.opportunitiesStatus.onRendered(function() {
             statusValues.push(statusCount.amount)
             statusExpectValues.push(statusCount.expect)
         });
-        renderOpportunitiesChart({ status, statusValues });
+        renderOpportunitiesChart({ status, statusValues, statusExpectValues });
     }
 
     function renderOpportunitiesChart({ status, statusValues, statusExpectValues }) {

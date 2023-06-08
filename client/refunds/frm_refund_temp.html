@@ -126,7 +126,7 @@
     includeAddress=true
     Category='refund'
     TranascationType='quotes'
-    clientType='Supplier'
+    clientType='Customer'
     payment=true
     headerfields=headerfields
     headerbuttons=headerbuttons
@@ -137,12 +137,13 @@
     gridTableId='tblInvoiceLine'
     printTableId='invoice_print'
     printTemplateId = 'print_refund'
+    printWrapPrefix = 'invoice_wrapper'
     salesCloudPreferenceRec=salesCloudPreferenceRec
   
   
     tablename="tblInvoiceLine"
     isForeignEnabled=isForeignEnabled
-    canShowBackOrder=true
+    canShowBackOrder=false
     canShowUOM=true
     includeBOnShippedQty=false
     isBatchSerialNoTracking=isBatchSerialNoTracking
@@ -158,6 +159,10 @@
     saveTransaction=saveTransaction
     custlisttype='ltSales'
     deliveryDocketName='Delivery Docket'
+
+    saveapifunction=saveapifunction
+    updateTransactionTemp=updateTransactionTemp
+    printfields=printfields
     }}
     <!-- Start PDF -->
     <!-- A4 -->

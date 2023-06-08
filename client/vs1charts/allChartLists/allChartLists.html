@@ -159,53 +159,53 @@
 
         {{#if is_available_chart currentTemplate "bankaccountschart"}}
         {{> bankaccountschart
-        md=6 defaultPosition=0 key="Bank Accountschart" updateChart=updateChart}}
+        md=6 defaultPosition=5 key="Bank Accountschart" updateChart=updateChart}}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "monthlyprofitandloss"}}
         {{> monthlyprofitandloss
-        md=8 defaultPosition=2 key="Monthly Profit and Loss" updateChart=updateChart}}
+        md=6 defaultPosition=15 key="Monthly Profit and Loss" updateChart=updateChart}}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "mytaskswidgetchart"}}
         {{#if is_dashboard_check "dashboardsalesmanager"}}
         {{> mytaskswidgetchart
-        md=2 defaultPosition=2 key="My Tasks" }}
+        md=6 defaultPosition=16 key="My Tasks" }}
 
         {{else if is_dashboard_check "dashboardsales"}}
         {{> mytaskswidgetchart
-        md=2 defaultPosition=2 key="My Tasks" }}
+        md=6 defaultPosition=16 key="My Tasks" }}
 
         {{else}}
         {{> mytaskswidgetchart
-        md=6 defaultPosition=1 key="My Tasks" }}
+        md=6 defaultPosition=16 key="My Tasks" }}
         {{/if}}
 
         {{/if}}
 
         {{#if is_available_chart currentTemplate "dsmAppointmentsWidget"}}
         {{> dsmAppointmentsWidget
-        md=10 defaultPosition=3 key="Sales Manager Appointment Chart" }}
+        md=12 defaultPosition=32 key="Sales Manager Appointment Chart" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "quotedsalesorderinvoicedamounts"}}
         {{> quotedsalesorderinvoicedamounts
-        md=4 defaultPosition=1 key="Sales Overview" updateChart=updateChart}}
+        md=6 defaultPosition=23 key="Sales Overview" updateChart=updateChart}}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "accountrevenuestreams"}}
         {{> accountrevenuestreams
-        md=8 defaultPosition=2 key="Revenue Streams" updateChart=updateChart}}
+        md=6 defaultPosition=21 key="Revenue Streams" updateChart=updateChart}}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "profitandlosschart"}}
         {{> profitandlosschart
-        md=4 defaultPosition=3 key="Profit and Loss" }}
+        md=6 defaultPosition=19 key="Profit and Loss" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "invstockonhandanddemand"}}
         {{> invstockonhandanddemand
-        md=8 defaultPosition=4 key="Stock on Hand and Demand" }}
+        md=6 defaultPosition=24 key="Stock on Hand and Demand" }}
         {{/if}}
 
         <!-- {{#if is_available_chart currentTemplate "top10Customers"}}
@@ -215,70 +215,70 @@
 
         {{#if is_available_chart currentTemplate "top10Suppliers"}}
         {{> top10Suppliers
-        md=4 defaultPosition=12 key="Top 10 Supplies" }}
+        md=6 defaultPosition=27 key="Top 10 Supplies" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "resalescomparision"}}
         <!-- {{#if is_dashboard_check "dashboardsales"}}
         {{else}} -->
         {{> resalescomparision
-        md=4 defaultPosition=13 key="Employee Sales Comparison" canvasID="employeeSalesComparisonChart"}}
+        md=6 defaultPosition=11 key="Employee Sales Comparison" canvasID="employeeSalesComparisonChart"}}
         <!-- {{/if}} -->
         {{/if}}
 
         {{#if is_available_chart currentTemplate "expenseschart"}}
         {{> expenseschart
-        md=8 defaultPosition=14 key="Expenses" updateChart=updateChart}}
+        md=6 defaultPosition=12 key="Expenses" updateChart=updateChart}}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "monthlyearnings"}}
         {{> monthlyearnings
-        md=6 defaultPosition=15 key="Monthly Earnings" }}
+        md=6 defaultPosition=14 key="Monthly Earnings" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "quotedinvoicedamounts"}}
         {{> quotedinvoicedamounts
-        md=6 defaultPosition=16 key="Quoted Amounts / Invoiced Amounts" }}
+        md=6 defaultPosition=20 key="Quoted Amounts / Invoiced Amounts" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "activeEmployees"}}
         {{> activeEmployees
-        md=4 defaultPosition=17 key="Active Employees" }}
+        md=6 defaultPosition=1 key="Active Employees" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "employeecompletedjobs"}}
         {{> employeecompletedjobs
-        md=8 defaultPosition=18 key="Employee Jobs Completed" }}
+        md=6 defaultPosition=9 key="Employee Jobs Completed" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "clockedOnEmployees"}}
         {{> clockedOnEmployees
-        md=4 defaultPosition=20 key="Clocked On Employees" }}
+        md=6 defaultPosition=6 key="Clocked On Employees" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "monthllyexpenses"}}
         {{> monthllyexpenses
-        md=8 defaultPosition=21 key="Monthly Expenses" updateChart=updateChart}}
+        md=6 defaultPosition=16 key="Monthly Expenses" updateChart=updateChart}}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "expensebreakdown"}}
         {{> expensebreakdown
-        md=4 defaultPosition=22 key="Expenses Breakdown" updateChart=updateChart}}
+        md=6 defaultPosition=13 key="Expenses Breakdown" updateChart=updateChart}}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "absenteeRate"}}
         {{> absenteeRate
-        md=8 defaultPosition=23 key="Absentee Rate Over Last 12 Months" }}
+        md=6 defaultPosition=0 key="Absentee Rate Over Last 12 Months" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "dashboardManagerCharts"}}
         <!-- position 17 to 18, 24 -->
-        {{> dashboardManagerCharts}}
+        {{> dashboardManagerCharts md=6 defaultPosition="23" key="Dashboard Manager Charts"}}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "dsmTop10Customers"}}
         {{> dsmTop10Customers
-        md=4 defaultPosition=24 key="Top 10 Customers" }}
+        md=6 defaultPosition=26 key="Top 10 Customers" }}
         {{/if}}
 
         <!-- {{#if is_available_chart currentTemplate "resalescomparision"}}
@@ -290,7 +290,7 @@
 
         {{#if equals isaccountoverview true}}
         {{> accountslistchart
-        md=12 defaultPosition=29 key="Account List" }}
+        md=12 defaultPosition=36 key="Account List" }}
         {{else}}
 
         {{/if}}
@@ -303,15 +303,15 @@
         {{/if}} -->
 
         {{#if is_available_chart currentTemplate "opportunitiesStatus"}}
-        {{> opportunitiesStatus md=4 defaultPosition=30 key="Opportunities Status" }}
+        {{> opportunitiesStatus md=6 defaultPosition=17 key="Opportunities Status" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "dsmleadlistchart"}}
-        {{> dsmleadlistchart md=12 defaultPosition=31 key="Lead List" }}
+        {{> dsmleadlistchart md=12 defaultPosition=37 key="Lead List" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "dashboardSalesCharts"}}
-        {{> dashboardSalesCharts}}
+        {{> dashboardSalesCharts md=6 defaultPosition=17 }}
         {{/if}}
 
         <!-- {{#if is_available_chart currentTemplate "dsleadlistchart"}}
@@ -320,24 +320,24 @@
 
         {{#if is_available_chart currentTemplate "employeeDaysAbsent"}}
         {{> employeeAbsentDays
-        md=4 defaultPosition=20 key="Employee Absent Days" }}
+        md=6 defaultPosition=8 key="Employee Absent Days" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "employeesOnLeave"}}
         {{> employeeLeave
-        md=4 defaultPosition=20 key="Employee Leave" }}
+        md=6 defaultPosition=10 key="Employee Leave" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "crmleadchart"}}
-        {{> crmleadchart md=6 defaultPosition=0 key="Crm Overview" }}
+        {{> crmleadchart md=6 defaultPosition=13 key="Crm Overview" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "averagecostchart"}}
-        {{> averagecostchart md=6 defaultPosition=0 key="Delivery Overview" }}
+        {{> averagecostchart md=6 defaultPosition=2 key="Delivery Overview" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "deliverychart"}}
-        {{> deliverychart md=6 defaultPosition=0 key="Delivery Overview" }}
+        {{> deliverychart md=6 defaultPosition=1 key="Delivery Overview" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "productionplannerChart"}}
@@ -345,17 +345,15 @@
         {{/if}}
                 
         {{#if is_available_chart currentTemplate "productionProductStatusChart"}}
-        {{> productionProductStatus md=4 defaultPosition=34 key="Production Product Status" }}
+        {{> productionProductStatus md=6 defaultPosition=18 key="Production Product Status" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "upcomingOrderStackChart"}}
-        {{> upcomingorderstock md=4 defaultPosition=34 key="Upcoming Order Stock" }}
+        {{> upcomingorderstock md=6 defaultPosition=28 key="Upcoming Order Stock" }}
         {{/if}}
 
         {{#if is_available_chart currentTemplate "top10BOMChart"}}
-        {{> top10BOM md=4 defaultPosition=34 key="Top 10 BOM" }}
+        {{> top10BOM md=6 defaultPosition=25 key="Top 10 BOM" }}
         {{/if}}
-
-
     </div>
 </template>

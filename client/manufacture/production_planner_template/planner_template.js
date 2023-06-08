@@ -18,14 +18,17 @@ import {Session} from 'meteor/session';
 import { Template } from 'meteor/templating';
 import './planner_template.html';
 import { FlowRouter } from 'meteor/ostrio:flow-router-extra';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, template } from 'lodash';
 import moment from 'moment/moment';
 import { ContactService } from '../../contacts/contact-service';
 
 let manufacturingService = new ManufacturingService();
+let productService = new ProductService();
 let contactService = new ContactService();
-let appendHtmlOnTitle = '<div><div class="input-group date" style="width: 160px; float:left"><input type="text" class="form-control" id="calendarDate" name="calendarDate" value=""><div class="input-group-addon"><span class="glyphicon glyphicon-th"></span></div></div><div class="custom-control custom-switch" style="width:170px; float:left; margin:8px 5px 0 60px;"><input class="custom-control-input" type="checkbox" name="chkmyAppointments" id="chkmyAppointments" style="cursor: pointer;" autocomplete="on" checked="checked"><label class="custom-control-label" for="chkmyAppointments" style="cursor: pointer;">My Jobs</label></div></div>';
+let appendHtmlOnTitle = '<div><div class="input-group date" style="width: 160px; float:left"><input type="text" class="form-control" id="calendarDate" name="calendarDate" value=""><div class="input-group-addon"><span class="glyphicon glyphicon-th"></span></div></div><div class="custom-control custom-switch" style="width:170px; float:left; margin:8px 5px 0 60px;"><input class="custom-control-input" type="checkbox" name="chkmyJobs" id="chkmyJobs" style="cursor: pointer;" autocomplete="on" ><label class="custom-control-label" for="chkmyJobs" style="cursor: pointer;">My Jobs</label></div></div>';
 let appendHtmlOnLeft = '<div class="custom-control custom-switch"><input class="custom-control-input toggle-resource-employee" id="toggle-resource-employee" type="checkbox" style="cursor: pointer;"><label class="custom-control-label" style="position:relative;width:200px;cursor: pointer;" for="toggle-resource-employee">Resource / Employee</label></div>'
+let current_user  = localStorage.getItem('mySessionEmployee');
+
 Template.production_planner_template.onCreated(function() {
     const templateObject = Template.instance();
     templateObject.resources = new ReactiveVar([]);
@@ -43,13 +46,16 @@ Template.production_planner_template.onCreated(function() {
     templateObject.showEnd = new ReactiveVar();
     templateObject.slotDuration = new ReactiveVar();
     templateObject.employees = new ReactiveVar();
-    templateObject.resourceJobs = new ReactiveVar(true)
+    templateObject.resourceJobs = new ReactiveVar(true);
+    templateObject.bomProducts = new ReactiveVar([]);
+    templateObject.empEvent = new ReactiveVar([]);
+    templateObject.checkMyJob = new ReactiveVar(false);
 })
-
-
 
 Template.production_planner_template.onRendered(async function() {
     const templateObject = Template.instance();
+    
+
     templateObject.getSettings = async function() {
         return new Promise((resolve, reject)=>{
             getVS1Data('ManufacturingSettings').then(function(dataObject) {
@@ -174,10 +180,101 @@ Template.production_planner_template.onRendered(async function() {
                 }
                 resolve(temp)
             })
+            // getVS1Data('TProcTree').then(function(dataObject) {
+            //     if(dataObject.length == 0) {
+            //       productService.getAllBOMProducts(initialBaseDataLoad, 0).then(function(data){
+            //         addVS1Data('TProcTree', JSON.stringify(data)).then(function(){})
+            //         let useData = data.tproctree;
+            //         templateObject.bomProducts.set(useData);
+            //         let temp = []
+            //         for (let i = 0; i < useData.length; i++) {
+            //             temp.push({
+            //                 id: i,
+            //                 title: useData[i].Caption,
+            //             })
+            //         }
+            //         resolve(temp)
+            //       })
+            //     }else {
+            //       let data = JSON.parse(dataObject[0].data);
+            //       let useData = data.tproctree;
+            //       templateObject.bomProducts.set(useData);
+            //       let temp = []
+            //       for (let i = 0; i < useData.length; i++) {
+            //         temp.push({
+            //             id: i,
+            //             title: useData[i].fields.Caption,
+            //         })
+            //       }
+            //       resolve(temp)
+            //     }
+            // }).catch(function(e){
+            //     productService.getAllBOMProducts(initialBaseDataLoad, 0).then(function(data){
+            //         addVS1Data('TProcTree', JSON.stringify(data)).then(function(){})
+            //         let useData = data.tproctree;
+            //         let temp = []
+            //         for (let i = 0; i < useData.length; i++) {
+            //             temp.push({
+            //                 id: i,
+            //                 title: useData[i].Caption,
+            //             })
+            //         }
+            //         resolve(temp)
+            //     })
+            // })
         })
     }
+
     let resources = await getResources();
     await templateObject.resources.set(resources);
+
+    templateObject.getBOMProducts = async function() {
+        return new Promise(async(resolve, reject) => {
+            getVS1Data('TProcTree').then(function(dataObject) {
+                if(dataObject.length == 0) {
+                  productService.getAllBOMProducts(initialBaseDataLoad, 0).then(function(data){
+                    addVS1Data('TProcTree', JSON.stringify(data)).then(function(){})
+                    let useData = data.tproctree;
+                    templateObject.bomProducts.set(useData);
+                    let temp = []
+                    for (let i = 0; i < useData.length; i++) {
+                        temp.push({
+                            id: i,
+                            title: useData[i].Caption,
+                        })
+                    }
+                    resolve(temp)
+                  })
+                }else {
+                  let data = JSON.parse(dataObject[0].data);
+                  let useData = data.tproctree;
+                  templateObject.bomProducts.set(useData);
+                  let temp = []
+                  for (let i = 0; i < useData.length; i++) {
+                    temp.push({
+                        id: i,
+                        title: useData[i].fields.Caption,
+                    })
+                  }
+                  resolve(temp)
+                }
+            }).catch(function(e){
+                productService.getAllBOMProducts(initialBaseDataLoad, 0).then(function(data){
+                    addVS1Data('TProcTree', JSON.stringify(data)).then(function(){})
+                    let useData = data.tproctree;
+                    let temp = []
+                    for (let i = 0; i < useData.length; i++) {
+                        temp.push({
+                            id: i,
+                            title: useData[i].Caption,
+                        })
+                    }
+                    resolve(temp)
+                })
+            })
+        })
+    }
+    let bomProductData = await templateObject.getBOMProducts();
 
     templateObject.getEmployees=async function() {
         return new Promise(async(resolve, reject)=>{
@@ -188,7 +285,7 @@ Template.production_planner_template.onRendered(async function() {
                         for(let i = 0; i< data.temployee; i++) {
                             temp.push({
                                 id: i,
-                                title: data.temployee[i].fields.EmployeeName
+                                title: data.temployee[i].EmployeeName
                             })
                         }
                         resolve(temp)
@@ -200,7 +297,7 @@ Template.production_planner_template.onRendered(async function() {
                     for(let i = 0; i< useData.length; i++ ) {
                         temp.push({
                             id: i,
-                            title: useData[i].fields.EmployeeName,
+                            title: useData[i].EmployeeName,
                         })
                     }
                     resolve(temp)
@@ -211,7 +308,7 @@ Template.production_planner_template.onRendered(async function() {
                         for(let i = 0; i< data.temployee; i++) {
                             temp.push({
                                 id: i,
-                                title: data.temployee[i].fields.EmployeeName
+                                title: data.temployee[i].EmployeeName
                             })
                         }
                     resolve(temp)
@@ -219,15 +316,19 @@ Template.production_planner_template.onRendered(async function() {
             })
         })
     }
-
     let employees = await templateObject.getEmployees();
-    templateObject.employees.set(employees)
-
+    templateObject.employees.set(employees);
+    
     templateObject.getWorkorders = function() {
         return new Promise(async(resolve, reject)=>{
             getVS1Data('TVS1Workorder').then(function(dataObject){
                 if(dataObject.length == 0) {
-                    resolve([])
+                    let workOrderList = manufacturingService.getWorkOrderList();
+                    addVS1Data('TVS1Workorder', JSON.stringify({tvs1workorder: workOrderList})).then(function(datareturn){
+
+                    }).catch(function(err){
+                    });
+                    resolve(workOrderList);
                 }else {
                     let data = JSON.parse(dataObject[0].data);
                     resolve(data.tvs1workorder)
@@ -235,9 +336,33 @@ Template.production_planner_template.onRendered(async function() {
             })
         })
     }
-
     let workorders = await templateObject.getWorkorders();
-        // templateObject.workorders.set(workorders);
+
+    templateObject.getBomData = function() {
+        return new Promise(async(resolve, reject)=>{
+            getVS1Data('TProcTree').then(function(dataObject){
+                if(dataObject.length == 0) {
+                    productService.getAllBOMProducts(initialBaseDataLoad, 0).then(function(data){
+                      addVS1Data('TProcTree', JSON.stringify(data)).then(function(){});
+                      resolve(data.tproctree);
+                    })
+                }else {
+                    let data = JSON.parse(dataObject[0].data);
+                    resolve(data.tproctree);
+                }
+               
+            }).catch(function(e) {
+                productService.getAllBOMProducts(initialBaseDataLoad, 0).then(function(data){
+                    addVS1Data('TProcTree', JSON.stringify(data)).then(function(){});
+                    resolve(data.tproctree);
+                  })
+            })
+        })
+    }
+
+    let bomData = await templateObject.getBomData();
+    
+    // templateObject.workorders.set(workorders);
     async function getPlanData() {
         return new Promise(async(resolve, reject)=> {
             let returnVal = [];
@@ -245,7 +370,7 @@ Template.production_planner_template.onRendered(async function() {
                 if(dataObject.length == 0) {
                     resolve(returnVal)
                 } else {
-                    returnVal = JSON.parse(dataObject[0].data)
+                    returnVal = JSON.parse(dataObject[0].data);
                     if(returnVal == undefined) {
                         resolve([])
                     }
@@ -269,76 +394,268 @@ Template.production_planner_template.onRendered(async function() {
         return new Promise(async function(resolve, reject) {
             // let events = [];
             let planData = await getPlanData();
+            let bomProducts = templateObject.bomProducts.get();
+           
+      //    let eventsData = planData;
+            let tempEvents = [];
+            let event  ;
+            for(let m=0 ; m < resources.length ; m++ ) {
+                let startTime = new Date() ;
+                let temp_endTime = new Date() ;
+                temp_endTime.setHours(8, 0, 0); 
+                
+                let endTime = new Date();
+                
+                let resourceId = resources[m].id;
+                let resource_name = resources[m].title;
 
-            let eventsData = planData;
-            // if (eventsData.length == 0) {
-
-                let tempEvents = [];
+                  
                 if(workorders && workorders.length > 0) {
+                    
                     for (let i = 0; i < workorders.length; i++) {
-                        let processName = JSON.parse(workorders[i].fields.BOMStructure).Info;
                         let productName = workorders[i].fields.ProductName;
-                        let index = resources.findIndex(resource => {
-                            return resource.title == processName;
-                        })
-                        let resourceId = resources[index].id;
-                        let startTime = new Date(workorders[i].fields.OrderDate);
-                        let filteredEvents = tempEvents.filter(itemEvent => itemEvent.resourceName == processName && new Date(itemEvent.end).getTime() > startTime.getTime() && new Date(itemEvent.start).getTime() < startTime.getTime())
-                        if(filteredEvents.length > 1) {
-                            filteredEvents.sort((a,b)=> a.end.getTime() - b.end.getTime())
-                            startTime = filteredEvents[filteredEvents.length -1].end;
-                        }else if(filteredEvents.length == 1) {
-                            startTime = filteredEvents[0].end;
-                        }
-                        let duration = JSON.parse(workorders[i].fields.BOMStructure).QtyVariation;
-                        let quantity = workorders[i].fields.Quantity;
-                        let buildSubs = [];
-                        let stockRaws = [];
-                        let subs = JSON.parse(JSON.parse(workorders[i].fields.BOMStructure).Details);
-                        if(subs.length > 1) {
-                            for(let j = 0; j < subs.length; j++ ) {
-                                if(subs[j].isBuild == true) {
-                                    buildSubs.push(subs[j].productName)
-                                }else {
-                                    stockRaws.push(subs[j].productName)
+                                   
+                                              
+                        let bom_detail;
+                        let bom_index = bomProducts.findIndex(bomdata => {
+                            return bomdata.Caption == productName;                                
+                        });
+
+
+                        if(bom_index > -1 ) {
+                            bom_detail = JSON.parse(bomProducts[bom_index].Details);
+                            for(let j = 0 ; j < bom_detail.length + 1 ; j ++) {
+                               
+                                let process_name;
+                                let process_duration;
+
+                                if(j==0) {
+                                    process_name = "Assembly";
+                                    process_duration = 1;
+                                } else {
+                                    process_name = bom_detail[j-1].process ;
+                                    process_duration = parseFloat(bom_detail[j-1].duration);
                                 }
+                                
+                                //  let process_qty = parseFloat(bom_detail[j].qty);                       
+                                
+                                if(resource_name == process_name) {
+                                    startTime.setTime(temp_endTime.getTime());
+
+                                    let targetTime_in = new Date(startTime);
+                                    targetTime_in.setHours(17, 0, 0);
+                                
+                                    let targetTime_out = new Date(startTime);
+                                        targetTime_out.setDate(startTime.getDate() + 1);
+                                        targetTime_out.setHours(8, 0, 0);
+                                                                
+                                    endTime.setTime(startTime.getTime() + process_duration * 3600000) ;
+                                                                        
+                                    if(endTime > targetTime_in && endTime < targetTime_out) {
+                                        endTime.setTime(endTime.getTime() + 15 * 3600000);     
+                                    } 
+    
+                                        temp_endTime = endTime;
+                                        var randomColor = Math.floor(Math.random() * 16777215).toString(16);
+                                        let quantity = workorders[i].fields.Quantity;
+                                        let buildSubs = [];
+                                        let stockRaws = [];
+                                        let subs = JSON.parse(JSON.parse(workorders[i].fields.BOMStructure).Details);
+                                            if(subs.length > 1) {
+                                                for(let k = 0; k < subs.length; k++ ) {
+                                                    if(subs[j].isBuild == true) {
+                                                        buildSubs.push(subs[k].productName)
+                                                    }else {
+                                                        stockRaws.push(subs[k].productName)
+                                                    }
+                                                }
+                                            }
+                                        
+                                        // let filteredEvents = tempEvents.filter(itemEvent => itemEvent.resourceName == process_name && new Date(itemEvent.end).getTime() > startTime.getTime() && new Date(itemEvent.start).getTime() < startTime.getTime())
+                                        //     filteredEvents.sort((a,b)=> a.end.getTime() - b.end.getTime())    
+                                               
+                                 
+                                        event = {
+                                                "resourceId": resourceId,
+                                                "resourceName": resource_name,
+                                                "title": productName,
+                                                "start": startTime.getTime(),
+                                                "end": endTime.getTime(),
+                                                "color": "#" + randomColor,
+                                                "extendedProps": {
+                                                    "orderId": workorders[i].fields.ID,
+                                                    'quantity': quantity,
+                                                    "builds": buildSubs,
+                                                    "fromStocks": stockRaws,
+                                                    "completed":workorders[i].fields.IsCompleted || false,
+                                                    "status": workorders[i].fields.Status,
+                                                    "BomName" : productName
+                                                }
+                                        }
+                                       
+                                        tempEvents.push(event);
+                                     
+
+                                
+                                }                           
+                                
+                                
                             }
-                        }
-                        if (workorders[i].fields.Quantity) duration = duration * parseFloat(workorders[i].fields.Quantity);
-                        let endTime = new Date();
-                        endTime.setTime(startTime.getTime() + duration * 3600000)
-                        var randomColor = Math.floor(Math.random() * 16777215).toString(16);
-                        let event = {
-                            "resourceId": resourceId,
-                            "resourceName": resources[index].title,
-                            "title": productName,
-                            "start": startTime,
-                            "end": endTime,
-                            "color": "#" + randomColor,
-                            "extendedProps": {
-                                "orderId": workorders[i].fields.ID,
-                                'quantity': quantity,
-                                "builds": buildSubs,
-                                "fromStocks": stockRaws,
-                                "completed":workorders[i].fields.IsCompleted || false,
-                                "status": workorders[i].fields.Status
-                            }
-                        }
-                        tempEvents.push(event);
+                        }                  
+                    
+                        
+                        
                     }
                 }
-                templateObject.events.set(tempEvents)
-                resolve(tempEvents);
-            // }
-            //  else {
-            //     // events = eventsData;
-            //     templateObject.events.set(eventsData)
-            //     resolve(eventsData)
-            // }
+              
+
+            }
+            
+            templateObject.events.set(tempEvents);
+            resolve(tempEvents);
+          
         })
     }
 
     let events = await getEvents();
+
+
+    templateObject.getEventsEmployee = async function() {
+        return new Promise(async function(resolve, reject) {
+           
+            let planData = await getPlanData();
+            let bomProducts = templateObject.bomProducts.get();
+            let employeeResource = templateObject.employees.get();
+            
+
+            let eventsData = planData;           
+        
+            let tempEvents = [];
+            if(workorders && workorders.length > 0) {
+                // workorders[0].fields.ProductName = "Asus Screen";
+                // workorders[1].fields.ProductName = "New Bom Prod 2023";
+                for (let i = 0; i < workorders.length; i++) {
+                    let productName = workorders[i].fields.ProductName;
+                    let employeeName = workorders[i].fields.EmployeeName;
+                 
+                    let index; 
+                  
+                   
+                    if(!templateObject.checkMyJob.get()) {
+                        index = employeeResource.findIndex(resource => {
+                            return resource.title == employeeName;
+                        })
+                    } else {
+                        index = employeeResource.findIndex(resource => {
+                            return resource.title == employeeName && resource.title == current_user;
+                        })
+                    }
+                    
+                    if(index > -1) {
+                        let resourceId = employeeResource[index].id;
+                        let bom_detail;
+                        let bom_index = bomProducts.findIndex(bomdata => {
+                            return bomdata.Caption == workorders[i].fields.ProductName;
+                        })
+
+                        if(bom_index > -1) {
+                                
+                            bom_detail = JSON.parse(bomProducts[bom_index].Details);
+                            let temp_endTime;
+                        
+                            
+                            for(let j = 0 ; j < bom_detail.length ; j ++) {
+                                let process_name ;
+                                let process_duration ;
+                              
+                                let startTime = new Date() ;
+                                let endTime = new Date();
+
+                                if(j == 0) {
+                                    process_name = bomProducts[bom_index].Info;
+                                    process_duration = 1;
+                                   } else {
+                                     process_name = bom_detail[j-1].process;
+                                     process_duration =parseFloat(bom_detail[j-1].duration);
+                                }
+                               
+
+                                if(j==0) {
+                                    //startTime = new Date(workorders[i].fields.OrderDate);
+                                    startTime = new Date();
+                                    startTime.setHours(8, 0, 0);     
+
+                                } else {
+                                    startTime.setTime(temp_endTime.getTime()); //  
+                                }
+                                
+                                let targetTime_in = new Date(startTime);
+                                    targetTime_in.setHours(17, 0, 0);
+                                
+                                let targetTime_out = new Date(startTime);
+                                    targetTime_out.setDate(startTime.getDate() + 1);
+                                    targetTime_out.setHours(8, 0, 0);
+
+                                                        
+                                endTime.setTime(startTime.getTime() + process_duration * 3600000) ;
+                                                                
+                                if(endTime > targetTime_in && endTime < targetTime_out) {
+                                    endTime.setTime(endTime.getTime() + 15 * 3600000);     
+                                } 
+
+                                temp_endTime = endTime;
+                                var randomColor = Math.floor(Math.random() * 16777215).toString(16);
+
+                                let quantity = workorders[i].fields.Quantity;
+                                let buildSubs = [];
+                                let stockRaws = [];
+                                let subs = JSON.parse(JSON.parse(workorders[i].fields.BOMStructure).Details);
+                                if(subs.length > 1) {
+                                    for(let j = 0; j < subs.length; j++ ) {
+                                        if(subs[j].isBuild == true) {
+                                            buildSubs.push(subs[j].productName)
+                                        }else {
+                                            stockRaws.push(subs[j].productName)
+                                        }
+                                    }
+                                }
+
+                                let event = {
+                                    "resourceId": resourceId,
+                                    "resourceName": employeeResource[index].title,
+                                    "title": process_name,
+                                    "start": startTime,
+                                    "end": endTime,
+                                    "color": "#" + randomColor,
+                                    "extendedProps": {
+                                        "orderId": workorders[i].fields.ID,
+                                        'quantity': quantity,
+                                        "builds": buildSubs,
+                                        "fromStocks": stockRaws,
+                                        "completed":workorders[i].fields.IsCompleted || false,
+                                        "status": workorders[i].fields.Status,
+                                        "BomName" : productName
+                                    }
+                                }
+                                tempEvents.push(event);
+
+                            
+                            }
+                        }                            
+                        
+                    }
+                    
+                }
+            }
+            resolve(tempEvents);
+        
+        })
+    }
+
+    let events_employee = await templateObject.getEventsEmployee();
+
+    templateObject.empEvent.set(events_employee);
+
 
     let dayIndex = new Date().getDay();
     templateObject.startDate.set(dayIndex);
@@ -389,7 +706,7 @@ Template.production_planner_template.onRendered(async function() {
         resources: await getResources(),
         events: templateObject.events.get().length == 0 ? events : templateObject.events.get(),
         eventOverlap: true,
-        eventResourceEditable: false,
+        eventResourceEditable: true,
               
 
         eventClassNames: function(arg) {
@@ -536,8 +853,7 @@ Template.production_planner_template.onRendered(async function() {
             templateObject.events.set(cloneEvents)
         },
         eventDrop: function(info) {
-            let resourceId = info.event._def.resourceIds[0]
-
+            let resourceId = info.event._def.resourceIds[0];
 
             let newStart = info.event.start;
             let newEnd = info.event.end;
@@ -552,8 +868,7 @@ Template.production_planner_template.onRendered(async function() {
                 return new Date(a.start) - new Date(b.start)
             })
 
-
-            let targetEvent = tempEvents[0]
+            let targetEvent = tempEvents[0];
             if(targetEvent) {
                 let moveDistance =  newEnd.getTime() - new Date(targetEvent.start).getTime();
                 tempEvents = tempEvents.filter(event => new Date(event.start).getTime() < newEnd.getTime() && newStart.getTime() < new Date(event.start).getTime()  );
@@ -606,9 +921,10 @@ Template.production_planner_template.onRendered(async function() {
         },
         eventClick: function(info) {
             setTimeout(()=>{
-                let title = info.event.title;
+                let order_id = info.event.extendedProps.orderId;
+                
                 let orderIndex = workorders.findIndex(order => {
-                    return order.fields.ProductName == title;
+                    return order.fields.ID == order_id;
                 })
                 let percentage = 0;
                 if(info.event.extendedProps.status != 'unscheduled') {
@@ -618,14 +934,18 @@ Template.production_planner_template.onRendered(async function() {
                         percentage = ((processedTime / overallTime) * 100).toFixed(2);
                     }
                 }
+
+                let bom_name = info.event.extendedProps.BomName;
+
                 let object = {
                     JOBNumber: workorders[orderIndex].fields.ID,
                     Customer: workorders[orderIndex].fields.Customer,
-                    OrderDate: new Date(workorders[orderIndex].fields.OrderDate).toLocaleDateString(),
-                    ShipDate: new Date(workorders[orderIndex].fields.ShipDate).toLocaleDateString(),
-                    JobNotes: JSON.parse(workorders[orderIndex].fields.BOMStructure).CustomInputClass || '',
+                    OrderDate: new Date(workorders[orderIndex].fields.OrderDate).toLocaleDateString('en-GB'),
+                    ShipDate: workorders[orderIndex].fields.ShipDate,
+                    JobNotes: JSON.parse(workorders[orderIndex].fields.BOMStructure).Description || '',
                     Percentage: percentage + '%',
-                    Status: workorders[orderIndex].fields.Status
+                    Status: workorders[orderIndex].fields.Status,
+                    BomName : bom_name
                 }
                 templateObject.viewInfoData.set(object);
                 $('.eventInfo').css('display', 'flex')
@@ -640,11 +960,13 @@ Template.production_planner_template.onRendered(async function() {
                 //     events: templateObject.events.get()
                 // })
                 // calendar.render();
+
+
                 let myEvents = templateObject.events.get();
-                let options = {...calendarOptions, firstDay: dayIndex, events:myEvents}
+                let options = {...calendarOptions, firstDay: dayIndex}
                 templateObject.calendarOptions.set(options);
                 calendar.setOption('firstDay', dayIndex);
-                calendar.setOption('events', myEvents)
+               // calendar.setOption('events', myEvents);
             }, 300)
         },
         slotMinTime :workMin,
@@ -658,33 +980,33 @@ Template.production_planner_template.onRendered(async function() {
     templateObject.calendarOptions.set(calendarOptions)
     let calendar = new Calendar(calendarEl, calendarOptions);
     templateObject.calendar.set(calendar);
-      calendar.render();
-      let leftElement = $("#calendar_planner .fc-header-toolbar .fc-toolbar-chunk:nth-child(1)");
-      let titleElement = $("#calendar_planner .fc-header-toolbar div:nth-child(2)");
-      $(titleElement).css('display', 'flex')
-      $(titleElement).append(appendHtmlOnTitle);
-      $(titleElement).css('gap', '30px')
-      $(leftElement).css('display', 'flex')
-      $(leftElement).css('align-items', 'center')
-      $(leftElement).append(appendHtmlOnLeft);
-      $(leftElement).css('gap', '30px')
+    calendar.render();
+    let leftElement = $("#calendar_planner .fc-header-toolbar .fc-toolbar-chunk:nth-child(1)");
+    let titleElement = $("#calendar_planner .fc-header-toolbar div:nth-child(2)");
+    $(titleElement).css('display', 'flex')
+    $(titleElement).append(appendHtmlOnTitle);
+    $(titleElement).css('gap', '30px')
+    $(leftElement).css('display', 'flex')
+    $(leftElement).css('align-items', 'center')
+    $(leftElement).append(appendHtmlOnLeft);
+    $(leftElement).css('gap', '30px')
 
-      $("#calendarDate").datepicker({
-        showOn: "button",
-        buttonText: "Show Date",
-        buttonImageOnly: true,
-        buttonImage: "/img/imgCal2.png",
-        dateFormat: "dd/mm/yy",
-        showOtherMonths: true,
-        selectOtherMonths: true,
-        changeMonth: true,
-        changeYear: true,
-        yearRange: "-90:+10",
-        onSelect: function(formated, dates) {
-            let gotoDate = new Date(formated.split("/")[2] + "-" + formated.split("/")[1] + "-" + formated.split("/")[0]);
-            calendar.gotoDate(gotoDate);
-        },
-      });
+    $("#calendarDate").datepicker({
+    showOn: "button",
+    buttonText: "Show Date",
+    buttonImageOnly: true,
+    buttonImage: "/img/imgCal2.png",
+    dateFormat: "dd/mm/yy",
+    showOtherMonths: true,
+    selectOtherMonths: true,
+    changeMonth: true,
+    changeYear: true,
+    yearRange: "-90:+10",
+    onSelect: function(formated, dates) {
+        let gotoDate = new Date(formated.split("/")[2] + "-" + formated.split("/")[1] + "-" + formated.split("/")[0]);
+        calendar.gotoDate(gotoDate);
+    },
+    });
     
       $('#calendarDate').val(moment(new Date()).format('DD/MM/YYYY'))
 
@@ -710,34 +1032,34 @@ Template.production_planner_template.onRendered(async function() {
             addVS1Data('TVS1Workorder', JSON.stringify({tvs1workorder:tempOrders})).then(function(){
                 $('.fullScreenSpin').css('display', 'none');
                 let showSaturday = $('.toggleShowSat').is(':checked');
-                        let showSunday = $('.toggleShowSun').is(':checked');
-                        let showQA = $('.toggleShowQA').is(':checked');
-                        let showTimein = $('.edtShowTimein').val();
-                        let startTime = templateObject.showStart.get();
-                        let endTime = templateObject.showEnd.get();
-                        let objectDetail = {
-                            type: 'ManufacturingSettings',
-                            fields: {
-                                showSaturday: showSaturday,
-                                showSunday: showSunday,
-                                showQA: showQA,
-                                startTime: startTime,
-                                endTime: endTime,
-                                showTimein: showTimein
-                            }
-                        }
-                        addVS1Data('ManufacturingSettings', JSON.stringify(objectDetail)).then(function(){
-                            swal({
-                                title: 'Success',
-                                text: 'Production planner has been saved successfully',
-                                type: 'success',
-                                showCancelButton: false,
-                                confirmButtonText: 'Continue',
-                            }).then((result) => {
-                                
-                                window.location.reload();
-                            });
-                        })
+                let showSunday = $('.toggleShowSun').is(':checked');
+                let showQA = $('.toggleShowQA').is(':checked');
+                let showTimein = $('.edtShowTimein').val();
+                let startTime = templateObject.showStart.get();
+                let endTime = templateObject.showEnd.get();
+                let objectDetail = {
+                    type: 'ManufacturingSettings',
+                    fields: {
+                        showSaturday: showSaturday,
+                        showSunday: showSunday,
+                        showQA: showQA,
+                        startTime: startTime,
+                        endTime: endTime,
+                        showTimein: showTimein
+                    }
+                }
+                addVS1Data('ManufacturingSettings', JSON.stringify(objectDetail)).then(function(){
+                    swal({
+                        title: 'Success',
+                        text: 'Production planner has been saved successfully',
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonText: 'Continue',
+                    }).then((result) => {
+                        
+                        window.location.reload();
+                    });
+                })
 
             })
 
@@ -873,15 +1195,19 @@ Template.production_planner_template.onRendered(async function() {
         })
 
         $('.productionplannermodule .btnPrintWorkSheet').on('click', function(event) {
-            document.title = 'production planner worksheet';
+            
+            FlowRouter.go("/worksheetreport");
 
-            $(".productionPlannerTable").print({
-                // title   :  document.title +" | Product Sales Report | "+loggedCompany,
-                // noPrintSelector : ".btnAddProduct",
-                // noPrintSelector : ".btnAddSubProduct",
-                // noPrintSelector : ".btn-remove-raw",
-                // noPrintSelector : ".btnAddAttachment",
-            });
+           // document.title = 'production planner worksheet';
+
+            // $(".productionPlannerTable").print({
+            //     title   :  document.title +" | Product Sales Report | "+loggedCompany,
+            //     noPrintSelector : ".btnAddProduct",
+            //     noPrintSelector : ".btnAddSubProduct",
+            //     noPrintSelector : ".btn-remove-raw",
+            //     noPrintSelector : ".btnAddAttachment",
+            // });
+
         })
     })
 
@@ -1304,25 +1630,106 @@ Template.production_planner_template.events({
 
     'change .toggle-resource-employee': function(event) {
         let templateObject = Template.instance();
-        let calendar = templateObject.calendar.get()
+        let calendar = templateObject.calendar.get();
         if($(event.target).is(':checked') == true) {
             let employees = templateObject.employees.get();
+            let empEvent = templateObject.empEvent.get();
+            let resourcesWithEvents = [];
+            empEvent.forEach(function(event) {
+                if (!resourcesWithEvents.includes(event.resourceId)) {
+                  resourcesWithEvents.push(event.resourceId);
+                }
+            });
+
+            employees = employees.filter(function(resource) {
+                return resourcesWithEvents.includes(resource.id);
+            });
+
+           
+       
             let calendarOptions = templateObject.calendarOptions.get();
-            let options = {...calendarOptions, resources: employees, events: []}
+            let options = {...calendarOptions, resources: employees, events: empEvent, resourceAreaHeaderContent: "Employees",contentHeight: employees.length * 60 + 80 };
             calendar.setOption('resources', employees)
-            calendar.setOption('events', [])
+            calendar.setOption('events', empEvent)
+            calendar.setOption('resourceAreaHeaderContent',"Employees");
+            calendar.setOption("contentHeight", employees.length * 60 + 80);
+
             templateObject.calendarOptions.set(options)
             templateObject.calendar.set(calendar)
             templateObject.resourceJobs.set(false)
         }else {
             let resources = templateObject.resources.get();
             let calendarOptions = templateObject.calendarOptions.get();
-            let options = {...calendarOptions, resources: resources, events: templateObject.events.get()}
-            calendar.setOption('resources', resources)
+            let options = {...calendarOptions, resources: resources, events: templateObject.events.get(), resourceAreaHeaderContent: "Resources",contentHeight: resources.length * 60 + 80};
+            calendar.setOption('resources', resources);
             calendar.setOption('events', templateObject.events.get())
+            calendar.setOption('resourceAreaHeaderContent',"Resources");
+            calendar.setOption("contentHeight", resources.length * 60 + 80);
+
             templateObject.calendarOptions.set(options)
             templateObject.calendarOptions.set(calendar);
             templateObject.resourceJobs.set(true)
+        }
+    },
+
+    'change #chkmyJobs': async function(event) {
+        let templateObject = Template.instance();
+        let calendar = templateObject.calendar.get();
+
+        if($(event.target).is(':checked') == true) {
+            templateObject.checkMyJob.set(true);
+            let employees = templateObject.employees.get();
+            let empEvent = await templateObject.getEventsEmployee();
+            
+            // let myjob_resources ;
+            // let index = employees.findIndex(employee => {
+            //     return employee.title == current_user;
+            // })
+            
+            let resourcesWithEvents = [];
+            empEvent.forEach(function(event) {
+                if (!resourcesWithEvents.includes(event.resourceId)) {
+                   resourcesWithEvents.push(event.resourceId);
+                }
+            });
+ 
+            employees = employees.filter(function(resource) {
+                return resourcesWithEvents.includes(resource.id);
+            });
+                        
+            let calendarOptions = templateObject.calendarOptions.get();
+            let options = {...calendarOptions, resources: employees, events: empEvent, resourceAreaHeaderContent: "Employees",contentHeight: employees.length * 60 + 80 };
+            calendar.setOption('resources', employees)
+            calendar.setOption('events', empEvent)
+            calendar.setOption("contentHeight", employees.length * 60 + 80);
+
+            templateObject.calendarOptions.set(options)
+            templateObject.calendar.set(calendar)
+            templateObject.resourceJobs.set(false);
+        } else {
+            templateObject.checkMyJob.set(false);
+            let employees = templateObject.employees.get();
+            let empEvent = templateObject.empEvent.get();
+            let resourcesWithEvents = [];
+            empEvent.forEach(function(event) {
+                if (!resourcesWithEvents.includes(event.resourceId)) {
+                  resourcesWithEvents.push(event.resourceId);
+                }
+            });
+
+            employees = employees.filter(function(resource) {
+                return resourcesWithEvents.includes(resource.id);
+            });
+       
+            let calendarOptions = templateObject.calendarOptions.get();
+            let options = {...calendarOptions, resources: employees, events: empEvent, resourceAreaHeaderContent: "Employees",contentHeight: employees.length * 60 + 80 };
+            calendar.setOption('resources', employees)
+            calendar.setOption('events', empEvent)
+            calendar.setOption("contentHeight", employees.length * 60 + 80);
+
+            templateObject.calendarOptions.set(options)
+            templateObject.calendar.set(calendar)
+            templateObject.resourceJobs.set(false)
         }
     }
 

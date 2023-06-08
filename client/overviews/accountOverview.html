@@ -1,8 +1,8 @@
 <template name="accountsoverview">
     <style>
-        .dimmedChart>div {
+        /* .dimmedChart>div {
             background-color: #dddfeb !important;
-        }
+        } */
 
         .hideelement {
             display: none !important;
@@ -46,7 +46,7 @@
         <div class="row">
             <div class="col-12 col-md-4">
                 <header class="pt-2 pb-3 d-flex">
-                    <h2 class="mr-1">Accounts List {{> helpbutton}}</h2>
+                    <h2 class="mr-1">Accounts Overview {{> helpbutton}}</h2>
                 </header>
             </div>
             <div class="col-12 col-md-4 divLogged">
@@ -66,6 +66,7 @@
         {{> editCardChartButtons}}
         <div class="d-sm-flex justify-content-between align-items-center mb-4" style="padding: 0 1.5rem 0 1.5rem;">
         </div>
+        {{> allCardsLists tabGroupID="1" chartGroup="Accounts" type="Accounts_Overview"}}
         <!-- All charts list -->
         {{> allChartLists  tabGroupID="2" chartGroup="Accounts" currentTemplate="Accounts_Overview"}}
         <!-- End All charts list -->

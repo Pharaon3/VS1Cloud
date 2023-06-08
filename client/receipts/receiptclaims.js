@@ -64,6 +64,15 @@ Template.receiptsoverview.onCreated(function () {
 
     templateObject.tableheaderrecords = new ReactiveVar([]);
     templateObject.getDataTableList = function(data) {
+        let linestatus = '';
+        if(data.Active == true){
+            linestatus = "";
+            if(data.Processed == true){
+                linestatus = "Processed";
+            }
+        }else if(data.Active == false){
+            linestatus = "Deleted";
+        };
         var dataList = [
             data.ExpenseClaimID || '',
             '<div class="custom-control custom-switch chkBox chkPaymentCard pointer text-center"><input name="pointer" class="custom-control-input chkBox notevent pointer" type="checkbox" id="f-' + data.ExpenseClaimID + '" name="' + data.ExpenseClaimID + '"><label class="custom-control-label chkBox pointer" for="f--' + data.ExpenseClaimID + '"></label></div>',
@@ -83,7 +92,7 @@ Template.receiptsoverview.onCreated(function () {
             utilityService.modifynegativeCurrencyFormat( data.TotalAmountEx ) || 0.0,
             utilityService.modifynegativeCurrencyFormat( data.TotalAmountInc ) || 0.0,
             // data.fields.Lines[0].fields.ID || '',
-            data.Active ? "" : "In-Active",
+            linestatus,
         ];
         return dataList;
     }
@@ -94,23 +103,23 @@ Template.receiptsoverview.onCreated(function () {
         </div>`;
 
     let headerStructure = [
-        { index: 0, label: 'ID', class:'colId', active: false, display: true, width: "10" },
-        { index: 1, label: 'checkBoxHeader', class:'colCheckBox', active: true, display: false, width: "15" },
-        { index: 2, label: 'Date', class:'colDate', active: true, display: true, width: "80" },
+        { index: 0, label: 'ID', class:'colId', active: false, display: true, width: "80" },
+        { index: 1, label: 'checkBoxHeader', class:'colCheckBox', active: true, display: false, width: "40" },
+        { index: 2, label: 'Date', class:'colDate', active: true, display: true, width: "100" },
         // { index: 3, label: "Supplier", class: "colSupplier", active: true, display: true, width: "200" },
-        { index: 3, label: "Amount", class: "colAmount", active: true, display: true, width: "100" },
-        { index: 4, label: "Account", class: "colAccount", active: true, display: true, width: "110" },
+        { index: 3, label: "Amount", class: "colAmount", active: true, display: true, width: "110" },
+        { index: 4, label: "Account", class: "colAccount", active: true, display: true, width: "200" },
         { index: 5, label: "Trip-Group", class: "colTripGroup", active: true, display: true, width: "110" },
-        { index: 6, label: "Description", class: "colDescription", active: true, display: true, width: "300" },
+        { index: 6, label: "Description", class: "colDescription", active: true, display: true, width: "500" },
         // { index: 7, label: "Reimbursement", class: "colReimbursement", active: false, display: true, width: "110" },
-        { index: 7, label: "SupplierID", class: "colSupplierID", active: true, display: true, width: "10" },
-        { index: 8, label: "AccountID", class: "colAccountID", active: false, display: true, width: "10" },
-        { index: 9, label: "EmployeeID", class: "colEmployeeID", active: false, display: true, width: "10" },
-        { index: 10, label: "EmployeeName", class: "colEmployeeName", active: false, display: true, width: "200" },
+        { index: 7, label: "Supplier ID", class: "colSupplierID", active: true, display: true, width: "100" },
+        { index: 8, label: "Account ID", class: "colAccountID", active: false, display: true, width: "100" },
+        { index: 9, label: "Employee ID", class: "colEmployeeID", active: false, display: true, width: "100" },
+        { index: 10, label: "Employee Name", class: "colEmployeeName", active: true, display: true, width: "200" },
         // { index: 13, label: "TaxCode", class: "colTaxCode", active: false, display: true, width: "110" },
-        { index: 11, label: "TaxAmount", class: "colTaxAmount", active: false, display: true, width: "110" },
-        { index: 12, label: "AmountEx", class: "colAmountEx", active: false, display: true, width: "110" },
-        { index: 13, label: "AmountInc", class: "colAmountInc", active: false, display: true, width: "110" },
+        { index: 11, label: "Tax Amount", class: "colTaxAmount", active: false, display: true, width: "110" },
+        { index: 12, label: "Amount (Ex)", class: "colAmountEx", active: false, display: true, width: "110" },
+        { index: 13, label: "Amount (Inc)", class: "colAmountInc", active: true, display: true, width: "110" },
         // { index: 17, label: "LineID", class: "colLineID", active: false, display: true, width: "10" },
         { index: 14, label: 'Status', class: 'colStatus', active: true, display: true, width: "120" },
     ];

@@ -34,15 +34,15 @@
     includeClient=false
     includeAddress=false
     Category='JournalEntry'
-    TranascationType='quotes'
+    TranascationType='journalentry'
     payment=false
     headerfields=headerfields
     headerbuttons=headerbuttons
     currency=false
     data=record
     gridTableId='tblJournalEntryLine'
-    printTableId='invoice_print'
-    printTemplateId = 'print_invoice'
+    printTableId='journalentry_print'
+    printTemplateId = 'print_journalentry'
 
 
     tablename="tblJournalEntryLine"
@@ -54,16 +54,24 @@
     getDefaultCurrency=getDefaultCurrency
     mainselector='lineAccountName'
     selectorfield='colAccountName'
+    customGrid = true
+    gridfields=gridfields
+    
 
     footerFields = footerFields
     AttachmentCount=AttachmentCount
-    printName = 'Invoices'
-    TransactionType='invoices'
+    printName = 'Journalentry'
+    TransactionType='journalentry'
     printOptions=printOptions
+    printfields=printfields
     saveTransaction=saveTransaction
+    custlisttype='ltSales'
+    deliveryDocketName='Delivery Docket'
+    calculation=false
+    customfooter=true
     }}
 
-    <div class="modal fade" role="dialog" tabindex="-1" id="templateselection">
+    <!-- <div class="modal fade" role="dialog" tabindex="-1" id="templateselection">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header" style="padding-bottom: 8px;">
@@ -144,7 +152,7 @@
             </div>
         </div>
 
-    </div>
+    </div> -->
 
     <div class="modal fade" id="templatePreviewModal" tabindex="2" role="dialog" aria-labelledby="templatePreviewLabel"
         aria-hidden="true">

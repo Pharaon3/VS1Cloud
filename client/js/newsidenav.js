@@ -219,30 +219,33 @@ Template.newsidenav.onCreated(function () {
 
   templateObject.isSerialNumberList = new ReactiveVar();
   templateObject.isSerialNumberList.set(false);
-  sideBarService.getVS1MenuConfig().then((data) => {
-    if (data.tpreference && data.tpreference.length > 0) {
-      const latestAction = data.tpreference[data.tpreference.length - 1];
-      const menuItem = JSON.parse(latestAction.fields.PrefValue);
-      if (menuItem.Location === "TopMenu") {
-        templateObject.sideBarPositionClass.set('top');
-        $('#sidebar').addClass('top');
-        $('#bodyContainer').addClass('top');
-        $('#sidebarToggleBtn .text').text('Side');
+
+  if(localStorage.getItem('TPreferenceMenuID') == 0) {
+    sideBarService.getVS1MenuConfig().then((data) => {
+      if (data.tpreference && data.tpreference.length > 0) {
+        const latestAction = data.tpreference[data.tpreference.length - 1];
+        const menuItem = JSON.parse(latestAction.fields.PrefValue);
+        if (menuItem.Location === "TopMenu") {
+          templateObject.sideBarPositionClass.set('top');
+          $('#sidebar').addClass('top');
+          $('#bodyContainer').addClass('top');
+          $('#sidebarToggleBtn .text').text('Side');
+        } else {
+          templateObject.sideBarPositionClass.set('side');
+          $('#sidebar').removeClass('top');
+          $('#bodyContainer').removeClass('top');
+          $('#sidebarToggleBtn .text').text('Top');
+        }
+        localStorage.setItem('TPreferenceMenuID', latestAction.fields.ID);
       } else {
         templateObject.sideBarPositionClass.set('side');
         $('#sidebar').removeClass('top');
         $('#bodyContainer').removeClass('top');
         $('#sidebarToggleBtn .text').text('Top');
+        localStorage.setItem('TPreferenceMenuID', 0);
       }
-      localStorage.setItem('TPreferenceMenuID', latestAction.fields.ID);
-    } else {
-      templateObject.sideBarPositionClass.set('side');
-      $('#sidebar').removeClass('top');
-      $('#bodyContainer').removeClass('top');
-      $('#sidebarToggleBtn .text').text('Top');
-      localStorage.setItem('TPreferenceMenuID', 0);
-    }
-  });
+    });
+  }
 
   $(document).ready(function () {
     var erpGet = erpDb();
@@ -251,7 +254,6 @@ Template.newsidenav.onCreated(function () {
   });
 });
 Template.newsidenav.onRendered(function () {
-  console.log("rendered")
   let templateObject = Template.instance();
 
   let vS1FormAccessDetail = localStorage.getItem('VS1FormAccessDetail');
@@ -1020,7 +1022,7 @@ Template.newsidenav.onRendered(function () {
         $('#sidenavfixedAssets').removeClass('active');
         $('#sidenavdelivery').removeClass('active');
         $('.collapse').collapse('hide');
-      } else if ((currentLoc == "/fixedassetsoverview") || (currentLoc == "/fixedassetlist") || (currentLoc == "/serviceloglist")) {
+      } else if ((currentLoc == "/fixedassetsoverview") || (currentLoc == "/fixedassetlist") || (currentLoc == "/serviceloglist") || (currentLoc == "/assetcostreport")) {
         $('#sidenavaccounts').removeClass('active');
         $('#sidenavbanking').removeClass('active');
         $('#sidenavdashbaord').removeClass('active');
@@ -1047,11 +1049,12 @@ Template.newsidenav.onRendered(function () {
         $('#sidenavfixedAssets').addClass('active');
         // $('.collapse').collapse('hide');
       } else if ((currentLoc == "/deliveryOverview") || 
+                  (currentLoc == "/deliveryoverview") || 
                   (currentLoc == "/depotlist") || 
                   (currentLoc == "/drivervehiclelist") || 
                   (currentLoc == "/drivervehiclelistcard") || 
+                  (currentLoc == "/newdepot") || 
                   (currentLoc == "/vehiclelist")) {
-        console.log("/deliveryoverview");
         $('#sidenavaccounts').removeClass('active');
         $('#sidenavbanking').removeClass('active');
         $('#sidenavdashbaord').removeClass('active');
@@ -1077,6 +1080,11 @@ Template.newsidenav.onRendered(function () {
         $('#sidenavfixedAssets').removeClass('active');
         $('#sidenavdelivery').addClass('active');
         // $('.collapse').collapse('hide');
+      } else if(currentLoc == '/optimizedmap') {
+        $('#sidenavdelivery').parent().find("li").addClass("opacityNotActive");
+        $('#sidenavdelivery').parent().find("li").removeClass("active");
+        $('#sidenavdelivery').removeClass('opacityNotActive');
+        $('#sidenavdelivery').addClass('active');
       }
     }, 50);
   }
@@ -3755,6 +3763,7 @@ Template.newsidenav.events({
   },
   'click #sidenavnewcustomerjob': function (event) {
     event.preventDefault();
+    localStorage.setItem('isCustomerJob',true)
     FlowRouter.go('/customerscard');
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
@@ -4876,6 +4885,16 @@ Template.newsidenav.events({
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },
+  'click #sidenavoptimisedmaps': function (event) {
+    event.preventDefault();
+    FlowRouter.go('/optimizedmap');
+    $('#sidenavdelivery').parent().find("li").addClass("opacityNotActive");
+    $('#sidenavdelivery').parent().find("li").removeClass("active");
+    $('#sidenavdelivery').removeClass('opacityNotActive');
+    $('#sidenavdelivery').addClass('active');
+    let templateObject = Template.instance();
+    templateObject.getSetSideNavFocus();
+  },
   'click .sidenavdriverlist': function (event) {
     event.preventDefault();
     FlowRouter.go('/drivervehiclelist');
@@ -4885,6 +4904,12 @@ Template.newsidenav.events({
   'click .sidenavdepotlist': function (event) {
     event.preventDefault();
     FlowRouter.go('/depotlist');
+    let templateObject = Template.instance();
+    templateObject.getSetSideNavFocus();
+  },
+  'click #sidenavnewdepot': function (event) {
+    event.preventDefault();
+    FlowRouter.go('/newdepot');
     let templateObject = Template.instance();
     templateObject.getSetSideNavFocus();
   },

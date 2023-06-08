@@ -1,0 +1,162 @@
+<template name="new_workorder_temp">
+    <style>
+        .templateItem {
+          display: inline-flex !important;
+        }
+    
+        .btnPreviewTemplate {
+          padding: 6px;
+          cursor: pointer;
+        }
+    
+        .btnPreviewTemplate:hover {
+          background-color: #f8f9fc;
+        }
+    
+        .colUnitPriceEx,
+        .colUnitPriceInc,
+        .colAmountEx,
+        .colAmountInc {
+          cursor: pointer;
+        }
+      </style>
+      <!-- <div
+          class="container-fluid purchasesmodule"
+          style="padding-right: 0px; padding-left: 0px"
+        >
+          <div class="fullScreenSpin" style="display: none">
+            <div class="spinner"></div>
+          </div> -->
+    
+    
+      {{> transaction_card
+      exIndexDBName='TVS1Workorder'
+      exLowercaseName='tvs1workorder'
+      oneExAPIName=oneExAPIName
+      service=service
+      listapiservice=listapiservice
+      listapifunction=listapifunction
+      listroute='purchaseorderlist'
+      setTransData=setTransData
+      initialRecords=initialRecords
+      includeClient=true
+      includeAddress=true
+      Category='workorder'
+      clientType='Customer'
+      headerfields=headerfields
+      headerbuttons=headerbuttons
+      currency=false
+      data=workorderrecord
+      printTableId='purchase_print'
+      printTemplateId = 'print_purchase_order'
+      printWrapPrefix = 'invoice_wrapper'
+      salesCloudPreferenceRec=salesCloudPreferenceRec
+      canShowBackOrder=false
+      
+      gridTableId='tblWorkOrderLine'
+      tablename="tblWorkOrderLine"
+      mainselector='lineProductName'
+      selectorfield='colProductName'
+      customGrid = true
+      gridfields=gridfields
+    
+      footerFields = footerFields
+      AttachmentCount=attachmentCount
+      printName = 'workorders'
+      TransactionType='workorders'
+      printOptions=printOptions
+      saveTransaction=saveTransaction
+      custlisttype='ltSales'
+      deliveryDocketName='Delivery Docket'
+      calculation=false
+      customfooter = true
+      saveTransaction=saveTransaction
+      updateTransactionTemp=updateTransactionTemp
+      }}
+
+
+      {{#if equals showBOMModal true}}
+        <div class="modal fade" role="dialog" tabindex="-1" id="BOMSetupModal">
+            <div class="modal-dialog modal-xl modal-centered" role="document">
+                <div class="modal-content" >
+                    <div class="modal-header" >
+                        <h4 class="title-header" >BOM Set up</h4>
+                        <button type="button" class="close" id="closeBOMSetupModal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        {{>bom_template}}
+                    </div>
+                    <div class="modal-footer d-flex align-items-center justify-content-center px-3" style="border-top-width: 0px; gap: 15px " >
+                        <button class="btn btn-success btn-save-bom" type="button"><i class="fa fa-save" style="padding-right: 8px;"></i>Save</button>
+                        <button class="btn btn-primary btn-print-bom" type="button"><i class="fa fa-print" style="padding-right: 8px;"></i>Print</button>
+                        <button class="btn btn-secondary btn-cancel-bom" type="button"><i class="fa fa-remove" style="padding-right: 8px;"></i>Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      {{/if}}
+
+        <div class="modal fade" role="dialog" tabindex="-1" id="processListModal">
+            {{> processlistpopup}}
+            <!-- {{> statuspop}} -->
+        </div>
+
+        <!-- Start Attachemt -->
+        <div class="modal fade" role="dialog" tabindex="-1" id="myModalAttachment">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Upload Attachments</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body" style="padding: 0px;">
+                        <div class="divTable file-display" id="file-display">
+                            <!-- <div class="uploaded-element-header">
+<span class="uploaded-on uploaded-header">Upload a file</span>
+</div> -->
+                            <div class="col inboxcol1">
+                                <img src="/icons/nofiles_icon.jpg" class="" style="width:100%;">
+                            </div>
+                            <div class="col inboxcol2" style="text-align: center;">
+                                <div>Upload files or add files from the file library.</div>
+                                {{#if isMobileDevices}}
+                                    <div>Capture copies of receipt's or take photo's of completed jobs.</div>
+                                {{/if}}
+                                <p style="color: #ababab;">Only users with access to your company can view these files</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        {{#if isMobileDevices}}
+                            <input type="file" id="img-attachment-upload" style="display:none" accept="image/*" capture="camera">
+                            <button class="btn btn-primary btnUploadFile img_new_attachment_btn" type="button"><i class="fas fa-camera" style="margin-right: 5px;"></i>Capture</button>
+
+                            <input type="file" id="attachment-upload" class='attachment-upload' style="display:none" multiple accept=".jpg,.gif,.png">
+                        {{else}}
+                            <input type="file" id="attachment-upload" style="display:none" class="attachment-upload" multiple accept=".jpg,.gif,.png,.bmp,.tiff,.pdf,.doc,.docx,.xls,.xlsx,.ppt,
+                                .pptx,.odf,.csv,.txt,.rtf,.eml,.msg,.ods,.odt,.keynote,.key,.pages-tef,
+                                .pages,.numbers-tef,.numbers,.zip,.rar,.zipx,.xzip,.7z,image/jpeg,
+                                image/gif,image/png,image/bmp,image/tiff,application/pdf,
+                                application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,
+                                application/vnd.oasis.opendocument.formula,text/csv,text/plain,text/rtf,message/rfc822,
+                                application/vnd.ms-outlook,application/vnd.oasis.opendocument.spreadsheet,
+                                application/vnd.oasis.opendocument.text,application/x-iwork-keynote-sffkey,
+                                application/vnd.apple.keynote,application/x-iwork-pages-sffpages,
+                                application/vnd.apple.pages,application/x-iwork-numbers-sffnumbers,
+                                application/vnd.apple.numbers,application/zip,application/rar,
+                                application/x-zip-compressed,application/x-zip,application/x-7z-compressed">
+                        {{/if}}
+                        <button class="btn btn-primary btnUploadFile new_attachment_btn" type="button"><i class="fa fa-cloud-upload" style="margin-right: 5px;"></i>Upload</button>
+                        <button class="btn btn-success closeModal" data-dismiss="modal" type="button" style="margin-right: 5px;" autocomplete="off">
+                <i class="fa fa-save" style="padding-right: 8px;"></i>Save
+            </button>
+                        <!-- <button class="btn btn-warning btnResetSettings" data-dismiss="modal" type="reset"><i class="fa fa-repeat" style="margin-right: 5px;"></i>Reset</button> -->
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button"><i class="fa fa-remove" style="margin-right: 5px;"></i>Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END Attachments -->
+    {{> init_form_page_script}}
+</template>

@@ -3,7 +3,7 @@
         xs=xs sm=sm md=md lg=lg xl=xl
         defaultPosition=defaultPosition
         key=key
-        hLenght=50
+        hLenght=100
         id="clockedOnEmployees"
         headerClass=""
         headerColor="primary"
@@ -11,7 +11,7 @@
         hrefDetails=""
         editModalID="editDashboardModal"
     }}
-        <div class="row no-gutters align-items-center" style="margin-bottom: 20px;margin-top: 20px;">
+        <div class="row no-gutters align-items-center chart-canvas" style="margin-bottom: 20px;margin-top: 20px;">
             {{#if clockedOnEmpData}}
                 {{#each itemclockedemp in clockedOnEmpData}}
                 <div class="col-6">
@@ -27,5 +27,6 @@
                 {{/each}}
             {{/if}}
         </div>
+        <img class="chart-img w-100 h-100" src="img/charts/Clocked On Employees.png"/>
     {{/draggablePanel}}
 </template>

@@ -292,7 +292,7 @@ Template.invoice_temp.onCreated(function () {
   templateObject.includeBOnShippedQty.set(true);
   templateObject.productextrasellrecords = new ReactiveVar([]);
   templateObject.datatablerecords = new ReactiveVar([]);
-  templateObject.selectedcustomerpayrecords = new ReactiveVar([]);
+  // templateObject.selectedcustomerpayrecords = new ReactiveVar([]);
   templateObject.singleInvoiceData = new ReactiveVar([]);
   templateObject.defaultsaleterm = new ReactiveVar();
 
@@ -308,6 +308,35 @@ Template.invoice_temp.onCreated(function () {
   templateObject.headerfields = new ReactiveVar();
   templateObject.headerbuttons = new ReactiveVar();
   templateObject.tranasctionfooterfields = new ReactiveVar();
+  templateObject.temporaryfiles = new ReactiveVar([]);
+  templateObject.printfields = new ReactiveVar();
+
+  let printfields = {
+    "Product Name": ["25", "left"],
+    "Description": ["30", "left"],
+    "Qty": ["7", "right"],
+    "Unit Price": ["15", "right"],
+    "Tax": ["7", "right"],
+    "Amount": ["15", "right"],
+  };
+
+  templateObject.printfields.set(printfields)
+
+  // this.subscribe('allTargets');
+
+  // Meteor.publish('allTargets', function() {
+
+  //   this.onStop(function() {
+  
+  //       // Do your stuff here
+  //       for(let i=0; i< 100000; i++) {
+  //       }
+  
+  //   });
+  
+  //   return Targets.find();
+  
+  // });
 
   function formatDate (date) {
     return moment(date).format('DD/MM/YYYY');
@@ -319,7 +348,7 @@ Template.invoice_temp.onCreated(function () {
       {label: 'Terms', type: 'search', id: 'sltTerms', listModalId:'termsList_modal', listModalTemp: 'termlistpop', colName: 'colName', editModalId: 'newTerms_modal', editModalTemp:'newtermspop', editable: true, divClass:"col-12 col-md-6 col-lg-4 col-xl-2 transheader", field:'termsName'},
       {label: 'Status', type: 'search', id: 'sltStatus', listModalId:'statusPop_modal', listModalTemp: 'statuspop', colName: 'colStatusName', editModalId: 'newStatusPop_modal', editModalTemp:'newstatuspop', editable: true, divClass:"col-12 col-md-6 col-lg-4 col-xl-2 transheader", field: 'status'},
       {label: 'Reference', type: 'defailt', id:'edtRef', value: '', readonly: false, divClass:"col-12 col-md-6 col-lg-4 col-xl-2 transheader", field: 'reference'},
-      {label: 'Department', type: 'search', id: 'sltDept', listModalId:'department_modal', listModalTemp: 'departmentpop', colName: 'colDeptName', editModalId: 'newDepartment_modal', editModalTemp:'newdepartmentpop', editable: true, divClass:"col-12 col-md-6 col-lg-4 col-xl-2 transheader", field: 'department'},
+      {label: 'Department', type: 'search', id: 'sltDept', listModalId:'department_modal', listModalTemp: 'departmentModal', colName: 'colDeptClassName', editModalId: 'newDepartment_modal', editModalTemp:'newdepartmentpop', editable: true, divClass:"col-12 col-md-6 col-lg-4 col-xl-2 transheader", field: 'department'},
   ]
   templateObject.headerfields.set(transactionheaderfields);
 
@@ -347,6 +376,64 @@ Template.invoice_temp.onCreated(function () {
   templateObject.printOptions.set(options)
 
 
+  getVS1Data('TInvoiceTemp').then(function(dataObject){
+    if(dataObject.length == 0) {
+      templateObject.temporaryfiles.set([]);
+    } else {
+      let data = JSON.parse(dataObject[0].data);
+      let useData = data.tinvoicetemp;
+      templateObject.temporaryfiles.set(useData)
+    }
+  }).catch(function(e){
+    templateObject.temporaryfiles.set([])
+  })
+
+
+
+  templateObject.getDefaultTerm = function () {
+    const termrecords = [];
+    getVS1Data("TTermsVS1")
+      .then(function (dataObject) {
+        if (dataObject.length == 0) {
+          salesService.getTermVS1().then(function (data) {
+            for (let i in data.ttermsvs1) {
+              if (data.ttermsvs1[i].isSalesdefault == true) {
+                localStorage.setItem(
+                    "ERPTermsSales",
+                    data.ttermsvs1[i].TermsName || "COD"
+                );
+                templateObject.defaultsaleterm.set(data.ttermsvs1[i].TermsName);
+              }
+            }
+          });
+        } else {
+          let data = JSON.parse(dataObject[0].data);
+          let useData = data.ttermsvs1;
+          for (let i in useData) {
+            if (useData[i].isSalesdefault == true) {
+              templateObject.defaultsaleterm.set(useData[i].TermsName);
+            }
+          }
+        }
+      })
+      .catch(function (err) {
+        salesService.getTermVS1().then(function (data) {
+          for (let i in data.ttermsvs1) {
+            if (data.ttermsvs1[i].isSalesdefault == true) {
+              localStorage.setItem(
+                  "ERPTermsSales",
+                  data.ttermsvs1[i].TermsName || "COD"
+              );
+              templateObject.defaultsaleterm.set(data.ttermsvs1[i].TermsName);
+            }
+          }
+        });
+      });
+  };
+
+  templateObject.getDefaultTerm()
+
+
   templateObject.setInitialRecords = function () {
     let lineItems = [];
     let lineItemObj = {};
@@ -368,10 +455,10 @@ Template.invoice_temp.onCreated(function () {
       curTotalAmt: 0,
       TaxTotal: 0,
       TaxRate: 0,
-      weight: 0,
-      weightUnit: 'Kg',
-      volume: 0,
-      volumeUnit: 'm3',
+      weight: 1,
+      weightUnit: 'KG',
+      volume: 1,
+      volumeUnit: 'CF',
     };
     lineItems.push(lineItemObj);
     const currentDate = new Date();
@@ -412,7 +499,9 @@ Template.invoice_temp.onCreated(function () {
       totalPaid: Currency + "" + 0.0,
       ispaid: false,
       isPartialPaid: false,
-      showingDelivery: false
+      showingDelivery: false,
+      showingFx: false,
+      showingSN: false
     };
     if (FlowRouter.current().queryParams.customerid) {
       // templateObject.getCustomerData(FlowRouter.current().queryParams.customerid);
@@ -431,254 +520,250 @@ Template.invoice_temp.onCreated(function () {
   /**
    * It should be updated with indexeddb
    */
-  templateObject.getLastInvoiceData = async function () {
-    let lastDepartment = defaultDept || "";
-    salesService.getLastInvoiceID().then(function (data) {
-        let latestInvoiceId;
-        if (data.tinvoice.length > 0) {
-          lastInvoice = data.tinvoice[data.tinvoice.length - 1];
-          latestInvoiceId = lastInvoice.Id;
-        } else {
-          latestInvoiceId = 0;
-        }
-        newInvoiceId = latestInvoiceId + 1;
-        setTimeout(function () {
-          $(".transheader > #sltDept_fromtransactionheader").val(lastDepartment);
-        }, 50);
-      })
-      .catch(function (err) {
-        $(".transheader > #sltDept_fromtransactionheader").val(lastDepartment);
-      });
-  };
+  // templateObject.getAllSelectPaymentData = async function () {
+  //   let customerName = $("#edtCustomerName").val() || "";
+  //   async function getPaymentDetails (customername) {
+  //     return new Promise((resolve, reject)=> {
+  //       getVS1Data('TCustomerPayment').then(function(dataObject) {
+  //         if(dataObject.length == 0) {
+  //           salesService.getCheckPaymentDetailsByName(customerName).then(function (data) {
+  //             resolve(data.tcustomerpayment)
+  //           })
+  //         } else {
+  //           let data = JSON.parse(dataObject[0].data);
+  //           let useData = data.tcustomerpayment;
+  //           let added = false;
+  //           let retarray = [];
+  //           for(let i=0; i< useData.length; i++) {
+  //             if(useData[i].fields.ClientPrintName == customerName) {
+  //               added = true
+  //               retarray.push(useData[i])
+  //             }
+  //             if(retarray.length > 0) {
+  //               resolve(retarray)
+  //             }
+  //           }
+  //           if(added == false) {
+  //             salesService.getCheckPaymentDetailsByName(customerName).then(function (data) {
+  //               resolve(data.tcustomerpayment)
+  //             })
+  //           }
+  //         }
+  //       }).catch(function(e) {
+  //         salesService.getCheckPaymentDetailsByName(customerName).then(function (data) {
+  //           resolve(data.tcustomerpayment)
+  //         }).catch(resolve([]))
+  //       })
+  //     })
+  //   }
+  //   let data = await getPaymentDetails(customerName);
+  //   const dataTableList = [];
+  //   for (let i = 0; i < data.length; i++) {
+  //     let amount = utilityService.modifynegativeCurrencyFormat(data[i].fields.Amount) || 0.0;
+  //     let applied = utilityService.modifynegativeCurrencyFormat(data[i].fields.Applied) || 0.0;
+  //     let balance = utilityService.modifynegativeCurrencyFormat(data[i].fields.Balance) || 0.0;
+  //     var dataList = {
+  //       id: data[i].fields.ID || "",sortdate: data[i].fields.PaymentDate != "" ?
+  //         moment(data[i].fields.PaymentDate).format("YYYY/MM/DD") : data[i].fields.PaymentDate,
+  //       paymentdate: data[i].fields.PaymentDate != "" ?moment(data[i].fields.PaymentDate).format("DD/MM/YYYY") : data[i].fields.PaymentDate,
+  //       customername: data[i].fields.CompanyName || "",
+  //       paymentamount: amount || 0.0,
+  //       applied: applied || 0.0,
+  //       balance: balance || 0.0,
+  //       lines: data[i].fields.Lines,
+  //       bankaccount: data[i].fields.AccountName || "",
+  //       department: data[i].fields.DeptClassName || "",
+  //       refno: data[i].fields.ReferenceNo || "",
+  //       paymentmethod: data[i].fields.PaymentMethodName || "",
+  //       notes: data[i].fields.Notes || "",
+  //     };
+  //     dataTableList.push(dataList);
+  //   }
+  //   templateObject.selectedcustomerpayrecords.set(dataTableList);
+  // };
 
-  /**
- * Should be updated with indexeddb
- */
-  templateObject.getAllSelectPaymentData = function () {
-    let customerName = $("#edtCustomerName").val() || "";
-    salesService
-      .getCheckPaymentDetailsByName(customerName)
-      .then(function (data) {
-        const dataTableList = [];
-        for (let i = 0; i < data.tcustomerpayment.length; i++) {
-          let amount =
-            utilityService.modifynegativeCurrencyFormat(
-              data.tcustomerpayment[i].fields.Amount
-            ) || 0.0;
-          let applied =
-            utilityService.modifynegativeCurrencyFormat(
-              data.tcustomerpayment[i].fields.Applied
-            ) || 0.0;
-          let balance =
-            utilityService.modifynegativeCurrencyFormat(
-              data.tcustomerpayment[i].fields.Balance
-            ) || 0.0;
-          var dataList = {
-            id: data.tcustomerpayment[i].fields.ID || "",
-            sortdate: data.tcustomerpayment[i].fields.PaymentDate != "" ?
-              moment(data.tcustomerpayment[i].fields.PaymentDate).format(
-                "YYYY/MM/DD"
-              ) : data.tcustomerpayment[i].fields.PaymentDate,
-            paymentdate: data.tcustomerpayment[i].fields.PaymentDate != "" ?
-              moment(data.tcustomerpayment[i].fields.PaymentDate).format(
-                "DD/MM/YYYY"
-              ) : data.tcustomerpayment[i].fields.PaymentDate,
-            customername: data.tcustomerpayment[i].fields.CompanyName || "",
-            paymentamount: amount || 0.0,
-            applied: applied || 0.0,
-            balance: balance || 0.0,
-            lines: data.tcustomerpayment[i].fields.Lines,
-            bankaccount: data.tcustomerpayment[i].fields.AccountName || "",
-            department: data.tcustomerpayment[i].fields.DeptClassName || "",
-            refno: data.tcustomerpayment[i].fields.ReferenceNo || "",
-            paymentmethod: data.tcustomerpayment[i].fields.PaymentMethodName || "",
-            notes: data.tcustomerpayment[i].fields.Notes || "",
-          };
-          dataTableList.push(dataList);
-        }
-        templateObject.selectedcustomerpayrecords.set(dataTableList);
-      })
-      .catch(function (err) { });
-  };
 
 
   templateObject.setInvoiceDataFields = function(data) {
     templateObject.singleInvoiceData.set(data);
-    const isRepeated = data.fields.RepeatedFrom;
+    let useData = data.fields
+    const isRepeated = useData.RepeatedFrom;
     // templateObject.hasFollow.set(isRepeated);
     let lineItems = [];
     let lineItemObj = {};
     let currencySymbol = Currency;
-    let totalInc = currencySymbol + "" + data.fields.TotalAmountInc.toLocaleString(undefined, {minimumFractionDigits: 2,});
-    let totalDiscount = utilityService.modifynegativeCurrencyFormat(data.fields.TotalDiscount).toLocaleString(undefined, {minimumFractionDigits: 2,});
-    let subTotal = currencySymbol + "" + data.fields.TotalAmount.toLocaleString(undefined, {minimumFractionDigits: 2,});
-    let totalTax = currencySymbol + "" + data.fields.TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2,});
-    let totalBalance = utilityService.modifynegativeCurrencyFormat(data.fields.TotalBalance).toLocaleString(undefined, {minimumFractionDigits: 2,});
+    let totalInc = currencySymbol + "" + useData.TotalAmountInc.toLocaleString(undefined, {minimumFractionDigits: 2,});
+    let totalDiscount = utilityService.modifynegativeCurrencyFormat(useData.TotalDiscount).toLocaleString(undefined, {minimumFractionDigits: 2,});
+    let subTotal = currencySymbol + "" + useData.TotalAmount.toLocaleString(undefined, {minimumFractionDigits: 2,});
+    let totalTax = currencySymbol + "" + useData.TotalTax.toLocaleString(undefined, {minimumFractionDigits: 2,});
+    let totalBalance = utilityService.modifynegativeCurrencyFormat(useData.TotalBalance).toLocaleString(undefined, {minimumFractionDigits: 2,});
 
-    let totalPaidAmount = currencySymbol + "" + data.fields.TotalPaid.toLocaleString(undefined, {minimumFractionDigits: 2,
+    let totalPaidAmount = currencySymbol + "" + useData.TotalPaid.toLocaleString(undefined, {minimumFractionDigits: 2,
       });
-    if (data.fields.Lines != null) {
-      if (data.fields.Lines.length) {
-        for (let i = 0; i < data.fields.Lines.length; i++) {
-          let AmountGbp = currencySymbol + "" + data.fields.Lines[i].fields.TotalLineAmount.toLocaleString(undefined, {minimumFractionDigits: 2,});
-          let currencyAmountGbp = currencySymbol + "" + data.fields.Lines[i].fields.TotalLineAmount.toFixed(2);
-          let TaxTotalGbp = utilityService.modifynegativeCurrencyFormat(data.fields.Lines[i].fields.LineTaxTotal);
-          let TaxRateGbp = (data.fields.Lines[i].fields.LineTaxRate * 100).toFixed(2);
+    if (useData.Lines != null) {
+      if (useData.Lines.length) {
+        for (let i = 0; i < useData.Lines.length; i++) {
+          let AmountGbp = currencySymbol + "" + useData.Lines[i].fields.TotalLineAmount.toLocaleString(undefined, {minimumFractionDigits: 2,});
+          let currencyAmountGbp = currencySymbol + "" + useData.Lines[i].fields.TotalLineAmount.toFixed(2);
+          let TaxTotalGbp = utilityService.modifynegativeCurrencyFormat(useData.Lines[i].fields.LineTaxTotal);
+          let TaxRateGbp = (useData.Lines[i].fields.LineTaxRate * 100).toFixed(2);
 
-          let SalesLinesCustField1Val = (data.fields.Lines[i].fields.SalesLinesCustField1);
+          let SalesLinesCustField1Val = (useData.Lines[i].fields.SalesLinesCustField1);
 
           let serialno = "";
           let lotno = "";
           let expirydate = "";
-          if(data.fields.Lines[i].fields?.PQA?.fields?.PQASN != null){
-            for (let j = 0; j < data.fields.Lines[i].fields.PQA.fields.PQASN.length; j++) {
-              serialno += (serialno == "") ? data.fields.Lines[i].fields.PQA.fields.PQASN[j].fields.SerialNumber : ","+data.fields.Lines[i].fields.PQA.fields.PQASN[j].fields.SerialNumber;
+          if(useData.Lines[i].fields?.PQA?.fields?.PQASN != null){
+            for (let j = 0; j < useData.Lines[i].fields.PQA.fields.PQASN.length; j++) {
+              serialno += (serialno == "") ? useData.Lines[i].fields.PQA.fields.PQASN[j].fields.SerialNumber : ","+useData.Lines[i].fields.PQA.fields.PQASN[j].fields.SerialNumber;
             }
           }
-          if(data.fields.Lines[i].fields?.PQA?.fields?.PQABatch != null){
-            for (let j = 0; j < data.fields.Lines[i].fields.PQA.fields.PQABatch.length; j++) {
-              lotno += (lotno == "") ? data.fields.Lines[i].fields.PQA.fields.PQABatch[j].fields.BatchNo : ","+data.fields.Lines[i].fields.PQA.fields.PQABatch[j].fields.BatchNo;
-              let expirydateformat = data.fields.Lines[i].fields.PQA.fields.PQABatch[j].fields.BatchExpiryDate != '' ? moment(data.fields.Lines[i].fields.PQA.fields.PQABatch[j].fields.BatchExpiryDate).format("YYYY/MM/DD"): data.fields.Lines[i].fields.PQA.fields.PQABatch[j].fields.BatchExpiryDate;
+          if(useData.Lines[i].fields?.PQA?.fields?.PQABatch != null){
+            for (let j = 0; j < useData.Lines[i].fields.PQA.fields.PQABatch.length; j++) {
+              lotno += (lotno == "") ? useData.Lines[i].fields.PQA.fields.PQABatch[j].fields.BatchNo : ","+useData.Lines[i].fields.PQA.fields.PQABatch[j].fields.BatchNo;
+              let expirydateformat = useData.Lines[i].fields.PQA.fields.PQABatch[j].fields.BatchExpiryDate != '' ? moment(useData.Lines[i].fields.PQA.fields.PQABatch[j].fields.BatchExpiryDate).format("YYYY/MM/DD"): useData.Lines[i].fields.PQA.fields.PQABatch[j].fields.BatchExpiryDate;
               expirydate += (expirydate == "") ? expirydateformat : ","+expirydateformat;
             }
           }
           lineItemObj = {
             lineID: Random.id(),
-            id: data.fields.Lines[i].fields.ID || "",
-            item: data.fields.Lines[i].fields.ProductName || "",
-            description: data.fields.Lines[i].fields.ProductDescription ||
+            id: useData.Lines[i].fields.ID || "",
+            item: useData.Lines[i].fields.ProductName || "",
+            description: useData.Lines[i].fields.ProductDescription ||
               "",
-            quantity: data.fields.Lines[i].fields.UOMOrderQty || 0,
-            qtyordered: data.fields.Lines[i].fields.UOMOrderQty || 0,
-            qtyshipped: data.fields.Lines[i].fields.UOMQtyShipped || 0,
-            qtybo: data.fields.Lines[i].fields.UOMQtyBackOrder || 0,
-            UnitOfMeasure: data.fields.Lines[i].fields.UnitOfMeasure || defaultUOM,
-            unitPrice: utilityService.modifynegativeCurrencyFormat(data.fields.Lines[i].fields.OriginalLinePrice).toLocaleString(undefined, {minimumFractionDigits: 2,}) || '0.00',
-            unitPriceInc: utilityService.modifynegativeCurrencyFormat(data.fields.Lines[i].fields.OriginalLinePriceInc).toLocaleString(undefined, {minimumFractionDigits: 2,}) || '0.00',
-            TotalAmt: utilityService.modifynegativeCurrencyFormat(data.fields.Lines[i].fields.TotalLineAmount).toLocaleString(undefined, {minimumFractionDigits: 2,}) || '0.00',
-            TotalAmtInc: utilityService.modifynegativeCurrencyFormat(data.fields.Lines[i].fields.TotalLineAmountInc).toLocaleString(undefined, {minimumFractionDigits: 2,}) || '0.00',
-            lineCost: utilityService.modifynegativeCurrencyFormat(data.fields.Lines[i].fields.LineCost).toLocaleString(undefined, {minimumFractionDigits: 2,}) || '0.00',
-            taxRate: (data.fields.Lines[i].fields.LineTaxRate * 100).toFixed(2) || 0,
-            taxCode: data.fields.Lines[i].fields.LineTaxCode || "",
+            quantity: useData.Lines[i].fields.UOMOrderQty || 0,
+            qtyordered: useData.Lines[i].fields.UOMOrderQty || 0,
+            qtyshipped: useData.Lines[i].fields.UOMQtyShipped || 0,
+            qtybo: useData.Lines[i].fields.UOMQtyBackOrder || 0,
+            UnitOfMeasure: useData.Lines[i].fields.UnitOfMeasure || defaultUOM,
+            unitPrice: utilityService.modifynegativeCurrencyFormat(useData.Lines[i].fields.OriginalLinePrice).toLocaleString(undefined, {minimumFractionDigits: 2,}) || '0.00',
+            unitPriceInc: utilityService.modifynegativeCurrencyFormat(useData.Lines[i].fields.OriginalLinePriceInc).toLocaleString(undefined, {minimumFractionDigits: 2,}) || '0.00',
+            TotalAmt: utilityService.modifynegativeCurrencyFormat(useData.Lines[i].fields.TotalLineAmount).toLocaleString(undefined, {minimumFractionDigits: 2,}) || '0.00',
+            TotalAmtInc: utilityService.modifynegativeCurrencyFormat(useData.Lines[i].fields.TotalLineAmountInc).toLocaleString(undefined, {minimumFractionDigits: 2,}) || '0.00',
+            lineCost: utilityService.modifynegativeCurrencyFormat(useData.Lines[i].fields.LineCost).toLocaleString(undefined, {minimumFractionDigits: 2,}) || '0.00',
+            taxRate: (useData.Lines[i].fields.LineTaxRate * 100).toFixed(2) || 0,
+            taxCode: useData.Lines[i].fields.LineTaxCode || "",
             curTotalAmt: currencyAmountGbp || currencySymbol + "0",
             TaxTotal: TaxTotalGbp || '0.00',
             TaxRate: TaxRateGbp || 0,
-            DiscountPercent: data.fields.Lines[i].fields.DiscountPercent || 0,
+            DiscountPercent: useData.Lines[i].fields.DiscountPercent || 0,
             SalesLinesCustField1: SalesLinesCustField1Val,
             serialnumbers: serialno,
             lotnumbers: lotno,
             expirydates: expirydate,
-            weight: data.fields.Lines[i].fields.Weight || 0,
-            weightUnit: data.fields.Lines[i].fields.WeightUnit || 'kg',
-            volume: data.fields.Lines[i].fields.Volume || 0,
-            volumeUnit: data.fields.Lines[i].fields.VolumeUnit || "m3"
+            weight: useData.Lines[i].fields.SalesLinesCustField7 || 1,
+            weightUnit: useData.Lines[i].fields.SalesLinesCustField8 || 'KG',
+            volume: useData.Lines[i].fields.SalesLinesCustField9 || 1,
+            volumeUnit: useData.Lines[i].fields.SalesLinesCustField10 || "CF"
           };
 
           lineItems.push(lineItemObj);
         }
       } else {
-        let AmountGbp = data.fields.Lines.fields.TotalLineAmountInc.toLocaleString(undefined, {minimumFractionDigits: 2,});
-        let currencyAmountGbp = currencySymbol + "" + data.fields.Lines.fields.TotalLineAmount.toFixed(2);
-        let TaxTotalGbp = utilityService.modifynegativeCurrencyFormat(data.fields.Lines.fields.LineTaxTotal);
-        let TaxRateGbp = (data.fields.Lines.fields.LineTaxRate * 100).toFixed(2);
+        let AmountGbp = useData.Lines.fields.TotalLineAmountInc.toLocaleString(undefined, {minimumFractionDigits: 2,});
+        let currencyAmountGbp = currencySymbol + "" + useData.Lines.fields.TotalLineAmount.toFixed(2);
+        let TaxTotalGbp = utilityService.modifynegativeCurrencyFormat(useData.Lines.fields.LineTaxTotal);
+        let TaxRateGbp = (useData.Lines.fields.LineTaxRate * 100).toFixed(2);
         lineItemObj = {
           lineID: Random.id(),
-          id: data.fields.Lines.fields.ID || "",
-          description: data.fields.Lines.fields.ProductDescription || "",
-          quantity: data.fields.Lines.fields.UOMOrderQty || 0,
-          UnitOfMeasure: data.fields.Lines.fields.UnitOfMeasure || defaultUOM,
-          unitPrice: data.fields.Lines[i].fields.OriginalLinePrice.toLocaleString(undefined, { minimumFractionDigits: 2, }) || '0.00',
-          lineCost: data.fields.Lines[i].fields.LineCost.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00',
-          taxRate: (data.fields.Lines.fields.LineTaxRate * 100).toFixed(2) || 0,
-          taxCode: data.fields.Lines.fields.LineTaxCode || "",
+          id: useData.Lines.fields.ID || "",
+          description: useData.Lines.fields.ProductDescription || "",
+          quantity: useData.Lines.fields.UOMOrderQty || 0,
+          UnitOfMeasure: useData.Lines.fields.UnitOfMeasure || defaultUOM,
+          unitPrice: useData.Lines[i].fields.OriginalLinePrice.toLocaleString(undefined, { minimumFractionDigits: 2, }) || '0.00',
+          lineCost: useData.Lines[i].fields.LineCost.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00',
+          taxRate: (useData.Lines.fields.LineTaxRate * 100).toFixed(2) || 0,
+          taxCode: useData.Lines.fields.LineTaxCode || "",
           TotalAmt: AmountGbp || '0.00',
           curTotalAmt: currencyAmountGbp || currencySymbol + "0",
           TaxTotal: TaxTotalGbp || '0.00',
           TaxRate: TaxRateGbp || 0,
-          DiscountPercent: data.fields.Lines.fields.DiscountPercent || 0,
-          SalesLinesCustField1: data.fields.Lines.fields.SalesLinesCustField1 || "",
-          weight: data.fields.Lines[i].fields.Weight || 0,
-          weightUnit: data.fields.Lines[i].fields.WeightUnit || 'kg',
-          volume: data.fields.Lines[i].fields.Volume || 0,
-          volumeUnit: data.fields.Lines[i].fields.VolumeUnit || "m3"
+          DiscountPercent: useData.Lines.fields.DiscountPercent || 0,
+          SalesLinesCustField1: useData.Lines.fields.SalesLinesCustField1 || "",
+          weight: useData.Lines[i].fields.SalesLinesCustField7 || 1,
+          weightUnit: useData.Lines[i].fields.SalesLinesCustField8 || 'KG',
+          volume: useData.Lines[i].fields.SalesLinesCustField9 || 1,
+          volumeUnit: useData.Lines[i].fields.SalesLinesCustField10 || "CF"
         };
         lineItems.push(lineItemObj);
       }
     }
-    let lidData = "Edit Invoice" + " " + data.fields.ID || "";
-    if (data.fields.IsBackOrder) {
-      lidData = "Edit Invoice" + " (BO) " + data.fields.ID || "";
+    let lidData = "Edit Invoice" + " " + useData.ID || "";
+    if (useData.IsBackOrder) {
+      lidData = "Edit Invoice" + " (BO) " + useData.ID || "";
       templateObject.isbackorderredirect.set(true);
     }
-    let isPartialPaid = data.fields.TotalPaid > 0;
+    let isPartialPaid = useData.TotalPaid > 0;
     let invoicerecord = {
-      id: data.fields.ID,
+      id: useData.ID,
       lid: lidData,
-      socustomer: data.fields.CustomerName,
-      salesOrderto: data.fields.InvoiceToDesc,
-      shipto: data.fields.ShipToDesc,
-      department: data.fields.SaleClassName,
-      docnumber: data.fields.DocNumber,
-      custPONumber: data.fields.CustPONumber,
-      saledate: data.fields.SaleDate ? moment(data.fields.SaleDate).format("DD/MM/YYYY") : "",
-      duedate: data.fields.DueDate ? moment(data.fields.DueDate).format("DD/MM/YYYY") : "",
-      employeename: data.fields.EmployeeName,
-      status: data.fields.SalesStatus,
-      category: data.fields.SalesCategory,
-      comments: data.fields.Comments,
-      pickmemo: data.fields.PickMemo,
-      ponumber: data.fields.CustPONumber,
-      via: data.fields.Shipping,
-      connote: data.fields.ConNote,
-      reference: data.fields.ReferenceNo,
-      currency: data.fields.ForeignExchangeCode || Currency,
-      branding: data.fields.MedType,
-      invoiceToDesc: data.fields.InvoiceToDesc,
-      shipToDesc: data.fields.ShipToDesc,
-      termsName: data.fields.TermsName,
+      socustomer: useData.CustomerName,
+      salesOrderto: useData.InvoiceToDesc,
+      shipto: useData.ShipToDesc,
+      department: useData.SaleClassName,
+      docnumber: useData.DocNumber,
+      custPONumber: useData.CustPONumber,
+      saledate: useData.SaleDate ? moment(useData.SaleDate).format("DD/MM/YYYY") : "",
+      duedate: useData.DueDate ? moment(useData.DueDate).format("DD/MM/YYYY") : "",
+      employeename: useData.EmployeeName,
+      status: useData.SalesStatus,
+      category: useData.SalesCategory,
+      comments: useData.Comments,
+      pickmemo: useData.PickMemo,
+      ponumber: useData.CustPONumber,
+      via: useData.Shipping,
+      connote: useData.ConNote,
+      reference: useData.ReferenceNo,
+      currency: useData.ForeignExchangeCode || Currency,
+      branding: useData.MedType,
+      invoiceToDesc: useData.InvoiceToDesc,
+      shipToDesc: useData.ShipToDesc,
+      termsName: useData.TermsName,
       Total: totalInc,
       TotalDiscount: totalDiscount,
       LineItems: lineItems,
       TotalTax: totalTax,
       SubTotal: subTotal,
       balanceDue: totalBalance,
-      saleCustField1: data.fields.SaleCustField1,
-      saleCustField2: data.fields.SaleCustField2,
+      saleCustField1: useData.SaleCustField1,
+      saleCustField2: useData.SaleCustField2,
       totalPaid: totalPaidAmount,
-      ispaid: data.fields.IsPaid,
+      ispaid: useData.IsPaid,
       isPartialPaid: isPartialPaid,
-      CustomerID: data.fields.CustomerID,
-      isRepeated: data.fields.RepeatedFrom,
-      showingDelivery: data.fields.SaleCustField9 == "true"?true: false
+      CustomerID: useData.CustomerID,
+      isRepeated: useData.RepeatedFrom,
+      showingDelivery: useData.SaleCustField9 == "true"?true: false,
+      showingFx: useData.SaleCustField10 == "true"?true: false,
+      showingSN: useData.SaleCustField8 == 'true'? true: false
     };
 
-    $("#edtCustomerName").val(data.fields.CustomerName);
-    $(".transheader > #sltStatus_fromtransactionheader").val(data.fields.SalesStatus);
-    $(".transheader > #sltDept_fromtransactionheader").val(data.fields.SaleClassName);
-    $(".transheader > .form-group> #edtRef").val(data.fields.ReferenceNo);
+    $("#edtCustomerName").val(useData.CustomerName);
+    $(".transheader > #sltStatus_fromtransactionheader").val(useData.SalesStatus);
+    $(".transheader > #sltDept_fromtransactionheader").val(useData.SaleClassName);
+    $(".transheader > .form-group> #edtRef").val(useData.ReferenceNo);
     $(".transheader .sltCurrency").val(invoicerecord.currency);
-    $(".transheader > .form-group>#ponumber").val(data.fields.CustPONumber)
-    FxGlobalFunctions.handleChangedCurrency(data.fields.ForeignExchangeCode, defaultCurrencyCode);
+    $(".transheader > .form-group>#ponumber").val(useData.CustPONumber)
+    FxGlobalFunctions.handleChangedCurrency(useData.ForeignExchangeCode, defaultCurrencyCode);
 
-    $('#exchange_rate').val(data.fields.ForeignExchangeRate);
-    $(".transheader > #sltTerms_fromtransactionheader").val(data.fields.TermsName);
+    $('#exchange_rate').val(useData.ForeignExchangeRate);
+    $(".transheader > #sltTerms_fromtransactionheader").val(useData.TermsName);
 
-    $(".transactionfooter #txaComment").text(data.fields.Comments)
-    $(".transactionfooter #txapickmemo").text(data.fields.PickMemo)
-    $("#edtCustfield_1").val(data.fields.SaleCustField1)
-    $("#edtCustfield_2").val(data.fields.SaleCustField2)
-    $("#edtCustfield_3").val(data.fields.SaleCustField3);
-    $("#toggleShowFx").prop('checked', data.fields.SaleCustField10 == 'true'? true: false);
-    $("#toggleShowDelivery").prop('checked', data.fields.SaleCustField9 == 'true'?true: false);
+    $(".transactionfooter #txaComment").text(useData.Comments)
+    $(".transactionfooter #txapickmemo").text(useData.PickMemo)
+    $("#edtCustfield_1").val(useData.SaleCustField1)
+    $("#edtCustfield_2").val(useData.SaleCustField2)
+    $("#edtCustfield_3").val(useData.SaleCustField3);
+    $("#toggleShowFx").prop('checked', useData.SaleCustField10 == 'true'? true: false);
+    $("#toggleShowDelivery").prop('checked', useData.SaleCustField9 == 'true'?true: false);
 
-    templateObject.CleintName.set(data.fields.CustomerName);
+    templateObject.CleintName.set(useData.CustomerName);
 
     /* START attachment */
     templateObject.attachmentCount.set(0);
-    if (data.fields.Attachments) {
-      if (data.fields.Attachments.length) {
-        templateObject.attachmentCount.set(data.fields.Attachments.length);
-        templateObject.uploadedFiles.set(data.fields.Attachments);
+    if (useData.Attachments) {
+      if (useData.Attachments.length) {
+        templateObject.attachmentCount.set(useData.Attachments.length);
+        templateObject.uploadedFiles.set(useData.Attachments);
       }
     }
     /* END  attachment */
@@ -686,7 +771,7 @@ Template.invoice_temp.onCreated(function () {
     const clientList = templateObject.clientrecords.get()
     if (clientList) {
       for (var i = 0; i < clientList.length; i++) {
-        if (clientList[i].customername == data.fields.CustomerName) {
+        if (clientList[i].customername == useData.CustomerName) {
           checkISCustLoad = true;
           invoicerecord.firstname = clientList[i].firstname || "";
           invoicerecord.lastname = clientList[i].lastname || "";
@@ -705,7 +790,7 @@ Template.invoice_temp.onCreated(function () {
       }
     }
 
-    if (data.fields.IsPaid === true) {
+    if (useData.IsPaid === true) {
       $("#edtCustomerName").attr("readonly", true);
       $(".btn-primary").attr("disabled", "disabled");
       $("#btnCopyInvoice").attr("disabled", "disabled");
@@ -736,719 +821,341 @@ Template.invoice_temp.onCreated(function () {
 
 
 
-  templateObject.showInvoiceBack1 = function(template_title, number, bprint) {
-    var array_data = [];
-    let lineItems = [];
-    let object_invoce = [];
-    let item_invoices = "";
+  // templateObject.showInvoiceBack1 = function(template_title, number, bprint) {
+  //   var array_data = [];
+  //   let lineItems = [];
+  //   let object_invoce = [];
+  //   let item_invoices = "";
 
-    let invoice_data = templateObject.invoicerecord.get();
-    let stripe_id = templateObject.accountID.get() || "";
-    let stripe_fee_method = templateObject.stripe_fee_method.get();
-    var erpGet = erpDb();
-    var customfield1 = $("#edtSaleCustField_1").val() || "  ";
-    var customfield2 = $("#edtSaleCustField_2").val() || "  ";
-    var customfield3 = $("#edtSaleCustField_3").val() || "  ";
-
-    var customfieldlabel1 =
-      $(".lblCustomField1").first().text() || "Custom Field 1";
-    var customfieldlabel2 =
-      $(".lblCustomField2").first().text() || "Custom Field 2";
-    var customfieldlabel3 =
-      $(".lblCustomField3").first().text() || "Custom Field 3";
-    let balancedue = $("#totalBalanceDue").html() || 0;
-    let tax = $("#subtotal_tax").html() || 0;
-    let customer = $("#edtCustomerName").val();
-    let name = $("#firstname").val();
-    let surname = $("#lastname").val();
-    let dept = $(".transheader > #sltDept_fromtransactionheader").val();
-    let fx = $("#sltCurrency").val();
-    var comment = $("#txaComment").val();
-    var subtotal_tax = $("#subtotal_tax").html() || Currency + 0;
-    var total_paid = $("#totalPaidAmt").html() || Currency + 0;
-    var ref = $("#edtRef").val() || "-";
-    var txabillingAddress = $("#txabillingAddress").val() || "";
-    var dtSODate = $("#dtSODate").val();
-    var subtotal_total = $("#subtotal_total").text() || Currency + 0;
-    var grandTotal = $("#grandTotal").text() || Currency + 0;
-    var duedate = $("#dtDueDate").val();
-    var po = $("#ponumber").val() || ".";
-
-    $("#tblInvoiceLine > tbody > tr").each(function () {
-      var lineID = this.id;
-      let tdproduct = $("#" + lineID + " .lineProductName").val();
-      let tddescription = $("#" + lineID + " .lineProductDesc").text();
-      let tdQty = $("#" + lineID + " .lineQty").val();
-      let tdunitprice = $("#" + lineID + " .colUnitPriceExChange").val();
-      let tdtaxrate = $("#" + lineID + " .lineTaxRate").text();
-      let taxamount = $("#" + lineID + " .colTaxAmount").first().text();
-      let tdlineamt = $("#" + lineID + " .colAmountInc").first().text();
-
-      array_data.push([
-        tdproduct,
-        tddescription,
-        tdQty,
-        tdunitprice,
-        taxamount,
-        tdlineamt,
-      ]);
-
-      lineItemObj = {
-        description: tddescription || "",
-        quantity: tdQty || 0,
-        unitPrice: tdunitprice.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-        }) || 0,
-        tax: tdtaxrate || 0,
-        amount: tdlineamt || 0,
-      };
-      lineItems.push(lineItemObj);
-    });
-
-    let company = localStorage.getItem("vs1companyName");
-    let vs1User = localStorage.getItem("mySession");
-    let customerEmail = $("#edtCustomerEmail").val();
-    let currencyname = CountryAbbr.toLowerCase();
-    stringQuery = "?";
-    for (let l = 0; l < lineItems.length; l++) {
-      stringQuery =
-        stringQuery +
-        "product" +
-        l +
-        "=" +
-        lineItems[l].description +
-        "&price" +
-        l +
-        "=" +
-        lineItems[l].unitPrice +
-        "&qty" +
-        l +
-        "=" +
-        lineItems[l].quantity +
-        "&";
-    }
-    stringQuery =
-      stringQuery +
-      "tax=" +
-      tax +
-      "&total=" +
-      grandTotal +
-      "&customer=" +
-      customer +
-      "&name=" +
-      name +
-      "&surname=" +
-      surname +
-      "&quoteid=" +
-      invoice_data.id +
-      "&transid=" +
-      stripe_id +
-      "&feemethod=" +
-      stripe_fee_method +
-      "&company=" +
-      company +
-      "&vs1email=" +
-      vs1User +
-      "&customeremail=" +
-      customerEmail +
-      "&type=Invoice&url=" +
-      window.location.href +
-      "&server=" +
-      erpGet.ERPIPAddress +
-      "&username=" +
-      erpGet.ERPUsername +
-      "&token=" +
-      erpGet.ERPPassword +
-      "&session=" +
-      erpGet.ERPDatabase +
-      "&port=" +
-      erpGet.ERPPort +
-      "&dept=" +
-      dept +
-      "&currency=" +
-      currencyname;
-    if (stripe_id != "") {
-      $(".linkText").attr("href", stripeGlobalURL + stringQuery);
-    } else {
-      $(".linkText").attr("href", "#");
-    }
-
-    if (number == 1) {
-      item_invoices = {
-        o_url: localStorage.getItem("vs1companyURL"),
-        o_name: localStorage.getItem("vs1companyName"),
-        o_address: localStorage.getItem("vs1companyaddress1"),
-        o_city: localStorage.getItem("vs1companyCity"),
-        o_state: localStorage.getItem("companyState") + " " + localStorage.getItem("vs1companyPOBox"),
-        o_reg: Template.new_invoice.__helpers.get("companyReg").call(),
-        o_abn: Template.new_invoice.__helpers.get("companyabn").call(),
-        o_phone: Template.new_invoice.__helpers.get("companyphone").call(),
-        title: "Invoice Back Order",
-        value: invoice_data.id,
-        date: dtSODate,
-        invoicenumber: invoice_data.id,
-        refnumber: ref,
-        pqnumber: po,
-        duedate: duedate,
-        paylink: "Pay Now",
-        supplier_type: "Customer",
-        supplier_name: customer,
-        supplier_addr: txabillingAddress,
-        fields: {
-          "Product Name": ["25", "left"],
-          "Description": ["30", "left"],
-          "Qty": ["7", "right"],
-          "Unit Price": ["15", "right"],
-          "Tax": ["7", "right"],
-          "Amount": ["15", "right"],
-        },
-        subtotal: subtotal_total,
-        gst: subtotal_tax,
-        total: grandTotal,
-        paid_amount: total_paid,
-        bal_due: balancedue,
-        bsb: Template.new_invoice.__helpers.get("vs1companyBankBSB").call(),
-        account: Template.new_invoice.__helpers
-          .get("vs1companyBankAccountNo")
-          .call(),
-        swift: Template.new_invoice.__helpers
-          .get("vs1companyBankSwiftCode")
-          .call(),
-        data: array_data,
-        customfield1: "NA",
-        customfield2: "NA",
-        customfield3: "NA",
-        customfieldlabel1: "NA",
-        customfieldlabel2: "NA",
-        customfieldlabel3: "NA",
-        applied: "",
-        showFX: "",
-        comment: comment,
-      };
-    } else if (number == 2) {
-      item_invoices = {
-        o_url: localStorage.getItem("vs1companyURL"),
-        o_name: localStorage.getItem("vs1companyName"),
-        o_address: localStorage.getItem("vs1companyaddress1"),
-        o_city: localStorage.getItem("vs1companyCity"),
-        o_state: localStorage.getItem("companyState") + " " + localStorage.getItem("vs1companyPOBox"),
-        o_reg: Template.new_invoice.__helpers.get("companyReg").call(),
-        o_abn: Template.new_invoice.__helpers.get("companyabn").call(),
-        o_phone: Template.new_invoice.__helpers.get("companyphone").call(),
-        title: "Invoice Back Order",
-        value: invoice_data.id,
-        date: dtSODate,
-        invoicenumber: invoice_data.id,
-        refnumber: ref,
-        pqnumber: po,
-        duedate: duedate,
-        paylink: "Pay Now",
-        supplier_type: "Customer",
-        supplier_name: customer,
-        supplier_addr: txabillingAddress,
-        fields: {
-          "Product Name": ["25", "left"],
-          "Description": ["30", "left"],
-          "Qty": ["7", "right"],
-          "Unit Price": ["15", "right"],
-          "Tax": ["7", "right"],
-          "Amount": ["15", "right"],
-        },
-        subtotal: subtotal_total,
-        gst: subtotal_tax,
-        total: grandTotal,
-        paid_amount: total_paid,
-        bal_due: balancedue,
-        bsb: Template.new_invoice.__helpers.get("vs1companyBankBSB").call(),
-        account: Template.new_invoice.__helpers
-          .get("vs1companyBankAccountNo")
-          .call(),
-        swift: Template.new_invoice.__helpers
-          .get("vs1companyBankSwiftCode")
-          .call(),
-        data: array_data,
-        customfield1: customfield1,
-        customfield2: customfield2,
-        customfield3: customfield3,
-        customfieldlabel1: customfieldlabel1,
-        customfieldlabel2: customfieldlabel2,
-        customfieldlabel3: customfieldlabel3,
-        applied: "",
-        showFX: "",
-        comment: comment,
-      };
-    } else {
-      item_invoices = {
-        o_url: localStorage.getItem("vs1companyURL"),
-        o_name: localStorage.getItem("vs1companyName"),
-        o_address: localStorage.getItem("vs1companyaddress1"),
-        o_city: localStorage.getItem("vs1companyCity"),
-        o_state: localStorage.getItem("companyState") + " " + localStorage.getItem("vs1companyPOBox"),
-        o_reg: Template.new_invoice.__helpers.get("companyReg").call(),
-        o_abn: Template.new_invoice.__helpers.get("companyabn").call(),
-        o_phone: Template.new_invoice.__helpers.get("companyphone").call(),
-        title: "Invoice Back Order",
-        value: invoice_data.id,
-        date: dtSODate,
-        invoicenumber: invoice_data.id,
-        refnumber: ref,
-        pqnumber: po,
-        duedate: duedate,
-        paylink: "Pay Now",
-        supplier_type: "Customer",
-        supplier_name: customer,
-        supplier_addr: txabillingAddress,
-        fields: {
-          "Product Name": ["25", "left"],
-          "Description": ["30", "left"],
-          "Qty": ["7", "right"],
-          "Unit Price": ["15", "right"],
-          "Tax": ["7", "right"],
-          "Amount": ["15", "right"],
-        },
-        subtotal: subtotal_total,
-        gst: subtotal_tax,
-        total: grandTotal,
-        paid_amount: total_paid,
-        bal_due: balancedue,
-        bsb: Template.new_invoice.__helpers.get("vs1companyBankBSB").call(),
-        account: Template.new_invoice.__helpers
-          .get("vs1companyBankAccountNo")
-          .call(),
-        swift: Template.new_invoice.__helpers
-          .get("vs1companyBankSwiftCode")
-          .call(),
-        data: array_data,
-        customfield1: customfield1,
-        customfield2: customfield2,
-        customfield3: customfield3,
-        customfieldlabel1: customfieldlabel1,
-        customfieldlabel2: customfieldlabel2,
-        customfieldlabel3: customfieldlabel3,
-        applied: "",
-        showFX: fx,
-        comment: comment,
-      };
-    }
-
-    if (stripe_id == "") {
-      item_invoices.paylink = "";
-    }
-    object_invoce.push(item_invoices);
-
-    $("#templatePreviewModal .field_payment").show();
-    $("#templatePreviewModal .field_amount").show();
-
-    if (bprint == false) {
-      $("#html-2-pdfwrapper").css("width", "90%");
-      $("#html-2-pdfwrapper2").css("width", "90%");
-      $("#html-2-pdfwrapper3").css("width", "90%");
-    } else {
-      $("#html-2-pdfwrapper").css("width", "210mm");
-      $("#html-2-pdfwrapper2").css("width", "210mm");
-      $("#html-2-pdfwrapper3").css("width", "210mm");
-    }
-
-    if (number == 1) {
-      updateTemplate1(object_invoce, bprint);
-    } else if (number == 2) {
-      updateTemplate2(object_invoce, bprint);
-    } else {
-      updateTemplate3(object_invoce, bprint);
-    }
-
-    saveTemplateFields("fields" + template_title, object_invoce[0]["fields"]);
-    return;
-  }
-
-
-
-  // templateObject.getAllTaxCodes = function () {
-  //   const splashArrayTaxRateList = [];
-  //   const taxCodesList = [];
-  //   getVS1Data("TTaxcodeVS1")
-  //     .then(function (dataObject) {
-  //       if (dataObject.length == 0) {
-  //         salesService.getTaxCodesDetailVS1().then(function (data) {
-  //           const taxCodes = data.ttaxcodevs1;
-  //           templateObject.taxcodes.set(taxCodes);
-  //           for (let i = 0; i < data.ttaxcodevs1.length; i++) {
-  //             let taxRate = (data.ttaxcodevs1[i].Rate * 100).toFixed(2);
-  //             let dataList = [
-  //               data.ttaxcodevs1[i].Id || "",
-  //               data.ttaxcodevs1[i].CodeName || "",
-  //               data.ttaxcodevs1[i].Description || "-",
-  //               taxRate || 0,
-  //             ];
-
-  //             let taxcoderecordObj = {
-  //               codename: data.ttaxcodevs1[i].CodeName || " ",
-  //               coderate: taxRate || " ",
-  //             };
-  //             taxCodesList.push(taxcoderecordObj);
-  //             splashArrayTaxRateList.push(dataList);
-  //           }
-  //           templateObject.taxraterecords.set(taxCodesList);
-  //         });
-  //       } else {
-  //         let data = JSON.parse(dataObject[0].data);
-  //         let useData = data.ttaxcodevs1;
-  //         const taxCodes = data.ttaxcodevs1;
-  //         templateObject.taxcodes.set(taxCodes);
-  //         for (let i = 0; i < useData.length; i++) {
-  //           let taxRate = (useData[i].Rate * 100).toFixed(2);
-  //           var dataList = [
-  //             useData[i].Id || "",
-  //             useData[i].CodeName || "",
-  //             useData[i].Description || "-",
-  //             taxRate || 0,
-  //           ];
-
-  //           let taxcoderecordObj = {
-  //             codename: useData[i].CodeName || " ",
-  //             coderate: taxRate || " ",
-  //           };
-  //           taxCodesList.push(taxcoderecordObj);
-  //           splashArrayTaxRateList.push(dataList);
-  //         }
-  //         templateObject.taxraterecords.set(taxCodesList);
-  //       }
-  //     })
-  //     .catch(function () {
-  //       salesService.getTaxCodesDetailVS1().then(function (data) {
-  //         taxCodes = data.ttaxcodevs1;
-  //         templateObject.taxcodes.set(taxCodes);
-  //         for (let i = 0; i < data.ttaxcodevs1.length; i++) {
-  //           let taxRate = (data.ttaxcodevs1[i].Rate * 100).toFixed(2);
-  //           var dataList = [
-  //             data.ttaxcodevs1[i].Id || "",
-  //             data.ttaxcodevs1[i].CodeName || "",
-  //             data.ttaxcodevs1[i].Description || "-",
-  //             taxRate || 0,
-  //           ];
-  //           splashArrayTaxRateList.push(dataList);
-  //         }
-  //         templateObject.taxraterecords.set(taxCodesList);
-  //       });
-  //     });
-  // };
-
-  // templateObject.getSubTaxCodes = function () {
-  //   let subTaxTableList = [];
-  //   getVS1Data("TSubTaxVS1")
-  //     .then(function (dataObject) {
-  //       if (dataObject.length == 0) {
-  //         taxRateService.getSubTaxCode().then(function (data) {
-  //           for (let i = 0; i < data.tsubtaxcode.length; i++) {
-  //             var dataList = {
-  //               id: data.tsubtaxcode[i].Id || "",
-  //               codename: data.tsubtaxcode[i].Code || "-",
-  //               description: data.tsubtaxcode[i].Description || "-",
-  //               category: data.tsubtaxcode[i].Category || "-",
-  //             };
-  //             subTaxTableList.push(dataList);
-  //           }
-  //           templateObject.subtaxcodes.set(subTaxTableList);
-  //         });
-  //       } else {
-  //         let data = JSON.parse(dataObject[0].data);
-  //         let useData = data.tsubtaxcode;
-  //         for (let i = 0; i < useData.length; i++) {
-  //           var dataList = {
-  //             id: useData[i].Id || "",
-  //             codename: useData[i].Code || "-",
-  //             description: useData[i].Description || "-",
-  //             category: useData[i].Category || "-",
-  //           };
-  //           subTaxTableList.push(dataList);
-  //         }
-  //         templateObject.subtaxcodes.set(subTaxTableList);
-  //       }
-  //     })
-  //     .catch(function (err) {
-  //       taxRateService.getSubTaxCode().then(function (data) {
-  //         for (let i = 0; i < data.tsubtaxcode.length; i++) {
-  //           var dataList = {
-  //             id: data.tsubtaxcode[i].Id || "",
-  //             codename: data.tsubtaxcode[i].Code || "-",
-  //             description: data.tsubtaxcode[i].Description || "-",
-  //             category: data.tsubtaxcode[i].Category || "-",
-  //           };
-  //           subTaxTableList.push(dataList);
-  //         }
-  //         templateObject.subtaxcodes.set(subTaxTableList);
-  //       });
-  //     });
-  // };
-
-  // in this function, we'll handle the new line to add
-  templateObject.addInvoiceLine = async (event) => {
-    // get all lines first
-    let lines = await this.invoiceLines.get();
-    // then open the product modal
-  }
-
-  // templateObject.generatePdfForMail = async (invoiceId, printID, stringQuery, pdfType) => {
+  //   let invoice_data = templateObject.invoicerecord.get();
   //   let stripe_id = templateObject.accountID.get() || "";
-  //   let file = "Invoice-" + invoiceId + ".pdf";
-  //   return new Promise((resolve, reject) => {
-  //     if (stripe_id != "") {
-  //       $(".linkText").attr("href", stripeGlobalURL + stringQuery);
-  //     } else {
-  //       $(".linkText").attr("href", "#");
-  //     }
-  //     var source = document.getElementById(printID);
-  //     var opt = {
-  //       margin: 0,
-  //       filename: file,
-  //       image: {
-  //         type: "jpeg",
-  //         quality: 0.98,
-  //       },
-  //       html2canvas: {
-  //         scale: 2,
-  //       },
-  //       jsPDF: {
-  //         unit: "in",
-  //         format: "a4",
-  //         orientation: "portrait",
-  //       },
+  //   let stripe_fee_method = templateObject.stripe_fee_method.get();
+  //   var erpGet = erpDb();
+  //   var customfield1 = $("#edtSaleCustField_1").val() || "  ";
+  //   var customfield2 = $("#edtSaleCustField_2").val() || "  ";
+  //   var customfield3 = $("#edtSaleCustField_3").val() || "  ";
+
+  //   var customfieldlabel1 =
+  //     $(".lblCustomField1").first().text() || "Custom Field 1";
+  //   var customfieldlabel2 =
+  //     $(".lblCustomField2").first().text() || "Custom Field 2";
+  //   var customfieldlabel3 =
+  //     $(".lblCustomField3").first().text() || "Custom Field 3";
+  //   let balancedue = $("#totalBalanceDue").html() || 0;
+  //   let tax = $("#subtotal_tax").html() || 0;
+  //   let customer = $("#edtCustomerName").val();
+  //   let name = $("#firstname").val();
+  //   let surname = $("#lastname").val();
+  //   let dept = $(".transheader > #sltDept_fromtransactionheader").val();
+  //   let fx = $("#sltCurrency").val();
+  //   var comment = $("#txaComment").val();
+  //   var subtotal_tax = $("#subtotal_tax").html() || Currency + 0;
+  //   var total_paid = $("#totalPaidAmt").html() || Currency + 0;
+  //   var ref = $("#edtRef").val() || "-";
+  //   var txabillingAddress = $("#txabillingAddress").val() || "";
+  //   var dtSODate = $("#dtSODate").val();
+  //   var subtotal_total = $("#subtotal_total").text() || Currency + 0;
+  //   var grandTotal = $("#grandTotal").text() || Currency + 0;
+  //   var duedate = $("#dtDueDate").val();
+  //   var po = $("#ponumber").val() || ".";
+
+  //   $("#tblInvoiceLine > tbody > tr").each(function () {
+  //     var lineID = this.id;
+  //     let tdproduct = $("#" + lineID + " .lineProductName").val();
+  //     let tddescription = $("#" + lineID + " .lineProductDesc").text();
+  //     let tdQty = $("#" + lineID + " .lineQty").val();
+  //     let tdunitprice = $("#" + lineID + " .colUnitPriceExChange").val();
+  //     let tdtaxrate = $("#" + lineID + " .lineTaxRate").text();
+  //     let taxamount = $("#" + lineID + " .colTaxAmount").first().text();
+  //     let tdlineamt = $("#" + lineID + " .colAmountInc").first().text();
+
+  //     array_data.push([
+  //       tdproduct,
+  //       tddescription,
+  //       tdQty,
+  //       tdunitprice,
+  //       taxamount,
+  //       tdlineamt,
+  //     ]);
+
+  //     lineItemObj = {
+  //       description: tddescription || "",
+  //       quantity: tdQty || 0,
+  //       unitPrice: tdunitprice.toLocaleString(undefined, {
+  //         minimumFractionDigits: 2,
+  //       }) || 0,
+  //       tax: tdtaxrate || 0,
+  //       amount: tdlineamt || 0,
   //     };
-  //     resolve(
-  //       html2pdf().set(opt).from(source).toPdf().output(pdfType)
-  //     );
+  //     lineItems.push(lineItemObj);
   //   });
+
+  //   let company = localStorage.getItem("vs1companyName");
+  //   let vs1User = localStorage.getItem("mySession");
+  //   let customerEmail = $("#edtCustomerEmail").val();
+  //   let currencyname = CountryAbbr.toLowerCase();
+  //   stringQuery = "?";
+  //   for (let l = 0; l < lineItems.length; l++) {
+  //     stringQuery =
+  //       stringQuery +
+  //       "product" +
+  //       l +
+  //       "=" +
+  //       lineItems[l].description +
+  //       "&price" +
+  //       l +
+  //       "=" +
+  //       lineItems[l].unitPrice +
+  //       "&qty" +
+  //       l +
+  //       "=" +
+  //       lineItems[l].quantity +
+  //       "&";
+  //   }
+  //   stringQuery =
+  //     stringQuery +
+  //     "tax=" +
+  //     tax +
+  //     "&total=" +
+  //     grandTotal +
+  //     "&customer=" +
+  //     customer +
+  //     "&name=" +
+  //     name +
+  //     "&surname=" +
+  //     surname +
+  //     "&quoteid=" +
+  //     invoice_data.id +
+  //     "&transid=" +
+  //     stripe_id +
+  //     "&feemethod=" +
+  //     stripe_fee_method +
+  //     "&company=" +
+  //     company +
+  //     "&vs1email=" +
+  //     vs1User +
+  //     "&customeremail=" +
+  //     customerEmail +
+  //     "&type=Invoice&url=" +
+  //     window.location.href +
+  //     "&server=" +
+  //     erpGet.ERPIPAddress +
+  //     "&username=" +
+  //     erpGet.ERPUsername +
+  //     "&token=" +
+  //     erpGet.ERPPassword +
+  //     "&session=" +
+  //     erpGet.ERPDatabase +
+  //     "&port=" +
+  //     erpGet.ERPPort +
+  //     "&dept=" +
+  //     dept +
+  //     "&currency=" +
+  //     currencyname;
+  //   if (stripe_id != "") {
+  //     $(".linkText").attr("href", stripeGlobalURL + stringQuery);
+  //   } else {
+  //     $(".linkText").attr("href", "#");
+  //   }
+
+  //   if (number == 1) {
+  //     item_invoices = {
+  //       o_url: localStorage.getItem("vs1companyURL"),
+  //       o_name: localStorage.getItem("vs1companyName"),
+  //       o_address: localStorage.getItem("vs1companyaddress1"),
+  //       o_city: localStorage.getItem("vs1companyCity"),
+  //       o_state: localStorage.getItem("companyState") + " " + localStorage.getItem("vs1companyPOBox"),
+  //       o_reg: Template.new_invoice.__helpers.get("companyReg").call(),
+  //       o_abn: Template.new_invoice.__helpers.get("companyabn").call(),
+  //       o_phone: Template.new_invoice.__helpers.get("companyphone").call(),
+  //       title: "Invoice Back Order",
+  //       value: invoice_data.id,
+  //       date: dtSODate,
+  //       invoicenumber: invoice_data.id,
+  //       refnumber: ref,
+  //       pqnumber: po,
+  //       duedate: duedate,
+  //       paylink: "Pay Now",
+  //       supplier_type: "Customer",
+  //       supplier_name: customer,
+  //       supplier_addr: txabillingAddress,
+  //       fields: {
+  //         "Product Name": ["25", "left"],
+  //         "Description": ["30", "left"],
+  //         "Qty": ["7", "right"],
+  //         "Unit Price": ["15", "right"],
+  //         "Tax": ["7", "right"],
+  //         "Amount": ["15", "right"],
+  //       },
+  //       subtotal: subtotal_total,
+  //       gst: subtotal_tax,
+  //       total: grandTotal,
+  //       paid_amount: total_paid,
+  //       bal_due: balancedue,
+  //       bsb: Template.new_invoice.__helpers.get("vs1companyBankBSB").call(),
+  //       account: Template.new_invoice.__helpers
+  //         .get("vs1companyBankAccountNo")
+  //         .call(),
+  //       swift: Template.new_invoice.__helpers
+  //         .get("vs1companyBankSwiftCode")
+  //         .call(),
+  //       data: array_data,
+  //       customfield1: "NA",
+  //       customfield2: "NA",
+  //       customfield3: "NA",
+  //       customfieldlabel1: "NA",
+  //       customfieldlabel2: "NA",
+  //       customfieldlabel3: "NA",
+  //       applied: "",
+  //       showFX: "",
+  //       comment: comment,
+  //     };
+  //   } else if (number == 2) {
+  //     item_invoices = {
+  //       o_url: localStorage.getItem("vs1companyURL"),
+  //       o_name: localStorage.getItem("vs1companyName"),
+  //       o_address: localStorage.getItem("vs1companyaddress1"),
+  //       o_city: localStorage.getItem("vs1companyCity"),
+  //       o_state: localStorage.getItem("companyState") + " " + localStorage.getItem("vs1companyPOBox"),
+  //       o_reg: Template.new_invoice.__helpers.get("companyReg").call(),
+  //       o_abn: Template.new_invoice.__helpers.get("companyabn").call(),
+  //       o_phone: Template.new_invoice.__helpers.get("companyphone").call(),
+  //       title: "Invoice Back Order",
+  //       value: invoice_data.id,
+  //       date: dtSODate,
+  //       invoicenumber: invoice_data.id,
+  //       refnumber: ref,
+  //       pqnumber: po,
+  //       duedate: duedate,
+  //       paylink: "Pay Now",
+  //       supplier_type: "Customer",
+  //       supplier_name: customer,
+  //       supplier_addr: txabillingAddress,
+  //       fields: {
+  //         "Product Name": ["25", "left"],
+  //         "Description": ["30", "left"],
+  //         "Qty": ["7", "right"],
+  //         "Unit Price": ["15", "right"],
+  //         "Tax": ["7", "right"],
+  //         "Amount": ["15", "right"],
+  //       },
+  //       subtotal: subtotal_total,
+  //       gst: subtotal_tax,
+  //       total: grandTotal,
+  //       paid_amount: total_paid,
+  //       bal_due: balancedue,
+  //       bsb: Template.new_invoice.__helpers.get("vs1companyBankBSB").call(),
+  //       account: Template.new_invoice.__helpers
+  //         .get("vs1companyBankAccountNo")
+  //         .call(),
+  //       swift: Template.new_invoice.__helpers
+  //         .get("vs1companyBankSwiftCode")
+  //         .call(),
+  //       data: array_data,
+  //       customfield1: customfield1,
+  //       customfield2: customfield2,
+  //       customfield3: customfield3,
+  //       customfieldlabel1: customfieldlabel1,
+  //       customfieldlabel2: customfieldlabel2,
+  //       customfieldlabel3: customfieldlabel3,
+  //       applied: "",
+  //       showFX: "",
+  //       comment: comment,
+  //     };
+  //   } else {
+  //     item_invoices = {
+  //       o_url: localStorage.getItem("vs1companyURL"),
+  //       o_name: localStorage.getItem("vs1companyName"),
+  //       o_address: localStorage.getItem("vs1companyaddress1"),
+  //       o_city: localStorage.getItem("vs1companyCity"),
+  //       o_state: localStorage.getItem("companyState") + " " + localStorage.getItem("vs1companyPOBox"),
+  //       o_reg: Template.new_invoice.__helpers.get("companyReg").call(),
+  //       o_abn: Template.new_invoice.__helpers.get("companyabn").call(),
+  //       o_phone: Template.new_invoice.__helpers.get("companyphone").call(),
+  //       title: "Invoice Back Order",
+  //       value: invoice_data.id,
+  //       date: dtSODate,
+  //       invoicenumber: invoice_data.id,
+  //       refnumber: ref,
+  //       pqnumber: po,
+  //       duedate: duedate,
+  //       paylink: "Pay Now",
+  //       supplier_type: "Customer",
+  //       supplier_name: customer,
+  //       supplier_addr: txabillingAddress,
+  //       fields: {
+  //         "Product Name": ["25", "left"],
+  //         "Description": ["30", "left"],
+  //         "Qty": ["7", "right"],
+  //         "Unit Price": ["15", "right"],
+  //         "Tax": ["7", "right"],
+  //         "Amount": ["15", "right"],
+  //       },
+  //       subtotal: subtotal_total,
+  //       gst: subtotal_tax,
+  //       total: grandTotal,
+  //       paid_amount: total_paid,
+  //       bal_due: balancedue,
+  //       bsb: Template.new_invoice.__helpers.get("vs1companyBankBSB").call(),
+  //       account: Template.new_invoice.__helpers
+  //         .get("vs1companyBankAccountNo")
+  //         .call(),
+  //       swift: Template.new_invoice.__helpers
+  //         .get("vs1companyBankSwiftCode")
+  //         .call(),
+  //       data: array_data,
+  //       customfield1: customfield1,
+  //       customfield2: customfield2,
+  //       customfield3: customfield3,
+  //       customfieldlabel1: customfieldlabel1,
+  //       customfieldlabel2: customfieldlabel2,
+  //       customfieldlabel3: customfieldlabel3,
+  //       applied: "",
+  //       showFX: fx,
+  //       comment: comment,
+  //     };
+  //   }
+
+  //   if (stripe_id == "") {
+  //     item_invoices.paylink = "";
+  //   }
+  //   object_invoce.push(item_invoices);
+
+  //   $("#templatePreviewModal .field_payment").show();
+  //   $("#templatePreviewModal .field_amount").show();
+
+  //   if (bprint == false) {
+  //     $("#html-2-pdfwrapper").css("width", "90%");
+  //     $("#html-2-pdfwrapper2").css("width", "90%");
+  //     $("#html-2-pdfwrapper3").css("width", "90%");
+  //   } else {
+  //     $("#html-2-pdfwrapper").css("width", "210mm");
+  //     $("#html-2-pdfwrapper2").css("width", "210mm");
+  //     $("#html-2-pdfwrapper3").css("width", "210mm");
+  //   }
+
+  //   if (number == 1) {
+  //     updateTemplate1(object_invoce, bprint);
+  //   } else if (number == 2) {
+  //     updateTemplate2(object_invoce, bprint);
+  //   } else {
+  //     updateTemplate3(object_invoce, bprint);
+  //   }
+
+  //   saveTemplateFields("fields" + template_title, object_invoce[0]["fields"]);
+  //   return;
   // }
 
+  
 
   templateObject.getEmailBody = (objDetails)=> {
     let invoiceId = objDetails.fields.ID;
-    // let erpInvoiceId = objDetails.fields.ID;
-    // let mailFromName = localStorage.getItem("vs1companyName");
-    // let mailFrom = localStorage.getItem("VS1OrgEmail") || localStorage.getItem("VS1AdminUserName");
-    // let customerEmailName = $("#edtCustomerName").val();
-    // let checkEmailData = $("#edtCustomerEmail").val();
-    // let grandtotal = $("#grandTotal").html();
-    // let emailDueDate = $("#dtDueDate").val();
-    // let customerBillingAddress = $("#txabillingAddress").val();
-    // let customerTerms = $(".transheader > #sltTerms_fromtransactionheader").val();
-
-    // let customerSubtotal = $("#subtotal_total").html();
-    // let customerTax = $("#subtotal_tax").html();
-    // let customerNett = $("#subtotal_nett").html();
-    // let customerTotal = $("#grandTotal").html();
-
     const stringQuery = "";
     return generateHtmlMailBody(invoiceId, stringQuery)
   }
 
 
-  // addAttachment = async (objDetails, printID, stringQuery, frequency, pdfType='datauristring') => {
-  //   let attachment = [];
-  //   let invoiceId = objDetails.fields.ID;
-  //   let encodedPdf = await templateObject.generatePdfForMail(invoiceId, printID, stringQuery, pdfType);
-  //   let base64data = encodedPdf.split(",")[1];
-  //   let pdfObject = {
-  //     filename: "invoice-" + invoiceId + ".pdf",
-  //     content: base64data,
-  //     encoding: "base64",
-  //   };
-  //   attachment.push(pdfObject);
-  //   let erpInvoiceId = objDetails.fields.ID;
-
-  //   let mailFromName = localStorage.getItem("vs1companyName");
-  //   let mailFrom = localStorage.getItem("VS1OrgEmail") || localStorage.getItem("VS1AdminUserName");
-  //   let customerEmailName = $("#edtCustomerName").val();
-  //   let checkEmailData = $("#edtCustomerEmail").val();
-  //   let grandtotal = $("#grandTotal").html();
-  //   let emailDueDate = $("#dtDueDate").val();
-  //   let customerBillingAddress = $("#txabillingAddress").val();
-  //   let customerTerms = $(".transheader > #sltTerms_fromtransactionheader").val();
-
-  //   let customerSubtotal = $("#subtotal_total").html();
-  //   let customerTax = $("#subtotal_tax").html();
-  //   let customerNett = $("#subtotal_nett").html();
-  //   let customerTotal = $("#grandTotal").html();
-
-  //   let mailSubject = "Invoice " + erpInvoiceId + " from " + mailFromName + " for " + customerEmailName;
-  //   var htmlmailBody = generateHtmlMailBody(erpInvoiceId, emailDueDate, grandtotal, stripeGlobalURL, stringQuery, customerEmailName, mailFromName, customerBillingAddress, customerTerms, customerSubtotal, customerTax, customerNett, customerTotal)
-
-
-  //   if (
-  //     $(".chkEmailCopy").is(":checked") &&
-  //     $(".chkEmailRep").is(":checked")
-  //   ) {
-  //     Meteor.call(
-  //       "sendEmail", {
-  //       from: "" + mailFromName + " <" + mailFrom + ">",
-  //       to: checkEmailData,
-  //       subject: mailSubject,
-  //       text: "",
-  //       html: htmlmailBody,
-  //       attachments: attachment,
-  //     },
-  //       async function (error, result) {
-  //         if (error && error.error === "error") {
-  //           FlowRouter.go("/invoicelist?success=true");
-  //           if(frequency) {
-  //             templateObject.checkEmailFrequencySetting()
-  //           }
-  //         } else {
-  //           $("#html-Invoice-pdfwrapper").css("display", "none");
-  //           swal({
-  //             title: "SUCCESS",
-  //             text: "Email Sent To Customer: " + checkEmailData + " ",
-  //             type: "success",
-  //             showCancelButton: false,
-  //             confirmButtonText: "OK",
-  //           }).then((result) => {
-  //           });
-  //         }
-  //       }
-  //     );
-
-  //     Meteor.call(
-  //       "sendEmail", {
-  //       from: "" + mailFromName + " <" + mailFrom + ">",
-  //       to: mailFrom,
-  //       subject: mailSubject,
-  //       text: "",
-  //       html: htmlmailBody,
-  //       attachments: attachment,
-  //     },
-  //     async function  (error, result) {
-  //         if (error && error.error === "error") {
-  //           if(frequency) {
-  //             await templateObject.checkEmailFrequencySetting()
-  //           }
-  //             FlowRouter.go("/invoicelist?success=true");
-  //         } else {
-  //           $("#html-Invoice-pdfwrapper").css("display", "none");
-  //           swal({
-  //             title: "SUCCESS",
-  //             text: "Email Sent To Customer: " +
-  //               checkEmailData +
-  //               " and User: " +
-  //               mailFrom +
-  //               "",
-  //             type: "success",
-  //             showCancelButton: false,
-  //             confirmButtonText: "OK",
-  //           }).then(async (result) => {
-
-  //             if (result.value) {
-  //               if(frequency) {
-  //                 await templateObject.checkEmailFrequencySetting();
-  //               }
-  //               if (FlowRouter.current().queryParams.trans) {
-  //                 FlowRouter.go(
-  //                   "/customerscard?id=" +
-  //                   FlowRouter.current().queryParams.trans +
-  //                   "&transTab=active"
-  //                 );
-  //               } else {
-
-  //                 FlowRouter.go("/invoicelist?success=true");
-  //               }
-  //             } else if (result.dismiss === "cancel") { }
-  //           });
-  //         }
-  //       }
-  //     );
-  //   } else if ($(".chkEmailCopy").is(":checked")) {
-  //     Meteor.call(
-  //       "sendEmail", {
-  //       from: "" + mailFromName + " <" + mailFrom + ">",
-  //       to: checkEmailData,
-  //       subject: mailSubject,
-  //       text: "",
-  //       html: htmlmailBody,
-  //       attachments: attachment,
-  //     },
-  //       async function (error, result) {
-  //         if (error && error.error === "error") {
-  //           if(frequency) {
-  //             await templateObject.checkEmailFrequencySetting()
-  //           }
-  //           FlowRouter.go("/invoicelist?success=true");
-  //         } else {
-  //           $("#html-Invoice-pdfwrapper").css("display", "none");
-  //           swal({
-  //             title: "SUCCESS",
-  //             text: "Email Sent To Customer: " + checkEmailData + " ",
-  //             type: "success",
-  //             showCancelButton: false,
-  //             confirmButtonText: "OK",
-  //           }).then(async (result) => {
-  //             if (FlowRouter.current().queryParams.trans) {
-  //               FlowRouter.go(
-  //                 "/customerscard?id=" +
-  //                 FlowRouter.current().queryParams.trans +
-  //                 "&transTab=active"
-  //               );
-  //             } else {
-  //               if(frequency) {
-  //                 await templateObject.checkEmailFrequencySetting()
-  //               }
-  //                 FlowRouter.go("/invoicelist?success=true");
-  //             }
-  //           });
-  //         }
-  //       }
-  //     );
-  //   } else if ($(".chkEmailRep").is(":checked")) {
-  //     Meteor.call(
-  //       "sendEmail", {
-  //       from: "" + mailFromName + " <" + mailFrom + ">",
-  //       to: mailFrom,
-  //       subject: mailSubject,
-  //       text: "",
-  //       html: htmlmailBody,
-  //       attachments: attachment,
-  //     },
-  //       async function (error, result) {
-  //         if (error && error.error === "error") {
-  //           // FlowRouter.go("/invoicelist?success=true");
-  //           $('.fullScreenSpin').css('display', 'none');
-  //           if(frequency) {
-  //             await templateObject.checkEmailFrequencySetting()
-  //           }
-  //         } else {
-  //           $("#html-Invoice-pdfwrapper").css("display", "none");
-  //           swal({
-  //             title: "SUCCESS",
-  //             text: "Email Sent To User: " + mailFrom + " ",
-  //             type: "success",
-  //             showCancelButton: false,
-  //             confirmButtonText: "OK",
-  //           }).then(async (result)=> {
-  //             if(result.value) {
-  //               if(frequency){
-  //                 await templateObject.checkEmailFrequencySetting()
-  //               }
-  //               $('.fullScreenSpin').css('display', 'none');
-  //             }
-  //           })
-  //         }
-  //       }
-  //     );
-  //   } else {
-  //     if(frequency) {
-  //       await templateObject.checkEmailFrequencySetting();
-  //     }
-  //     if (FlowRouter.current().queryParams.trans) {
-  //       FlowRouter.go(
-  //         "/customerscard?id=" +
-  //         FlowRouter.current().queryParams.trans +
-  //         "&transTab=active"
-  //       );
-  //     } else {
-  //       FlowRouter.go("/invoicelist?success=true");
-  //     }
-  //   }
-  //   //   // window.open(url, "_self");
-  // }
-
+  
   templateObject.sendEmail = async (isforced = false) => {
     return new Promise((resolve, reject)=> {
       var splashLineArray = new Array();
@@ -1551,7 +1258,8 @@ Template.invoice_temp.onCreated(function () {
       let termname = $('.transheader > #sltTerms_fromtransactionheader').val() || '';
       if (termname === '') {
         swal('Terms has not been selected!', '', 'warning');
-        event.preventDefault();
+        // event.preventDefault();
+        resolve();
         return false;
       }
       if (getso_id[1]) {
@@ -1610,129 +1318,6 @@ Template.invoice_temp.onCreated(function () {
 
   }
 
-  // templateObject.exportSalesToPdf = function (template_title, number) {
-  //   if (template_title == "Invoices") {
-  //     templateObject.showInvoice1(template_title, number, true);
-  //   } else if (template_title == "Delivery Docket") {
-  //     templateObject.showDeliveryDocket1(template_title, number, true);
-  //   } else if (template_title == "Invoice Back Orders") {
-  //     templateObject.showInvoiceBack1(template_title, number, true);
-  //   } else { }
-
-  //   if (template_title == 'Delivery Docket') {
-  //     $("#templatePreviewModal .horizontal_blue_line").hide();
-  //     $("#templatePreviewModal .ACCOUNT_NAME").hide();
-  //     $("#templatePreviewModal .BANK_NAME").hide();
-  //     $("#templatePreviewModal .BSB").hide();
-  //     $("#templatePreviewModal .ACC").hide();
-  //     $("#templatePreviewModal .SUB_TOTAL").hide();
-  //     $("#templatePreviewModal .sub_total_underline").hide();
-  //     $("#templatePreviewModal .TOTAL_TAX").hide();
-  //     $("#templatePreviewModal .GST").hide();
-  //     $("#templatePreviewModal .less_amount_underline").hide();
-  //     $("#templatePreviewModal .BALANCE").hide();
-
-  //     $("#templatePreviewModal .horizontal_black_line").hide();
-  //     $("#templatePreviewModal .ACCOUNT_NAME2").hide();
-  //     $("#templatePreviewModal .BANK_NAME2").hide();
-  //     $("#templatePreviewModal .BSB2").hide();
-  //     $("#templatePreviewModal .ACC2").hide();
-  //     $("#templatePreviewModal .SUB_TOTAL2").hide();
-  //     $("#templatePreviewModal .sub_total_underline").hide();
-  //     $("#templatePreviewModal .TOTAL_AUD2").hide();
-  //     $("#templatePreviewModal .PAID_AMOUNT2").hide();
-  //     $("#templatePreviewModal .less_amount_underline").hide();
-  //     $("#templatePreviewModal .AMOUNT_DUE_AUD2").hide();
-
-  //     $("#templatePreviewModal .PAYMENT_DETAILS3").hide();
-  //     $("#templatePreviewModal .ACCOUNT_NAME3").hide();
-  //     $("#templatePreviewModal .BANK_NAME3").hide();
-  //     $("#templatePreviewModal .SORT_CODE3").hide();
-  //     $("#templatePreviewModal .ACC3").hide();
-  //     $("#templatePreviewModal .ACCOUNT_DETAIL3").hide();
-  //     $("#templatePreviewModal .PAYMENT_TERMS3").hide();
-  //     $("#templatePreviewModal .SUB_TOTAL3").hide();
-
-  //     $('.PAY_LINK, .PAY_LINK2, .PAY_LINK3').hide();
-
-  //     $('.amountdue_label, .amountdue3_label').text('Ship Date');
-  //     $('.o_date_wrap').show();
-  //     var saledateTime = new Date($("#dtSODate").datepicker("getDate"));
-  //     let saleDate =
-  //         saledateTime.getFullYear() +
-  //         "-" +
-  //         (saledateTime.getMonth() + 1) +
-  //         "-" +
-  //         saledateTime.getDate();
-  //     $('.amountdue, .amountdue3').text(saleDate);
-  //   } else {
-  //     $('.o_date_wrap').hide();
-  //   }
-
-  //   let invoice_data_info = templateObject.invoicerecord.get();
-  //   var source;
-  //   if (number == 1) {
-  //     $("#html-2-pdfwrapper").show();
-  //     $("#html-2-pdfwrapper2").hide();
-  //     $("#html-2-pdfwrapper3").hide();
-  //     source = document.getElementById("html-2-pdfwrapper");
-  //   } else if (number == 2) {
-  //     $("#html-2-pdfwrapper").hide();
-  //     $("#html-2-pdfwrapper2").show();
-  //     $("#html-2-pdfwrapper3").hide();
-  //     source = document.getElementById("html-2-pdfwrapper2");
-  //   } else {
-  //     $("#html-2-pdfwrapper").hide();
-  //     $("#html-2-pdfwrapper2").hide();
-  //     $("#html-2-pdfwrapper3").show();
-  //     source = document.getElementById("html-2-pdfwrapper3");
-  //   }
-  //   let file = "Invoice.pdf";
-  //   if (
-  //     $(".printID").attr("id") != undefined ||
-  //     $(".printID").attr("id") != ""
-  //   ) {
-  //     if (template_title == "Invoices") {
-  //       file = "Invoice-" + invoice_data_info.id + ".pdf";
-  //     } else if (template_title == "Invoice Back Orders") {
-  //       file = "Invoice Back Orders-" + invoice_data_info.id + ".pdf";
-  //     } else if (template_title == "Delivery Docket") {
-  //       file = "Delivery Docket-" + invoice_data_info.id + ".pdf";
-  //     }
-  //   }
-
-  //   var opt = {
-  //     margin: 0,
-  //     filename: file,
-  //     image: {
-  //       type: "jpeg",
-  //       quality: 0.98,
-  //     },
-  //     html2canvas: {
-  //       scale: 2,
-  //     },
-  //     jsPDF: {
-  //       unit: "in",
-  //       format: "a4",
-  //       orientation: "portrait",
-  //     },
-  //   };
-
-  //   html2pdf()
-  //     .set(opt)
-  //     .from(source)
-  //     .save()
-  //     .then(function () {
-  //       $("#html-2-pdfwrapper_new").css("display", "none");
-  //       $("#html-2-pdfwrapper").css("display", "none");
-  //       $("#html-2-pdfwrapper2").css("display", "none");
-  //       $("#html-2-pdfwrapper3").css("display", "none");
-  //       $("#printModal").modal('hide');
-  //       LoadingOverlay.hide();
-  //     });
-  //   return true;
-  // };
-
 });
 
 Template.invoice_temp.onRendered(function () {
@@ -1743,25 +1328,22 @@ Template.invoice_temp.onRendered(function () {
   let currentInvoice;
   let getso_id;
 
-  // templateObject.initPage();
-
-  // templateObject.getAllTaxCodes();
-  // templateObject.getSubTaxCodes();
-
-  // templateObject.getAllClients();
-  // templateObject.getOrganisationDetails();
-  // templateObject.getAllLeadStatuss();
-  // templateObject.getDepartments();
-  // templateObject.getTerms();
-
   if (
     FlowRouter.current().queryParams.id ||
     FlowRouter.current().queryParams.customerid
   ) {
-    templateObject.getAllSelectPaymentData();
+    // templateObject.getAllSelectPaymentData();
   } else {
     $(".transheader > #sltTerms_fromtransactionheader").val(templateObject.defaultsaleterm.get() || "");
   }
+
+  templateObject.getOrganisationDetails = function () {
+    let account_id = localStorage.getItem("vs1companyStripeID") || "";
+    let stripe_fee = localStorage.getItem("vs1companyStripeFeeMethod") || "apply";
+    templateObject.accountID.set(account_id);
+    templateObject.stripe_fee_method.set(stripe_fee);
+  };
+  templateObject.getOrganisationDetails()
 
   $('#edtFrequencyDetail').css('display', 'none');
   $("#date-input,#edtWeeklyStartDate,#edtWeeklyFinishDate,#dtDueDate,#customdateone,#edtMonthlyStartDate,#edtMonthlyFinishDate,#edtDailyStartDate,#edtDailyFinishDate,#edtOneTimeOnlyDate").datepicker({
@@ -1855,160 +1437,6 @@ Template.invoice_temp.onRendered(function () {
       duedate.getFullYear();
     $(".due").text(dueDate);
   }
-
-  /* On Click TaxCode List */
-  // $(document).on("click", "#tblTaxRate tbody tr", function (e) {
-  //   let selectLineID = $("#selectLineID").val();
-  //   let taxcodeList = templateObject.taxraterecords.get();
-  //   var table = $(this);
-  //   let utilityService = new UtilityService();
-  //   let $tblrows = $("#tblInvoiceLine tbody tr");
-  //   var $printrows = $(".invoice_print tbody tr");
-
-  //   if (selectLineID) {
-  //     let lineTaxCode = table.find(".taxName").text();
-  //     let lineTaxRate = table.find(".taxRate").text();
-  //     let subGrandTotal = 0;
-  //     let taxGrandTotal = 0;
-  //     let subDiscountTotal = 0; // New Discount
-  //     let taxGrandTotalPrint = 0;
-
-  //     $("#" + selectLineID + " .lineTaxRate").text(lineTaxRate || 0);
-  //     $("#" + selectLineID + " .lineTaxCode").val(lineTaxCode);
-  //     if (
-  //       $(".printID").attr("id") != undefined ||
-  //       $(".printID").attr("id") != ""
-  //     ) {
-  //       $("#" + selectLineID + " #lineTaxCode").text(lineTaxCode);
-  //     }
-
-  //     $("#taxRateListModal").modal("toggle");
-  //     let subGrandTotalNet = 0;
-  //     let taxGrandTotalNet = 0;
-  //     $tblrows.each(function (index) {
-  //       var $tblrow = $(this);
-  //       let tdproduct = $tblrow.find(".lineProductName").val() || "";
-  //       if (tdproduct != "") {
-  //         var qty = $tblrow.find(".lineQty").val() || 0;
-  //         var price = $tblrow.find(".colUnitPriceExChange").val() || 0;
-  //         var taxRate = $tblrow.find(".lineTaxCode").val();
-
-  //         var taxrateamount = 0;
-  //         if (taxcodeList) {
-  //           for (var i = 0; i < taxcodeList.length; i++) {
-  //             if (taxcodeList[i].codename == taxRate) {
-  //               taxrateamount = taxcodeList[i].coderate.replace("%", "") / 100;
-  //             }
-  //           }
-  //         }
-
-  //         var subTotal = parseFloat(qty, 10) * Number(price.replace(/[^0-9.-]+/g, "")) || 0;
-  //         var taxTotal = parseFloat(qty, 10) * Number(price.replace(/[^0-9.-]+/g, "")) * parseFloat(taxrateamount);
-  //         var lineDiscountPerc = parseFloat($tblrow.find(".lineDiscount").val()) || 0; // New Discount
-  //         let lineTotalAmount = subTotal + taxTotal;
-
-  //         let lineDiscountTotal = lineDiscountPerc / 100;
-
-  //         var discountTotal = lineTotalAmount * lineDiscountTotal;
-  //         var subTotalWithDiscount = subTotal * lineDiscountTotal || 0;
-  //         var subTotalWithDiscountTotalLine = subTotal - subTotalWithDiscount || 0;
-  //         var taxTotalWithDiscount = taxTotal * lineDiscountTotal || 0;
-  //         var taxTotalWithDiscountTotalLine = taxTotal - taxTotalWithDiscount;
-  //         if (!isNaN(discountTotal)) {
-  //           subDiscountTotal += isNaN(discountTotal) ? 0 : discountTotal;
-  //           document.getElementById("subtotal_discount").innerHTML =
-  //             utilityService.modifynegativeCurrencyFormat(subDiscountTotal);
-  //         }
-  //         $tblrow
-  //           .find(".lineTaxAmount")
-  //           .text(
-  //             utilityService.modifynegativeCurrencyFormat(
-  //               taxTotalWithDiscountTotalLine
-  //             )
-  //           );
-
-  //         let unitPriceIncCalc = Number(price.replace(/[^0-9.-]+/g, "")) * parseFloat(taxrateamount) || 0;
-  //         let lineUnitPriceExVal = Number(price.replace(/[^0-9.-]+/g, "")) || 0;
-  //         let lineUnitPriceIncVal = lineUnitPriceExVal + unitPriceIncCalc || 0;
-  //         $tblrow
-  //           .find(".colUnitPriceExChange")
-  //           .val(
-  //             utilityService.modifynegativeCurrencyFormat(lineUnitPriceExVal)
-  //           );
-  //         $tblrow
-  //           .find(".colUnitPriceIncChange")
-  //           .val(
-  //             utilityService.modifynegativeCurrencyFormat(lineUnitPriceIncVal)
-  //           );
-
-  //         if (!isNaN(subTotal)) {
-  //           $tblrow
-  //             .find(".colAmountEx")
-  //             .text(utilityService.modifynegativeCurrencyFormat(subTotal));
-  //           $tblrow
-  //             .find(".colAmountInc")
-  //             .text(
-  //               utilityService.modifynegativeCurrencyFormat(lineTotalAmount)
-  //             );
-  //           subGrandTotal += isNaN(subTotalWithDiscountTotalLine) ? 0 : subTotalWithDiscountTotalLine;
-  //           subGrandTotalNet += isNaN(subTotal) ? 0 : subTotal;
-  //           document.getElementById("subtotal_total").innerHTML = utilityService.modifynegativeCurrencyFormat(subGrandTotalNet);
-  //         }
-
-  //         if (!isNaN(taxTotal)) {
-  //           taxGrandTotal += isNaN(taxTotalWithDiscountTotalLine) ? 0 : taxTotalWithDiscountTotalLine;
-  //           taxGrandTotalNet += isNaN(taxTotal) ? 0 : taxTotal;
-  //           document.getElementById("subtotal_tax").innerHTML = utilityService.modifynegativeCurrencyFormat(taxGrandTotalNet);
-  //         }
-
-  //         if (!isNaN(subGrandTotal) && !isNaN(taxGrandTotal)) {
-  //           let GrandTotal = parseFloat(subGrandTotal) + parseFloat(taxGrandTotal);
-  //           let GrandTotalNet = parseFloat(subGrandTotalNet) + parseFloat(taxGrandTotalNet);
-  //           document.getElementById("subtotal_nett").innerHTML = utilityService.modifynegativeCurrencyFormat(GrandTotalNet);
-  //           document.getElementById("grandTotal").innerHTML = utilityService.modifynegativeCurrencyFormat(GrandTotal);
-  //           document.getElementById("balanceDue").innerHTML = utilityService.modifynegativeCurrencyFormat(GrandTotal);
-  //           document.getElementById("totalBalanceDue").innerHTML = utilityService.modifynegativeCurrencyFormat(GrandTotal);
-  //         }
-  //       }
-  //     });
-
-  //     $printrows.each(function () {
-  //       var $printrows = $(this);
-  //       var qty = $printrows.find("#lineQty").text() || 0;
-  //       var price = $printrows.find("#lineUnitPrice").text() || "0";
-  //       var taxrateamount = 0;
-  //       var taxRate = $printrows.find("#lineTaxCode").text();
-  //       if (taxcodeList) {
-  //         for (var i = 0; i < taxcodeList.length; i++) {
-  //           if (taxcodeList[i].codename == taxRate) {
-  //             taxrateamount = taxcodeList[i].coderate.replace("%", "") / 100;
-  //           }
-  //         }
-  //       }
-  //       var subTotal = parseFloat(qty, 10) * Number(price.replace(/[^0-9.-]+/g, "")) || 0;
-  //       var taxTotal = parseFloat(qty, 10) * Number(price.replace(/[^0-9.-]+/g, "")) * parseFloat(taxrateamount);
-  //       $printrows
-  //         .find("#lineTaxAmount")
-  //         .text(utilityService.modifynegativeCurrencyFormat(taxTotal));
-  //       if (!isNaN(subTotal)) {
-  //         $printrows
-  //           .find("#lineAmt")
-  //           .text(utilityService.modifynegativeCurrencyFormat(subTotal));
-  //         subGrandTotal += isNaN(subTotal) ? 0 : subTotal;
-  //         document.getElementById("subtotal_totalPrint").innerHTML = $("#subtotal_total").text();
-  //       }
-
-  //       if (!isNaN(taxTotal)) {
-  //         taxGrandTotalPrint += isNaN(taxTotal) ? 0 : taxTotal;
-  //         document.getElementById("totalTax_totalPrint").innerHTML = utilityService.modifynegativeCurrencyFormat(taxGrandTotalPrint);
-  //       }
-  //       if (!isNaN(subGrandTotal) && !isNaN(taxGrandTotal)) {
-  //         document.getElementById("grandTotalPrint").innerHTML = $("#grandTotal").text();
-  //         document.getElementById("totalBalanceDuePrint").innerHTML = $("#totalBalanceDue").text();
-  //       }
-  //     });
-  //   }
-  // });
 
 
   $(document).on("click", "#custListType tbody tr", function (e) {
@@ -2143,6 +1571,11 @@ Template.invoice_temp.onRendered(function () {
           );
           let tdSalesLineCustField1 = $("#" + lineID + " .colSalesLinesCustField1").text();
 
+          let weight = $("#tblInvoiceLine #" + lineID).attr('weight')
+          let weightUnit = $("#tblInvoiceLine #" + lineID).attr('weightUnit')
+          let volume = $("#tblInvoiceLine #" + lineID).attr('volume')
+          let volumeUnit = $("#tblInvoiceLine #" + lineID).attr('volumeUnit')
+
           let lineItemObj = {
             description: tddescription || "",
             quantity: tdQty || 0,
@@ -2168,6 +1601,10 @@ Template.invoice_temp.onRendered(function () {
                   DiscountPercent: parseFloat($("#" + lineID + " .lineDiscount").val()) || 0,
                   UnitOfMeasure: tdlineUnit,
                   SalesLinesCustField1: tdSalesLineCustField1,
+                  SalesLinesCustField7: weight,
+                  SalesLinesCustField8: weightUnit,
+                  SalesLinesCustField9: volume,
+                  SalesLinesCustField10: volumeUnit,
                 },
               };
             } else {
@@ -2184,6 +1621,10 @@ Template.invoice_temp.onRendered(function () {
                   DiscountPercent: parseFloat($("#" + lineID + " .lineDiscount").val()) || 0,
                   UnitOfMeasure: tdlineUnit,
                   SalesLinesCustField1: tdSalesLineCustField1,
+                  SalesLinesCustField7: weight,
+                  SalesLinesCustField8: weightUnit,
+                  SalesLinesCustField9: volume,
+                  SalesLinesCustField10: volumeUnit,
                 },
               };
             }
@@ -2282,17 +1723,18 @@ Template.invoice_temp.onRendered(function () {
         var getso_id = url.split("?id=");
         var currentInvoice = getso_id[getso_id.length - 1];
 
-        var currencyCode = $("#sltCurrency").val() || CountryAbbr;
+        var currencyCode = $(".transheader>.sltCurrency").val() || CountryAbbr;
         let ForeignExchangeRate = $('#exchange_rate').val() || 0;
         var showingFx = $("#toggleShowFx").prop('checked') == true? 'true': 'false';
         var showingDelivery = $('#toggleShowDelivery').prop('checked') ==true? 'true': 'false';
+        var showingSN = $('#toggleShowSN').prop('checked')==true? 'true': 'false';
         var objDetails = "";
-        let manifestToggle = $('.toggleManifest').val();
         let AddToManifest = false;
-        if (manifestToggle === 'on') {
+        if ($('.toggleManifest').prop('checked')) {
           AddToManifest = true;
+        } else {
+          AddToManifest = false;
         };
-        console.log("start", AddToManifest);
         if (departement === "") {
           swal({
             title: "Department has not been selected!",
@@ -2337,6 +1779,7 @@ Template.invoice_temp.onRendered(function () {
                 SalesStatus: $(".transheader > #sltStatus_fromtransactionheader").val(),
                 SaleCustField10: showingFx,
                 SaleCustField9: showingDelivery,
+                SaleCustField8: showingSN,
                 addtomanifest: AddToManifest,
               },
             };
@@ -2365,6 +1808,7 @@ Template.invoice_temp.onRendered(function () {
                 SalesStatus: $(".transheader > #sltStatus_fromtransactionheader").val(),
                 SaleCustField10: showingFx,
                 SaleCustField9: showingDelivery,
+                SaleCustField8: showingSN,
                 addtomanifest: AddToManifest,
               },
             };
@@ -2372,330 +1816,68 @@ Template.invoice_temp.onRendered(function () {
         } else {
           swal("Product name has not been selected!", "", "warning");
           $(".fullScreenSpin").css("display", "none");
-          event.preventDefault();
+          // event.preventDefault();
           return false;
         }
 
         showSimpleMessageTransaction();
         playSaveAudio();
 
-        salesService.saveInvoiceEx(objDetails).then(function (objDetails) {
-
-          sideBarService.getAllSerialNumber().then(async function(data) {
-              await addVS1Data('TSerialNumberListCurrentReport', JSON.stringify(data));
-          }).catch(function (err){
-          });
-
-          productService.getProductBatches().then(async function (data) {
-              await addVS1Data('TProductBatches', JSON.stringify(data));
-          }).catch(function (err) {
-          });
-
-          if (localStorage.getItem("enteredURL") != null) {
-            FlowRouter.go(localStorage.getItem("enteredURL"));
-            localStorage.removeItem("enteredURL");
-            return;
-          }
-
-          // add to custom field
-          let company = localStorage.getItem("vs1companyName");
-          let vs1User = localStorage.getItem("mySession");
-          let customerEmail = $("#edtCustomerEmail").val() || "";
-          let currencyname = CountryAbbr.toLowerCase();
-          let stringQuery = "?";
-          var customerID = $("#edtCustomerEmail").attr("customerid");
-          for (let l = 0; l < lineItems.length; l++) {
-            stringQuery =
-              stringQuery +
-              "product" +
-              l +
-              "=" +
-              lineItems[l].description +
-              "&price" +
-              l +
-              "=" +
-              lineItems[l].unitPrice +
-              "&qty" +
-              l +
-              "=" +
-              lineItems[l].quantity +
-              "&";
-          }
-          stringQuery =
-            stringQuery +
-            "tax=" +
-            tax +
-            "&total=" +
-            total +
-            "&customer=" +
-            customer +
-            "&name=" +
-            name +
-            "&surname=" +
-            surname +
-            "&quoteid=" +
-            objDetails.fields.ID +
-            "&transid=" +
-            stripe_id +
-            "&feemethod=" +
-            stripe_fee_method +
-            "&company=" +
-            company +
-            "&vs1email=" +
-            vs1User +
-            "&customeremail=" +
-            customerEmail +
-            "&type=Invoice&url=" +
-            window.location.href +
-            "&server=" +
-            erpGet.ERPIPAddress +
-            "&username=" +
-            erpGet.ERPUsername +
-            "&token=" +
-            erpGet.ERPPassword +
-            "&session=" +
-            erpGet.ERPDatabase +
-            "&port=" +
-            erpGet.ERPPort +
-            "&dept=" +
-            departement +
-            "&currency=" +
-            currencyname;
-          $("#html-Invoice-pdfwrapper").css("display", "block");
-          $(".pdfCustomerName").html($("#edtCustomerName").val());
-          $(".pdfCustomerAddress").html(
-            $("#txabillingAddress")
-              .val()
-              .replace(/[\r\n]/g, "<br />")
-          );
-          var ponumber = $("#ponumber").val() || ".";
-          $(".po").text(ponumber);
-
-          // function generatePdfForMail(invoiceId) {
-          //   let stripe_id = templateObject.accountID.get() || "";
-          //   let file = "Invoice-" + invoiceId + ".pdf";
-          //   return new Promise((resolve, reject) => {
-          //     if (stripe_id != "") {
-          //       $(".linkText").attr("href", stripeGlobalURL + stringQuery);
-          //     } else {
-          //       $(".linkText").attr("href", "#");
-          //     }
-          //     var source = document.getElementById("html-Invoice-pdfwrapper");
-          //     var opt = {
-          //       margin: 0,
-          //       filename: file,
-          //       image: {
-          //         type: "jpeg",
-          //         quality: 0.98,
-          //       },
-          //       html2canvas: {
-          //         scale: 2,
-          //       },
-          //       jsPDF: {
-          //         unit: "in",
-          //         format: "a4",
-          //         orientation: "portrait",
-          //       },
-          //     };
-          //     resolve(
-          //       html2pdf().set(opt).from(source).toPdf().output("datauristring")
-          //     );
+        let currentInvoicetemp = templateObject.temporaryfiles.get();
+        let newInvoicetemp= [...currentInvoicetemp, objDetails];
+        templateObject.temporaryfiles.set(newInvoicetemp);
+        addVS1Data('TInvoiceTemp', JSON.stringify({tinvoicetemp: newInvoicetemp})).then(function(){
+        // salesService.saveInvoiceEx(objDetails).then(function (objDetails) {
+          // // sideBarService.getAllInvoiceList(initialDatatableLoad, 0).then(function(data){
+          //   // addVS1Data('TInvoiceEx',JSON.stringify(data)).then(function(){
+          //     sideBarService.getAllSerialNumber().then(async function(data) {
+          //       await addVS1Data('TSerialNumberListCurrentReport', JSON.stringify(data));
+          //   }).catch(function (err){
           //   });
-          // }
-
-          var htmlmailBody = generateHtmlMailBody(objDetails.fields.ID || '',stringQuery)
-
-          addAttachment("Invoice", "Supplier", objDetails.fields.ID || '', htmlmailBody, 'invoicelist', 54,  'html-Invoice-pdfwrapper', stringQuery, true)
-          // async function addAttachment() {
-          //   let attachment = [];
-          //   let invoiceId = objDetails.fields.ID;
-          //   let encodedPdf = await generatePdfForMail(invoiceId);
-          //   let base64data = encodedPdf.split(",")[1];
-          //   pdfObject = {
-          //     filename: "invoice-" + invoiceId + ".pdf",
-          //     content: base64data,
-          //     encoding: "base64",
-          //   };
-          //   attachment.push(pdfObject);
-          //   let erpInvoiceId = objDetails.fields.ID;
-
-          //   let mailFromName = localStorage.getItem("vs1companyName");
-          //   let mailFrom = localStorage.getItem("VS1OrgEmail") || localStorage.getItem("VS1AdminUserName");
-          //   let customerEmailName = $("#edtCustomerName").val();
-          //   let checkEmailData = $("#edtCustomerEmail").val();
-          //   let grandtotal = $("#grandTotal").html();
-          //   let emailDueDate = $("#dtDueDate").val();
-          //   let customerBillingAddress = $("#txabillingAddress").val();
-          //   let customerTerms = $(".transheader > #sltTerms_fromtransactionheader").val();
-
-          //   let customerSubtotal = $("#subtotal_total").html();
-          //   let customerTax = $("#subtotal_tax").html();
-          //   let customerNett = $("#subtotal_nett").html();
-          //   let customerTotal = $("#grandTotal").html();
-
-
-
-
-          //   let mailSubject = "Invoice " + erpInvoiceId + " from " + mailFromName + " for " + customerEmailName;
-          //   var htmlmailBody = generateHtmlMailBody(erpInvoiceId, emailDueDate, grandtotal, stripeGlobalURL, stringQuery, customerEmailName, mailFromName, customerBillingAddress, customerTerms, customerSubtotal, customerTax, customerNett, customerTotal)
-
-          //   if (
-          //     $(".chkEmailCopy").is(":checked") &&
-          //     $(".chkEmailRep").is(":checked")
-          //   ) {
-          //     Meteor.call(
-          //       "sendEmail", {
-          //       from: "" + mailFromName + " <" + mailFrom + ">",
-          //       to: checkEmailData,
-          //       subject: mailSubject,
-          //       text: "",
-          //       html: htmlmailBody,
-          //       attachments: attachment,
-          //     },
-          //       function (error, result) {
-          //         if (error && error.error === "error") {
-          //           FlowRouter.go("/invoicelist?success=true");
-          //         } else { }
-          //       }
-          //     );
-
-          //     Meteor.call(
-          //       "sendEmail", {
-          //       from: "" + mailFromName + " <" + mailFrom + ">",
-          //       to: mailFrom,
-          //       subject: mailSubject,
-          //       text: "",
-          //       html: htmlmailBody,
-          //       attachments: attachment,
-          //     },
-          //       function (error, result) {
-          //         if (error && error.error === "error") {
-          //           if (FlowRouter.current().queryParams.trans) {
-          //             FlowRouter.go(
-          //               "/customerscard?id=" +
-          //               FlowRouter.current().queryParams.trans +
-          //               "&transTab=active"
-          //             );
-          //           } else {
-          //             FlowRouter.go("/invoicelist?success=true");
-          //           }
-          //         } else {
-          //           $("#html-Invoice-pdfwrapper").css("display", "none");
-          //           swal({
-          //             title: "SUCCESS",
-          //             text: "Email Sent To Customer: " +
-          //               checkEmailData +
-          //               " and User: " +
-          //               mailFrom +
-          //               "",
-          //             type: "success",
-          //             showCancelButton: false,
-          //             confirmButtonText: "OK",
-          //           }).then((result) => {
-          //             if (result.value) { } else if (result.dismiss === "cancel") { }
-          //           });
-
-          //           $(".fullScreenSpin").css("display", "none");
-          //         }
-          //       }
-          //     );
-
-          //     templateObject.checkEmailFrequencySetting();
-          //   } else if ($(".chkEmailCopy").is(":checked")) {
-          //     Meteor.call(
-          //       "sendEmail", {
-          //       from: "" + mailFromName + " <" + mailFrom + ">",
-          //       to: checkEmailData,
-          //       subject: mailSubject,
-          //       text: "",
-          //       html: htmlmailBody,
-          //       attachments: attachment,
-          //     },
-          //       function (error, result) {
-          //         if (error && error.error === "error") {
-          //           FlowRouter.go("/invoicelist?success=true");
-          //         } else {
-          //           $("#html-Invoice-pdfwrapper").css("display", "none");
-          //           swal({
-          //             title: "SUCCESS",
-          //             text: "Email Sent To Customer: " + checkEmailData + " ",
-          //             type: "success",
-          //             showCancelButton: false,
-          //             confirmButtonText: "OK",
-          //           }).then((result) => {
-          //             if (result.value) {
-          //               if (FlowRouter.current().queryParams.trans) {
-          //                 FlowRouter.go(
-          //                   "/customerscard?id=" +
-          //                   FlowRouter.current().queryParams.trans +
-          //                   "&transTab=active"
-          //                 );
-          //               } else {
-          //                 FlowRouter.go("/invoicelist?success=true");
-          //               }
-          //             } else if (result.dismiss === "cancel") { }
-          //           });
-
-          //           $(".fullScreenSpin").css("display", "none");
-          //         }
-          //       }
-          //     );
-          //     templateObject.checkEmailFrequencySetting();
-          //   } else if ($(".chkEmailRep").is(":checked")) {
-          //     Meteor.call(
-          //       "sendEmail", {
-          //       from: "" + mailFromName + " <" + mailFrom + ">",
-          //       to: mailFrom,
-          //       subject: mailSubject,
-          //       text: "",
-          //       html: htmlmailBody,
-          //       attachments: attachment,
-          //     },
-          //       function (error, result) {
-          //         if (error && error.error === "error") {
-          //           FlowRouter.go("/invoicelist?success=true");
-          //         } else {
-          //           $("#html-Invoice-pdfwrapper").css("display", "none");
-          //           swal({
-          //             title: "SUCCESS",
-          //             text: "Email Sent To User: " + mailFrom + " ",
-          //             type: "success",
-          //             showCancelButton: false,
-          //             confirmButtonText: "OK",
-          //           }).then((result) => {
-          //             if (result.value) {
-          //               if (FlowRouter.current().queryParams.trans) {
-          //                 FlowRouter.go(
-          //                   "/customerscard?id=" +
-          //                   FlowRouter.current().queryParams.trans +
-          //                   "&transTab=active"
-          //                 );
-          //               } else {
-          //                 FlowRouter.go("/invoicelist?success=true");
-          //               }
-          //             } else if (result.dismiss === "cancel") { }
-          //           });
-
-          //           $(".fullScreenSpin").css("display", "none");
-          //         }
-          //       }
-          //     );
-          //     templateObject.checkEmailFrequencySetting();
-          //   } else {
-          //     templateObject.checkEmailFrequencySetting();
-          //     if (FlowRouter.current().queryParams.trans) {
-          //       FlowRouter.go(
-          //         "/customerscard?id=" +
-          //         FlowRouter.current().queryParams.trans +
-          //         "&transTab=active"
-          //       );
-          //     } else {
-          //       FlowRouter.go("/invoicelist?success=true");
-          //     }
-          //   }
-          // }
-          // addAttachment();
-        }).catch(function (err) {
+  
+          //   productService.getProductBatches().then(async function (data) {
+          //       await addVS1Data('TProductBatches', JSON.stringify(data));
+          //   }).catch(function (err) {
+          //   });
+  
+            if (localStorage.getItem("enteredURL") != null) {
+              FlowRouter.go(localStorage.getItem("enteredURL"));
+              localStorage.removeItem("enteredURL");
+              return;
+            }
+  
+            // add to custom field
+            let company = localStorage.getItem("vs1companyName");
+            let vs1User = localStorage.getItem("mySession");
+            let customerEmail = $("#edtCustomerEmail").val() || "";
+            let currencyname = CountryAbbr.toLowerCase();
+            let stringQuery = "?";
+            var customerID = $("#edtCustomerEmail").attr("customerid");
+            for (let l = 0; l < lineItems.length; l++) {
+              stringQuery = stringQuery + "product" + l + "=" + lineItems[l].description + "&price" + l + "=" + lineItems[l].unitPrice +
+                "&qty" + l + "=" + lineItems[l].quantity + "&";
+            }
+            stringQuery = stringQuery + "tax=" + tax +"&total=" + total + "&customer=" + customer + "&name=" + name + "&surname=" +
+              surname + "&quoteid=" + objDetails.fields.ID + "&transid=" + stripe_id + "&feemethod=" + stripe_fee_method + "&company=" +
+              company + "&vs1email=" + vs1User + "&customeremail=" + customerEmail + "&type=Invoice&url=" + window.location.href +
+              "&server=" + erpGet.ERPIPAddress + "&username=" + erpGet.ERPUsername + "&token=" + erpGet.ERPPassword + "&session=" +
+              erpGet.ERPDatabase + "&port=" + erpGet.ERPPort + "&dept=" + departement + "&currency=" + currencyname;
+            $("#html-Invoice-pdfwrapper").css("display", "block");
+            $(".pdfCustomerName").html($("#edtCustomerName").val());
+            $(".pdfCustomerAddress").html(
+              $("#txabillingAddress")
+                .val()
+                .replace(/[\r\n]/g, "<br />")
+            );
+            var ponumber = $("#ponumber").val() || ".";
+            $(".po").text(ponumber);
+  
+            var htmlmailBody = generateHtmlMailBody(objDetails.fields.ID || '',stringQuery) 
+  
+            addAttachment("Invoice", "Customer", objDetails.fields.ID || '', htmlmailBody, 'invoicelist', 54,  'html-Invoice-pdfwrapper', stringQuery, true)
+            // })
+          // })
+          }).catch(function (err) {
             $("#html-Invoice-pdfwrapper").css("display", "none");
             swal({
               title: "Oooops...",
@@ -2715,6 +1897,17 @@ Template.invoice_temp.onRendered(function () {
       }
     }, delayTimeAfterSound);
   }
+
+
+  templateObject.updateInvoiceTemp = async function(objDetails) {
+    return new Promise( (resolve, reject) => {
+      let currentTemp = templateObject.temporaryfiles.get();
+      let newTemp = [...currentTemp, objDetails];
+      templateObject.temporaryfiles.set(newTemp);
+       addVS1Data('TInvoiceTemp', JSON.stringify({tinvoicetemp:newTemp})).then(function(){resolve()})
+    })
+  }
+  
 
 });
 
@@ -2775,8 +1968,19 @@ Template.invoice_temp.helpers({
     }
   },
 
+  updateTransactionTemp:  function() {
+    let templateObject = Template.instance();
+    return async function(data) {
+      await templateObject.updateInvoiceTemp(data)
+    }
+  },
+
   printOptions: ()=>{
     return Template.instance().printOptions.get()
+  },
+
+  printfields: ()=> {
+    return Template.instance().printfields.get();
   },
 
   isBatchSerialNoTracking: () => {
@@ -3367,7 +2571,11 @@ Template.invoice_temp.events({
             };
           }
 
-          salesService.saveInvoiceEx(objDetails).then(function () {
+          let currentInvoicetemp = templateObject.temporaryfiles.get();
+          let newInvoicetemp= [...currentInvoicetemp, objDetails];
+          templateObject.temporaryfiles.set(newInvoicetemp);
+          addVS1Data('TInvoiceTemp', JSON.stringify({tinvoicetemp: newInvoicetemp})).then(function(){
+          // salesService.saveInvoiceEx(objDetails).then(function () {
               let company = localStorage.getItem("vs1companyName");
               let vs1User = localStorage.getItem("mySession");
               let customerEmail = $("#edtCustomerEmail").val() || "";
@@ -3387,204 +2595,7 @@ Template.invoice_temp.events({
               $(".pdfCustomerName").html($("#edtCustomerName").val());
               $(".pdfCustomerAddress").html($("#txabillingAddress").val().replace(/[\r\n]/g, "<br />"));
 
-              // function generatePdfForMail(invoiceId) {
-              //   let stripe_id = templateObject.accountID.get() || "";
-              //   let file = "Invoice-" + invoiceId + ".pdf";
-              //   return new Promise((resolve, reject) => {
-              //     if (stripe_id != "") {
-              //       $(".linkText").attr("href", stripeGlobalURL + stringQuery);
-              //     } else {
-              //       $(".linkText").attr("href", "#");
-              //     }
-              //     var source = document.getElementById(
-              //       "html-Invoice-pdfwrapper"
-              //     );
-              //     var opt = {
-              //       margin: 0,
-              //       filename: file,
-              //       image: {
-              //         type: "jpeg",
-              //         quality: 0.98,
-              //       },
-              //       html2canvas: {
-              //         scale: 2,
-              //       },
-              //       jsPDF: {
-              //         unit: "in",
-              //         format: "a4",
-              //         orientation: "portrait",
-              //       },
-              //     };
-              //     resolve(
-              //       html2pdf()
-              //         .set(opt)
-              //         .from(source)
-              //         .toPdf()
-              //         .output("datauristring")
-              //     );
-              //   });
-              // }
-              // async function addAttachment() {
-              //   let attachment = [];
-              //   let invoiceId = objDetails.fields.ID;
-              //   let encodedPdf = await generatePdfForMail(invoiceId);
-              //   let base64data = encodedPdf.split(",")[1];
-              //   let pdfObject = {
-              //     filename: "invoice-" + invoiceId + ".pdf",
-              //     content: base64data,
-              //     encoding: "base64",
-              //   };
-              //   attachment.push(pdfObject);
-              //   let erpInvoiceId = objDetails.fields.ID;
-
-              //   let mailFromName = localStorage.getItem("vs1companyName");
-              //   let mailFrom = localStorage.getItem("VS1OrgEmail") || localStorage.getItem("VS1AdminUserName");
-              //   let customerEmailName = $("#edtCustomerName").val();
-              //   let checkEmailData = $("#edtCustomerEmail").val();
-              //   let grandtotal = $("#grandTotal").html();
-              //   let emailDueDate = $("#dtDueDate").val();
-              //   let customerBillingAddress = $("#txabillingAddress").val();
-              //   let customerTerms = $(".transheader > #sltTerms_fromtransactionheader").val();
-
-              //   let customerSubtotal = $("#subtotal_total").html();
-              //   let customerTax = $("#subtotal_tax").html();
-              //   let customerNett = $("#subtotal_nett").html();
-              //   let customerTotal = $("#grandTotal").html();
-
-              //   let mailSubject = "Invoice " + erpInvoiceId + " from " + mailFromName + " for " + customerEmailName;
-              //   var htmlmailBody = generateHtmlMailBody(erpInvoiceId, emailDueDate, grandtotal, stripeGlobalURL, stringQuery, customerEmailName, mailFromName, customerBillingAddress, customerTerms, customerSubtotal, customerTax, customerNett, customerTotal)
-
-              //   if (
-              //     $(".chkEmailCopy").is(":checked") &&
-              //     $(".chkEmailRep").is(":checked")
-              //   ) {
-              //     Meteor.call(
-              //       "sendEmail", {
-              //       from: "" + mailFromName + " <" + mailFrom + ">",
-              //       to: checkEmailData,
-              //       subject: mailSubject,
-              //       text: "",
-              //       html: htmlmailBody,
-              //       attachments: attachment,
-              //     },
-              //       function (error, result) {
-              //         if (error && error.error === "error") {
-              //           FlowRouter.go("/invoicelist?success=true");
-              //         }
-              //       }
-              //     );
-
-              //     Meteor.call(
-              //       "sendEmail", {
-              //       from: "" + mailFromName + " <" + mailFrom + ">",
-              //       to: mailFrom,
-              //       subject: mailSubject,
-              //       text: "",
-              //       html: htmlmailBody,
-              //       attachments: attachment,
-              //     },
-              //       function (error, result) {
-              //         if (error && error.error === "error") {
-              //           if (FlowRouter.current().queryParams.trans) {
-              //             FlowRouter.go(
-              //               "/customerscard?id=" +
-              //               FlowRouter.current().queryParams.trans +
-              //               "&transTab=active"
-              //             );
-              //           } else {
-              //             FlowRouter.go("/invoicelist?success=true");
-              //           }
-              //         } else {
-              //           $("#html-Invoice-pdfwrapper").css("display", "none");
-              //           swal({
-              //             title: "SUCCESS",
-              //             text: "Email Sent To Customer: " +
-              //               checkEmailData +
-              //               " and User: " +
-              //               mailFrom +
-              //               "",
-              //             type: "success",
-              //             showCancelButton: false,
-              //             confirmButtonText: "OK",
-              //           }).then((result) => {
-              //             if (result.value) {
-              //               window.open(url, "_self");
-              //             } else if (result.dismiss === "cancel") { }
-              //           });
-
-              //           $(".fullScreenSpin").css("display", "none");
-              //         }
-              //       }
-              //     );
-              //   } else if ($(".chkEmailCopy").is(":checked")) {
-              //     Meteor.call(
-              //       "sendEmail", {
-              //       from: "" + mailFromName + " <" + mailFrom + ">",
-              //       to: checkEmailData,
-              //       subject: mailSubject,
-              //       text: "",
-              //       html: htmlmailBody,
-              //       attachments: attachment,
-              //     },
-              //       function (error, result) {
-              //         if (error && error.error === "error") {
-              //           FlowRouter.go("/invoicelist?success=true");
-              //         } else {
-              //           $("#html-Invoice-pdfwrapper").css("display", "none");
-              //           swal({
-              //             title: "SUCCESS",
-              //             text: "Email Sent To Customer: " + checkEmailData + " ",
-              //             type: "success",
-              //             showCancelButton: false,
-              //             confirmButtonText: "OK",
-              //           }).then((result) => {
-              //             if (result.value) {
-              //               window.open(url, "_self");
-              //             }
-              //           });
-
-              //           $(".fullScreenSpin").css("display", "none");
-              //         }
-              //       }
-              //     );
-              //   } else if ($(".chkEmailRep").is(":checked")) {
-              //     Meteor.call(
-              //       "sendEmail", {
-              //       from: "" + mailFromName + " <" + mailFrom + ">",
-              //       to: mailFrom,
-              //       subject: mailSubject,
-              //       text: "",
-              //       html: htmlmailBody,
-              //       attachments: attachment,
-              //     },
-              //       function (error, result) {
-              //         if (error && error.error === "error") {
-              //           FlowRouter.go("/invoicelist?success=true");
-              //         } else {
-              //           $("#html-Invoice-pdfwrapper").css("display", "none");
-              //           swal({
-              //             title: "SUCCESS",
-              //             text: "Email Sent To User: " + mailFrom + " ",
-              //             type: "success",
-              //             showCancelButton: false,
-              //             confirmButtonText: "OK",
-              //           }).then((result) => {
-              //             if (result.value) {
-              //               window.open(url, "_self");
-              //             }
-              //           });
-
-              //           $(".fullScreenSpin").css("display", "none");
-              //         }
-              //       }
-              //     );
-              //   } else {
-              //     window.open(url, "_self");
-              //   }
-              // }
-              // addAttachment();
-
-              // templateObject.addAttachment(objDetails, 'html-Invoice-pdfwrapper', stringQuery, false)
+            
               let htmlmailBody = generateHtmlMailBody(objDetails.fields.ID || '',stringQuery)
               addAttachment("Invoice", "Customer", objDetails.fields.ID || '', htmlmailBody, 'invoicelist', 54,  'html-Invoice-pdfwrapper', stringQuery, false, 'blob')
             })
@@ -3812,9 +2823,10 @@ Template.invoice_temp.events({
         };
       }
 
-      salesService
-        .saveInvoiceEx(objDetails)
-        .then(function () {
+      let currentInvoicetemp = templateObject.temporaryfiles.get();
+        let newInvoicetemp= [...currentInvoicetemp, objDetails];
+        templateObject.temporaryfiles.set(newInvoicetemp);
+        addVS1Data('TInvoiceTemp', JSON.stringify({tinvoicetemp: newInvoicetemp})).then(function(){
           var customerID = $("#edtCustomerEmail").attr("customerid");
           $("#html-Invoice-pdfwrapper").css("display", "block");
           $(".pdfCustomerName").html($("#edtCustomerName").val());
@@ -3823,153 +2835,12 @@ Template.invoice_temp.events({
               .val()
               .replace(/[\r\n]/g, "<br />")
           );
-          // async function addAttachment() {
-          //   let attachment = [];
-          //   let invoiceId = objDetails.fields.ID;
-          //   let encodedPdf = await generatePdfForMail(invoiceId);
-          //   var reader = new FileReader();
-          //   reader.readAsDataURL(encodedPdf);
-          //   reader.onloadend = function () {
-          //     var base64data = reader.result;
-          //     base64data = base64data.split(",")[1];
-          //   let pdfObject = {
-          //     filename: "invoice-" + invoiceId + ".pdf",
-          //     content: base64data,
-          //     encoding: "base64",
-          //   };
-          //   attachment.push(pdfObject);
-          //   let erpInvoiceId = objDetails.fields.ID;
-
-          //   let mailFromName = localStorage.getItem("vs1companyName");
-          //   let mailFrom = localStorage.getItem("VS1OrgEmail") || localStorage.getItem("VS1AdminUserName");
-          //   let customerEmailName = $("#edtCustomerName").val();
-          //   let checkEmailData = $("#edtCustomerEmail").val();
-          //   let grandtotal = $("#grandTotal").html();
-          //   let amountDueEmail = $("#totalBalanceDue").html();
-          //   let emailDueDate = $("#dtDueDate").val();
-          //   let customerBillingAddress = $("#txabillingAddress").val();
-          //   let customerTerms = $("#sltTerms").val();
-
-          //   let customerSubtotal = $("#subtotal_total").html();
-          //   let customerTax = $("#subtotal_tax").html();
-          //   let customerNett = $("#subtotal_nett").html();
-          //   let customerTotal = $("#grandTotal").html();
-          //   let mailSubject = "Invoice " + erpInvoiceId + " from " + mailFromName + " for " + customerEmailName;
-          //   var htmlmailBody = generateHtmlMailBody(erpInvoiceId, emailDueDate, grandtotal, stripeGlobalURL, stringQuery, customerEmailName, mailFromName, customerBillingAddress, customerTerms, customerSubtotal, customerTax, customerNett, customerTotal)
-
-          //     if ($(".chkEmailCopy").is(":checked") && $(".chkEmailRep").is(":checked")) {
-          //       Meteor.call(
-          //         "sendEmail", {
-          //         from: "" + mailFromName + " <" + mailFrom + ">",
-          //         to: checkEmailData,
-          //         subject: mailSubject,
-          //         text: "",
-          //         html: htmlmailBody,
-          //         attachments: attachment,
-          //       },
-          //         function (error, result) {
-          //           if (error && error.error === "error") { } else { }
-          //         }
-          //       );
-
-          //       Meteor.call(
-          //         "sendEmail", {
-          //         from: "" + mailFromName + " <" + mailFrom + ">",
-          //         to: mailFrom,
-          //         subject: mailSubject,
-          //         text: "",
-          //         html: htmlmailBody,
-          //         attachments: attachment,
-          //       },
-          //         function (error, result) {
-          //           if (error && error.error === "error") { } else {
-          //             $("#html-Invoice-pdfwrapper").css("display", "none");
-          //             swal({
-          //               title: "SUCCESS",
-          //               text: "Email Sent To Customer: " +
-          //                 checkEmailData +
-          //                 " and User: " +
-          //                 mailFrom +
-          //                 "",
-          //               type: "success",
-          //               showCancelButton: false,
-          //               confirmButtonText: "OK",
-          //             }).then((result) => {
-          //               if (result.value) { } else if (result.dismiss === "cancel") { }
-          //             });
-          //           }
-          //         }
-          //       );
-          //     } else if ($(".chkEmailCopy").is(":checked")) {
-          //       Meteor.call(
-          //         "sendEmail", {
-          //         from: "" + mailFromName + " <" + mailFrom + ">",
-          //         to: checkEmailData,
-          //         subject: mailSubject,
-          //         text: "",
-          //         html: htmlmailBody,
-          //         attachments: attachment,
-          //       },
-          //         function (error, result) {
-          //           if (error && error.error === "error") { } else {
-          //             $("#html-Invoice-pdfwrapper").css("display", "none");
-          //             swal({
-          //               title: "SUCCESS",
-          //               text: "Email Sent To Customer: " + checkEmailData + " ",
-          //               type: "success",
-          //               showCancelButton: false,
-          //               confirmButtonText: "OK",
-          //             }).then((result) => {
-          //               if (result.value) { } else if (result.dismiss === "cancel") { }
-          //             });
-          //           }
-          //         }
-          //       );
-          //     } else if ($(".chkEmailRep").is(":checked")) {
-          //       Meteor.call(
-          //         "sendEmail", {
-          //         from: "" + mailFromName + " <" + mailFrom + ">",
-          //         to: mailFrom,
-          //         subject: mailSubject,
-          //         text: "",
-          //         html: htmlmailBody,
-          //         attachments: attachment,
-          //       },
-          //         function (error, result) {
-          //           if (error && error.error === "error") { } else {
-          //             $("#html-Invoice-pdfwrapper").css("display", "none");
-          //             swal({
-          //               title: "SUCCESS",
-          //               text: "Email Sent To User: " + mailFrom + " ",
-          //               type: "success",
-          //               showCancelButton: false,
-          //               confirmButtonText: "OK",
-          //             }).then((result) => {
-          //               if (result.value) { } else if (result.dismiss === "cancel") { }
-          //             });
-          //           }
-          //         }
-          //       );
-          //     } else { }
-          //   };
-          // }
-          // addAttachment();
+         
           let stringQuery = ''
           // templateObject.addAttachment(objDetails, 'html-Invoice-pdfwrapper', stringQuery, false)
           let htmlmailBody = generateHtmlMailBody(objDetails.fields.ID || '',stringQuery)
           addAttachment("Invoice", "Customer", objDetails.fields.ID || '', htmlmailBody, 'invoicelist', 54,  'html-Invoice-pdfwrapper', stringQuery, false)
-
-          // function generatePdfForMail(invoiceId) {
-          //   return new Promise((resolve, reject) => {
-          //     let doc = new jsPDF("p", "pt", "a4");
-          //     doc.setFontSize(18);
-          //     var source = document.getElementById("html-Invoice-pdfwrapper");
-          //     doc.addHTML(source, function () {
-          //       resolve(doc.output("blob"));
-          //       $("#html-Invoice-pdfwrapper").css("display", "none");
-          //     });
-          //   });
-          // }
+         
           if (customerID !== " ") { }
           let linesave = objDetails.fields.ID;
 
@@ -4213,425 +3084,425 @@ Template.invoice_temp.events({
       }
     }
   },
-  "click .btnSnLotmodal": function (event) {
-    var target = event.target;
-    let selectedShipped = $(target).closest("tr").find(".lineShipped").val();
-    let selectedunit = $(target).closest("tr").find(".lineOrdered").val();
-    localStorage.setItem("productItem", selectedunit);
-    let selectedProductName = $(target).closest("tr").find(".lineProductName").val();
-    localStorage.setItem("selectedProductName", selectedProductName);
+  // "click .btnSnLotmodal": function (event) {
+  //   var target = event.target;
+  //   let selectedShipped = $(target).closest("tr").find(".lineShipped").val();
+  //   let selectedunit = $(target).closest("tr").find(".lineOrdered").val();
+  //   localStorage.setItem("productItem", selectedunit);
+  //   let selectedProductName = $(target).closest("tr").find(".lineProductName").val();
+  //   localStorage.setItem("selectedProductName", selectedProductName);
 
-    let productService = new ProductService();
-    const templateObject = Template.instance();
-    const InvoiceData = templateObject.invoicerecord.get();
-    let existProduct = false;
-    if(parseInt(selectedShipped) > 0){
-      InvoiceData.LineItems.forEach(async (element) => {
-        if (element.item == selectedProductName) {
-          existProduct = true;
-        }
-      });
-      if (!existProduct) {
-        if (selectedProductName == "") {
-          swal("You have to select Product.", "", "info");
-          event.preventDefault();
-          return false;
-        } else {
-          getVS1Data("TProductQtyList").then(function (dataObject) {
-            if (dataObject.length == 0) {
-              productService.getProductStatus(selectedProductName).then(async function (data) {
-                if (data.tproductvs1[0].Batch == false && data.tproductvs1[0].SNTracking == false) {
-                  var buttons = $("<div>")
-                  .append($('<button id="trackSN" class="swal2-styled" style="background-color: rgb(48, 133, 214); border-left-color: rgb(48, 133, 214); border-right-color: rgb(48, 133, 214);">Track Serial Number</button>'))
-                  .append($('<button id="trackLN" class="swal2-styled" style="background-color: rgb(48, 133, 214); border-left-color: rgb(48, 133, 214); border-right-color: rgb(48, 133, 214);">Track Lot Number</button>'))
-                  .append($('<button id="trackCancel" class="swal2-styled" style="background-color: rgb(170, 170, 170);">No</button>'));
-                  swal({
-                    title: 'This Product "' + selectedProductName + '" does not currently track Serial Numbers, Lot Numbers or Bin Locations, Do You Wish To Add that Ability.',
-                    type: "warning",
-                    showCancelButton: false,
-                    showConfirmButton: false,
-                    html: buttons,
-                    onOpen: function (dObj) {
-                      $('#trackSN').on('click',function () {
-                        objDetails = {
-                          type: "TProductVS1",
-                          fields: {
-                            ID: parseInt(data.tproductqtylist[i].PARTSID),
-                            Active: true,
-                            SNTracking: "true",
-                            Batch: "false",
-                          },
-                        };
+  //   let productService = new ProductService();
+  //   const templateObject = Template.instance();
+  //   const InvoiceData = templateObject.invoicerecord.get();
+  //   let existProduct = false;
+  //   if(parseInt(selectedShipped) > 0){
+  //     InvoiceData.LineItems.forEach(async (element) => {
+  //       if (element.item == selectedProductName) {
+  //         existProduct = true;
+  //       }
+  //     });
+  //     if (!existProduct) {
+  //       if (selectedProductName == "") {
+  //         swal("You have to select Product.", "", "info");
+  //         event.preventDefault();
+  //         return false;
+  //       } else {
+  //         getVS1Data("TProductQtyList").then(function (dataObject) {
+  //           if (dataObject.length == 0) {
+  //             productService.getProductStatus(selectedProductName).then(async function (data) {
+  //               if (data.tproductvs1[0].Batch == false && data.tproductvs1[0].SNTracking == false) {
+  //                 var buttons = $("<div>")
+  //                 .append($('<button id="trackSN" class="swal2-styled" style="background-color: rgb(48, 133, 214); border-left-color: rgb(48, 133, 214); border-right-color: rgb(48, 133, 214);">Track Serial Number</button>'))
+  //                 .append($('<button id="trackLN" class="swal2-styled" style="background-color: rgb(48, 133, 214); border-left-color: rgb(48, 133, 214); border-right-color: rgb(48, 133, 214);">Track Lot Number</button>'))
+  //                 .append($('<button id="trackCancel" class="swal2-styled" style="background-color: rgb(170, 170, 170);">No</button>'));
+  //                 swal({
+  //                   title: 'This Product "' + selectedProductName + '" does not currently track Serial Numbers, Lot Numbers or Bin Locations, Do You Wish To Add that Ability.',
+  //                   type: "warning",
+  //                   showCancelButton: false,
+  //                   showConfirmButton: false,
+  //                   html: buttons,
+  //                   onOpen: function (dObj) {
+  //                     $('#trackSN').on('click',function () {
+  //                       objDetails = {
+  //                         type: "TProductVS1",
+  //                         fields: {
+  //                           ID: parseInt(data.tproductqtylist[i].PARTSID),
+  //                           Active: true,
+  //                           SNTracking: "true",
+  //                           Batch: "false",
+  //                         },
+  //                       };
 
-                        productService.saveProductVS1(objDetails)
-                        .then(async function (objDetails) {
-                          sideBarService.getProductListVS1("All", 0)
-                            .then(async function (dataReload) {
-                              await addVS1Data("TProductQtyList", JSON.stringify(dataReload));
-                              swal.close();
-                              $(target).click();
-                            })
-                            .catch(function (err) {
-                            });
-                        })
-                        .catch(function (err) {
-                          swal({
-                            title: "Oooops...",
-                            text: err,
-                            type: "error",
-                            showCancelButton: false,
-                            confirmButtonText: "Try Again",
-                          }).then((result) => {
-                            if (result.value) {
-                              // Meteor._reload.reload();
-                            } else if (result.dismiss === "cancel") {
-                            }
-                          });
-                        });
-                      });
-                      $('#trackLN').on('click',function () {
-                        swal.close();
-                        objDetails = {
-                          type: "TProductVS1",
-                          fields: {
-                            ID: parseInt(data.tproductqtylist[i].PARTSID),
-                            Active: true,
-                            SNTracking: "false",
-                            Batch: "true",
-                          },
-                        };
+  //                       productService.saveProductVS1(objDetails)
+  //                       .then(async function (objDetails) {
+  //                         sideBarService.getProductListVS1("All", 0)
+  //                           .then(async function (dataReload) {
+  //                             await addVS1Data("TProductQtyList", JSON.stringify(dataReload));
+  //                             swal.close();
+  //                             $(target).click();
+  //                           })
+  //                           .catch(function (err) {
+  //                           });
+  //                       })
+  //                       .catch(function (err) {
+  //                         swal({
+  //                           title: "Oooops...",
+  //                           text: err,
+  //                           type: "error",
+  //                           showCancelButton: false,
+  //                           confirmButtonText: "Try Again",
+  //                         }).then((result) => {
+  //                           if (result.value) {
+  //                             // Meteor._reload.reload();
+  //                           } else if (result.dismiss === "cancel") {
+  //                           }
+  //                         });
+  //                       });
+  //                     });
+  //                     $('#trackLN').on('click',function () {
+  //                       swal.close();
+  //                       objDetails = {
+  //                         type: "TProductVS1",
+  //                         fields: {
+  //                           ID: parseInt(data.tproductqtylist[i].PARTSID),
+  //                           Active: true,
+  //                           SNTracking: "false",
+  //                           Batch: "true",
+  //                         },
+  //                       };
 
-                        productService.saveProductVS1(objDetails)
-                        .then(async function (objDetails) {
-                          sideBarService.getProductListVS1("All", 0)
-                            .then(async function (dataReload) {
-                              await addVS1Data("TProductQtyList", JSON.stringify(dataReload));
-                              swal.close();
-                              $(target).click();
-                            })
-                            .catch(function (err) {
-                            });
-                        })
-                        .catch(function (err) {
-                          swal({
-                            title: "Oooops...",
-                            text: err,
-                            type: "error",
-                            showCancelButton: false,
-                            confirmButtonText: "Try Again",
-                          }).then((result) => {
-                            if (result.value) {
-                              // Meteor._reload.reload();
-                            } else if (result.dismiss === "cancel") {
-                            }
-                          });
-                        });
-                      });
-                      $('#trackCancel').on('click',function () {
-                          swal.close();
-                      });
-                    }
-                  });
-                } else if (data.tproductvs1[0].Batch == true && data.tproductvs1[0].SNTracking == false) {
-                  let selectedLot = $(target).closest("tr").find(".colSerialNo").attr('data-lotnumbers');
-                  if(selectedLot != undefined && selectedLot != ""){
-                    shareFunctionByName.initTable(selectedLot, "tblAvailableLotCheckbox");
-                  }
-                  else{
-                    shareFunctionByName.initTable("empty", "tblAvailableLotCheckbox");
-                  }
-                  setTimeout(function () {
-                    var row = $(target).parent().parent().parent().children().index($(target).parent().parent());
-                    $("#availableLotNumberModal").attr("data-row", row + 1);
-                    $("#availableLotNumberModal").modal("show");
-                  }, 200);
-                } else if (data.tproductvs1[0].Batch == false && data.tproductvs1[0].SNTracking == true) {
-                  let selectedSN = $(target).closest("tr").find(".colSerialNo").attr('data-serialnumbers');
-                  if(selectedSN != undefined && selectedSN != ""){
-                    shareFunctionByName.initTable(selectedSN, "tblAvailableSNCheckbox");
-                  }
-                  else{
-                    shareFunctionByName.initTable("empty", "tblAvailableSNCheckbox");
-                  }
-                  setTimeout(function () {
-                    var row = $(target).parent().parent().parent().children().index($(target).parent().parent());
-                    $("#availableSerialNumberModal").attr("data-row", row + 1);
-                    $('#availableSerialNumberModal').modal('show');
-                    if(data.tproductvs1[0].CUSTFLD13 == 'true'){
-                      $("#availableSerialNumberModal .btnSNCreate").show();
-                    }
-                    else{
-                      $("#availableSerialNumberModal .btnSNCreate").hide();
-                    }
-                  }, 200);
-                }
-              });
-            }
-            else{
-              let data = JSON.parse(dataObject[0].data);
-              for (let i = 0; i < data.tproductqtylist.length; i++) {
-                if(data.tproductqtylist[i].ProductName == selectedProductName){
-                  if (data.tproductqtylist[i].batch == false && data.tproductqtylist[i].SNTracking == false) {
-                    var buttons = $("<div>")
-                    .append($('<button id="trackSN" class="swal2-styled" style="background-color: rgb(48, 133, 214); border-left-color: rgb(48, 133, 214); border-right-color: rgb(48, 133, 214);">Track Serial Number</button>'))
-                    .append($('<button id="trackLN" class="swal2-styled" style="background-color: rgb(48, 133, 214); border-left-color: rgb(48, 133, 214); border-right-color: rgb(48, 133, 214);">Track Lot Number</button>'))
-                    .append($('<button id="trackCancel" class="swal2-styled" style="background-color: rgb(170, 170, 170);">No</button>'));
-                    swal({
-                      title: 'This Product "' + selectedProductName + '" does not currently track Serial Numbers, Lot Numbers or Bin Locations, Do You Wish To Add that Ability.',
-                      type: "warning",
-                      showCancelButton: false,
-                      showConfirmButton: false,
-                      html: buttons,
-                      onOpen: function (dObj) {
-                        $('#trackSN').on('click',function () {
-                          objDetails = {
-                            type: "TProductVS1",
-                            fields: {
-                              ID: parseInt(data.tproductqtylist[i].PARTSID),
-                              Active: true,
-                              SNTracking: "true",
-                              Batch: "false",
-                            },
-                          };
+  //                       productService.saveProductVS1(objDetails)
+  //                       .then(async function (objDetails) {
+  //                         sideBarService.getProductListVS1("All", 0)
+  //                           .then(async function (dataReload) {
+  //                             await addVS1Data("TProductQtyList", JSON.stringify(dataReload));
+  //                             swal.close();
+  //                             $(target).click();
+  //                           })
+  //                           .catch(function (err) {
+  //                           });
+  //                       })
+  //                       .catch(function (err) {
+  //                         swal({
+  //                           title: "Oooops...",
+  //                           text: err,
+  //                           type: "error",
+  //                           showCancelButton: false,
+  //                           confirmButtonText: "Try Again",
+  //                         }).then((result) => {
+  //                           if (result.value) {
+  //                             // Meteor._reload.reload();
+  //                           } else if (result.dismiss === "cancel") {
+  //                           }
+  //                         });
+  //                       });
+  //                     });
+  //                     $('#trackCancel').on('click',function () {
+  //                         swal.close();
+  //                     });
+  //                   }
+  //                 });
+  //               } else if (data.tproductvs1[0].Batch == true && data.tproductvs1[0].SNTracking == false) {
+  //                 let selectedLot = $(target).closest("tr").find(".colSerialNo").attr('data-lotnumbers');
+  //                 if(selectedLot != undefined && selectedLot != ""){
+  //                   shareFunctionByName.initTable(selectedLot, "tblAvailableLotCheckbox");
+  //                 }
+  //                 else{
+  //                   shareFunctionByName.initTable("empty", "tblAvailableLotCheckbox");
+  //                 }
+  //                 setTimeout(function () {
+  //                   var row = $(target).parent().parent().parent().children().index($(target).parent().parent());
+  //                   $("#availableLotNumberModal").attr("data-row", row + 1);
+  //                   $("#availableLotNumberModal").modal("show");
+  //                 }, 200);
+  //               } else if (data.tproductvs1[0].Batch == false && data.tproductvs1[0].SNTracking == true) {
+  //                 let selectedSN = $(target).closest("tr").find(".colSerialNo").attr('data-serialnumbers');
+  //                 if(selectedSN != undefined && selectedSN != ""){
+  //                   shareFunctionByName.initTable(selectedSN, "tblAvailableSNCheckbox");
+  //                 }
+  //                 else{
+  //                   shareFunctionByName.initTable("empty", "tblAvailableSNCheckbox");
+  //                 }
+  //                 setTimeout(function () {
+  //                   var row = $(target).parent().parent().parent().children().index($(target).parent().parent());
+  //                   $("#availableSerialNumberModal").attr("data-row", row + 1);
+  //                   $('#availableSerialNumberModal').modal('show');
+  //                   if(data.tproductvs1[0].CUSTFLD13 == 'true'){
+  //                     $("#availableSerialNumberModal .btnSNCreate").show();
+  //                   }
+  //                   else{
+  //                     $("#availableSerialNumberModal .btnSNCreate").hide();
+  //                   }
+  //                 }, 200);
+  //               }
+  //             });
+  //           }
+  //           else{
+  //             let data = JSON.parse(dataObject[0].data);
+  //             for (let i = 0; i < data.tproductqtylist.length; i++) {
+  //               if(data.tproductqtylist[i].ProductName == selectedProductName){
+  //                 if (data.tproductqtylist[i].batch == false && data.tproductqtylist[i].SNTracking == false) {
+  //                   var buttons = $("<div>")
+  //                   .append($('<button id="trackSN" class="swal2-styled" style="background-color: rgb(48, 133, 214); border-left-color: rgb(48, 133, 214); border-right-color: rgb(48, 133, 214);">Track Serial Number</button>'))
+  //                   .append($('<button id="trackLN" class="swal2-styled" style="background-color: rgb(48, 133, 214); border-left-color: rgb(48, 133, 214); border-right-color: rgb(48, 133, 214);">Track Lot Number</button>'))
+  //                   .append($('<button id="trackCancel" class="swal2-styled" style="background-color: rgb(170, 170, 170);">No</button>'));
+  //                   swal({
+  //                     title: 'This Product "' + selectedProductName + '" does not currently track Serial Numbers, Lot Numbers or Bin Locations, Do You Wish To Add that Ability.',
+  //                     type: "warning",
+  //                     showCancelButton: false,
+  //                     showConfirmButton: false,
+  //                     html: buttons,
+  //                     onOpen: function (dObj) {
+  //                       $('#trackSN').on('click',function () {
+  //                         objDetails = {
+  //                           type: "TProductVS1",
+  //                           fields: {
+  //                             ID: parseInt(data.tproductqtylist[i].PARTSID),
+  //                             Active: true,
+  //                             SNTracking: "true",
+  //                             Batch: "false",
+  //                           },
+  //                         };
 
-                          productService.saveProductVS1(objDetails)
-                          .then(async function (objDetails) {
-                            sideBarService.getProductListVS1("All", 0)
-                              .then(async function (dataReload) {
-                                await addVS1Data("TProductQtyList", JSON.stringify(dataReload));
-                                swal.close();
-                                $(target).click();
-                              })
-                              .catch(function (err) {
-                              });
-                          })
-                          .catch(function (err) {
-                            swal({
-                              title: "Oooops...",
-                              text: err,
-                              type: "error",
-                              showCancelButton: false,
-                              confirmButtonText: "Try Again",
-                            }).then((result) => {
-                              if (result.value) {
-                                // Meteor._reload.reload();
-                              } else if (result.dismiss === "cancel") {
-                              }
-                            });
-                          });
-                        });
-                        $('#trackLN').on('click',function () {
-                          swal.close();
-                          objDetails = {
-                            type: "TProductVS1",
-                            fields: {
-                              ID: parseInt(data.tproductqtylist[i].PARTSID),
-                              Active: true,
-                              SNTracking: "false",
-                              Batch: "true",
-                            },
-                          };
+  //                         productService.saveProductVS1(objDetails)
+  //                         .then(async function (objDetails) {
+  //                           sideBarService.getProductListVS1("All", 0)
+  //                             .then(async function (dataReload) {
+  //                               await addVS1Data("TProductQtyList", JSON.stringify(dataReload));
+  //                               swal.close();
+  //                               $(target).click();
+  //                             })
+  //                             .catch(function (err) {
+  //                             });
+  //                         })
+  //                         .catch(function (err) {
+  //                           swal({
+  //                             title: "Oooops...",
+  //                             text: err,
+  //                             type: "error",
+  //                             showCancelButton: false,
+  //                             confirmButtonText: "Try Again",
+  //                           }).then((result) => {
+  //                             if (result.value) {
+  //                               // Meteor._reload.reload();
+  //                             } else if (result.dismiss === "cancel") {
+  //                             }
+  //                           });
+  //                         });
+  //                       });
+  //                       $('#trackLN').on('click',function () {
+  //                         swal.close();
+  //                         objDetails = {
+  //                           type: "TProductVS1",
+  //                           fields: {
+  //                             ID: parseInt(data.tproductqtylist[i].PARTSID),
+  //                             Active: true,
+  //                             SNTracking: "false",
+  //                             Batch: "true",
+  //                           },
+  //                         };
 
-                          productService.saveProductVS1(objDetails)
-                          .then(async function (objDetails) {
-                            sideBarService.getProductListVS1("All", 0)
-                              .then(async function (dataReload) {
-                                await addVS1Data("TProductQtyList", JSON.stringify(dataReload));
-                                swal.close();
-                                $(target).click();
-                              })
-                              .catch(function (err) {
-                              });
-                          })
-                          .catch(function (err) {
-                            swal({
-                              title: "Oooops...",
-                              text: err,
-                              type: "error",
-                              showCancelButton: false,
-                              confirmButtonText: "Try Again",
-                            }).then((result) => {
-                              if (result.value) {
-                                // Meteor._reload.reload();
-                              } else if (result.dismiss === "cancel") {
-                              }
-                            });
-                          });
-                        });
-                        $('#trackCancel').on('click',function () {
-                            swal.close();
-                        });
-                      }
-                    });
-                  } else if (data.tproductqtylist[i].batch == true && data.tproductqtylist[i].SNTracking == false) {
-                    let selectedLot = $(target).closest("tr").find(".colSerialNo").attr('data-lotnumbers');
-                    if(selectedLot != undefined && selectedLot != ""){
-                      shareFunctionByName.initTable(selectedLot, "tblAvailableLotCheckbox");
-                    }
-                    else{
-                      shareFunctionByName.initTable("empty", "tblAvailableLotCheckbox");
-                    }
-                    setTimeout(function () {
-                      var row = $(target).parent().parent().parent().children().index($(target).parent().parent());
-                      $("#availableLotNumberModal").attr("data-row", row + 1);
-                      $("#availableLotNumberModal").modal("show");
-                    }, 200);
-                  } else if (data.tproductqtylist[i].batch == false && data.tproductqtylist[i].SNTracking == true) {
-                    let selectedSN = $(target).closest("tr").find(".colSerialNo").attr('data-serialnumbers');
-                    if(selectedSN != undefined && selectedSN != ""){
-                      shareFunctionByName.initTable(selectedSN, "tblAvailableSNCheckbox");
-                    }
-                    else{
-                      shareFunctionByName.initTable("empty", "tblAvailableSNCheckbox");
-                    }
-                    setTimeout(function () {
-                      var row = $(target).parent().parent().parent().children().index($(target).parent().parent());
-                      $("#availableSerialNumberModal").attr("data-row", row + 1);
-                      $('#availableSerialNumberModal').modal('show');
-                      if(data.tproductqtylist[i].CUSTFLD13 == 'true'){
-                        $("#availableSerialNumberModal .btnSNCreate").show();
-                      }
-                      else{
-                        $("#availableSerialNumberModal .btnSNCreate").hide();
-                      }
-                    }, 200);
-                  }
-                }
-              }
-            }
-          }).catch(function (err) {
-            productService.getProductStatus(selectedProductName).then(async function (data) {
-              if (data.tproductvs1[0].Batch == false && data.tproductvs1[0].SNTracking == false) {
-                var buttons = $("<div>")
-                .append($('<button id="trackSN" class="swal2-styled" style="background-color: rgb(48, 133, 214); border-left-color: rgb(48, 133, 214); border-right-color: rgb(48, 133, 214);">Track Serial Number</button>'))
-                .append($('<button id="trackLN" class="swal2-styled" style="background-color: rgb(48, 133, 214); border-left-color: rgb(48, 133, 214); border-right-color: rgb(48, 133, 214);">Track Lot Number</button>'))
-                .append($('<button id="trackCancel" class="swal2-styled" style="background-color: rgb(170, 170, 170);">No</button>'));
-                swal({
-                  title: 'This Product "' + selectedProductName + '" does not currently track Serial Numbers, Lot Numbers or Bin Locations, Do You Wish To Add that Ability.',
-                  type: "warning",
-                  showCancelButton: false,
-                  showConfirmButton: false,
-                  html: buttons,
-                  onOpen: function (dObj) {
-                    $('#trackSN').on('click',function () {
-                      objDetails = {
-                        type: "TProductVS1",
-                        fields: {
-                          ID: parseInt(data.tproductqtylist[i].PARTSID),
-                          Active: true,
-                          SNTracking: "true",
-                          Batch: "false",
-                        },
-                      };
+  //                         productService.saveProductVS1(objDetails)
+  //                         .then(async function (objDetails) {
+  //                           sideBarService.getProductListVS1("All", 0)
+  //                             .then(async function (dataReload) {
+  //                               await addVS1Data("TProductQtyList", JSON.stringify(dataReload));
+  //                               swal.close();
+  //                               $(target).click();
+  //                             })
+  //                             .catch(function (err) {
+  //                             });
+  //                         })
+  //                         .catch(function (err) {
+  //                           swal({
+  //                             title: "Oooops...",
+  //                             text: err,
+  //                             type: "error",
+  //                             showCancelButton: false,
+  //                             confirmButtonText: "Try Again",
+  //                           }).then((result) => {
+  //                             if (result.value) {
+  //                               // Meteor._reload.reload();
+  //                             } else if (result.dismiss === "cancel") {
+  //                             }
+  //                           });
+  //                         });
+  //                       });
+  //                       $('#trackCancel').on('click',function () {
+  //                           swal.close();
+  //                       });
+  //                     }
+  //                   });
+  //                 } else if (data.tproductqtylist[i].batch == true && data.tproductqtylist[i].SNTracking == false) {
+  //                   let selectedLot = $(target).closest("tr").find(".colSerialNo").attr('data-lotnumbers');
+  //                   if(selectedLot != undefined && selectedLot != ""){
+  //                     shareFunctionByName.initTable(selectedLot, "tblAvailableLotCheckbox");
+  //                   }
+  //                   else{
+  //                     shareFunctionByName.initTable("empty", "tblAvailableLotCheckbox");
+  //                   }
+  //                   setTimeout(function () {
+  //                     var row = $(target).parent().parent().parent().children().index($(target).parent().parent());
+  //                     $("#availableLotNumberModal").attr("data-row", row + 1);
+  //                     $("#availableLotNumberModal").modal("show");
+  //                   }, 200);
+  //                 } else if (data.tproductqtylist[i].batch == false && data.tproductqtylist[i].SNTracking == true) {
+  //                   let selectedSN = $(target).closest("tr").find(".colSerialNo").attr('data-serialnumbers');
+  //                   if(selectedSN != undefined && selectedSN != ""){
+  //                     shareFunctionByName.initTable(selectedSN, "tblAvailableSNCheckbox");
+  //                   }
+  //                   else{
+  //                     shareFunctionByName.initTable("empty", "tblAvailableSNCheckbox");
+  //                   }
+  //                   setTimeout(function () {
+  //                     var row = $(target).parent().parent().parent().children().index($(target).parent().parent());
+  //                     $("#availableSerialNumberModal").attr("data-row", row + 1);
+  //                     $('#availableSerialNumberModal').modal('show');
+  //                     if(data.tproductqtylist[i].CUSTFLD13 == 'true'){
+  //                       $("#availableSerialNumberModal .btnSNCreate").show();
+  //                     }
+  //                     else{
+  //                       $("#availableSerialNumberModal .btnSNCreate").hide();
+  //                     }
+  //                   }, 200);
+  //                 }
+  //               }
+  //             }
+  //           }
+  //         }).catch(function (err) {
+  //           productService.getProductStatus(selectedProductName).then(async function (data) {
+  //             if (data.tproductvs1[0].Batch == false && data.tproductvs1[0].SNTracking == false) {
+  //               var buttons = $("<div>")
+  //               .append($('<button id="trackSN" class="swal2-styled" style="background-color: rgb(48, 133, 214); border-left-color: rgb(48, 133, 214); border-right-color: rgb(48, 133, 214);">Track Serial Number</button>'))
+  //               .append($('<button id="trackLN" class="swal2-styled" style="background-color: rgb(48, 133, 214); border-left-color: rgb(48, 133, 214); border-right-color: rgb(48, 133, 214);">Track Lot Number</button>'))
+  //               .append($('<button id="trackCancel" class="swal2-styled" style="background-color: rgb(170, 170, 170);">No</button>'));
+  //               swal({
+  //                 title: 'This Product "' + selectedProductName + '" does not currently track Serial Numbers, Lot Numbers or Bin Locations, Do You Wish To Add that Ability.',
+  //                 type: "warning",
+  //                 showCancelButton: false,
+  //                 showConfirmButton: false,
+  //                 html: buttons,
+  //                 onOpen: function (dObj) {
+  //                   $('#trackSN').on('click',function () {
+  //                     objDetails = {
+  //                       type: "TProductVS1",
+  //                       fields: {
+  //                         ID: parseInt(data.tproductqtylist[i].PARTSID),
+  //                         Active: true,
+  //                         SNTracking: "true",
+  //                         Batch: "false",
+  //                       },
+  //                     };
 
-                      productService.saveProductVS1(objDetails)
-                      .then(async function (objDetails) {
-                        sideBarService.getProductListVS1("All", 0)
-                          .then(async function (dataReload) {
-                            await addVS1Data("TProductQtyList", JSON.stringify(dataReload));
-                            swal.close();
-                            $(target).click();
-                          })
-                          .catch(function (err) {
-                          });
-                      })
-                      .catch(function (err) {
-                        swal({
-                          title: "Oooops...",
-                          text: err,
-                          type: "error",
-                          showCancelButton: false,
-                          confirmButtonText: "Try Again",
-                        }).then((result) => {
-                          if (result.value) {
-                            // Meteor._reload.reload();
-                          } else if (result.dismiss === "cancel") {
-                          }
-                        });
-                      });
-                    });
-                    $('#trackLN').on('click',function () {
-                      swal.close();
-                      objDetails = {
-                        type: "TProductVS1",
-                        fields: {
-                          ID: parseInt(data.tproductqtylist[i].PARTSID),
-                          Active: true,
-                          SNTracking: "false",
-                          Batch: "true",
-                        },
-                      };
+  //                     productService.saveProductVS1(objDetails)
+  //                     .then(async function (objDetails) {
+  //                       sideBarService.getProductListVS1("All", 0)
+  //                         .then(async function (dataReload) {
+  //                           await addVS1Data("TProductQtyList", JSON.stringify(dataReload));
+  //                           swal.close();
+  //                           $(target).click();
+  //                         })
+  //                         .catch(function (err) {
+  //                         });
+  //                     })
+  //                     .catch(function (err) {
+  //                       swal({
+  //                         title: "Oooops...",
+  //                         text: err,
+  //                         type: "error",
+  //                         showCancelButton: false,
+  //                         confirmButtonText: "Try Again",
+  //                       }).then((result) => {
+  //                         if (result.value) {
+  //                           // Meteor._reload.reload();
+  //                         } else if (result.dismiss === "cancel") {
+  //                         }
+  //                       });
+  //                     });
+  //                   });
+  //                   $('#trackLN').on('click',function () {
+  //                     swal.close();
+  //                     objDetails = {
+  //                       type: "TProductVS1",
+  //                       fields: {
+  //                         ID: parseInt(data.tproductqtylist[i].PARTSID),
+  //                         Active: true,
+  //                         SNTracking: "false",
+  //                         Batch: "true",
+  //                       },
+  //                     };
 
-                      productService.saveProductVS1(objDetails)
-                      .then(async function (objDetails) {
-                        sideBarService.getProductListVS1("All", 0)
-                          .then(async function (dataReload) {
-                            await addVS1Data("TProductQtyList", JSON.stringify(dataReload));
-                            swal.close();
-                            $(target).click();
-                          })
-                          .catch(function (err) {
-                          });
-                      })
-                      .catch(function (err) {
-                        swal({
-                          title: "Oooops...",
-                          text: err,
-                          type: "error",
-                          showCancelButton: false,
-                          confirmButtonText: "Try Again",
-                        }).then((result) => {
-                          if (result.value) {
-                            // Meteor._reload.reload();
-                          } else if (result.dismiss === "cancel") {
-                          }
-                        });
-                      });
-                    });
-                    $('#trackCancel').on('click',function () {
-                        swal.close();
-                    });
-                  }
-                });
-              } else if (data.tproductvs1[0].Batch == true && data.tproductvs1[0].SNTracking == false) {
-                let selectedLot = $(target).closest("tr").find(".colSerialNo").attr('data-lotnumbers');
-                if(selectedLot != undefined && selectedLot != ""){
-                  shareFunctionByName.initTable(selectedLot, "tblAvailableLotCheckbox");
-                }
-                else{
-                  shareFunctionByName.initTable("empty", "tblAvailableLotCheckbox");
-                }
-                setTimeout(function () {
-                  var row = $(target).parent().parent().parent().children().index($(target).parent().parent());
-                  $("#availableLotNumberModal").attr("data-row", row + 1);
-                  $("#availableLotNumberModal").modal("show");
-                }, 200);
-              } else if (data.tproductvs1[0].Batch == false && data.tproductvs1[0].SNTracking == true) {
-                let selectedSN = $(target).closest("tr").find(".colSerialNo").attr('data-serialnumbers');
-                if(selectedSN != undefined && selectedSN != ""){
-                  shareFunctionByName.initTable(selectedSN, "tblAvailableSNCheckbox");
-                }
-                else{
-                  shareFunctionByName.initTable("empty", "tblAvailableSNCheckbox");
-                }
-                setTimeout(function () {
-                  var row = $(target).parent().parent().parent().children().index($(target).parent().parent());
-                  $("#availableSerialNumberModal").attr("data-row", row + 1);
-                  $('#availableSerialNumberModal').modal('show');
-                  if(data.tproductvs1[0].CUSTFLD13 == 'true'){
-                    $("#availableSerialNumberModal .btnSNCreate").show();
-                  }
-                  else{
-                    $("#availableSerialNumberModal .btnSNCreate").hide();
-                  }
-                }, 200);
-              }
-            });
-          });
-        }
-      }
-    }
-  },
+  //                     productService.saveProductVS1(objDetails)
+  //                     .then(async function (objDetails) {
+  //                       sideBarService.getProductListVS1("All", 0)
+  //                         .then(async function (dataReload) {
+  //                           await addVS1Data("TProductQtyList", JSON.stringify(dataReload));
+  //                           swal.close();
+  //                           $(target).click();
+  //                         })
+  //                         .catch(function (err) {
+  //                         });
+  //                     })
+  //                     .catch(function (err) {
+  //                       swal({
+  //                         title: "Oooops...",
+  //                         text: err,
+  //                         type: "error",
+  //                         showCancelButton: false,
+  //                         confirmButtonText: "Try Again",
+  //                       }).then((result) => {
+  //                         if (result.value) {
+  //                           // Meteor._reload.reload();
+  //                         } else if (result.dismiss === "cancel") {
+  //                         }
+  //                       });
+  //                     });
+  //                   });
+  //                   $('#trackCancel').on('click',function () {
+  //                       swal.close();
+  //                   });
+  //                 }
+  //               });
+  //             } else if (data.tproductvs1[0].Batch == true && data.tproductvs1[0].SNTracking == false) {
+  //               let selectedLot = $(target).closest("tr").find(".colSerialNo").attr('data-lotnumbers');
+  //               if(selectedLot != undefined && selectedLot != ""){
+  //                 shareFunctionByName.initTable(selectedLot, "tblAvailableLotCheckbox");
+  //               }
+  //               else{
+  //                 shareFunctionByName.initTable("empty", "tblAvailableLotCheckbox");
+  //               }
+  //               setTimeout(function () {
+  //                 var row = $(target).parent().parent().parent().children().index($(target).parent().parent());
+  //                 $("#availableLotNumberModal").attr("data-row", row + 1);
+  //                 $("#availableLotNumberModal").modal("show");
+  //               }, 200);
+  //             } else if (data.tproductvs1[0].Batch == false && data.tproductvs1[0].SNTracking == true) {
+  //               let selectedSN = $(target).closest("tr").find(".colSerialNo").attr('data-serialnumbers');
+  //               if(selectedSN != undefined && selectedSN != ""){
+  //                 shareFunctionByName.initTable(selectedSN, "tblAvailableSNCheckbox");
+  //               }
+  //               else{
+  //                 shareFunctionByName.initTable("empty", "tblAvailableSNCheckbox");
+  //               }
+  //               setTimeout(function () {
+  //                 var row = $(target).parent().parent().parent().children().index($(target).parent().parent());
+  //                 $("#availableSerialNumberModal").attr("data-row", row + 1);
+  //                 $('#availableSerialNumberModal').modal('show');
+  //                 if(data.tproductvs1[0].CUSTFLD13 == 'true'){
+  //                   $("#availableSerialNumberModal .btnSNCreate").show();
+  //                 }
+  //                 else{
+  //                   $("#availableSerialNumberModal .btnSNCreate").hide();
+  //                 }
+  //               }, 200);
+  //             }
+  //           });
+  //         });
+  //       }
+  //     }
+  //   }
+  // },
   "click .btnSNCreate": function (event) {
     // $("#availableSerialNumberModal").modal("hide");
     // $("#serialNumberModal").modal("show");
@@ -4668,24 +3539,7 @@ Template.invoice_temp.events({
   'change .exchange-rate-js, change input.lineUnitPrice': (e, ui) => {
     FxGlobalFunctions.convertToForeignEveryFieldsInTableId("#tblInvoiceLine", new UtilityService());
   },
-
-  // "click #printModal .btn-check-template": function (event) {
-  //   const template = $(event.target).data('template');
-  //   const templateObject = Template.instance()
-  //   // $("#" + checkboxID).trigger("click");
-  //   templateObject.print(template)
-  // },
-
-  // "click .printConfirm": async function (event) {
-  //   const checkedPrintOptions = $("#printModal").find(".chooseTemplateBtn:checked")
-  //   // if(checkedPrintOptions.length == 0){
-  //   //   return;
-  //   // }
-  //   playPrintAudio();
-  //   const templateObject = Template.instance();
-  //   templateObject.print()
-  // },
-
+ 
 });
 
 Template.registerHelper("equals", function (a, b) {

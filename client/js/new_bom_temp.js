@@ -539,9 +539,9 @@ Template.bom_template.onRendered(async function() {
                     }
                     if(FlowRouter.current().path.includes('/productview')) {
                         objectFields.productName = $('.colProductName .edtproductname').val() || '';
-                    }else if (FlowRouter.current().path.includes('/workordercard')) {
+                    }else if (FlowRouter.current().path.includes('/workordercard') == true || FlowRouter.current().path.includes('/workordertemp') == true) {
                         // objectFields.productName = $('.colProductName .edtproductname').val() || '';
-                        let prodname = $('#tblWorkOrderLine tr .colProductName .lineProductName').val();
+                        let prodname = $('#tblWorkOrderLine tr .colProduct .lineProductName').val();
                         let index = bomProducts.findIndex(product=>{
                             return product.Caption == prodname;
                         })
@@ -674,12 +674,10 @@ Template.bom_template.onRendered(async function() {
         let inputEle = $(event.target).closest('.modal-footer').find('.attachment-upload');     
         $(inputEle).trigger('click');
     })
-})
 
 
-Template.bom_template.events({
-    'click #productListModal tbody tr': function(event) {
-        let templateObject = Template.instance();
+    $(document).on('click', '#productListModal tbody tr', function(event){
+        // let templateObject = Template.instance();
         let inputElement = templateObject.selectedProductField.get();
         event.preventDefault();
         event.stopPropagation();           
@@ -746,38 +744,21 @@ Template.bom_template.events({
             }
                 $('#productListModal').modal('toggle')
         }
-    },
+    })
 
-    'click #edtMainProductName': function(event) {
-        let templateObject = Template.instance();
-        // let colProduct = $(event.target).closest('div.colProduct');
-        templateObject.selectedProductField.set($('#edtMainProductName'))
-        // templateObject.selectedProductField.set($(colProduct).children('input'))
-        $('#productListModal').modal('toggle');
-    },
-
-    'click .edtProductName': function(event) {
-        let templateObject = Template.instance();
-        let colProduct = $(event.target).closest('div.colProduct');
-        templateObject.selectedProductField.set($(colProduct).children('input'))
-        $('#productListModal').modal('toggle');
-    },
-
-    'click .edtProcessName': function(event) {
-        let templateObject = Template.instance();
+    $(document).on('click', '.edtProcessName', function(event) {
         let colProcess = $(event.target).closest('div.colProcess');
         let colDuration = $(event.target).closest('div.colDuration');
         $(event.target).editableSelect();
         templateObject.selectedProcessField.set($(colProcess).children('.edtProcessName'));
       //  templateObject.selectedRawHourField.set($(colDuration).children('.edtDuration'));
 
-        $('#edtProcessListPopModal').modal('toggle');
-    },
+        $('#subbomprocessmodal').modal('toggle');
+    });
 
-    'click #edtProcessListPopModal tbody tr': function (event) {
+    $(document).on('click', '#subbomprocessmodal tbody tr', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        let templateObject = Template.instance()
         let processName = $(event.target).closest('tr').find('.colName').text();
        
         let selEle = templateObject.selectedProcessField.get();
@@ -807,7 +788,111 @@ Template.bom_template.events({
         durationEle.val(detail_duration);
         let hoursEle = $(selEle).closest('.productRow').find('.colDuration .edtDuration');
         $(hoursEle).css('display', 'block')
-        $('#edtProcessListPopModal').modal('toggle')
+        $('#subbomprocessmodal').modal('toggle')
+    })
+})
+
+
+Template.bom_template.events({
+    // 'click #productListModal tbody tr': function(event) {
+    //     console.log("product list row clicked")
+    //     let templateObject = Template.instance();
+    //     let inputElement = templateObject.selectedProductField.get();
+    //     event.preventDefault();
+    //     event.stopPropagation();           
+               
+    //     if(!inputElement || inputElement.hasClass('edtProductName') != true) {
+            
+    //         let productName = $(event.target).closest('tr').find('td.colproductName').text();
+    //         let description = $(event.target).closest('tr').find('td.colproductDesc').text();
+    //         let stockQty = $(event.target).closest('tr').find('td.colQuantity').text();
+    //         let objectDetail = {
+    //             Caption: productName,
+    //             // qty: 1,
+    //             Info: '',
+    //             CustomInputClass: '',
+    //             Description: description,
+    //             TotalQtyOriginal: stockQty,
+    //             Value: ''
+    //         }
+
+    //         templateObject.initialRecord.set(objectDetail);
+    //         $('#edtMainProductName').val(productName);
+    //         $('.edtProcessNote').val(description);
+    //         $('#productListModal').modal('toggle')
+
+    //     } else {
+
+    //       // let productName = $(event.target).closest('tr').find('.colproductName').text();
+
+    //        let productName = $(event.target).closest('tr').find('.colproductName').text();
+    //         let selEle = templateObject.selectedProductField.get();
+    //         selEle.val(productName);
+    //         let showSubButton = $(selEle).closest('div.colProduct').find('.btnShowSub');
+    //         if(showSubButton){
+    //             $(showSubButton).remove()
+    //         }
+    //         let bomProducts = templateObject.bomProducts.get();
+    //         let isBOM = false;
+    //         let existIndex = bomProducts.findIndex(product => {
+    //             return product.Caption == productName;
+    //         })
+    //         if(existIndex > -1) {
+    //             isBOM = true
+    //         }
+    //         if(isBOM == true) {
+    //             let colProduct = $(selEle).closest('.colProduct')
+    //             if(FlowRouter.current().path.includes('/workordercard') == false) {
+    //                 $(colProduct).find('.edtProductName').css('width', '40%')
+    //                 if(templateObject.showSubButton.get() == true) {
+    //                     $(colProduct).append("<button type='button' class='btnShowSub no-print btn btn-primary'>Show Sub</button>");
+    //                 }
+    //             } else {
+    //                 let div = $(colProduct).find('div');
+    //                 $(div).remove()
+    //                 $(colProduct).prepend("<div style='width: 29%'><button type='button' class='btn btn-danger btn-from-stock w-100 px-0'>FROM STOCK</button></div>")
+    //             }
+
+    //             templateObject.showSubButton.set(true);
+    //             let colProcess = $(selEle).closest('.productRow').find('.edtProcessName');
+    //             $(colProcess).val(bomProducts[existIndex].Info)
+    //             $(colProcess).attr('disabled', 'true');
+    //             let colProcessNote = $(selEle).closest('.productRow').find('.edtProcessNote');
+    //             $(colProcessNote).val(bomProducts[existIndex].CustomInputClass)
+    //             $(colProcessNote).attr('disabled', 'true');
+    //         }
+    //             $('#productListModal').modal('toggle')
+    //     }
+    // },
+
+    'click #edtMainProductName': function(event) {
+        let templateObject = Template.instance();
+        // let colProduct = $(event.target).closest('div.colProduct');
+        templateObject.selectedProductField.set($('#edtMainProductName'))
+        // templateObject.selectedProductField.set($(colProduct).children('input'))
+        $('#productListModal').modal('toggle');
+    },
+
+    'click .edtProductName': function(event) {
+        let templateObject = Template.instance();
+        let colProduct = $(event.target).closest('div.colProduct');
+        templateObject.selectedProductField.set($(colProduct).children('input'))
+        $('#productListModal').modal('toggle');
+    },
+
+    // 'click .edtProcessName': function(event) {
+    //     let templateObject = Template.instance();
+    //     let colProcess = $(event.target).closest('div.colProcess');
+    //     let colDuration = $(event.target).closest('div.colDuration');
+    //     $(event.target).editableSelect();
+    //     templateObject.selectedProcessField.set($(colProcess).children('.edtProcessName'));
+    //   //  templateObject.selectedRawHourField.set($(colDuration).children('.edtDuration'));
+
+    //     $('#edtProcessListPopModal').modal('toggle');
+    // },
+
+    'click #subbomprocessmodal tbody tr': function (event) {
+       
     },
 
     'click .btnAddProduct': function(event) {

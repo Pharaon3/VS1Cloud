@@ -14,26 +14,26 @@
     {{#if usedModal}}
 
     {{else}}
-    <div class="modal fade vs1_dropdown_modal" id="{{modalId}}" selectedID="{{custid}}">
+    {{#if listTemp}}
+    <div class="modal fade vs1_dropdown_modal" id="{{modalId}}" selectedID="{{custid}}" tabindex="-1">
         {{#if innerModal}}
-            {{#if listTemp}}
                 {{> Template.dynamic template=listTemp data=listparam}}
-            {{/if}}
-    {{else}}
+        {{else}}
             <div class="modal-dialog modal-xl  modal-dialog-scrollable" role="document" style="max-width: 90vw">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4>{{modal_title}}</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                     </div>
                     <div class="modal-body">
-                        {{#if listTemp}}
+                        <!-- {{#if listTemp}} -->
                         {{> Template.dynamic template=listTemp data=listparam}}
-                        {{/if}}
+                        <!-- {{/if}} -->
                     </div>
                 </div>
             </div>
         {{/if}}
     </div>
+    {{/if}}
 
     {{#if is_editable}}
         {{#if targetTemp}}

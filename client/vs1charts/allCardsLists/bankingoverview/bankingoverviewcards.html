@@ -10,7 +10,7 @@
                 {{> editCardChartOptions}} 
                 <a href="javascript:void(0);" class="cardSettingBtn editCardBtn"><i class="fas fa-cog"></i></a>
             </div>
-            <div class="card-body" style="cursor: pointer;">
+            <div class="card-body chart-canvas" style="cursor: pointer;">
                 <div class="row align-items-center no-gutters opentransBank">
                     <a class="col mr-2">
                         <div
@@ -27,6 +27,7 @@
                     <div class="col-auto openbank"><i class="{{itembank.card}} fa-2x text-gray-300 grayColor"></i></div>
                 </div>
             </div>
+            <img class="chart-img d-none w-100 h-100" src="img/charts/{{itembank.name}}.png"/>
         </div>
     </div>
     {{/each}}

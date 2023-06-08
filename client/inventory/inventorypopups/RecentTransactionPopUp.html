@@ -29,7 +29,7 @@
                                 }
                             </style>
                             {{>datatablelist
-                                tablename="productrecentlist"
+                                tablename="productrecentlist1"
                                 apiName= apiFunction
                                 indexeddbname = 'T_VS1_Report_Productmovement'
                                 tableheaderrecords = tableheaderrecords
@@ -42,7 +42,7 @@
                                 exIndexDBName = 't_vs1_report_productmovement'
                                 exdatahandler = exDataHandler
                                 searchAPI = searchAPI
-                                typefilter = typefilter
+                                orderby = '[[ 3, "desc" ]]'
                         }}
                         </div>
                     </div>
